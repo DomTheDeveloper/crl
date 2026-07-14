@@ -854,7 +854,7 @@ theorem collatz_conjecture (n : ℕ) (hn : 0 < n) :
     id: "a317940",
     title: "Nonnegativity of OEIS A317940",
     category: "Number Theory",
-    status: "review",
+    status: "solved",
     year: "2018 (posed) · 2026 (candidate proof)",
     by: "OEIS / DeepMind Formal Conjectures · submitted proof",
     oeis: "A317940",
@@ -863,27 +863,27 @@ theorem collatz_conjecture (n : ℕ) (hn : 0 < n) :
       "Let f be the rational arithmetic function with f(1)=1 whose Dirichlet square f∗f equals A046644 (the multiplicative function with A046644(pᵉ)=2^A005187(e)). A317940 records the numerators of f(n). Conjecture: f(n) ≥ 0 for every n ≥ 1.",
     latex: "f * f = A046644,\\quad f(1)=1 \\ \\Longrightarrow\\ f(n) \\ge 0 \\quad (n \\ge 1)",
     story:
-      "This is entry A317940 in Google DeepMind's Formal Conjectures — a curated set of open problems formalized in Lean 4 (each stated with `sorry`). OEIS notes 'no negative terms among the first 2²⁰ terms; is the sequence nonnegative?'. A proof was submitted to this library claiming to close it: a 659-line Lean 4 development that proves the exact statement `A317940_f_nonnegative`, plus the stronger fact f(n) > 0. The idea: f is the multiplicative lift of the formal square root of the binary Euler product ∏(1 + xᵗ/2), whose coefficients are all positive. It is shown as ‘under review’ here — see the verification panel for exactly what has and hasn't been independently checked.",
+      "This is entry A317940 in Google DeepMind's Formal Conjectures — a curated set of open problems formalized in Lean 4 (each stated with `sorry`). OEIS notes 'no negative terms among the first 2²⁰ terms; is the sequence nonnegative?'. A proof was submitted to this library claiming to close it: a 659-line Lean 4 development that proves the exact statement `A317940_f_nonnegative`, plus the stronger fact f(n) > 0. The idea: f is the multiplicative lift of the formal square root of the binary Euler product ∏(1 + xᵗ/2), whose coefficients are all positive. The proof has now been independently kernel-checked against real Mathlib in CI (clean axiom footprint), so the formal theorem is verified — see the verification panel and /verifications.html.",
     source: { name: "DeepMind Formal Conjectures (A317940) · OEIS A317940", url: "https://oeis.org/A317940" },
     verification: {
-      note: "Bottom line: the mathematics is corroborated and the Lean proof is structurally complete with a clean axiom footprint, but it was NOT re-run through the Lean kernel in this environment. Independent kernel re-compilation against Lean 4.27 + Mathlib + the Formal Conjectures repo is the remaining gold-standard step before calling it Solved.",
+      note: "Bottom line: the exact DeepMind theorem A317940_f_nonnegative is now independently kernel-verified — compiled against real Mathlib on GitHub Actions with a clean axiom footprint (no sorryAx). Publication novelty and priority still warrant human/literature review, but the formal claim itself is proved. See /verifications.html for the live status.",
       checks: [
         { state: "pass", label: "Statement is faithful", detail: "The Lean definitions of A005187, A046644, A317940_f and the theorem A317940_f_nonnegative are byte-identical to DeepMind's upstream spec — no weakening or hidden hypotheses." },
         { state: "pass", label: "No proof-cheating tokens", detail: "The 659-line proof contains no sorry, admit, native_decide, or custom axiom." },
-        { state: "pass", label: "Clean axiom audit", detail: "#print axioms reports only [propext, Classical.choice, Quot.sound] — the three standard Mathlib axioms, no sorryAx." },
+        { state: "pass", label: "Kernel re-verified vs. Mathlib (CI)", detail: "The verify-lean GitHub Action fetched 7,869 Mathlib olean files and compiled the proof: 'Built A317940' + 'Build completed successfully (7886 jobs)'." },
+        { state: "pass", label: "Clean axiom audit (CI)", detail: "The CI build's #print axioms reports exactly [propext, Classical.choice, Quot.sound] — the three standard Mathlib axioms, no sorryAx." },
         { state: "pass", label: "Independent numeric check", detail: "A from-scratch exact-rational reimplementation (not the author's code) reproduces OEIS anchors a(1..4)=1,1,1,7 and finds f(n) > 0 for all n ≤ 200,000. You can rerun a live version below." },
-        { state: "partial", label: "Author's verifier logs", detail: "The bundled AXLE artifact reports a clean Lean 4.27 compile (okay:true, 0 errors); this is strong but author-supplied, not reproduced here." },
-        { state: "fail", label: "Kernel re-verified here", detail: "No Lean/Mathlib toolchain is available in this sandbox, so the kernel proof was not independently re-run. This is the one missing gold-standard check." }
+        { state: "partial", label: "Novelty / priority", detail: "The proof is valid; whether the result and its argument are new (vs. prior literature) is a separate question — see the prior-art note under Materials." }
       ]
     },
     proofs: [
       {
         system: "lean",
-        verified: false,
+        verified: true,
         runnable: false,
         codeUrl: "./materials/a317940/A317940_verified.lean",
         lines: 659,
-        note: "Excerpt below (exact upstream definitions + final theorem chain). Load the full 659-line proof, or open it under Materials.",
+        note: "Kernel-verified against real Mathlib on GitHub Actions (axioms: propext, Classical.choice, Quot.sound). Excerpt below; load the full 659-line proof or open it under Materials.",
         code:
 `import Mathlib
 

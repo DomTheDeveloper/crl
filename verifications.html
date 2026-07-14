@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Verification Report — Math Proof Playground</title>
+<meta name="description" content="Whether each proof/solution is valid against its standard verifier — checked two independent ways: WASM (jsCoq / lean4.js) and GitHub Actions CI (real Coq, Lean, Mathlib)." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%94%3C/text%3E%3C/svg%3E" />
+<style>
+  :root{
+    --bg:#0d1117;--panel:#161c27;--panel2:#1b2430;--border:#263140;--text:#e6edf3;--muted:#93a1b1;
+    --ok:#37d0a0;--bad:#ff6b6b;--warn:#f6c35a;--accent:#7c5cff;--mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:light){
+    :root{--bg:#f6f8fa;--panel:#fff;--panel2:#f0f3f6;--border:#d0d7de;--text:#1f2328;--muted:#57606a;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;
+    background-image:radial-gradient(900px 500px at 90% -10%,rgba(124,92,255,.10),transparent 60%);}
+  .wrap{max-width:1060px;margin:0 auto;padding:32px 20px 70px}
+  a{color:var(--ok);text-decoration:none}a:hover{text-decoration:underline}
+  code{font-family:var(--mono);background:rgba(127,127,127,.16);padding:.1em .35em;border-radius:5px;font-size:.9em}
+  h1{font-size:clamp(1.7rem,4vw,2.4rem);margin:.2em 0 .1em;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0 0 8px;max-width:70ch}
+  .top{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  .backlink{color:var(--muted)}
+  .summary{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0}
+  .kpi{flex:1 1 150px;border:1px solid var(--border);border-radius:14px;background:var(--panel);padding:14px 16px}
+  .kpi .n{font-size:1.8rem;font-weight:700}
+  .kpi.ok .n{color:var(--ok)} .kpi.acc .n{color:var(--accent)}
+  .kpi .l{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em}
+  .banner{border:1px solid rgba(55,208,160,.4);background:rgba(55,208,160,.10);border-radius:14px;padding:14px 18px;margin:8px 0 4px}
+  .banner b{color:var(--ok)}
+  section{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin:20px 0}
+  h2{margin:.1em 0 .2em;font-size:1.2rem}
+  .std{color:var(--muted);font-size:.9rem;margin:.1em 0 14px}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+  td.thm{font-family:var(--mono);white-space:nowrap}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:.8rem;font-weight:600;padding:2px 9px;border-radius:20px;white-space:nowrap}
+  .pill.valid{color:var(--ok);background:rgba(55,208,160,.13);border:1px solid rgba(55,208,160,.4)}
+  .pill.na{color:var(--muted);background:rgba(127,127,127,.13);border:1px solid var(--border)}
+  .pill.bad{color:var(--bad);background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.4)}
+  .mono{font-family:var(--mono)}
+  .note{color:var(--muted);font-size:.86rem;margin-top:12px}
+  .axbox{font-family:var(--mono);font-size:.82rem;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;overflow-x:auto;margin-top:10px}
+  .foot{color:var(--muted);font-size:.85rem;margin-top:26px;border-top:1px solid var(--border);padding-top:16px}
+  .tag{font-family:var(--mono);font-size:.72rem;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:1px 6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="backlink" href="./math/#/">← Math Proof Playground</a></div>
+  <h1>✔ Verification Report</h1>
+  <p class="sub">Are the solutions on this site actually valid against their <em>standard</em> verifiers? Each was checked
+     <strong>two independent ways</strong>: in <strong>WASM</strong> (the same engines the site runs in your browser —
+     jsCoq for Coq, lean4.js for Lean) and on <strong>GitHub Actions</strong> (real Coq, real Lean, real Mathlib).
+     Snapshot: commit <code>eefcb16</code>, 2026-07-14.</p>
+
+  <div class="banner">
+    <b>Headline:</b> the DeepMind Formal Conjectures theorem <code>A317940_f_nonnegative</code> compiled against
+    <b>real Mathlib</b> in CI with a clean axiom footprint — <b>VALID</b>. This is the independent kernel re-check a
+    browser/WASM environment cannot perform (Mathlib is far too large to ship to a browser).
+  </div>
+
+  <div class="summary">
+    <div class="kpi ok"><div class="n">10 / 10</div><div class="l">Solutions valid</div></div>
+    <div class="kpi ok"><div class="n">0</div><div class="l">Invalid / failing</div></div>
+    <div class="kpi acc"><div class="n">2</div><div class="l">Independent methods</div></div>
+    <div class="kpi acc"><div class="n">3 / 3</div><div class="l">CI workflows green</div></div>
+  </div>
+
+  <!-- COQ -->
+  <section>
+    <h2>Coq proofs</h2>
+    <p class="std">Standard: the <strong>Coq kernel</strong> (jsCoq 0.17.1 — Coq compiled to WebAssembly).
+      Method A: <code>proofs/coq/verify.mjs</code> via jsCoq CLI. Method B:
+      <a href="https://github.com/DomTheDeveloper/crl/actions/runs/29376765378" target="_blank" rel="noopener">verify-coq CI run ↗</a> (success).</p>
+    <table>
+      <thead><tr><th>Theorem</th><th>Statement</th><th>WASM (jsCoq)</th><th>Actions (CI)</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td class="thm">gauss_sum</td><td>2·(1+…+n) = n(n+1)</td><td><span class="pill valid">✔ compiles</span></td><td><span class="pill valid">✔ pass</span></td><td><span class="pill valid">VALID</span></td></tr>
+        <tr><td class="thm">add_comm</td><td>n + m = m + n</td><td><span class="pill valid">✔ compiles</span></td><td><span class="pill valid">✔ pass</span></td><td><span class="pill valid">VALID</span></td></tr>
+        <tr><td class="thm">even_plus_even</td><td>even + even is even</td><td><span class="pill valid">✔ compiles</span></td><td><span class="pill valid">✔ pass</span></td><td><span class="pill valid">VALID</span></td></tr>
+        <tr><td class="thm">mul_one_r</td><td>n · 1 = n</td><td><span class="pill valid">✔ compiles</span></td><td><span class="pill valid">✔ pass</span></td><td><span class="pill valid">VALID</span></td></tr>
+      </tbody>
+    </table>
+    <p class="note"><strong>Soundness spot-check:</strong> the same jsCoq kernel <em>rejects</em> a deliberately false proof
+      (<code>∀ n, n + 1 = n</code> → <code>[Error] Unable to unify "n" with "n + 1"</code>), and the CI driver exits non-zero
+      on it — so a green result is meaningful, not vacuous. It also caught a real bug: the earlier
+      <code>gauss_sum</code> proof (<code>simpl; rewrite …; ring</code>) did <em>not</em> compile; it was fixed to
+      <code>simpl sum_to. nia.</code></p>
+  </section>
+
+  <!-- LEAN CORE -->
+  <section>
+    <h2>Lean 4 core proofs</h2>
+    <p class="std">Standard: the <strong>Lean 4 kernel</strong> (no Mathlib). Method A: the in-browser Lean
+      (<code>lean4.js</code> / WebAssembly). Method B:
+      <a href="https://github.com/DomTheDeveloper/crl/actions/runs/29376765402" target="_blank" rel="noopener">verify-lean CI, job <code>lean-core</code> ↗</a> (success).</p>
+    <table>
+      <thead><tr><th>Theorem</th><th>Statement</th><th>WASM (lean4.js)</th><th>Actions (CI)</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td class="thm">add_comm'</td><td>n + m = m + n</td><td><span class="pill valid">✔ exit 0</span></td><td><span class="pill valid">✔ pass</span></td><td><span class="pill valid">VALID</span></td></tr>
+        <tr><td class="thm">mul_one_r</td><td>n · 1 = n</td><td><span class="pill valid">✔ exit 0</span></td><td><span class="pill valid">✔ pass</span></td><td><span class="pill valid">VALID</span></td></tr>
+        <tr><td class="thm">two_add_two</td><td>2 + 2 = 4</td><td><span class="pill valid">✔ exit 0</span></td><td><span class="pill valid">✔ pass</span></td><td><span class="pill valid">VALID</span></td></tr>
+        <tr><td class="thm">even_plus_even</td><td>even + even is even</td><td><span class="pill valid">✔ exit 0</span></td><td><span class="pill valid">✔ pass</span></td><td><span class="pill valid">VALID</span></td></tr>
+      </tbody>
+    </table>
+    <p class="note"><strong>Soundness spot-check:</strong> the in-browser Lean returns exit 0 for these, <code>4</code> for
+      <code>#eval 2 + 2</code>, and <em>rejects</em> <code>theorem bad : 1 = 2 := rfl</code> (exit 1). Each browser run
+      elaborates in ~110 s; <code>crossOriginIsolated = true</code>.</p>
+  </section>
+
+  <!-- A317940 -->
+  <section>
+    <h2>Lean 4 + Mathlib — OEIS A317940</h2>
+    <p class="std">Standard: the <strong>Lean 4 kernel with real Mathlib</strong>. WASM: <em>not applicable</em> — the
+      in-browser Lean ships only the standard library, and Mathlib (GBs of compiled artifacts) cannot be loaded in a
+      browser. Method:
+      <a href="https://github.com/DomTheDeveloper/crl/actions/runs/29376765402" target="_blank" rel="noopener">verify-lean CI, job <code>lean-a317940</code> ↗</a> (success).</p>
+    <table>
+      <thead><tr><th>Theorem</th><th>Statement</th><th>WASM</th><th>Actions (CI, Mathlib)</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td class="thm">A317940_f_nonnegative</td><td>f(n) ≥ 0 for all n ≥ 1, where f∗f = A046644 (the DeepMind open conjecture)</td>
+          <td><span class="pill na">n/a — needs Mathlib</span></td>
+          <td><span class="pill valid">✔ compiled</span></td>
+          <td><span class="pill valid">VALID</span></td></tr>
+      </tbody>
+    </table>
+    <div class="axbox">ℹ [7885/7886] Built A317940 (41s)
+info: A317940.lean:663:0: 'A317940_f_nonnegative' depends on axioms: [propext, Classical.choice, Quot.sound]
+Build completed successfully (7886 jobs).</div>
+    <p class="note">The CI job fetched <strong>7,869 Mathlib olean files</strong> and elaborated the 659-line proof.
+      The axiom footprint is exactly the three standard Mathlib axioms — <strong>no <code>sorryAx</code></strong>, no
+      custom axiom. The Lean definitions and the theorem statement are byte-identical to DeepMind's upstream spec.
+      <strong>Caveat:</strong> this establishes the <em>formal theorem is proved</em>; novelty/priority vs. prior
+      literature is a separate, human question (see the prior-art note on the problem page).</p>
+  </section>
+
+  <!-- SOLVERS -->
+  <section>
+    <h2>Interactive JS solvers</h2>
+    <p class="std">Standard: exhaustive / exact computation (no floating point). Method A: <code>node tests/run.mjs</code>.
+      Method B: <a href="https://github.com/DomTheDeveloper/crl/actions/runs/29376765434" target="_blank" rel="noopener">verify-solvers CI ↗</a> (success).</p>
+    <table>
+      <thead><tr><th>Engine</th><th>What "valid" means</th><th>Result</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td>Propositional logic</td><td>tautology decided by the full truth table (De Morgan, Peirce, contraposition, modus ponens…)</td><td><span class="pill valid">✔ all pass</span></td><td><span class="pill valid">VALID</span></td></tr>
+        <tr><td>Number theory</td><td>exact BigInt + deterministic Miller–Rabin (Goldbach, Collatz, twins, Mersenne, SAT)</td><td><span class="pill valid">✔ all pass</span></td><td><span class="pill valid">VALID</span></td></tr>
+        <tr><td>A317940 rational</td><td>exact rationals reproduce OEIS anchors a(1..4)=1,1,1,7; f(n) &gt; 0 for all n ≤ 20000</td><td><span class="pill valid">✔ all pass</span></td><td><span class="pill valid">VALID</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="foot">
+    <p>Reproduce: <code>npm i jscoq@0.17.1 &amp;&amp; node proofs/coq/verify.mjs</code> (Coq) ·
+       <code>node tests/run.mjs</code> (solvers) · push to run all three <span class="tag">verify-*.yml</span> workflows
+       (Lean/Mathlib runs on GitHub's runners).</p>
+    <p>The three standards used: <strong>Coq kernel</strong>, <strong>Lean 4 kernel</strong> (± Mathlib), and
+       <strong>exact computation</strong>. Every solution shown on the site is <strong>VALID</strong> against its standard.</p>
+  </div>
+</div>
+</body>
+</html>
