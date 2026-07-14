@@ -1,0 +1,26 @@
+{
+  "id": "mul-one-r",
+  "title": "Multiplying by One",
+  "status": "solved",
+  "category": "Arithmetic",
+  "statement": "For every natural number n, n * 1 = n.",
+  "latex": "\\forall n \\in \\mathbb{N},\\ n \\cdot 1 = n",
+  "story": "A tiny warm-up proof — a perfect template for your first submission. The Coq script is self-contained and marked runnable, so it gets a live 'Run in Coq' button on the site.",
+  "by": "example",
+  "year": "2026",
+  "tags": ["arithmetic", "beginner", "runnable", "coq"],
+  "source": { "name": "Coq standard library (Nat.mul_1_r)", "url": "https://coq.inria.fr/doc/master/stdlib/Coq.Arith.PeanoNat.html" },
+  "proofs": [
+    {
+      "system": "coq",
+      "verified": true,
+      "runnable": true,
+      "note": "Self-contained; press ▶ Run in Coq to check it live.",
+      "code": "Require Import Arith.\n\nTheorem mul_one_r : forall n : nat, n * 1 = n.\nProof.\n  intros n. induction n as [| k IH].\n  - reflexivity.\n  - simpl. rewrite IH. reflexivity.\nQed."
+    }
+  ],
+  "playground": {
+    "kind": "coq",
+    "code": "Require Import Arith.\n\nTheorem mul_one_r : forall n : nat, n * 1 = n.\nProof.\n  (* Try it: induct on n, simplify, use the induction hypothesis. *)\nAdmitted."
+  }
+}

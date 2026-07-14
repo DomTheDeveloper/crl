@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Submit a proof — Math Proof Playground</title>
+  <meta name="description" content="Drop a zip of your proof into this folder on GitHub, then ask Claude to extract, verify, and publish it to the Math Proof Playground." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <style>
+    .steps { display: grid; gap: 16px; margin: 16px 0; }
+    .step { display: flex; gap: 16px; align-items: flex-start; padding: 18px 20px; border: 1px solid var(--border);
+      border-radius: var(--radius); background: var(--panel); }
+    .step-n { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+      font-weight: 700; background: linear-gradient(92deg, var(--accent), var(--accent-2)); color: #fff; font-size: 1.1rem; }
+    .step-body { flex: 1; }
+    .step-body h3 { margin: 2px 0 6px; }
+    .filetree { font-family: var(--mono); font-size: .86rem; white-space: pre; background: var(--code-bg);
+      border: 1px solid var(--border); border-radius: 10px; padding: 16px; overflow-x: auto; color: #cdd9e5; }
+    .copybox { position: relative; }
+    .copybox .btn { position: absolute; top: 10px; right: 10px; }
+    .prompt { background: var(--code-bg); border: 1px solid var(--accent); border-radius: 10px; padding: 16px 18px;
+      font-family: var(--mono); font-size: .9rem; color: #e6edf3; white-space: pre-wrap; line-height: 1.5; }
+    .kv { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .9rem; }
+    .kv th, .kv td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .kv th { color: var(--muted); font-weight: 600; white-space: nowrap; font-family: var(--mono); }
+    .kv td code { font-size: .85em; }
+    .callout { border-left: 3px solid var(--accent-2); background: var(--panel-2); padding: 12px 16px; border-radius: 0 10px 10px 0; margin: 14px 0; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <nav class="topnav">
+    <a class="brand" href="../#/">∑ <span>Math Proof Playground</span></a>
+    <div class="topnav-links">
+      <a href="../#/">Problems</a>
+      <a href="./">Submit</a>
+      <a href="https://coq.inria.fr/" target="_blank" rel="noopener">Coq</a>
+      <a href="https://leanprover.github.io/" target="_blank" rel="noopener">Lean</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="hero" style="padding-bottom:0">
+      <h1 class="hero-title">Submit a proof</h1>
+      <p class="hero-sub">Got a proof — solved or a serious attempt — in Coq, Lean, Isabelle, or any system?
+        Drop it here as a <code>.zip</code> and let Claude verify it and publish it to the library. No pull-request wrangling required.</p>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-h">How it works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <h3>Zip your submission</h3>
+            <p class="muted">Bundle your proof files together with a <code>problem.json</code> describing the problem
+              (schema below). Name the zip after your problem, e.g. <code>collatz-attempt.zip</code>.</p>
+            <div class="filetree">collatz-attempt.zip
+└── collatz-attempt/
+    ├── problem.json      ← metadata (see schema)
+    ├── proof.v           ← your Coq proof   (optional)
+    ├── Proof.lean        ← your Lean proof  (optional)
+    └── notes.md          ← anything else    (optional)</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <h3>Drop it into <code>math/new/submissions/</code> on GitHub</h3>
+            <p class="muted">On GitHub, open the <code>math/new/submissions/</code> folder → <strong>Add file → Upload files</strong> →
+              drag your zip in → commit. That's the entire "upload" — no local tooling needed.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <h3>Ask Claude to process it</h3>
+            <p class="muted">Start a Claude Code session on the repo and paste the prompt below. Claude will unzip it,
+              try to <em>compile/verify</em> the proof, add the problem to the catalog, file the proof under
+              <code>math/submissions/</code>, and commit.</p>
+            <div class="copybox">
+              <button class="btn ghost" onclick="copyPrompt()">⧉ Copy</button>
+              <div class="prompt" id="prompt">Extract the newest zip in math/new/submissions/, read its problem.json, and:
+1. Verify each proof file if a verifier is available (e.g. run coqc on .v files, lake/lean on .lean files); note the result.
+2. Append a new problem object to math/assets/js/data.js using the metadata (set status/verified honestly based on step 1).
+3. Move the proof sources into math/submissions/&lt;id&gt;/ and link them from the problem.
+4. Delete the processed zip, then commit with a clear message.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-h"><code>problem.json</code> schema</h2>
+      <p class="muted">Mirrors the objects in <code>math/assets/js/data.js</code>. Only the first few fields are required.</p>
+      <table class="kv">
+        <tr><th>id</th><td><em>required</em> — short kebab-case slug, unique. e.g. <code>"my-lemma"</code></td></tr>
+        <tr><th>title</th><td><em>required</em> — display name.</td></tr>
+        <tr><th>status</th><td><em>required</em> — <code>"solved"</code>, <code>"open"</code>, or <code>"partial"</code>.</td></tr>
+        <tr><th>category</th><td><em>required</em> — e.g. <code>"Number Theory"</code>, <code>"Logic"</code>.</td></tr>
+        <tr><th>statement</th><td><em>required</em> — plain-language statement of the problem.</td></tr>
+        <tr><th>latex</th><td>optional — a formula (LaTeX-ish; rendered to Unicode).</td></tr>
+        <tr><th>story</th><td>optional — background / why it's interesting.</td></tr>
+        <tr><th>by / year / oeis</th><td>optional — attribution, date, OEIS A-number.</td></tr>
+        <tr><th>tags</th><td>optional — array of strings for search.</td></tr>
+        <tr><th>source</th><td>optional — <code>{ "name": "...", "url": "..." }</code>.</td></tr>
+        <tr><th>proofs</th><td>array of <code>{ system, code, verified, runnable?, note? }</code>. <code>system</code> ∈ coq | lean | isabelle | hol-light | agda | builtin | note. Set <code>runnable:true</code> on self-contained Coq to make it live-checkable.</td></tr>
+        <tr><th>playground</th><td>optional — <code>{ "kind": "coq", "code": "..." }</code> for an editable proof, or <code>{ "kind": "logic", "formula": "..." }</code> for the propositional verifier.</td></tr>
+      </table>
+
+      <div class="callout">Tip: if your proof is a self-contained Coq script, set <code>"runnable": true</code> so visitors can press <strong>▶ Run in Coq</strong> and check it in their own browser.</div>
+
+      <p class="muted">A ready-to-edit example lives at
+        <a href="./submissions/EXAMPLE-submission/problem.json">math/new/submissions/EXAMPLE-submission/problem.json</a>.
+        See <a href="./README.md">math/new/README.md</a> for the full contributor + agent guide.</p>
+    </section>
+
+    <p style="margin-top:24px"><a class="btn ghost" href="../#/">← Back to the problems</a></p>
+  </main>
+
+  <footer class="site-foot">
+    <p>Submissions are reviewed and verified before publishing. Nothing runs automatically — a human (with Claude's help) checks every proof.</p>
+  </footer>
+
+  <script>
+    function copyPrompt() {
+      var t = document.getElementById('prompt').innerText;
+      if (navigator.clipboard) navigator.clipboard.writeText(t);
+    }
+  </script>
+</body>
+</html>

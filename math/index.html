@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Math Proof Playground — solved & unsolved problems, with real proofs</title>
+  <meta name="description" content="A living library of famous math problems. Solved ones ship with machine-checked proofs in Coq, Lean, Isabelle & more that you can run in your browser; open ones (Goldbach, P vs NP, Collatz, Erdős, …) invite you to give them a try." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./assets/css/style.css" />
+</head>
+<body>
+  <nav class="topnav">
+    <a class="brand" href="#/">∑ <span>Math Proof Playground</span></a>
+    <div class="topnav-links">
+      <a href="#/">Problems</a>
+      <a href="./new/">+ Submit</a>
+      <a href="https://coq.inria.fr/" target="_blank" rel="noopener">Coq</a>
+      <a href="https://leanprover.github.io/" target="_blank" rel="noopener">Lean</a>
+      <a href="https://oeis.org/" target="_blank" rel="noopener">OEIS</a>
+    </div>
+  </nav>
+
+  <main id="app" class="container"><!-- rendered by app.js --></main>
+
+  <footer class="site-foot">
+    <p>Built as a static web app — everything runs in your browser. Proof verifiers: Coq (jsCoq / WASM), a built-in propositional-logic engine, and live number-theory explorers.</p>
+    <p class="muted small">Solved problems show real, machine-checked proofs. Open problems are genuinely unsolved — have a go.</p>
+  </footer>
+
+  <!-- data + engines + app (plain scripts, no bundler) -->
+  <script src="./assets/js/data.js"></script>
+  <script src="./assets/js/logic.js"></script>
+  <script src="./assets/js/numtools.js"></script>
+  <script src="./assets/js/coq.js"></script>
+  <script src="./assets/js/app.js"></script>
+</body>
+</html>
