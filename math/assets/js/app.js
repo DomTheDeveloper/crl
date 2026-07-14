@@ -32,9 +32,10 @@
 
   /* ---------------- status metadata ---------------- */
   const STATUS = {
-    solved:  { label: "Solved",   icon: "✓", cls: "s-solved"  },
-    open:    { label: "Open",     icon: "?", cls: "s-open"    },
-    partial: { label: "Partial",  icon: "◐", cls: "s-partial" }
+    solved:  { label: "Solved",       icon: "✓", cls: "s-solved"  },
+    open:    { label: "Open",         icon: "?", cls: "s-open"    },
+    partial: { label: "Partial",      icon: "◐", cls: "s-partial" },
+    review:  { label: "Under review", icon: "⚗", cls: "s-review", long: "Candidate proof — under review" }
   };
   const SYSTEM_LABEL = {
     coq: "Coq", lean: "Lean 4", isabelle: "Isabelle/HOL", "hol-light": "HOL Light",
@@ -120,6 +121,7 @@
     const solved = PROBLEMS.filter((p) => p.status === "solved").length;
     const open = PROBLEMS.filter((p) => p.status === "open").length;
     const partial = PROBLEMS.filter((p) => p.status === "partial").length;
+    const review = PROBLEMS.filter((p) => p.status === "review").length;
     const categories = Array.from(new Set(PROBLEMS.map((p) => p.category))).sort();
 
     root.innerHTML = "";
@@ -135,6 +137,7 @@
           statChip(solved, "Solved", "s-solved"),
           statChip(open, "Open", "s-open"),
           statChip(partial, "Partial", "s-partial"),
+          review ? statChip(review, "In review", "s-review") : null,
           statChip(PROBLEMS.length, "Total", "s-total"))
       )
     );
@@ -144,7 +147,7 @@
       class: "search", type: "search", placeholder: "Search problems, e.g. Goldbach, primes, Erdős…",
       value: filterState.q, oninput: (e) => { filterState.q = e.target.value.toLowerCase(); paintCards(); }
     });
-    const statusSel = pill(["all", "solved", "open", "partial"], filterState.status, (v) => { filterState.status = v; paintCards(); },
+    const statusSel = pill(["all", "solved", "open", "partial", "review"], filterState.status, (v) => { filterState.status = v; paintCards(); },
       (v) => v === "all" ? "All" : STATUS[v].label);
     const catSel = el("select", { class: "select", onchange: (e) => { filterState.category = e.target.value; paintCards(); } },
       el("option", { value: "all" }, "All categories"),
@@ -219,7 +222,7 @@
     root.appendChild(
       el("header", { class: "detail-head" },
         el("div", { class: "detail-badges" },
-          el("span", { class: "badge big " + st.cls }, st.icon + " " + st.label),
+          el("span", { class: "badge big " + st.cls }, st.icon + " " + (st.long || st.label)),
           el("span", { class: "detail-cat" }, p.category),
           p.oeis ? el("a", { class: "oeis link", href: "https://oeis.org/" + p.oeis, target: "_blank", rel: "noopener" }, "OEIS " + p.oeis) : null),
         el("h1", { class: "detail-title" }, p.title),
@@ -236,9 +239,28 @@
         p.source ? el("p", { class: "source" }, "Source: ", el("a", { href: p.source.url, target: "_blank", rel: "noopener" }, p.source.name)) : null)
     );
 
+    // Verification transparency (esp. for "review" status)
+    if (p.verification) {
+      root.appendChild(
+        el("section", { class: "panel verify-panel" },
+          el("h2", { class: "panel-h" }, "⚗ Verification status"),
+          el("div", { class: "verify-grid" },
+            ...p.verification.checks.map((c) =>
+              el("div", { class: "verify-item vc-" + c.state },
+                el("span", { class: "vc-mark" }, c.state === "pass" ? "✓" : c.state === "fail" ? "✗" : "…"),
+                el("div", {}, el("strong", {}, c.label), el("p", { class: "muted small" }, c.detail)))) ),
+          p.verification.note ? el("p", { class: "verify-note muted" }, p.verification.note) : null)
+      );
+    }
+
     // Proofs
     if (p.proofs && p.proofs.length) {
       root.appendChild(renderProofs(p));
+    }
+
+    // Materials: papers, drafts, LaTeX, verification artifacts, discussion
+    if (p.materials && p.materials.length) {
+      root.appendChild(renderMaterials(p));
     }
 
     // Interactive playground
@@ -275,8 +297,20 @@
       if (pr.note) body.appendChild(el("p", { class: "proof-note" }, pr.note));
 
       const pre = el("pre", { class: "code" });
-      pre.innerHTML = highlight(pr.code, pr.system);
+      pre.innerHTML = highlight(pr.code || "", pr.system);
       body.appendChild(pre);
+
+      // Large proofs can live in an external file; fetch it on demand.
+      if (pr.codeUrl) {
+        const loadBtn = el("button", { class: "btn ghost" }, "⤓ Load full proof (" + (pr.lines ? pr.lines + " lines" : "external file") + ")");
+        loadBtn.addEventListener("click", () => {
+          loadBtn.disabled = true; loadBtn.textContent = "Loading…";
+          fetch(pr.codeUrl).then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
+            .then((txt) => { pre.innerHTML = highlight(txt, pr.system); loadBtn.remove(); })
+            .catch((e) => { loadBtn.disabled = false; loadBtn.textContent = "⤓ Load full proof"; toast("Couldn't fetch (" + e.message + ") — open the raw file instead"); });
+        });
+        body.appendChild(loadBtn);
+      }
 
       const actions = el("div", { class: "code-actions" });
       actions.appendChild(el("button", { class: "btn ghost", onclick: () => copy(pr.code) }, "⧉ Copy"));
@@ -294,6 +328,35 @@
     }
 
     showProof(proofs[0]);
+    return panel;
+  }
+
+  /* ---------------- materials (attachments, drafts, discussion) ---------------- */
+  const MAT_ICON = { pdf: "📄", tex: "📐", lean: "∴", coq: "∴", md: "📝", txt: "📄", json: "🧾", log: "📋", link: "🔗", zip: "🗜" };
+  function renderMaterials(p) {
+    const panel = el("section", { class: "panel" },
+      el("h2", { class: "panel-h" }, "Materials, drafts & discussion"),
+      el("p", { class: "muted small" }, "Papers, notes, submission drafts, LaTeX sources and verification artifacts bundled with this problem. Comments & review happen on the linked GitHub threads."));
+    const groups = {};
+    for (const m of p.materials) { (groups[m.group || "Files"] = groups[m.group || "Files"] || []).push(m); }
+    for (const g of Object.keys(groups)) {
+      panel.appendChild(el("h3", { class: "mat-group" }, g));
+      const list = el("div", { class: "mat-list" });
+      for (const m of groups[g]) {
+        const isLink = m.type === "link";
+        list.appendChild(el("a", {
+          class: "mat-item", href: m.href || m.path,
+          target: "_blank", rel: "noopener",
+          download: (!isLink && m.download !== false && /\.(tex|md|txt|lean|log|json)$/.test(m.path || "")) ? "" : null
+        },
+          el("span", { class: "mat-ic" }, MAT_ICON[m.type] || "📎"),
+          el("div", { class: "mat-body" },
+            el("span", { class: "mat-label" }, m.label),
+            m.note ? el("span", { class: "mat-note muted" }, m.note) : null),
+          el("span", { class: "mat-type" }, (m.type || "file").toUpperCase())));
+      }
+      panel.appendChild(list);
+    }
     return panel;
   }
 
@@ -355,6 +418,7 @@
       case "legendre": pgLegendre(host); break;
       case "mersenne": pgMersenne(host); break;
       case "sat": pgSat(host); break;
+      case "a317940": pgA317940(host); break;
       case "coq": pgCoq(host, p.playground); break;
       default: host.appendChild(el("p", { class: "muted" }, "Explorer coming soon."));
     }
@@ -582,6 +646,42 @@
     host.appendChild(ta);
     host.appendChild(el("div", { class: "row" }, el("button", { class: "btn primary", onclick: go }, "▶ Solve")));
     host.appendChild(out); go();
+  }
+
+  function pgA317940(host) {
+    host.appendChild(el("p", { class: "muted" },
+      "Compute the rational value f(n) behind OEIS A317940 exactly (BigInt arithmetic), straight from DeepMind's definition — then sweep a range to test the nonnegativity conjecture yourself. The formal proof asserts f(n) > 0 for every n ≥ 1."));
+    const inp = bigInput("n, e.g. 65536", 65536);
+    const out = el("div", { class: "live-out" });
+    const single = () => {
+      out.innerHTML = "";
+      const n = parseInt(inp.value.trim(), 10);
+      if (!Number.isFinite(n) || n < 1) { out.appendChild(bad("Enter an integer ≥ 1.")); return; }
+      if (n > 500000) { out.appendChild(bad("Keep n under 500,000 in the browser.")); return; }
+      const t0 = performance.now();
+      const r = NUM.a317940_f(n);
+      const ms = (performance.now() - t0).toFixed(0);
+      const pos = NUM.ratPositive(r);
+      out.appendChild(el("div", { class: "verdict " + (pos ? "good" : "bad") },
+        (pos ? "✓ f(" : "✗ f(") + n + ") = " + NUM.ratToString(r) + (pos ? "  > 0" : "  ≤ 0 — a counterexample!")));
+      out.appendChild(el("p", { class: "muted small" }, "A317940(" + n + ") = numerator = " + (r.n < 0n ? -r.n : r.n).toString() + "  ·  computed exactly in " + ms + " ms"));
+    };
+    const sweep = () => {
+      out.innerHTML = "";
+      const N = Math.min(parseInt(inp.value.trim(), 10) || 2000, 100000);
+      const t0 = performance.now();
+      let neg = 0, firstNeg = null;
+      for (let k = 1; k <= N; k++) { if (!NUM.ratPositive(NUM.a317940_f(k))) { neg++; if (firstNeg == null) firstNeg = k; } }
+      const ms = (performance.now() - t0).toFixed(0);
+      if (neg === 0) out.appendChild(el("div", { class: "verdict good" }, "✓ f(n) > 0 for all n = 1…" + N + "  — conjecture holds on this range"));
+      else out.appendChild(el("div", { class: "verdict bad" }, "✗ " + neg + " non-positive value(s); first at n = " + firstNeg + " — that would DISPROVE the conjecture!"));
+      out.appendChild(el("p", { class: "muted small" }, "Checked " + N + " terms with exact rational arithmetic in " + ms + " ms."));
+    };
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") single(); });
+    host.appendChild(el("div", { class: "row" }, inp,
+      el("button", { class: "btn primary", onclick: single }, "▶ Compute f(n)"),
+      el("button", { class: "btn ghost", onclick: sweep }, "⤳ Sweep 1…n for positivity")));
+    host.appendChild(out); single();
   }
 
   function pgCoq(host, pg) {

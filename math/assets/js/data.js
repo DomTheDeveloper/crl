@@ -851,5 +851,114 @@ theorem collatz_conjecture (n : ℕ) (hn : 0 < n) :
       { system: "note", verified: false, runnable: false, code: `-- 2^p - 1 prime for infinitely many p? OPEN. Known: 52 examples.` }
     ],
     playground: { kind: "mersenne" }
+  },
+
+  {
+    id: "a317940",
+    title: "Nonnegativity of OEIS A317940",
+    category: "Number Theory",
+    status: "review",
+    year: "2018 (posed) · 2026 (candidate proof)",
+    by: "OEIS / DeepMind Formal Conjectures · submitted proof",
+    oeis: "A317940",
+    tags: ["oeis", "dirichlet", "deepmind", "lean", "submission", "candidate-proof"],
+    statement:
+      "Let f be the rational arithmetic function with f(1)=1 whose Dirichlet square f∗f equals A046644 (the multiplicative function with A046644(pᵉ)=2^A005187(e)). A317940 records the numerators of f(n). Conjecture: f(n) ≥ 0 for every n ≥ 1.",
+    latex: "f * f = A046644,\\quad f(1)=1 \\ \\Longrightarrow\\ f(n) \\ge 0 \\quad (n \\ge 1)",
+    story:
+      "This is entry A317940 in Google DeepMind's Formal Conjectures — a curated set of open problems formalized in Lean 4 (each stated with `sorry`). OEIS notes 'no negative terms among the first 2²⁰ terms; is the sequence nonnegative?'. A proof was submitted to this library claiming to close it: a 659-line Lean 4 development that proves the exact statement `A317940_f_nonnegative`, plus the stronger fact f(n) > 0. The idea: f is the multiplicative lift of the formal square root of the binary Euler product ∏(1 + xᵗ/2), whose coefficients are all positive. It is shown as ‘under review’ here — see the verification panel for exactly what has and hasn't been independently checked.",
+    source: { name: "DeepMind Formal Conjectures (A317940) · OEIS A317940", url: "https://oeis.org/A317940" },
+    verification: {
+      note: "Bottom line: the mathematics is corroborated and the Lean proof is structurally complete with a clean axiom footprint, but it was NOT re-run through the Lean kernel in this environment. Independent kernel re-compilation against Lean 4.27 + Mathlib + the Formal Conjectures repo is the remaining gold-standard step before calling it Solved.",
+      checks: [
+        { state: "pass", label: "Statement is faithful", detail: "The Lean definitions of A005187, A046644, A317940_f and the theorem A317940_f_nonnegative are byte-identical to DeepMind's upstream spec — no weakening or hidden hypotheses." },
+        { state: "pass", label: "No proof-cheating tokens", detail: "The 659-line proof contains no sorry, admit, native_decide, or custom axiom." },
+        { state: "pass", label: "Clean axiom audit", detail: "#print axioms reports only [propext, Classical.choice, Quot.sound] — the three standard Mathlib axioms, no sorryAx." },
+        { state: "pass", label: "Independent numeric check", detail: "A from-scratch exact-rational reimplementation (not the author's code) reproduces OEIS anchors a(1..4)=1,1,1,7 and finds f(n) > 0 for all n ≤ 200,000. You can rerun a live version below." },
+        { state: "partial", label: "Author's verifier logs", detail: "The bundled AXLE artifact reports a clean Lean 4.27 compile (okay:true, 0 errors); this is strong but author-supplied, not reproduced here." },
+        { state: "fail", label: "Kernel re-verified here", detail: "No Lean/Mathlib toolchain is available in this sandbox, so the kernel proof was not independently re-run. This is the one missing gold-standard check." }
+      ]
+    },
+    proofs: [
+      {
+        system: "lean",
+        verified: false,
+        runnable: false,
+        codeUrl: "./materials/a317940/A317940_verified.lean",
+        lines: 659,
+        note: "Excerpt below (exact upstream definitions + final theorem chain). Load the full 659-line proof, or open it under Materials.",
+        code:
+`import Mathlib
+
+open Nat Finset
+
+-- exact Google DeepMind Formal Conjectures definitions (byte-identical to upstream):
+noncomputable def A005187 (e : ℕ) : ℕ :=
+  Finset.sum (Finset.range (e + 1)) fun k ↦ e / (2^k)
+
+noncomputable def A046644 (n : ℕ) : ℚ :=
+  if n = 0 then 0
+  else n.factorization.prod fun _ e ↦ (2 : ℚ) ^ (A005187 e)
+
+noncomputable def A317940_f : ℕ → ℚ :=
+  WellFounded.fix (measure id).wf fun n IH ↦
+    if n = 0 then 0 else if n = 1 then 1 else
+      let A_n : ℚ := A046644 n
+      let sum_of_products : ℚ := Finset.sum (divisors n) fun d ↦
+        if h_prop : d > 1 ∧ d < n then
+          IH d h_prop.2 * IH (n / d) (Nat.div_lt_self (Nat.pos_of_ne_zero (by omega)) h_prop.1)
+        else 0
+      (A_n - sum_of_products) / 2
+
+/- ... 620 lines building: d, a, b power series; the ODE A' = ½·D·A;
+   Qseries = Aseries² = Bseries (uniqueness of the ODE); rescaling c e = 4^e·a e;
+   rootAF a multiplicative arithmetic function with rootAF * rootAF = targetAF;
+   A317940_f = rootAF; and rootAF n > 0 as a product of positive c e ... -/
+
+theorem A317940_nonnegative (n : ℕ) (hn : n > 0) : A317940_f n ≥ 0 := by
+  rw [A317940_f_eq_rootAF]; exact le_of_lt (rootAF_pos hn)
+
+-- the exact upstream theorem, discharged:
+theorem A317940_f_nonnegative (n : ℕ) (h : n > 0) : A317940_f n ≥ 0 :=
+  A317940Verified.A317940_nonnegative n h`
+      },
+      {
+        system: "note",
+        verified: true,
+        runnable: false,
+        note: "Human-readable proof sketch (full write-up in Materials).",
+        code:
+`Let c_e = f(p^e) (prime-independent). Since A005187(e) = 2e - s2(e) with
+s2 = binary digit sum, the normalized coefficients b_e = 2^{-s2(e)} have
+generating function  B(x) = Prod_{r>=0} (1 + x^{2^r}/2).
+Let A(x)^2 = B(x), A(0)=1. For n = 2^v * m (m odd),
+  [x^n] log A(x) = (1/(2m)) * (2^{-m} - Sum_{j=1..v} 2^{-j-2^j m}) > 0,
+so every coefficient a_e > 0. Set c_e = 4^e a_e; then Sum_j c_j c_{e-j} = 2^{A005187(e)},
+i.e. h*h = A046644 for the multiplicative h(p^e)=c_e. Endpoint-divisor separation
+shows h obeys f's recursion, so f = h and f(n) > 0 for all n >= 1.  ∎`
+      }
+    ],
+    materials: [
+      { group: "Formal proof", type: "lean", label: "A317940_verified.lean", path: "./materials/a317940/A317940_verified.lean", note: "Complete 659-line Lean 4 proof (no sorry)" },
+      { group: "Formal proof", type: "lean", label: "Upstream-form proof", path: "./materials/a317940/A317940_upstream_form.lean", note: "Installed into the exact Formal Conjectures file" },
+      { group: "Formal proof", type: "lean", label: "DeepMind upstream spec", path: "./materials/a317940/A317940_upstream_spec.lean", note: "The original stated-with-sorry conjecture" },
+      { group: "Formal proof", type: "lean", label: "Generalization: DigitalEulerPositivity.lean", path: "./materials/a317940/DigitalEulerPositivity_generalization.lean", note: "Parameterized 0<q≤1, α>0 positivity theorem" },
+      { group: "Papers & notes", type: "pdf", label: "Paper draft (PDF)", path: "./materials/a317940/A317940_paper_draft.pdf" },
+      { group: "Papers & notes", type: "tex", label: "Paper draft (LaTeX source)", path: "./materials/a317940/A317940_paper_draft.tex" },
+      { group: "Papers & notes", type: "pdf", label: "Short note (PDF)", path: "./materials/a317940/A317940_short_note.pdf" },
+      { group: "Papers & notes", type: "tex", label: "Short note (LaTeX source)", path: "./materials/a317940/A317940_short_note.tex" },
+      { group: "Papers & notes", type: "md", label: "Human-readable proof", path: "./materials/a317940/HUMAN_PROOF.md" },
+      { group: "Papers & notes", type: "md", label: "Prior-art boundary", path: "./materials/a317940/PRIOR_ART.md", note: "Honest novelty scope" },
+      { group: "Submission drafts", type: "txt", label: "OEIS submission text", path: "./materials/a317940/OEIS_SUBMISSION.txt" },
+      { group: "Submission drafts", type: "md", label: "DeepMind PR draft", path: "./materials/a317940/DEEPMIND_PR_draft.md" },
+      { group: "Submission drafts", type: "md", label: "DeepMind issue draft", path: "./materials/a317940/DEEPMIND_ISSUE_draft.md" },
+      { group: "Verification artifacts", type: "json", label: "AXLE verifier response", path: "./materials/a317940/AXLE_verification.json", note: "Author-supplied Lean 4.27 compile log" },
+      { group: "Verification artifacts", type: "log", label: "Axiom audit (#print axioms)", path: "./materials/a317940/axiom_audit.log" },
+      { group: "Verification artifacts", type: "json", label: "Spec-integrity check", path: "./materials/a317940/spec_integrity.json", note: "SHA-256 vs. upstream definitions" },
+      { group: "Verification artifacts", type: "md", label: "Verification report", path: "./materials/a317940/VERIFICATION_REPORT.md" },
+      { group: "Discussion", type: "link", label: "OEIS A317940", href: "https://oeis.org/A317940", note: "Comment / discuss on OEIS" },
+      { group: "Discussion", type: "link", label: "DeepMind Formal Conjectures repo", href: "https://github.com/google-deepmind/formal-conjectures", note: "Open a PR / issue upstream" }
+    ],
+    playground: { kind: "a317940" }
   }
 ];

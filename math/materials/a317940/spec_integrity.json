@@ -1,0 +1,27 @@
+{
+  "upstream_url": "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean",
+  "upstream_sha256": "4658ee6927738e3b54f54e64fed146124558797b161bc3ec280f8b64280ef020",
+  "formal_statement_sha256": "d3f20d06de1153d0971930c8528a134628fe7803ac7d06d791b7f3b6461d6312",
+  "checks": {
+    "A005187": {
+      "matches": true,
+      "upstream_sha256": "a8f984eee5a341fa3f4fbccfeb22257b4f0451e627e79d74a925bc77805f6003",
+      "generated_sha256": "a8f984eee5a341fa3f4fbccfeb22257b4f0451e627e79d74a925bc77805f6003"
+    },
+    "A046644": {
+      "matches": true,
+      "upstream_sha256": "a927a002ae0d28d4c602b630ece3a16720c18c4f19b7d6990e828d560e08fb8d",
+      "generated_sha256": "a927a002ae0d28d4c602b630ece3a16720c18c4f19b7d6990e828d560e08fb8d"
+    },
+    "A317940_f": {
+      "matches": true,
+      "upstream_sha256": "7982cabaecffbcc3fdd90a5808cfba499167deb320ce8d598dff8abc29e8ac85",
+      "generated_sha256": "7982cabaecffbcc3fdd90a5808cfba499167deb320ce8d598dff8abc29e8ac85"
+    },
+    "A317940_f_nonnegative": {
+      "matches": true,
+      "upstream_sha256": "29b76ceab59c6a8468837e84d8167d5bd3b6d9712c7613e4c563a3557e96dd3f",
+      "generated_sha256": "29b76ceab59c6a8468837e84d8167d5bd3b6d9712c7613e4c563a3557e96dd3f"
+    }
+  }
+}

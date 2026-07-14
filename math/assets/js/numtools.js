@@ -172,8 +172,47 @@
     return { sat: !!res, model: res, steps };
   }
 
+  /* ---------------- OEIS A317940 — the Dirichlet square root (exact rationals) ----
+     Direct re-implementation of the DeepMind Formal Conjectures definitions, using
+     BigInt numerator/denominator rationals. Lets visitors compute f(n) and test the
+     nonnegativity conjecture live.                                                   */
+  function gcdBig(a, b) { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) { [a, b] = [b, a % b]; } return a || 1n; }
+  function rat(n, d) { if (d < 0n) { n = -n; d = -d; } const g = gcdBig(n, d); return { n: n / g, d: d / g }; }
+  const rmul = (x, y) => rat(x.n * y.n, x.d * y.d);
+  const rsub = (x, y) => rat(x.n * y.d - y.n * x.d, x.d * y.d);
+  const rhalf = (x) => rat(x.n, x.d * 2n);
+
+  function a005187(e) { let s = 0, k = 0; while ((e >> k) > 0) { s += e >> k; k++; } return s; } // = 2e - popcount(e)
+  function factorizeInt(n) { const f = {}; let d = 2; while (d * d <= n) { while (n % d === 0) { f[d] = (f[d] || 0) + 1; n /= d; } d++; } if (n > 1) f[n] = (f[n] || 0) + 1; return f; }
+  function a046644(n) { // product over prime powers p^e of 2^A005187(e); always a positive integer (power of 2)
+    if (n === 0) return rat(0n, 1n);
+    const f = factorizeInt(n); let exp = 0;
+    for (const p in f) exp += a005187(f[p]);
+    return rat(1n << BigInt(exp), 1n);
+  }
+  function divisorsInt(n) { const out = []; let d = 1; while (d * d <= n) { if (n % d === 0) { out.push(d); if (d !== n / d) out.push(n / d); } d++; } return out; }
+
+  const _a317940memo = new Map([[0, rat(0n, 1n)], [1, rat(1n, 1n)]]);
+  function a317940_f(n) {
+    const cached = _a317940memo.get(n);
+    if (cached) return cached;
+    // interiorSum = sum over divisors d of n with 1 < d < n of  f(d) * f(n/d)
+    let interior = rat(0n, 1n);
+    for (const d of divisorsInt(n)) {
+      if (d > 1 && d < n) {
+        const prod = rmul(a317940_f(d), a317940_f(n / d));
+        interior = rat(interior.n * prod.d + prod.n * interior.d, interior.d * prod.d);
+      }
+    }
+    const res = rhalf(rsub(a046644(n), interior)); // f(n) = (A046644(n) - interiorSum) / 2
+    _a317940memo.set(n, res);
+    return res;
+  }
+
   window.MP_NUM = {
     isPrime, goldbach, goldbachAll, collatz, twinPrimes,
-    erdosStraus, legendre, mersenne, solveSAT
+    erdosStraus, legendre, mersenne, solveSAT,
+    a317940_f, a046644, a005187, ratToString: (r) => r.d === 1n ? r.n.toString() : r.n.toString() + "/" + r.d.toString(),
+    ratPositive: (r) => r.n > 0n
   };
 })();

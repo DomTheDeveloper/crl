@@ -107,6 +107,30 @@ code { font-family: var(--mono); background: rgba(255,255,255,.06); padding: .1e
 .s-solved { color: var(--solved); background: rgba(55,208,160,.12); border-color: rgba(55,208,160,.4); }
 .s-open { color: var(--open); background: rgba(255,157,92,.12); border-color: rgba(255,157,92,.4); }
 .s-partial { color: var(--partial); background: rgba(246,195,90,.12); border-color: rgba(246,195,90,.4); }
+.s-review { color: #8fb3ff; background: rgba(124,150,255,.14); border-color: rgba(124,150,255,.45); }
+.stat-chip.s-review .stat-n { color: #8fb3ff; }
+
+/* verification panel */
+.verify-panel { border-color: rgba(124,150,255,.4); }
+.verify-grid { display: grid; gap: 12px; }
+.verify-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); }
+.verify-item p { margin: 2px 0 0; }
+.vc-mark { font-size: 1.1rem; font-weight: 700; flex: 0 0 auto; width: 20px; text-align: center; }
+.vc-pass .vc-mark { color: var(--solved); }
+.vc-fail .vc-mark { color: var(--danger); }
+.vc-partial .vc-mark { color: var(--partial); }
+.verify-note { margin: 14px 0 0; font-size: .9rem; border-top: 1px solid var(--border); padding-top: 12px; }
+
+/* materials */
+.mat-group { margin: 18px 0 8px; font-size: .82rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.mat-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+.mat-item { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); color: var(--text); transition: .14s; }
+.mat-item:hover { border-color: var(--accent); text-decoration: none; transform: translateY(-2px); }
+.mat-ic { font-size: 1.3rem; flex: 0 0 auto; }
+.mat-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.mat-label { font-weight: 600; font-size: .93rem; }
+.mat-note { font-size: .78rem; }
+.mat-type { font-family: var(--mono); font-size: .68rem; color: var(--muted); border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; flex: 0 0 auto; }
 
 /* detail */
 .back { display: inline-block; margin-bottom: 14px; color: var(--muted); }

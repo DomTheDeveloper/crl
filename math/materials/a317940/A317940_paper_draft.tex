@@ -1,0 +1,314 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Positive Fractional Powers of a Binary Euler Product\\and a Lean-Verified Resolution of OEIS A317940}
+\author{Dominic Dabish}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Let $g$ be the multiplicative arithmetic function determined on prime powers by
+\[
+  g(p^e)=2^{A005187(e)},
+  \qquad
+  A005187(e)=\sum_{k\ge0}\left\lfloor\frac{e}{2^k}\right\rfloor.
+\]
+Let $f$ be the normalized Dirichlet square root of $g$, so that $f(1)=1$ and
+$f*f=g$.  OEIS A317940 records the numerators of the rational values $f(n)$ and asks whether these values are nonnegative.  We prove the stronger result
+\[
+  f(n)>0\qquad(n\ge1).
+\]
+The key step is a coefficient-positivity theorem for fractional powers of the binary Euler product
+\[
+  \prod_{r\ge0}(1+qz^{2^r}),
+\]
+valid for $0<q\le1$.  The A317940 specialization and a parameterized positivity core have been formally verified in Lean~4.  The exact theorem from the Google DeepMind Formal Conjectures benchmark compiles under its native imports, and an explicit axiom audit reports only the standard axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+\end{abstract}
+
+\section{Introduction}
+
+Dirichlet convolution of arithmetic functions is defined by
+\[
+  (u*v)(n)=\sum_{d\mid n}u(d)v(n/d).
+\]
+Given a multiplicative arithmetic function $g$ with $g(1)=1$, one may ask for a normalized square root $f$ satisfying $f(1)=1$ and $f*f=g$.  Such roots are determined recursively, but the recurrence contains subtraction, and therefore positivity of $g$ does not make positivity of $f$ automatic.
+
+OEIS A317940 arises from the multiplicative function A046644, whose prime-power values are
+\[
+  g(p^e)=2^{A005187(e)}.
+\]
+The corresponding rational square root was computationally observed to have no negative values among more than one million initial terms.  The OEIS entry asked whether nonnegativity holds for all $n$.
+
+We establish strict positivity.  The proof has two conceptual parts.  First, multiplicativity reduces the problem to an ordinary formal power-series square root at a single prime.  Second, binary expansion converts the target series into a digital Euler product.  Its logarithm has strictly positive coefficients after taking a positive fractional power, which forces positivity of the power-series coefficients.
+
+The digit-sum product identity itself belongs to the existing literature on digital generating functions; see Schneider and Schneider~\cite{SchneiderSchneider}.  The contribution here is the positivity argument, its Dirichlet-convolution application, and the formal verification of the exact A317940 conjecture.
+
+\section{The arithmetic function}
+
+Define
+\[
+  L(e):=\sum_{k\ge0}\left\lfloor\frac{e}{2^k}\right\rfloor.
+\]
+Only finitely many summands are nonzero.  Let $g$ be the multiplicative arithmetic function determined by
+\[
+  g(p^e)=2^{L(e)}.
+\]
+Let $f$ be the normalized Dirichlet square root of $g$.
+
+For a fixed prime $p$, put
+\[
+  c_e=f(p^e).
+\]
+The local convolution identity is
+\begin{equation}\label{eq:local-convolution}
+  \sum_{j=0}^{e}c_jc_{e-j}=2^{L(e)}.
+\end{equation}
+Thus the local generating function
+\[
+  C(x)=\sum_{e\ge0}c_ex^e
+\]
+satisfies
+\[
+  C(x)^2=\sum_{e\ge0}2^{L(e)}x^e.
+\]
+
+\begin{lemma}\label{lem:L-recurrence}
+For every $e\ge0$,
+\[
+  L(e)=e+L(\lfloor e/2\rfloor)=2e-s_2(e),
+\]
+where $s_2(e)$ denotes the number of ones in the binary expansion of $e$.
+\end{lemma}
+
+\begin{proof}
+Separating the $k=0$ term and shifting the remaining sum gives
+\[
+  L(e)=e+\sum_{k\ge1}\left\lfloor\frac{e}{2^k}\right\rfloor
+      =e+L(\lfloor e/2\rfloor).
+\]
+The identity $L(e)=2e-s_2(e)$ follows by induction from the binary recurrences
+$s_2(2m)=s_2(m)$ and $s_2(2m+1)=s_2(m)+1$.
+\end{proof}
+
+Set
+\[
+  b_e=2^{-s_2(e)}.
+\]
+Then
+\begin{equation}\label{eq:binary-rec}
+  b_{2m}=b_m,
+  \qquad
+  b_{2m+1}=\frac{b_m}{2},
+\end{equation}
+and Lemma~\ref{lem:L-recurrence} gives
+\[
+  2^{L(e)}=4^e b_e.
+\]
+
+\section{A positivity theorem for digital Euler products}
+
+For parameters $0<q\le1$ and $\alpha>0$, consider the formal series
+\begin{equation}\label{eq:Fqa}
+  F_{q,\alpha}(z)=\prod_{r\ge0}(1+qz^{2^r})^\alpha.
+\end{equation}
+Coefficientwise, the product is well defined because only finitely many factors can affect any fixed degree.
+
+\begin{theorem}[Digital Euler positivity]\label{thm:general}
+If $0<q\le1$ and $\alpha>0$, then every coefficient of $F_{q,\alpha}(z)$ is strictly positive.
+\end{theorem}
+
+\begin{proof}
+Write
+\[
+  \log F_{q,\alpha}(z)
+  =\alpha\sum_{r\ge0}\log(1+qz^{2^r})
+  =\alpha\sum_{r\ge0}\sum_{k\ge1}
+      \frac{(-1)^{k+1}q^k}{k}z^{k2^r}.
+\]
+Let $n=2^vm$ with $m$ odd.  The representations $n=k2^r$ correspond to
+$k=2^{v-r}m$ for $0\le r\le v$.  The term with $r=v$ has odd $k=m$ and positive sign; all earlier terms have even $k$.  Therefore
+\begin{equation}\label{eq:logcoeff}
+  [z^n]\log F_{q,\alpha}(z)
+  =\frac{\alpha}{m}
+      \left(q^m-\sum_{j=1}^{v}\frac{q^{2^jm}}{2^j}\right).
+\end{equation}
+Since $0<q\le1$, we have $q^{2^jm}\le q^m$, and hence
+\[
+  \sum_{j=1}^{v}\frac{q^{2^jm}}{2^j}
+  \le q^m\sum_{j=1}^{v}2^{-j}
+  <q^m.
+\]
+Thus every nonconstant coefficient of $\log F_{q,\alpha}$ is strictly positive.  Finally,
+\[
+  F_{q,\alpha}=\exp(\log F_{q,\alpha}).
+\]
+For each $n\ge1$, the coefficient of $z^n$ receives the strictly positive linear contribution $[z^n]\log F_{q,\alpha}$, while all higher exponential contributions are nonnegative.  Hence every coefficient is strictly positive.
+\end{proof}
+
+\begin{remark}
+The proof works entirely in the formal power-series ring.  No analytic convergence is needed.
+\end{remark}
+
+\section{Application to A317940}
+
+The binary recurrence~\eqref{eq:binary-rec} gives the standard digit-product identity
+\begin{equation}\label{eq:Bproduct}
+  B(z):=\sum_{e\ge0}b_ez^e
+  =\prod_{r\ge0}\left(1+\frac{z^{2^r}}{2}\right).
+\end{equation}
+Let
+\[
+  A(z)=B(z)^{1/2}=\sum_{e\ge0}a_ez^e,
+\]
+with constant coefficient $a_0=1$.  Theorem~\ref{thm:general}, applied with
+$q=\alpha=1/2$, yields
+\[
+  a_e>0\qquad(e\ge0).
+\]
+Define
+\[
+  c_e=4^ea_e.
+\]
+Then $c_e>0$.  Rescaling $A(z)^2=B(z)$ by $z\mapsto4z$ gives
+\[
+  \left(\sum_{e\ge0}c_ez^e\right)^2
+  =\sum_{e\ge0}4^eb_ez^e
+  =\sum_{e\ge0}2^{L(e)}z^e.
+\]
+Consequently, the coefficients $c_e$ satisfy the local convolution identity
+\eqref{eq:local-convolution}.
+
+Define a multiplicative arithmetic function $h$ by
+\[
+  h(p^e)=c_e.
+\]
+The local identity implies
+\[
+  h*h=g
+\]
+on prime powers, and hence globally by multiplicativity.
+
+\begin{lemma}\label{lem:recurrence}
+For $n>1$,
+\[
+  h(n)=\frac12\left(
+    g(n)-\sum_{\substack{d\mid n\\1<d<n}}h(d)h(n/d)
+  \right).
+\]
+\end{lemma}
+
+\begin{proof}
+In $(h*h)(n)=g(n)$, the divisor terms $d=1$ and $d=n$ each equal $h(n)$ because $h(1)=1$.  Move the remaining terms to the other side and divide by two.
+\end{proof}
+
+The right side of Lemma~\ref{lem:recurrence} is exactly the well-founded recurrence defining the rational function underlying A317940.  Strong induction therefore identifies that function with $h$.
+
+\begin{theorem}\label{thm:A317940}
+The rational arithmetic function underlying OEIS A317940 is strictly positive at every positive integer:
+\[
+  f(n)>0\qquad(n\ge1).
+\]
+In particular, every signed numerator recorded by A317940 is positive.
+\end{theorem}
+
+\begin{proof}
+By the recurrence and strong induction, $f=h$.  If
+$n=\prod_p p^{e_p}$, multiplicativity gives
+\[
+  h(n)=\prod_p c_{e_p}>0.
+\]
+\end{proof}
+
+\section{Formal verification}
+
+The Google DeepMind Formal Conjectures benchmark defines functions named
+\texttt{A005187}, \texttt{A046644}, and \texttt{A317940\_f}, and states
+\begin{verbatim}
+theorem A317940_f_nonnegative (n : N) (h : n > 0) :
+    A317940_f n >= 0
+\end{verbatim}
+where the displayed ASCII symbols represent the corresponding Lean Unicode notation.
+
+A complete Lean~4 proof was developed against those exact definitions.  The verification pipeline performed the following checks.
+
+\begin{enumerate}[label=(\arabic*)]
+  \item The source tokens of the three definitions and the theorem signature were compared with DeepMind's \texttt{auto\_oeis} source.
+  \item A strict Lean~4.27 verifier accepted the complete candidate with no failed declarations, errors, or warnings.
+  \item The proof was installed at the exact upstream path in a checkout of the Formal Conjectures repository and compiled under \texttt{FormalConjectures.Util.ProblemImports} with warnings treated as errors for the target file.
+  \item The audit command \texttt{\#print axioms A317940\_f\_nonnegative} reported only
+  \[
+    \texttt{propext},\quad \texttt{Classical.choice},\quad \texttt{Quot.sound}.
+  \]
+  \item The candidate contains no \texttt{sorry}, \texttt{admit}, or custom axiom declaration.
+\end{enumerate}
+
+The formal proof follows a coefficientwise differential-equation route.  It constructs the positive local coefficients, proves the formal-series square identity, lifts the coefficients multiplicatively, proves the global Dirichlet-square identity, and identifies the result with the exact well-founded recursion.
+
+A separate parameterized Lean file proves the positivity core of Theorem~\ref{thm:general} for rational $q$ and $\alpha$: the logarithmic-derivative coefficients have a positive lower bound, and every coefficient of the canonical formal solution of
+\[
+  F'=\alpha D_qF,\qquad F(0)=1,
+\]
+is strictly positive.
+
+\section{Prior art and novelty}
+
+The product identity~\eqref{eq:Bproduct} is a special case of known digit-sum generating-function identities; it should not be claimed as new.  The literature search conducted for this project did not locate a prior proof of A317940 positivity, a prior application of the fractional-product argument to the Dirichlet square root of A046644, or the full parameter theorem in Theorem~\ref{thm:general}.  This search cannot exclude unpublished or differently phrased prior work.
+
+The appropriate current claim is therefore that the positivity argument and A317940 application appear new, subject to independent literature review and normal scholarly priority checks.
+
+\section{Further directions}
+
+Several extensions are natural.
+
+\begin{enumerate}[label=(\roman*)]
+  \item Determine the maximal parameter region for coefficientwise positivity when $q$ or $\alpha$ is allowed outside the positive range of Theorem~\ref{thm:general}.
+  \item Replace the binary exponents $2^r$ by $b^r$ for bases $b\ge2$.
+  \item Classify weight sequences $w_r$ for which
+  $\prod_r(1+w_rz^{2^r})^\alpha$ has positive coefficients.
+  \item Apply these criteria to other Dirichlet roots of multiplicative functions.
+  \item Study denominator, valuation, and congruence properties of the local coefficients $c_e$.
+\end{enumerate}
+
+\section*{AI-assistance disclosure}
+
+The proof strategy, computational exploration, Lean formalization, and proof-engineering process were developed with substantial assistance from OpenAI's ChatGPT.  The final formal proof terms were checked independently by the Lean kernel and by the verification pipelines described above.  The manuscript remains subject to independent human mathematical and editorial review.
+
+\begin{thebibliography}{9}
+
+\bibitem{OEIS}
+OEIS Foundation Inc.,
+\emph{The On-Line Encyclopedia of Integer Sequences, A317940},
+\url{https://oeis.org/A317940}.
+
+\bibitem{SchneiderSchneider}
+M. Schneider and R. Schneider,
+\emph{Digit sums and generating functions},
+arXiv:1807.06710, 2018.
+
+\bibitem{FormalConjectures}
+M. Firsching et al.,
+\emph{Formal Conjectures},
+arXiv:2605.13171, 2026.
+
+\bibitem{Lean}
+L. de Moura, S. Kong, J. Avigad, F. van Doorn, and J. von Raumer,
+\emph{The Lean theorem prover (system description)},
+Automated Deduction -- CADE-25, 2015, pp.~378--388.
+
+\end{thebibliography}
+
+\end{document}
