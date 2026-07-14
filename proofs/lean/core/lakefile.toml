@@ -1,0 +1,7 @@
+name = "core"
+defaultTargets = ["Core"]
+
+# Core-Lean proofs only (no Mathlib) — fast to verify, and these are the
+# proofs that can actually run in the in-browser Lean (lean4.js / WASM).
+[[lean_lib]]
+name = "Core"

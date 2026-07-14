@@ -1,0 +1,26 @@
+name: Verify Coq proofs
+
+# Re-checks every Coq proof in proofs/coq/ through the jsCoq (Coq-in-WASM) CLI
+# on each push. The build fails if any proof does not compile.
+
+on:
+  push:
+    paths: ["proofs/coq/**", ".github/workflows/verify-coq.yml"]
+  pull_request:
+    paths: ["proofs/coq/**", ".github/workflows/verify-coq.yml"]
+  workflow_dispatch:
+
+jobs:
+  coq:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install jsCoq (Coq WASM toolchain)
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install jscoq@0.17.1
+      - name: Verify all Coq proofs
+        run: node proofs/coq/verify.mjs

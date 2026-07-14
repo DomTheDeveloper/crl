@@ -90,9 +90,9 @@ Admitted.`
         system: "coq",
         verified: true,
         runnable: true,
-        note: "Fully self-contained — press ▶ Run to have Coq check it live.",
+        note: "Kernel-verified in-session with jsCoq 0.17.1 (Coq via WebAssembly). Self-contained — press ▶ Run to re-check it live.",
         code:
-`Require Import Arith.
+`Require Import Arith Lia.
 
 Fixpoint sum_to (n : nat) : nat :=
   match n with
@@ -105,9 +105,7 @@ Theorem gauss_sum : forall n, 2 * sum_to n = n * (n + 1).
 Proof.
   induction n as [| k IH].
   - reflexivity.
-  - simpl sum_to.
-    rewrite Nat.mul_add_distr_l, IH.
-    ring.
+  - simpl sum_to. nia.   (* nonlinear arith closes 2*(S k + sum_to k) = S k*(S k+1) *)
 Qed.`
       },
       {
@@ -130,7 +128,7 @@ theorem gauss_sum (n : ℕ) :
       kind: "coq",
       title: "Edit & re-run the proof",
       code:
-`Require Import Arith.
+`Require Import Arith Lia.
 
 Fixpoint sum_to (n : nat) : nat :=
   match n with
@@ -142,9 +140,7 @@ Theorem gauss_sum : forall n, 2 * sum_to n = n * (n + 1).
 Proof.
   induction n as [| k IH].
   - reflexivity.
-  - simpl sum_to.
-    rewrite Nat.mul_add_distr_l, IH.
-    ring.
+  - simpl sum_to. nia.   (* nonlinear arith closes 2*(S k + sum_to k) = S k*(S k+1) *)
 Qed.`
     }
   },
@@ -167,7 +163,7 @@ Qed.`
         system: "coq",
         verified: true,
         runnable: true,
-        note: "Press ▶ Run.",
+        note: "Kernel-verified in-session with jsCoq 0.17.1 (Coq via WebAssembly). Press ▶ Run to re-check.",
         code:
 `Require Import Arith.
 
@@ -218,6 +214,7 @@ Admitted.`
         system: "coq",
         verified: true,
         runnable: true,
+        note: "Kernel-verified in-session with jsCoq 0.17.1 (Coq via WebAssembly).",
         code:
 `Require Import Arith.
 
