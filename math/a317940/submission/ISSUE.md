@@ -18,16 +18,16 @@ comment stripping). Per the >25–50 line guidance, the 659-line proof stays in 
 repository and would be linked via `@[formal_proof using lean4 at "…"]`.
 
 **Evidence**
-- Proof (Lean 4, no `sorry`/`admit`/custom axiom): <PROOF_URL_PLACEHOLDER>
+- Proof (Lean 4, no `sorry`/`admit`/custom axiom): <https://github.com/DomTheDeveloper/crl/blob/7709cef485c31e8115e03e5d2b9514556fdadb53/math/a317940/proof/A317940_verified.lean>
 - Kernel-verified against Mathlib in CI; `#print axioms` →
   `[propext, Classical.choice, Quot.sound]` (no `sorryAx`):
-  <CI_RUN_URL_PLACEHOLDER>
+  <https://github.com/DomTheDeveloper/crl/actions/runs/29378868663>
 - Faithfulness: your upstream file sha256
   `4658ee6927738e3b54f54e64fed146124558797b161bc3ec280f8b64280ef020`; the
   definition code matches byte-for-byte.
 - Prior-art check (no pre-existing formal proof found; conjecture still open
-  upstream): <PRIOR_ART_URL_PLACEHOLDER>
-- Human-readable proof / paper: <PROJECT_URL_PLACEHOLDER>
+  upstream): <https://github.com/DomTheDeveloper/crl/blob/7709cef485c31e8115e03e5d2b9514556fdadb53/math/a317940/prior-art.html>
+- Human-readable proof / paper: <https://github.com/DomTheDeveloper/crl/tree/7709cef485c31e8115e03e5d2b9514556fdadb53/math/a317940>
 
 **Question on process.** A317940 lives on the `auto_oeis` branch and carries no
 `@[category]` tags yet (unlike the curated files). What's your preferred path?
