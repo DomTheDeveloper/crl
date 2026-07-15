@@ -1,0 +1,34 @@
+name: Erdős 885 four-row quotient profiles
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/sage_fourrow_profiles.py'
+      - '.github/workflows/erdos-885-fourrow.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  profiles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker pull sagemath/sagemath:latest
+      - name: Certify quotient ranks
+        run: |
+          mkdir -p results
+          chmod 777 results
+          docker run --rm -v "$GITHUB_WORKSPACE:/work" -w /work \
+            sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_fourrow_profiles.py
+      - if: always()
+        run: cat results/fourrow_profiles.json || true
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos-885-fourrow-profiles
+          path: results/fourrow_profiles.json
+          if-no-files-found: warn
