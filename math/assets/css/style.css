@@ -213,6 +213,9 @@ a.btn:hover { text-decoration: none; }
 .coq-status.ok { color: var(--solved); } .coq-status.bad { color: var(--open); }
 .coq-area { width: 100%; min-height: 150px; font-family: var(--mono); font-size: .86rem; background: var(--bg); color: #cdd9e5;
   border: 1px solid var(--border); border-radius: 8px; padding: 12px; resize: vertical; line-height: 1.5; }
+.coq-ide { min-height: 320px; position: relative; margin-top: 8px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.coq-ide .CodeMirror { min-height: 200px; }
+.lean-out { margin-top: 12px; }
 
 .empty { text-align: center; color: var(--muted); padding: 40px; }
 .link { }

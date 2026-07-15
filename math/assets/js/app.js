@@ -320,9 +320,12 @@
       } else if (pr.system === "coq" && pr.runnable) {
         actions.appendChild(el("button", { class: "btn primary", onclick: (e) => runCoq(pr.code, body, e.currentTarget) }, "▶ Run in Coq"));
       } else if (pr.system === "coq") {
-        actions.appendChild(el("a", { class: "btn ghost", href: COQ.externalPlayground, target: "_blank", rel: "noopener" }, "↗ Open Coq playground"));
+        actions.appendChild(el("a", { class: "btn ghost", href: MP_COQ.externalPlayground, target: "_blank", rel: "noopener" }, "↗ Open Coq playground"));
+      } else if (pr.system === "lean" && pr.browserRunnable) {
+        actions.appendChild(el("button", { class: "btn primary", onclick: (e) => runLean(pr.code, body, e.currentTarget) }, "▶ Run in Lean"));
       } else if (pr.system === "lean") {
         actions.appendChild(el("a", { class: "btn ghost", href: "https://live.lean-lang.org/", target: "_blank", rel: "noopener" }, "↗ Open Lean playground"));
+        if (pr.note && /Mathlib/i.test(pr.note)) {} // Mathlib proofs can't run in the in-browser (stdlib-only) Lean
       }
       body.appendChild(actions);
     }
@@ -375,31 +378,54 @@
 
   function runCoq(code, container, btn) {
     let mount = $(".coq-mount", container);
-    if (!mount) {
-      mount = el("div", { class: "coq-mount" });
-      container.appendChild(mount);
-    }
+    if (!mount) { mount = el("div", { class: "coq-mount" }); container.appendChild(mount); }
     mount.innerHTML = "";
+    if (!window.crossOriginIsolated) {
+      mount.appendChild(el("div", { class: "coq-status bad" }, "This page isn't cross-origin isolated yet (needed for the Coq WASM worker). Reload once and try again."));
+      return;
+    }
     btn.disabled = true; btn.textContent = "⏳ Loading Coq (WASM)…";
-    const status = el("div", { class: "coq-status muted" }, "Fetching the Coq toolchain (~a few MB) from the CDN. First run can take a moment…");
+    const status = el("div", { class: "coq-status muted" }, "Booting the self-hosted Coq toolchain (WebAssembly)… first load fetches ~20 MB.");
     mount.appendChild(status);
+    const ide = el("div", { class: "coq-ide", id: "ide-wrapper" });
+    mount.appendChild(ide);
 
-    const area = el("textarea", { class: "coq-area", spellcheck: "false" });
-    area.value = code;
-    mount.appendChild(area);
-
-    COQ.start(mount, code).then((coq) => {
+    MP_COQ.start(ide, code, "playground.v").then(() => {
       btn.disabled = false; btn.textContent = "▶ Run in Coq";
       status.className = "coq-status ok";
-      status.textContent = "jsCoq loaded — use the panel above; press the ▶ / eval buttons jsCoq provides to step the proof to Qed.";
+      status.innerHTML = "jsCoq loaded — press the ▶ (step) / ⏬ (to cursor) buttons in the panel to run the proof to <code>Qed</code>. Green = accepted.";
     }).catch((err) => {
       btn.disabled = false; btn.textContent = "▶ Run in Coq";
-      status.className = "coq-status bad";
-      status.innerHTML = "";
-      status.appendChild(el("p", {}, "Couldn't load jsCoq in this environment (offline, blocked CDN, or unsupported browser)."));
-      status.appendChild(el("p", {}, "The proof above is complete and self-contained — copy it and run it in a local Coq or the online playground:"));
-      status.appendChild(el("a", { class: "btn ghost", href: COQ.externalPlayground, target: "_blank", rel: "noopener" }, "↗ Open Coq playground"));
+      status.className = "coq-status bad"; status.innerHTML = "";
+      status.appendChild(el("p", {}, "Couldn't start jsCoq here (" + (err && err.message || err) + ")."));
+      status.appendChild(el("a", { class: "btn ghost", href: MP_COQ.externalPlayground, target: "_blank", rel: "noopener" }, "↗ Open Coq playground"));
     });
+  }
+
+  function runLean(code, container, btn) {
+    let out = $(".lean-out", container);
+    if (!out) { out = el("div", { class: "lean-out" }); container.appendChild(out); }
+    out.innerHTML = "";
+    if (!window.MP_LEAN || !window.crossOriginIsolated) {
+      out.appendChild(el("div", { class: "coq-status bad" }, "This page isn't cross-origin isolated yet (needed for the Lean WASM worker). Reload once and try again."));
+      return;
+    }
+    const status = el("div", { class: "coq-status muted" },
+      "Starting Lean 4 (WASM). First run downloads the ~300 MB Lean toolchain (cached afterward) and elaboration takes ~1–2 min — please wait.");
+    out.appendChild(status);
+    btn.disabled = true; btn.textContent = "⏳ Running Lean…";
+    window.MP_LEAN.run(code, (m) => { status.textContent = "Lean: " + m; })
+      .then((r) => {
+        btn.disabled = false; btn.textContent = "▶ Run in Lean";
+        out.appendChild(el("div", { class: "verdict " + (r.ok ? "good" : "bad") },
+          r.ok ? "✓ Lean accepted the proof (exit 0, 0 errors)" : "✗ Lean reported " + r.errors + " error(s) (exit " + r.exitCode + ")"));
+        if (!r.ok && r.stderr) out.appendChild(el("pre", { class: "code" }, r.stderr.slice(0, 800)));
+      })
+      .catch((e) => {
+        btn.disabled = false; btn.textContent = "▶ Run in Lean";
+        status.className = "coq-status bad";
+        status.textContent = "Lean couldn't run here: " + (e && e.message || e) + " (needs a cross-origin-isolated page and network access to the Lean WASM CDN).";
+      });
   }
 
   /* ---------------- playgrounds ---------------- */
@@ -418,6 +444,7 @@
       case "legendre": pgLegendre(host); break;
       case "mersenne": pgMersenne(host); break;
       case "sat": pgSat(host); break;
+      case "z3": pgZ3(host); break;
       case "a317940": pgA317940(host); break;
       case "coq": pgCoq(host, p.playground); break;
       default: host.appendChild(el("p", { class: "muted" }, "Explorer coming soon."));
@@ -646,6 +673,40 @@
     host.appendChild(ta);
     host.appendChild(el("div", { class: "row" }, el("button", { class: "btn primary", onclick: go }, "▶ Solve")));
     host.appendChild(out); go();
+  }
+
+  function pgZ3(host) {
+    host.appendChild(el("p", { class: "muted" },
+      "The ", el("strong", {}, "Z3"), " SMT solver, compiled to WebAssembly, decides satisfiability of first-order formulas — far beyond the toy DPLL SAT demo. Write ",
+      el("code", {}, "SMT-LIB2"), " and press Solve. (Loads ~7 MB of Z3 wasm from a CDN on first run.)"));
+    const ta = el("textarea", { class: "coq-area", spellcheck: "false", rows: "8" });
+    ta.value = "; find x, y with x>2, y<10, (x+2)*y = 7\n(declare-const x Int)\n(declare-const y Int)\n(assert (> x 2))\n(assert (< y 10))\n(assert (= (* (+ x 2) y) 7))\n(check-sat)\n(get-model)";
+    const out = el("div", { class: "live-out" });
+    const ex = {
+      "sat system": ta.value,
+      "unsat (p ∧ ¬p)": "(declare-const p Bool)\n(assert (and p (not p)))\n(check-sat)",
+      "De Morgan valid": "(declare-const a Bool)\n(declare-const b Bool)\n(assert (not (= (not (and a b)) (or (not a) (not b)))))\n(check-sat)"
+    };
+    const go = () => {
+      out.innerHTML = "";
+      if (!window.MP_Z3) { out.appendChild(bad("Z3 module not loaded.")); return; }
+      const status = el("div", { class: "coq-status muted" }, "Loading Z3 (WASM) & solving…");
+      out.appendChild(status);
+      window.MP_Z3.checkSmtlib(ta.value).then((r) => {
+        status.remove();
+        const cls = r.result === "unsat" ? "warn" : r.result === "sat" ? "good" : "bad";
+        out.appendChild(el("div", { class: "verdict " + cls }, "Z3: " + r.result.toUpperCase()));
+        if (r.model) out.appendChild(el("pre", { class: "code" }, r.model));
+      }).catch((e) => {
+        status.className = "coq-status bad";
+        status.textContent = "Couldn't load Z3 here (" + (e && e.message || e) + "). Needs network access to the Z3 WASM CDN. The same checks run headlessly in CI (tests/z3.mjs).";
+      });
+    };
+    host.appendChild(el("div", { class: "examples" }, el("span", { class: "muted" }, "Examples: "),
+      ...Object.keys(ex).map((k) => el("button", { class: "chip-btn", onclick: () => { ta.value = ex[k]; go(); } }, k))));
+    host.appendChild(ta);
+    host.appendChild(el("div", { class: "row" }, el("button", { class: "btn primary", onclick: go }, "▶ Solve with Z3")));
+    host.appendChild(out);
   }
 
   function pgA317940(host) {

@@ -1,0 +1,27 @@
+name: Verify Z3 (SMT)
+
+# Runs the Z3 SMT solver (WebAssembly build) on a set of decisions and checks
+# the answers (sat/unsat), gating on any wrong result.
+
+on:
+  push:
+    paths: ["tests/z3.mjs", ".github/workflows/verify-z3.yml"]
+  pull_request:
+    paths: ["tests/z3.mjs", ".github/workflows/verify-z3.yml"]
+  workflow_dispatch:
+
+jobs:
+  z3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Z3 (WASM)
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm pkg set type=module >/dev/null 2>&1
+          npm install z3-solver@4.16.0
+      - name: Run Z3 checks
+        run: node tests/z3.mjs

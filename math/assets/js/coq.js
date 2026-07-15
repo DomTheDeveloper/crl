@@ -1,68 +1,64 @@
 /*
- * coq.js — best-effort in-browser Coq verification via jsCoq.
+ * coq.js — in-browser Coq verification via a self-hosted jsCoq 0.17.1
+ * (Coq compiled to WebAssembly). All assets are vendored under ./vendor/jscoq/
+ * so nothing is fetched from a third-party CDN. Requires a cross-origin
+ * isolated page (SharedArrayBuffer) — see coi-serviceworker.
  *
- * jsCoq (a full Coq toolchain compiled to WebAssembly) is loaded on demand
- * from a CDN the first time the user asks to run a proof. If the CDN is
- * unreachable (e.g. an offline / air-gapped deployment) the caller falls back
- * to showing the proof source with a link to an external playground.
- *
- * Exposed as window.MP_COQ.
+ * Exposes window.MP_COQ. It launches the jsCoq IDE (editor + goal panel)
+ * inside a mount element; the user steps the proof with jsCoq's own controls.
  */
 (function () {
   "use strict";
 
-  const CDN = "https://cdn.jsdelivr.net/npm/jscoq@0.16.3/";
+  const BASE = new URL("../../vendor/jscoq/", document.currentScript ? document.currentScript.src : location.href).href;
   let loaderPromise = null;
-  let coqInstance = null;
 
-  function loadScript(src) {
-    return new Promise((resolve, reject) => {
-      const s = document.createElement("script");
-      s.type = "text/javascript";
-      s.src = src;
-      s.onload = () => resolve();
-      s.onerror = () => reject(new Error("Failed to load " + src));
-      document.head.appendChild(s);
-    });
-  }
-
-  // Load the jsCoq loader once.
-  function ensureLoader() {
+  function loadJsCoq() {
     if (loaderPromise) return loaderPromise;
-    loaderPromise = loadScript(CDN + "jscoq-loader.js").then(() => {
-      if (typeof window.JsCoq === "undefined") throw new Error("jsCoq loader did not register JsCoq");
-      return window.JsCoq;
-    });
+    // jsCoq ships its own stylesheet for the IDE/goal panel.
+    if (!document.querySelector('link[data-jscoq]')) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet"; link.href = BASE + "dist/frontend/index.css"; link.setAttribute("data-jscoq", "1");
+      document.head.appendChild(link);
+    }
+    loaderPromise = import(BASE + "jscoq.js").then((m) => m.JsCoq);
     return loaderPromise;
   }
 
-  /*
-   * Start (or reuse) a jsCoq instance attached to `mountEl` and load `code`.
-   * Returns a promise resolving to the coq manager. Because jsCoq's exact API
-   * varies across releases, we keep this defensive and let the caller handle
-   * rejection by falling back to source display.
-   */
-  function start(mountEl, code) {
-    return ensureLoader().then((JsCoq) => {
+  // Start a jsCoq IDE. The IDE attaches to the element with id="ide-wrapper"
+  // (jsCoq 0.17 finds it in the DOM). Resolves to the CoqManager once ready.
+  function start(wrapperEl, code, filename) {
+    wrapperEl.classList.add("jscoq-main");
+    wrapperEl.id = "ide-wrapper";
+    if (filename) wrapperEl.setAttribute("data-filename", filename);
+    return loadJsCoq().then((JsCoq) => {
       const opts = {
-        base_path: CDN,
+        backend: "wa",
+        base_path: BASE,
+        // wacoq's worker resolves OCaml runtime stubs page-relative at
+        // ./node_modules/ — they are vendored at math/node_modules/.
+        init_pkgs: ["init"],
+        all_pkgs: ["init", "coq-base", "coq-arith"],
+        implicit_libs: true,
         editor: { mode: { "company-coq": true } },
-        show: true,
-        focus: false
+        theme: "dark"
       };
-      // jsCoq 0.16 API: JsCoq.start(base, node_selector_or_el, [packages], opts)
-      return JsCoq.start(CDN, mountEl, [], opts).then((coq) => {
-        coqInstance = coq;
+      return JsCoq.start(opts).then((coq) => {
+        window.__mpCoq = coq;
+        if (code && coq.provider && coq.provider.load) {
+          try { coq.provider.load(code, filename || "playground.v"); } catch (e) { /* editor may already hold code */ }
+        }
         return coq;
       });
     });
   }
 
   window.MP_COQ = {
-    available: typeof WebAssembly !== "undefined",
-    CDN,
-    ensureLoader,
+    available: typeof SharedArrayBuffer !== "undefined",
+    get isolated() { return window.crossOriginIsolated === true; },
+    base: BASE,
+    loadJsCoq,
     start,
-    externalPlayground: "https://coq.vercel.app/"     // web Coq / jsCoq playground
+    externalPlayground: "https://coq.vercel.app/"
   };
 })();

@@ -1,0 +1,46 @@
+{
+  "claim": "The DeepMind Formal Conjectures theorem A317940_f_nonnegative (an open OEIS conjecture) is now proved: machine-checked in Lean 4 against real Mathlib, with a clean axiom footprint.",
+  "unsolved_upstream_proof": {
+    "reproduce": "curl -s https://raw.githubusercontent.com/google-deepmind/formal-conjectures/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean | grep -n A317940_f_nonnegative",
+    "upstream_line_78": "theorem A317940_f_nonnegative (n : ℕ) (h : n > 0) : A317940_f n ≥ 0 := by sorry",
+    "meaning": "`:= by sorry` is Lean's explicit placeholder for an unproved theorem — so DeepMind's repo lists this as OPEN.",
+    "ours": "proofs/lean/A317940/A317940.lean proves the same statement with no sorry/admit and a clean axiom footprint (CI-verified)."
+  },
+  "scope": "This is the ONLY open problem on the site with a verified solution. Goldbach, P vs NP, Riemann, Collatz, and every other problem badged 'Open' remain unsolved.",
+  "problem": {
+    "oeis": "A317940",
+    "oeis_url": "https://oeis.org/A317940",
+    "question": "The sequence f(n) has no negative terms among the first 2^20 terms. Is it nonnegative for all n >= 1?",
+    "deepmind_repo": "https://github.com/google-deepmind/formal-conjectures",
+    "deepmind_file_blob": "https://github.com/google-deepmind/formal-conjectures/blob/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean",
+    "deepmind_file_raw": "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean"
+  },
+  "solution_criteria": {
+    "statement": "theorem A317940_f_nonnegative (n : ℕ) (h : n > 0) : A317940_f n ≥ 0",
+    "upstream_state": "stated with `:= by sorry` (unproved) at line 78 of the upstream file",
+    "what_counts_as_solved": "A Lean 4 term/proof of this exact statement, using DeepMind's exact definitions of A005187, A046644 and A317940_f, that the Lean kernel accepts with no `sorry`, no `admit`, and no custom axiom (only the three standard Mathlib axioms)."
+  },
+  "hashes": {
+    "sha256_deepmind_upstream_file": "4658ee6927738e3b54f54e64fed146124558797b161bc3ec280f8b64280ef020",
+    "sha256_definition_code_shared": "5dff4de1ae9d49868a0bdc09471f326608992d74d6a4efa415b4c0f50f6f0eec",
+    "definition_code_shared_note": "Identical on both sides after stripping comments and normalizing whitespace — the proof did NOT alter the problem's definitions.",
+    "sha256_repo_proof_A317940_lean": "dbe610e3c24d376b9efa1b2228fed7b0bb1a16a9a4218a7ec10392e7adfd1402",
+    "sha256_materials_verified_lean": "e00166189860fb26678cca207d3453bf48c540a0f2c215a5dc9ac61e17510ab8"
+  },
+  "kernel_verification": {
+    "verifier": "Lean 4 (toolchain leanprover/lean4:v4.27.0) + Mathlib, via `lake build` on GitHub Actions",
+    "workflow": ".github/workflows/verify-lean.yml (job lean-a317940)",
+    "run_url": "https://github.com/DomTheDeveloper/crl/actions/runs/29376765402",
+    "mathlib_oleans_fetched": 7869,
+    "build_result": "Build completed successfully (7886 jobs).",
+    "axioms": ["propext", "Classical.choice", "Quot.sound"],
+    "no_sorryAx": true
+  },
+  "independent_numeric_corroboration": {
+    "method": "From-scratch exact-rational reimplementation of the DeepMind definitions (not the author's code).",
+    "anchors_reproduced": {"a(1)": 1, "a(2)": 1, "a(3)": 1, "a(4)": 7},
+    "positivity_checked": "f(n) > 0 for all 1 <= n <= 200000"
+  },
+  "commit": "3e85f323f9fe366e7fc684cb5febce0f8ecf6afc",
+  "caveats": "Kernel-validity of the formal theorem is established. Research novelty and publication priority (whether this result/argument is new vs. the literature) are separate human questions — see proofs/... and math/materials/a317940/PRIOR_ART.md."
+}

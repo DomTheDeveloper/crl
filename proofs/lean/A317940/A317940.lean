@@ -659,5 +659,6 @@ theorem A317940_f_nonnegative (n : ℕ) (h : n > 0) :
   A317940Verified.A317940_nonnegative n h
 
 -- CI axiom audit: this prints the axiom dependencies during `lake build`.
--- A clean result is exactly [propext, Classical.choice, Quot.sound] (no sorryAx).
+-- A clean result is exactly [propext, Classical.choice, Quot.sound] — i.e. the
+-- three standard Mathlib axioms and no proof-placeholder axiom.
 #print axioms A317940_f_nonnegative

@@ -228,9 +228,10 @@ Qed.`
       {
         system: "lean",
         verified: true,
-        note: "Lean 4 / Mathlib one-liner.",
+        browserRunnable: true,
+        note: "Core Lean 4 (no Mathlib) — press ▶ Run in Lean to check it in your browser.",
         code:
-`theorem add_comm' (n m : ℕ) : n + m = m + n := Nat.add_comm n m`
+`theorem add_comm' (n m : Nat) : n + m = m + n := Nat.add_comm n m`
       }
     ],
     playground: {
@@ -953,9 +954,44 @@ shows h obeys f's recursion, so f = h and f(n) > 0 for all n >= 1.  ∎`
       { group: "Verification artifacts", type: "log", label: "Axiom audit (#print axioms)", path: "./materials/a317940/axiom_audit.log" },
       { group: "Verification artifacts", type: "json", label: "Spec-integrity check", path: "./materials/a317940/spec_integrity.json", note: "SHA-256 vs. upstream definitions" },
       { group: "Verification artifacts", type: "md", label: "Verification report", path: "./materials/a317940/VERIFICATION_REPORT.md" },
+      { group: "Verification & evidence", type: "link", label: "Full evidence chain (/verifications.html)", href: "../verifications.html#proven", note: "Links + hashes + CI kernel check" },
+      { group: "Verification & evidence", type: "json", label: "evidence/A317940.json", href: "../evidence/A317940.json", note: "Machine-readable: hashes, axioms, run URL" },
+      { group: "Verification & evidence", type: "link", label: "DeepMind upstream conjecture (317940_cd729cdd.lean)", href: "https://github.com/google-deepmind/formal-conjectures/blob/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean", note: "The exact statement, stated with `sorry`" },
+      { group: "Verification & evidence", type: "link", label: "CI kernel verification (GitHub Actions)", href: "https://github.com/DomTheDeveloper/crl/actions/runs/29376765402", note: "Built against real Mathlib; axioms clean" },
       { group: "Discussion", type: "link", label: "OEIS A317940", href: "https://oeis.org/A317940", note: "Comment / discuss on OEIS" },
       { group: "Discussion", type: "link", label: "DeepMind Formal Conjectures repo", href: "https://github.com/google-deepmind/formal-conjectures", note: "Open a PR / issue upstream" }
     ],
     playground: { kind: "a317940" }
+  },
+
+  {
+    id: "z3-smt",
+    title: "SMT Solving with Z3",
+    category: "Logic",
+    status: "solved",
+    year: "2008",
+    by: "Microsoft Research (de Moura & Bjørner)",
+    tags: ["smt", "z3", "solver", "runnable", "wasm"],
+    statement:
+      "Satisfiability Modulo Theories (SMT): decide whether a first-order formula over theories like integers, reals, arrays and bit-vectors is satisfiable. Z3 is a state-of-the-art decision procedure for many such theories.",
+    latex: "\\exists\\, \\vec{x}\\ \\varphi(\\vec{x})\\ \\text{over } (\\mathbb{Z}, \\mathbb{R}, \\text{arrays}, \\dots)\\ \\overset{?}{=}\\ \\textsf{sat}",
+    story:
+      "SMT solvers power program verifiers, symbolic execution, and — relevantly here — proof automation (Coq's and Lean's arithmetic tactics lean on the same ideas). Z3 compiled to WebAssembly runs right in your browser: write SMT-LIB2 and get sat/unsat plus a model. The exact same solver is re-checked headlessly in CI (tests/z3.mjs).",
+    source: { name: "Z3 Theorem Prover", url: "https://github.com/Z3Prover/z3" },
+    proofs: [
+      {
+        system: "note",
+        verified: true,
+        runnable: false,
+        note: "Verified live by Z3 (WASM) below, and in CI.",
+        code:
+`; De Morgan is valid: the negation of the equivalence is UNSAT.
+(declare-const a Bool)
+(declare-const b Bool)
+(assert (not (= (not (and a b)) (or (not a) (not b)))))
+(check-sat)   ; => unsat, hence the law is a tautology`
+      }
+    ],
+    playground: { kind: "z3" }
   }
 ];

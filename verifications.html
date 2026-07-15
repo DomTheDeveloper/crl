@@ -48,6 +48,9 @@
   .axbox{font-family:var(--mono);font-size:.82rem;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;overflow-x:auto;margin-top:10px}
   .foot{color:var(--muted);font-size:.85rem;margin-top:26px;border-top:1px solid var(--border);padding-top:16px}
   .tag{font-family:var(--mono);font-size:.72rem;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:1px 6px}
+  .scope{background:rgba(246,195,90,.10);border:1px solid rgba(246,195,90,.4);border-radius:10px;padding:10px 14px;font-size:.92rem;margin:12px 0}
+  ol.chain{padding-left:20px;margin:14px 0} ol.chain li{margin:12px 0}
+  .hashes{margin:8px 0 2px} .hashes div{font-size:.85rem;margin:3px 0} .hk{display:inline-block;min-width:230px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -59,11 +62,65 @@
      jsCoq for Coq, lean4.js for Lean) and on <strong>GitHub Actions</strong> (real Coq, real Lean, real Mathlib).
      Snapshot: commit <code>eefcb16</code>, 2026-07-14.</p>
 
-  <div class="banner">
-    <b>Headline:</b> the DeepMind Formal Conjectures theorem <code>A317940_f_nonnegative</code> compiled against
-    <b>real Mathlib</b> in CI with a clean axiom footprint — <b>VALID</b>. This is the independent kernel re-check a
-    browser/WASM environment cannot perform (Mathlib is far too large to ship to a browser).
-  </div>
+  <section id="proven" style="border-color:rgba(55,208,160,.5)">
+    <h2 style="font-size:1.35rem">✅ Proven: the A317940 nonnegativity conjecture</h2>
+    <p class="std" style="color:var(--text)">One genuinely <em>open</em> problem here now has a machine-checked solution:
+      the <strong>Google DeepMind Formal Conjectures</strong> theorem <code>A317940_f_nonnegative</code>, an OEIS
+      open question. Here is the full, checkable evidence chain — anyone can reproduce each link and hash.</p>
+    <p class="scope"><strong>Scope, stated plainly:</strong> this is the <u>only</u> open problem with a verified proof.
+      Goldbach, P vs NP, Riemann, Collatz and every other <span class="tag">Open</span> problem on the site remain
+      <strong>unsolved</strong> — nothing here claims otherwise.</p>
+
+    <ol class="chain">
+      <li><b>The problem.</b> OEIS <a href="https://oeis.org/A317940" target="_blank" rel="noopener">A317940</a> — “no negative
+        terms among the first 2²⁰ terms; is the sequence nonnegative?” Formalized in Lean by DeepMind in
+        <a href="https://github.com/google-deepmind/formal-conjectures/blob/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean" target="_blank" rel="noopener">317940_cd729cdd.lean</a>,
+        stated with <code>:= by sorry</code> (i.e. left unproved).</li>
+      <li><b>The solution criterion</b> (the exact statement to be discharged):
+        <div class="axbox">theorem A317940_f_nonnegative (n : ℕ) (h : n &gt; 0) : A317940_f n ≥ 0</div>
+        A solution = a Lean proof of <em>this</em> statement using DeepMind's exact definitions, accepted by the kernel
+        with no <code>sorry</code>/<code>admit</code>/custom axiom.</li>
+      <li><b>We didn't change the problem.</b> DeepMind's upstream file and our proof share the <em>same definition code</em>
+        (<code>A005187</code>, <code>A046644</code>, <code>A317940_f</code>) — byte-identical after stripping comments:
+        <div class="hashes">
+          <div><span class="hk">DeepMind upstream file</span> sha256 <code>4658ee69…280ef020</code></div>
+          <div><span class="hk">definition code (both sides)</span> sha256 <code>5dff4de1…f6f0eec</code> ← identical</div>
+          <div><span class="hk">our proof <code>proofs/lean/A317940/A317940.lean</code></span> sha256 <code>dbe610e3…dfd1402</code></div>
+        </div>
+        (Recorded in <a href="./evidence/A317940.json" target="_blank" rel="noopener">evidence/A317940.json</a> and
+        <a href="./evidence/SHA256SUMS.txt" target="_blank" rel="noopener">SHA256SUMS.txt</a>; the upstream hash also matches DeepMind's own <code>spec_integrity.json</code>.)</li>
+      <li><b>The kernel accepted it.</b> The
+        <a href="https://github.com/DomTheDeveloper/crl/actions/runs/29376765402" target="_blank" rel="noopener">verify-lean CI run ↗</a>
+        fetched 7,869 Mathlib olean files and compiled the proof against real Mathlib:
+        <div class="axbox">ℹ [7885/7886] Built A317940 (41s)
+info: A317940.lean:663:0: 'A317940_f_nonnegative' depends on axioms: [propext, Classical.choice, Quot.sound]
+Build completed successfully (7886 jobs).</div>
+        Axioms = the three standard Mathlib axioms only — <strong>no <code>sorryAx</code></strong>.</li>
+      <li><b>Independent numeric corroboration.</b> A from-scratch exact-rational reimplementation (not the author's code)
+        reproduces the OEIS anchors a(1..4)=1,1,1,7 and finds f(n) &gt; 0 for all n ≤ 200,000.</li>
+    </ol>
+    <h3 style="margin:18px 0 6px">Unsolved on their side, solved on ours — run it yourself</h3>
+    <p class="std">The single most direct check. DeepMind's file states the theorem with <code>:= by sorry</code> — Lean's explicit
+      marker for an <em>unproved</em> theorem. Ours proves it. Copy-paste either command:</p>
+    <div class="axbox"># 1) THEIRS — still open (prints the line ending in ':= by sorry'):
+$ curl -s https://raw.githubusercontent.com/google-deepmind/formal-conjectures/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean \
+    | grep -n A317940_f_nonnegative
+78:theorem A317940_f_nonnegative (n : ℕ) (h : n &gt; 0) : A317940_f n ≥ 0 := by sorry
+
+# 2) OURS — proved (no 'sorry'; kernel-checked in CI, see run above):
+$ grep -c 'sorry' proofs/lean/A317940/A317940.lean
+0</div>
+    <p class="note">You can also open the two files in a browser and read line 78 vs. our completed proof:
+      <a href="https://github.com/google-deepmind/formal-conjectures/blob/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean#L78" target="_blank" rel="noopener">DeepMind's (line 78, <code>sorry</code>) ↗</a>
+      &nbsp;·&nbsp;
+      <a href="./evidence/A317940_upstream_cd729cdd.lean" target="_blank" rel="noopener">our archived copy of it ↗</a>
+      &nbsp;·&nbsp;
+      <a href="./proofs/lean/A317940/A317940.lean" target="_blank" rel="noopener">our proof ↗</a>.</p>
+    <p class="note">Reproducibility: fetch the upstream file and re-hash; open the CI run and read the axiom line; or run
+      <code>lake build</code> in <code>proofs/lean/A317940/</code> yourself.
+      <strong>Caveat:</strong> this establishes the <em>formal theorem is proved</em>. Whether the result/argument is
+      <em>novel</em> vs. the literature is a separate human question (see the prior-art note under the problem's Materials).</p>
+  </section>
 
   <div class="summary">
     <div class="kpi ok"><div class="n">10 / 10</div><div class="l">Solutions valid</div></div>
