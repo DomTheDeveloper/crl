@@ -1,0 +1,36 @@
+name: Erdős 885 mod-four higher descent
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/sage_kummer_mod4.py'
+      - 'research/erdos885/sage_kummer_compat.py'
+      - 'research/erdos885/sage_kummer_five.py'
+      - '.github/workflows/erdos-885-kummer-mod4.yml'
+  workflow_dispatch:
+
+jobs:
+  mod4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull SageMath container
+        run: docker pull sagemath/sagemath:latest
+      - name: Lift compatible classes modulo four
+        run: |
+          mkdir -p results
+          docker run --rm \
+            -v "$PWD:/work" \
+            -w /work \
+            sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_kummer_mod4.py
+      - name: Show result
+        if: always()
+        run: cat results/kummer_mod4.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: erdos-885-kummer-mod4
+          path: results/kummer_mod4.json
+          if-no-files-found: warn
