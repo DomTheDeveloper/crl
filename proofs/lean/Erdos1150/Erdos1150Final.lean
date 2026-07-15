@@ -24,10 +24,10 @@ theorem parseval_lower_bound (P : ℂ[X]) (n : ℕ)
   rw [dft_coeff_eq_eval P n hdeg k] at hk
   let w : ℂ := (ZMod.stdAddChar (-k) : ℂ)
   have hw : w ∈ Metric.sphere (0 : ℂ) 1 := by
-    simp [w, Metric.mem_sphere]
+    simp [w]
   let z : Metric.sphere (0 : ℂ) 1 := ⟨w, hw⟩
   letI : CompactSpace (Metric.sphere (0 : ℂ) 1) :=
-    isCompact_iff_compactSpace.mp isCompact_sphere
+    isCompact_iff_compactSpace.mp (isCompact_sphere (0 : ℂ) 1)
   have hcontinuous : Continuous (fun u : Metric.sphere (0 : ℂ) 1 => ‖P.eval (u : ℂ)‖) :=
     (P.continuous.comp continuous_subtype_val).norm
   have hbounded : BddAbove
