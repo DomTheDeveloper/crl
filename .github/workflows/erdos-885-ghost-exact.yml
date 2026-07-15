@@ -1,0 +1,27 @@
+name: Erdős 885 exact ghost classification
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/sage_ghost_exact.py'
+      - '.github/workflows/erdos-885-ghost-exact.yml'
+  workflow_dispatch:
+
+jobs:
+  classify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker pull sagemath/sagemath:latest
+      - name: Compare all ghost towers with exact known quotient tuples
+        run: |
+          mkdir -p results
+          docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_ghost_exact.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: erdos-885-ghost-exact
+          path: results/ghost_exact.json
+          if-no-files-found: warn
