@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Evaluate the 24 mod-4 ghost towers as exact rational MW combinations.
+"""Evaluate the 24 previously omitted affine sign towers exactly.
 
-The mod-8 and mod-16 lifts show stationary sign-extension bits. We interpret
-those residues as small signed free coefficients, include the recorded rational
-2-torsion bits, and compare the resulting five exact quotient points with all
-known projective points on the diagonal curve.
+The affine chart fixes z=1, so all 16 sign choices for (u0,u1,u2,u3) are
+distinct. Earlier classification incorrectly fixed u0=+1 and therefore omitted
+exactly 8 sign points for each of the three known columns.
 """
 from __future__ import annotations
 import itertools,json,sys
@@ -15,7 +14,6 @@ import sage_kummer_compat as kc
 import sage_kummer_five as k5
 
 GHOST16=[[32,2304,291,34,254],[32,16131,2016,225,38],[28,14396,2631,37,13030],[28,2279,16092,254,5694],[252,28,2047,258,1598],[252,7,292,1793,742],[34,2306,289,226,38],[34,16129,2018,33,254],[30,14398,2629,253,5694],[30,2277,16094,38,13030],[254,30,2045,1794,742],[254,5,294,257,1598],[225,2306,2016,35,254],[225,16129,291,224,38],[5,14398,16092,36,13030],[5,2277,2631,255,5694],[37,30,292,259,1598],[37,5,2047,1792,742],[227,2304,2018,227,38],[227,16131,289,32,254],[7,14396,16094,252,5694],[7,2279,2629,39,13030],[39,28,294,1795,742],[39,7,2045,256,1598]]
-RANKS=[2,4,4,3,4]
 
 def decode(idx,n,r):
  tb=idx%4;v=idx//4;c=[0]*r
@@ -50,10 +48,12 @@ def known_exact(factors,E5,p,q,s):
    z=Integer(t)+r*r
    if z<0 or not z.is_square():raise RuntimeError('bad known t')
    mags.append(Integer(z.sqrt()))
-  for tail in itertools.product([1,-1],repeat=3):
-   signs=(1,)+tail;us=[signs[i]*mags[i] for i in range(4)]
+  # In the affine chart z=1, all 2^4 signs are distinct.
+  for signs in itertools.product([1,-1],repeat=4):
+   us=[signs[i]*mags[i] for i in range(4)]
    pts=[triple_map(us,inds,E) for inds,E,_,_ in factors]+[fifth_map(us,E5,p,q,s)]
    out.append({'id':f't={t};signs={signs}','t':int(t),'signs':signs,'points':pts})
+ # At infinity z=0, overall projective sign is free, so normalize u0=+1.
  for tail in itertools.product([1,-1],repeat=3):
   signs=(1,)+tail;pts=[]
   for inds,E,a,b in factors:
@@ -73,10 +73,9 @@ def main():
  known=known_exact(factors,E5,p,q,s);report=[]
  for gi,inds in enumerate(GHOST16):
   pts=[];coeff=[];tbs=[]
-  for f,(E,gs,ts,idx) in enumerate(zip(curves,gensall,torsall,inds)):
+  for E,gs,ts,idx in zip(curves,gensall,torsall,inds):
    P,c,tb=point_from_index(E,gs,ts,idx);pts.append(P);coeff.append(c);tbs.append(tb)
   matches=[K['id'] for K in known if K['points']==pts]
-  # t read independently from each quotient x-coordinate.
   ts=[]
   for (tr,E,a,b),P in zip(factors,pts[:4]):
    aa,bb,cc=[kc.ROWS[i] for i in tr];pp=bb*bb-aa*aa;qq=cc*cc-aa*aa
@@ -86,7 +85,7 @@ def main():
     u=(16*pp*qq-P[0]**2)/(4*P[1]);ts.append(str(u**2-aa**2))
   P=pts[4]
   ts.append('infinity' if P.is_zero() else str(16*p*q*s/P[0]-kc.ROWS[0]**2))
-  report.append({'ghost':gi,'indices_mod16':inds,'signed_coefficients':coeff,'torsion_bits':tbs,'t_values':ts,'exact_known_matches':matches,'points':[pj(P) for P in pts]})
- out={'ghost_count':len(report),'matched_count':sum(bool(x['exact_known_matches']) for x in report),'unmatched_count':sum(not x['exact_known_matches'] for x in report),'ghosts':report,'interpretation':'Exact rational equality on all five quotient factors, not reduction signatures.'}
- Path('results').mkdir(exist_ok=True);Path('results/ghost_exact.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n');print(json.dumps({'matched':out['matched_count'],'unmatched':out['unmatched_count']}))
+  report.append({'class':gi,'indices_mod16':inds,'signed_coefficients':coeff,'torsion_bits':tbs,'t_values':ts,'exact_known_matches':matches,'points':[pj(P) for P in pts]})
+ out={'class_count':len(report),'known_point_count':len(known),'matched_count':sum(bool(x['exact_known_matches']) for x in report),'unmatched_count':sum(not x['exact_known_matches'] for x in report),'classes':report,'interpretation':'Exact rational equality on all five quotient factors, not reduction signatures.'}
+ Path('results').mkdir(exist_ok=True);Path('results/ghost_exact.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n');print(json.dumps({'matched':out['matched_count'],'unmatched':out['unmatched_count'],'known':len(known)}))
 if __name__=='__main__':main()
