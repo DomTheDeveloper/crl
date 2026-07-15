@@ -35,7 +35,7 @@ lemma missingPendantNeighbors_subset_compl_neighborFinset
     exact ((mem_coreVertices_iff G).1 hc) hdeg
   have hadj : Gᶜ.Adj c l := by
     simp [hne, hnot]
-  exact ((Gᶜ).mem_neighborFinset l).2 hadj
+  simpa only [(Gᶜ).mem_neighborFinset] using hadj
 
 lemma card_missingPendantNeighbors_le_degree_compl
     {c : α} (hc : c ∈ coreVertices G) :
@@ -46,8 +46,11 @@ lemma card_missingPendantNeighbors_le_degree_compl
 lemma pendant_card_add_core_card :
     (pendantVertices G).card + (coreVertices G).card = Fintype.card α := by
   classical
+  have hle : (pendantVertices G).card ≤ Fintype.card α := by
+    simpa using Finset.card_le_card (Finset.subset_univ (pendantVertices G))
   rw [coreVertices, Finset.card_sdiff]
-  simp
+  simp only [Finset.inter_univ, Finset.card_univ]
+  omega
 
 lemma sum_degrees_split (H : SimpleGraph α) [DecidableRel H.Adj] :
     (∑ v, H.degree v) =
@@ -55,14 +58,15 @@ lemma sum_degrees_split (H : SimpleGraph α) [DecidableRel H.Adj] :
         ∑ v ∈ coreVertices G, H.degree v := by
   classical
   have hdisj : Disjoint (pendantVertices G) (coreVertices G) := by
-    simp [coreVertices]
+    apply Finset.disjoint_left.mpr
+    intro x hxP hxC
+    exact (Finset.mem_sdiff.mp hxC).2 hxP
   have hunion : pendantVertices G ∪ coreVertices G = Finset.univ := by
     ext v
     simp [coreVertices]
   calc
     (∑ v, H.degree v) = ∑ v ∈ pendantVertices G ∪ coreVertices G, H.degree v := by
       rw [hunion]
-      simp
     _ = (∑ v ∈ pendantVertices G, H.degree v) +
         ∑ v ∈ coreVertices G, H.degree v := by
       rw [Finset.sum_union hdisj]
@@ -71,9 +75,13 @@ lemma sum_compl_degrees_on_pendants :
     (∑ l ∈ pendantVertices G, Gᶜ.degree l) =
       (pendantVertices G).card * (Fintype.card α - 2) := by
   classical
-  apply Finset.sum_congr rfl
-  intro l hl
-  rw [degree_compl_of_pendant G hl]
+  calc
+    (∑ l ∈ pendantVertices G, Gᶜ.degree l) =
+        ∑ _l ∈ pendantVertices G, (Fintype.card α - 2) := by
+          apply Finset.sum_congr rfl
+          intro l hl
+          rw [degree_compl_of_pendant G hl]
+    _ = (pendantVertices G).card * (Fintype.card α - 2) := by simp
 
 lemma lower_bound_sum_compl_degrees
     (hleaf_core : ∀ l ∈ pendantVertices G, ∀ c, G.Adj l c → c ∈ coreVertices G) :
@@ -111,8 +119,9 @@ lemma core_card_le_three
     have hsub : forcedVertices G ⊆ coreVertices G := by
       intro c hc
       exact ((mem_forcedVertices_iff G).1 hc).1
+    rcases hCne with ⟨c, hcF⟩
     have : 0 < (coreVertices G).card :=
-      Finset.card_pos.mpr ⟨hCne.some, hsub hCne.some_mem⟩
+      Finset.card_pos.mpr ⟨c, hsub hcF⟩
     simpa [q] using this
   have hpart : p + q = n := by
     simpa [p, q, n] using pendant_card_add_core_card G
