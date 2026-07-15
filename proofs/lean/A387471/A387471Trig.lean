@@ -29,6 +29,7 @@ theorem product_difference_identity (x y z : ℝ) :
     Real.sin_pi_div_six, Real.cos_pi_div_six]
   ring_nf
   rw [hsqrt2, hsqrt3]
+  ring
 
 /-- The trigonometric-Ceva product equation is equivalent to a three-sine
 vanishing relation. -/
