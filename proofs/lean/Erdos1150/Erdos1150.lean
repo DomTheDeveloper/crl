@@ -1,4 +1,5 @@
 import Mathlib.Analysis.Fourier.ZMod
+import Mathlib.Algebra.Polynomial.Eval.Degree
 
 open Complex Finset MeasureTheory
 open scoped BigOperators ComplexConjugate Polynomial ZMod
@@ -111,6 +112,19 @@ lemma stdAddChar_neg_mul_eq_pow (j k : ZMod N) :
     simp [nsmul_eq_mul]
   rw [hj, AddChar.map_nsmul_eq_pow]
 
-#print axioms stdAddChar_neg_mul_eq_pow
+/-- The coefficient vector's DFT is evaluation at the corresponding root of unity. -/
+lemma dft_coeff_eq_eval (P : ℂ[X]) (n : ℕ) (hdeg : P.natDegree = n)
+    (k : ZMod (n + 1)) :
+    ZMod.dft (fun j : ZMod (n + 1) => P.coeff j.val) k =
+      P.eval (ZMod.stdAddChar (-k) : ℂ) := by
+  rw [ZMod.dft_apply, Polynomial.eval_eq_sum_range, hdeg]
+  simp only [smul_eq_mul]
+  rw [← Fin.sum_univ_eq_sum_range]
+  refine Fintype.sum_equiv (ZMod.finEquiv (n + 1)).symm _ _ ?_
+  intro j
+  rw [stdAddChar_neg_mul_eq_pow]
+  rfl
+
+#print axioms dft_coeff_eq_eval
 
 end Erdos1150Proof
