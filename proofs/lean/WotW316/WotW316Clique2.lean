@@ -77,9 +77,8 @@ theorem core_clique_of_card_eq_two
   have hcore : coreVertices G = {u, v} :=
     Finset.eq_of_subset_of_card_le hpairSub (by simpa [hcard, hpairCard]) |>.symm
   have huempty : coreNeighbors G u = ∅ := by
-    ext x
-    simp only [Finset.mem_empty, iff_false]
-    intro hx
+    apply Finset.eq_empty_iff_forall_notMem.mpr
+    intro x hx
     change x ∈ (coreVertices G).filter (fun c => G.Adj u c) at hx
     rcases Finset.mem_filter.mp hx with ⟨hxCore, hux⟩
     rw [hcore] at hxCore
@@ -88,9 +87,8 @@ theorem core_clique_of_card_eq_two
     · exact G.loopless u hux
     · exact hnot hux
   have hvempty : coreNeighbors G v = ∅ := by
-    ext x
-    simp only [Finset.mem_empty, iff_false]
-    intro hx
+    apply Finset.eq_empty_iff_forall_notMem.mpr
+    intro x hx
     change x ∈ (coreVertices G).filter (fun c => G.Adj v c) at hx
     rcases Finset.mem_filter.mp hx with ⟨hxCore, hvx⟩
     rw [hcore] at hxCore
