@@ -66,9 +66,9 @@ theorem conjecture316_solved (G : SimpleGraph α) [DecidableRel G.Adj]
       exact Finset.not_nonempty_iff_eq_empty.mp hP
     have hupper := upper_bound_sum_compl_degrees_of_average G hG h
     have hsum0 : (∑ v, Gᶜ.degree v) = 0 := by
-      rw [hPempty] at hupper
-      simp at hupper
-      omega
+      have hupper0 : (∑ v, Gᶜ.degree v) ≤ 0 := by
+        simpa [hPempty] using hupper
+      exact Nat.le_zero.mp hupper0
     letI : Nonempty α := hG.nonempty
     apply wellTotallyDominated_of_complete G
     intro u v huv
