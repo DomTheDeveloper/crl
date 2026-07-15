@@ -6,9 +6,9 @@ bounded exhaustive search and exact point equality. Integer linear algebra then
 computes the free rank, saturation index, and mod-2 span including torsion.
 """
 from __future__ import annotations
-import itertools,json,traceback
+import itertools,json
 from pathlib import Path
-from sage.all import GF,Matrix,QQ,ZZ,proof
+from sage.all import GF,Matrix,ZZ,proof
 from sage_unified_descent import certified_factor_data,known_projective_points,point_json
 
 BOUND=6
@@ -32,8 +32,7 @@ def coordinate_dictionary(FD):
     return d,collisions
 
 def gf2_rank(rows):
-    if not rows:return 0
-    return Matrix(GF(2),rows).rank()
+    return 0 if not rows else Matrix(GF(2),rows).rank()
 
 def main():
     proof.all(True);factors=certified_factor_data();known=known_projective_points(factors)
@@ -61,14 +60,10 @@ def main():
     for C in coordinates[1:]:
         free_rows.append([ZZ(a)-ZZ(b) for a,b in zip(C['free'],base['free'])])
         tors_rows.append([(int(a)-int(b))&1 for a,b in zip(C['torsion'],base['torsion'])])
-    M=Matrix(ZZ,free_rows);free_rank=M.rank();L=M.row_module(ZZ);Sat=L.saturation();sat_index=Sat.index_in(L) if hasattr(Sat,'index_in') else None
-    # Compute Smith data independently; nonzero elementary divisors multiply to the index in saturation.
-    S,U,V=M.smith_form();diag=[abs(ZZ(S[i,i])) for i in range(min(S.nrows(),S.ncols())) if S[i,i]!=0]
-    smith_index=ZZ(1)
-    for d in diag:smith_index*=d
-    # Combined mod-2 span in A(Q)/2A(Q), free bits followed by ten rational torsion bits.
-    combined=[]
-    for fr,tr in zip(free_rows,tors_rows):combined.append([int(x)&1 for x in fr]+tr)
+    M=Matrix(ZZ,free_rows);free_rank=M.rank();L=M.row_module(ZZ);Sat=L.saturation()
+    S=M.smith_form();diag=[abs(ZZ(S[i,i])) for i in range(min(S.nrows(),S.ncols())) if S[i,i]!=0]
+    smith_index=ZZ.prod(diag) if diag else ZZ(1)
+    combined=[[int(x)&1 for x in fr]+tr for fr,tr in zip(free_rows,tors_rows)]
     out={'bound':BOUND,'known_point_count':len(known),'factor_ranks':[FD['rank'] for FD in factors],
       'total_free_rank':sum(FD['rank'] for FD in factors),'dictionaries':dict_report,
       'missing_count':0,'coordinates':coordinates,
