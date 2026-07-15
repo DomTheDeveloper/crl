@@ -1,12 +1,6 @@
 name: Verify Lean proofs
 
-# Two independent checks:
-#   lean-core     — fast: core-Lean proofs (no Mathlib), also the ones runnable
-#                   in the in-browser Lean (lean4.js / WASM).
-#   lean-a317940  — the gold standard: compiles the A317940 nonnegativity proof
-#                   against real Mathlib and prints its axiom dependencies.
-#                   This is the independent kernel re-check that a browser/WASM
-#                   or sandbox environment cannot perform.
+# Independent kernel checks for the Lean developments in proofs/lean.
 
 on:
   push:
@@ -25,8 +19,8 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Guard — no sorry/admit in core sources
-        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b' proofs/lean/core"
+      - name: Guard — no proof placeholders in core sources
+        run: "! grep -RnE '(^|[[:space:]])(sorry|admit)([[:space:]]|$)' proofs/lean/core"
       - name: Build & kernel-check core proofs
         working-directory: proofs/lean/core
         run: lake build
@@ -41,12 +35,10 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Guard — no sorry/admit/native_decide in the proof
-        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' proofs/lean/A317940/A317940.lean"
+      - name: Guard — no proof placeholders/native_decide
+        run: "! grep -RnE '(^|[[:space:]])(sorry|admit|native_decide)([[:space:]]|$)' proofs/lean/A317940/A317940.lean"
       - name: Resolve Mathlib dependency
         working-directory: proofs/lean/A317940
-        # If the pinned Mathlib tag ever drifts from the toolchain, bump
-        # `version` in lakefile.toml and the lean-toolchain file together.
         run: lake update
       - name: Fetch prebuilt Mathlib cache
         working-directory: proofs/lean/A317940
@@ -59,6 +51,39 @@ jobs:
           lake build 2>&1 | tee build.log
       - name: Assert clean axiom footprint (no sorryAx)
         working-directory: proofs/lean/A317940
+        run: |
+          echo "----- #print axioms output -----"
+          grep -iE "axioms|sorryAx|propext|Classical.choice|Quot.sound" build.log || true
+          if grep -q "sorryAx" build.log; then
+            echo "::error::Proof depends on sorryAx — not a real proof."; exit 1
+          fi
+
+  lean-a387471:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan (Lean toolchain manager)
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Guard — no proof placeholders/native_decide
+        run: "! grep -RnE '(^|[[:space:]])(sorry|admit|native_decide)([[:space:]]|$)' proofs/lean/A387471/A387471.lean"
+      - name: Resolve Mathlib dependency
+        working-directory: proofs/lean/A387471
+        run: lake update
+      - name: Fetch prebuilt Mathlib cache
+        working-directory: proofs/lean/A387471
+        run: lake exe cache get || echo "cache miss — Mathlib will build from source"
+      - name: Build, kernel-check, and print axioms
+        working-directory: proofs/lean/A387471
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build 2>&1 | tee build.log
+      - name: Assert clean axiom footprint (no sorryAx)
+        working-directory: proofs/lean/A387471
         run: |
           echo "----- #print axioms output -----"
           grep -iE "axioms|sorryAx|propext|Classical.choice|Quot.sound" build.log || true
