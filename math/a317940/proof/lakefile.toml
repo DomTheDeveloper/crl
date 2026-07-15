@@ -1,0 +1,11 @@
+name = "a317940"
+defaultTargets = ["A317940"]
+
+# Kernel-check the A317940 nonnegativity proof against real Mathlib.
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+version = "git#v4.27.0"
+
+[[lean_lib]]
+name = "A317940"

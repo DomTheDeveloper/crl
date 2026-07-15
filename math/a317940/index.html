@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OEIS A317940 — a formally verified nonnegativity proof</title>
+<meta name="description" content="A machine-checked Lean 4 proof (verified against Mathlib in CI) that the Dirichlet square root behind OEIS A317940 is strictly positive — resolving the DeepMind Formal Conjectures theorem A317940_f_nonnegative. All sources, papers, and verification artifacts." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%9A%3C/text%3E%3C/svg%3E" />
+<style>
+  :root{
+    --bg:#0e1116;--panel:#161c27;--panel2:#1b2430;--border:#273140;--text:#e6edf3;--muted:#93a1b1;
+    --ok:#37d0a0;--accent:#7c5cff;--warn:#f6c35a;--danger:#ff6b6b;
+    --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:light){:root{--bg:#f7f8fa;--panel:#fff;--panel2:#f0f3f6;--border:#d6dce3;--text:#1a1f24;--muted:#5a6472;}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;
+    background-image:radial-gradient(1000px 520px at 88% -12%,rgba(124,92,255,.10),transparent 60%),radial-gradient(760px 420px at -8% 4%,rgba(55,208,160,.08),transparent 55%);}
+  a{color:var(--ok);text-decoration:none}a:hover{text-decoration:underline}
+  code{font-family:var(--mono);background:rgba(127,127,127,.16);padding:.1em .35em;border-radius:5px;font-size:.9em}
+  .wrap{max-width:900px;margin:0 auto;padding:30px 20px 80px}
+  .crumbs{font-size:.85rem;color:var(--muted);margin-bottom:18px}
+  h1{font-size:clamp(1.7rem,4.4vw,2.5rem);line-height:1.2;letter-spacing:-.02em;margin:.1em 0 .15em}
+  .sub{font-size:1.08rem;color:var(--muted);margin:0 0 14px}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 6px}
+  .b{font-size:.78rem;font-weight:600;padding:4px 11px;border-radius:20px;border:1px solid transparent;white-space:nowrap}
+  .b.ok{color:var(--ok);background:rgba(55,208,160,.13);border-color:rgba(55,208,160,.4)}
+  .b.mut{color:var(--muted);background:rgba(127,127,127,.12);border-color:var(--border)}
+  section{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin:18px 0}
+  h2{font-size:1.25rem;margin:.1em 0 .5em}
+  h3{font-size:1rem;margin:1.1em 0 .3em}
+  .abstract{font-family:var(--serif);font-size:1.06rem}
+  .thm{font-family:var(--mono);background:var(--panel2);border:1px solid var(--border);border-left:3px solid var(--ok);
+    border-radius:0 10px 10px 0;padding:14px 16px;overflow-x:auto;font-size:.92rem;white-space:pre;margin:10px 0}
+  .axbox{font-family:var(--mono);font-size:.82rem;background:#0b1017;color:#cdd9e5;border:1px solid var(--border);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre;margin:10px 0}
+  @media (prefers-color-scheme:light){.axbox{background:#0d1117}}
+  ol.chain{padding-left:20px} ol.chain li{margin:9px 0}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+  .files a{font-family:var(--mono);font-size:.88rem}
+  .hk{color:var(--muted);display:inline-block;min-width:220px}
+  .hash{font-family:var(--mono);font-size:.82rem;word-break:break-all}
+  .note{color:var(--muted);font-size:.9rem}
+  .callout{border-left:3px solid var(--warn);background:rgba(246,195,90,.09);padding:10px 14px;border-radius:0 10px 10px 0;margin:12px 0;color:var(--muted)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:640px){.grid2{grid-template-columns:1fr}}
+  .foot{color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:26px;padding-top:16px}
+  .toc{display:flex;gap:14px;flex-wrap:wrap;font-size:.9rem;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumbs"><a href="../#/">∑ Math Proof Playground</a> ›
+    <a href="../#/p/a317940">A317940 (interactive)</a> › <a href="../../verifications.html#proven">verification report</a></div>
+
+  <h1>Strict positivity of the Dirichlet square root behind OEIS&nbsp;A317940</h1>
+  <p class="sub">A machine-checked Lean&nbsp;4 proof of the Google DeepMind <em>Formal Conjectures</em> theorem
+    <code>A317940_f_nonnegative</code> — an open OEIS conjecture.</p>
+  <div class="badges">
+    <span class="b ok">✓ Proved</span>
+    <span class="b ok">Kernel-verified · Lean 4 + Mathlib (CI)</span>
+    <span class="b ok">axioms: propext · Classical.choice · Quot.sound</span>
+    <span class="b mut">no sorry / admit / custom axiom</span>
+  </div>
+  <div class="toc">
+    <a href="#abstract">Abstract</a><a href="#theorem">Theorem</a><a href="#proof">Proof idea</a>
+    <a href="#verification">Verification</a><a href="#open">Open→closed</a><a href="#downloads">Downloads</a>
+    <a href="#reproduce">Reproduce</a><a href="#novelty">Novelty</a>
+  </div>
+
+  <section id="abstract">
+    <h2>Abstract</h2>
+    <p class="abstract">Let <em>g</em> be the multiplicative arithmetic function determined on prime powers by
+      <code>g(pᵉ) = 2^A005187(e)</code>, where <code>A005187(e) = Σₖ ⌊e/2ᵏ⌋</code>. Let <em>f</em> be the unique
+      arithmetic function with <code>f(1)=1</code> and Dirichlet square <code>f∗f = g</code> (OEIS A046644). OEIS
+      A317940 records the numerators of the rational values <em>f(n)</em> and asks whether they are nonnegative. We
+      prove the stronger statement <strong>f(n) &gt; 0 for every n ≥ 1</strong>. The argument reduces the problem to
+      positivity of the coefficients of the formal square root of the binary Euler product
+      <code>∏ᵣ (1 + z^{2ʳ}/2)</code>, which follows from a closed positive formula for the logarithmic coefficients.
+      A Lean&nbsp;4 formalization proves the exact upstream statement and is kernel-verified against Mathlib.</p>
+  </section>
+
+  <section id="theorem">
+    <h2>The theorem (exact upstream statement)</h2>
+    <div class="thm">theorem A317940_f_nonnegative (n : ℕ) (h : n &gt; 0) : A317940_f n ≥ 0</div>
+    <p class="note">Using DeepMind's exact definitions of <code>A005187</code>, <code>A046644</code> and
+      <code>A317940_f</code> — byte-identical to the upstream file (see <a href="#open">below</a>). The formalization
+      also establishes the stronger internal fact that the values are <em>strictly</em> positive.</p>
+  </section>
+
+  <section id="proof">
+    <h2>Proof idea</h2>
+    <ol class="chain">
+      <li>Because <em>g</em> is multiplicative with <code>g(1)=1</code>, its Dirichlet square root <em>f</em> is
+        multiplicative; it suffices to understand the local coefficients <code>c_e = f(pᵉ)</code>, satisfying
+        <code>Σⱼ c_j c_{e−j} = 2^A005187(e)</code>.</li>
+      <li>Since <code>A005187(e) = 2e − s₂(e)</code> (s₂ = binary digit sum), the normalized coefficients
+        <code>b_e = 2^{−s₂(e)}</code> have generating function <code>B(z) = ∏ᵣ (1 + z^{2ʳ}/2)</code>.</li>
+      <li>Let <code>A(z)² = B(z)</code>, <code>A(0)=1</code>. For <code>n = 2ᵛ·m</code> with m odd,
+        <code>[zⁿ] log A(z) = (1/2m)(2^{−m} − Σⱼ 2^{−j−2ʲm}) &gt; 0</code>, so every coefficient of
+        <code>A = exp(log A)</code> is strictly positive.</li>
+      <li>Rescaling <code>c_e = 4ᵉ a_e</code> recovers the prime-power convolution; the multiplicative lift <em>h</em>
+        with <code>h(pᵉ)=c_e</code> satisfies <code>h∗h = g</code>, and endpoint-divisor separation shows <em>h</em>
+        obeys the exact well-founded recursion defining <em>f</em>. Hence <code>f = h</code> and <code>f(n) &gt; 0</code>. ∎</li>
+    </ol>
+    <p class="note">Full write-up: <a href="./docs/HUMAN_PROOF.md">HUMAN_PROOF.md</a> ·
+      <a href="./paper/A317940_paper_draft.pdf">paper draft (PDF)</a> ·
+      <a href="./paper/A317940_short_note.pdf">short note (PDF)</a>. The same argument generalizes to
+      <code>∏ᵣ(1+q z^{2ʳ})^α</code> for <code>0&lt;q≤1, α&gt;0</code> —
+      <a href="./proof/DigitalEulerPositivity_generalization.lean">DigitalEulerPositivity.lean</a>.</p>
+  </section>
+
+  <section id="verification">
+    <h2>Verification</h2>
+    <p>The 659-line Lean proof was compiled against <strong>real Mathlib</strong> on GitHub Actions (it fetched 7,869
+      Mathlib <code>.olean</code> files), and the kernel's axiom audit is clean:</p>
+    <div class="axbox">ℹ [7885/7886] Built A317940 (41s)
+info: 'A317940_f_nonnegative' depends on axioms: [propext, Classical.choice, Quot.sound]
+Build completed successfully (7886 jobs).</div>
+    <p class="note">Re-confirmed at two independent commits. CI run:
+      <a href="https://github.com/DomTheDeveloper/crl/actions/runs/29378868663" target="_blank" rel="noopener">verify-lean (job lean-a317940) ↗</a>.
+      Artifacts: <a href="./verification/axiom_audit.log">axiom_audit.log</a> ·
+      <a href="./verification/AXLE_verification.json">AXLE_verification.json</a> ·
+      <a href="./verification/spec_integrity.json">spec_integrity.json</a> ·
+      <a href="./docs/VERIFICATION_REPORT.md">VERIFICATION_REPORT.md</a>.</p>
+    <h3>Independent numeric corroboration</h3>
+    <p class="note">A from-scratch exact-rational reimplementation of the definitions reproduces the OEIS anchors
+      <code>a(1..4)=1,1,1,7</code> and finds <code>f(n) &gt; 0</code> for all <code>n ≤ 200,000</code>. Try it live on the
+      <a href="../#/p/a317940">interactive page</a>.</p>
+  </section>
+
+  <section id="open">
+    <h2>Open upstream → closed here (reproducible)</h2>
+    <p class="note">DeepMind's file states the theorem with <code>:= by sorry</code> (Lean's marker for “unproved”).
+      Ours discharges it. Run either command:</p>
+    <div class="axbox"># THEIRS — still open:
+$ curl -s https://raw.githubusercontent.com/google-deepmind/formal-conjectures/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean | grep -n A317940_f_nonnegative
+78:theorem A317940_f_nonnegative (n : ℕ) (h : n &gt; 0) : A317940_f n ≥ 0 := by sorry
+
+# OURS — proved:
+$ grep -c 'sorry' proof/A317940_verified.lean
+0</div>
+    <h3>Hashes</h3>
+    <div class="hash"><span class="hk">DeepMind upstream file</span> sha256 4658ee6927738e3b54f54e64fed146124558797b161bc3ec280f8b64280ef020</div>
+    <div class="hash"><span class="hk">definition code (both sides, identical)</span> sha256 5dff4de1ae9d49868a0bdc09471f326608992d74d6a4efa415b4c0f50f6f0eec</div>
+    <div class="hash"><span class="hk">our proof A317940_verified.lean</span> see <a href="./evidence/PROJECT_SHA256SUMS.txt">PROJECT_SHA256SUMS.txt</a></div>
+    <p class="note">Machine-readable: <a href="./evidence/A317940.json">evidence/A317940.json</a> ·
+      <a href="./evidence/A317940_upstream_cd729cdd.lean">archived upstream copy</a>.</p>
+  </section>
+
+  <section id="downloads">
+    <h2>All files</h2>
+    <div class="grid2">
+      <div class="files">
+        <h3>Proof (Lean 4)</h3>
+        <table><tbody>
+          <tr><td><a href="./proof/A317940_verified.lean">A317940_verified.lean</a></td><td class="note">complete proof (659 lines, no sorry)</td></tr>
+          <tr><td><a href="./proof/A317940.lean">A317940.lean</a></td><td class="note">Lake-project form (+#print axioms)</td></tr>
+          <tr><td><a href="./proof/A317940_upstream_form.lean">A317940_upstream_form.lean</a></td><td class="note">installed into the exact upstream file</td></tr>
+          <tr><td><a href="./proof/A317940_upstream_spec.lean">A317940_upstream_spec.lean</a></td><td class="note">the original stated-with-sorry conjecture</td></tr>
+          <tr><td><a href="./proof/DigitalEulerPositivity_generalization.lean">DigitalEulerPositivity_generalization.lean</a></td><td class="note">the general theorem</td></tr>
+          <tr><td><a href="./proof/lakefile.toml">lakefile.toml</a> · <a href="./proof/lean-toolchain">lean-toolchain</a></td><td class="note">build config (Mathlib, v4.27.0)</td></tr>
+        </tbody></table>
+      </div>
+      <div class="files">
+        <h3>Papers &amp; notes</h3>
+        <table><tbody>
+          <tr><td><a href="./paper/A317940_paper_draft.pdf">paper_draft.pdf</a> · <a href="./paper/A317940_paper_draft.tex">.tex</a></td><td class="note">full paper draft</td></tr>
+          <tr><td><a href="./paper/A317940_short_note.pdf">short_note.pdf</a> · <a href="./paper/A317940_short_note.tex">.tex</a></td><td class="note">short note</td></tr>
+          <tr><td><a href="./docs/HUMAN_PROOF.md">HUMAN_PROOF.md</a></td><td class="note">readable proof</td></tr>
+          <tr><td><a href="./docs/PRIOR_ART.md">PRIOR_ART.md</a></td><td class="note">novelty boundary</td></tr>
+        </tbody></table>
+        <h3>Submission drafts</h3>
+        <table><tbody>
+          <tr><td><a href="./submission/OEIS_SUBMISSION.txt">OEIS_SUBMISSION.txt</a></td><td class="note">OEIS comment/proof text</td></tr>
+          <tr><td><a href="./submission/DEEPMIND_PR_draft.md">DEEPMIND_PR_draft.md</a> · <a href="./submission/DEEPMIND_ISSUE_draft.md">issue</a></td><td class="note">upstream contribution drafts</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <p class="note" style="margin-top:12px">Provenance for every file: <a href="./evidence/PROJECT_SHA256SUMS.txt">PROJECT_SHA256SUMS.txt</a>.</p>
+  </section>
+
+  <section id="reproduce">
+    <h2>Reproduce the verification</h2>
+    <div class="axbox"># from this directory (needs elan/lake; downloads Mathlib cache):
+$ cd proof
+$ lake exe cache get
+$ lake build            # prints: 'A317940_f_nonnegative' depends on axioms: [propext, Classical.choice, Quot.sound]</div>
+    <p class="note">Or push to the repo and let <code>.github/workflows/verify-lean.yml</code> (job <code>lean-a317940</code>)
+      run it on GitHub's runners.</p>
+  </section>
+
+  <section id="novelty">
+    <h2>Scope &amp; novelty</h2>
+    <p>What is established here is that the <strong>formal theorem is proved</strong> — kernel-checked, clean axioms,
+      faithful to DeepMind's exact statement. Whether the result and its argument are <em>new</em> relative to the
+      literature is a separate, human question; the honest boundary is documented in
+      <a href="./docs/PRIOR_ART.md">PRIOR_ART.md</a> (the binary digit-sum product identity is classical; the positivity
+      argument and its A317940 application appear to be new — pending independent literature review).</p>
+    <div class="callout">This page is about our own proof (A317940). A second problem from the same package,
+      <strong>A300997</strong>, was already solved by DeepMind's AlphaProof — it is credited and archived under
+      <a href="../archive/a300997/">/math/archive/a300997/</a>, not claimed here.</div>
+  </section>
+
+  <div class="foot">
+    <p>OEIS <a href="https://oeis.org/A317940" target="_blank" rel="noopener">A317940</a> ·
+       DeepMind <a href="https://github.com/google-deepmind/formal-conjectures" target="_blank" rel="noopener">Formal Conjectures</a> ·
+       interactive & live verifier: <a href="../#/p/a317940">Math Proof Playground → A317940</a>.</p>
+  </div>
+</div>
+</body>
+</html>
