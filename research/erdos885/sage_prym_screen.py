@@ -83,6 +83,7 @@ def main():
       'field_discriminant':str(K.discriminant()),
       'alpha':str(alpha),'beta':str(beta),'orbits':[]}
 
+    common_j=None
     for label,v in known_orbits():
         rec={'label':label,'point':[str(x) for x in v]}
         try:
@@ -92,21 +93,26 @@ def main():
             NJ=j0*(T*T+K(bpp))-2*m0*T
             NM=-m0*(T*T+K(bpp))+2*K(bpp)*j0*T
             gamma=(K(v[m])-alpha*K(v[l]))*(K(v[m])-beta*K(v[j]))
-            g=(gamma*(NM-alpha*D)*(NM-beta*NJ)).polynomial(KT)
+            # The expression already lies in K[T].  Explicit KT coercion is
+            # robust across Sage versions; Polynomial.polynomial(KT) expects
+            # a generator, not a parent, and caused the previous false failure.
+            g=KT(gamma*(NM-alpha*D)*(NM-beta*NJ))
             if g.degree()!=4: raise RuntimeError(f'quartic degree {g.degree()}')
             I,J=quartic_invariants(g)
             E=EllipticCurve(K,[0,0,0,-27*I,-27*J])
+            jj=E.j_invariant()
+            if common_j is None: common_j=jj
             rec.update({
               'gamma':str(gamma),
               'quartic_coefficients':[str(g[n]) for n in range(5)],
               'I':str(I),'J':str(J),
               'elliptic_ainvs':[str(x) for x in E.a_invariants()],
               'elliptic_discriminant':str(E.discriminant()),
-              'j_invariant':str(E.j_invariant()),
-              'j_is_rational':bool(E.j_invariant() in QQ),
+              'j_invariant':str(jj),
+              'j_is_rational':bool(jj in QQ),
+              'same_j_as_first':bool(jj==common_j),
               'torsion_order':int(E.torsion_subgroup().order()),
             })
-            # Record available interfaces separately.
             try:
                 proof.all(False)
                 gs=E.gens(proof=False)
@@ -135,6 +141,7 @@ def main():
             rec['construction_traceback']=traceback.format_exc(limit=12)
         report['orbits'].append(rec)
 
+    report['common_j']=str(common_j) if common_j is not None else None
     Path('results').mkdir(exist_ok=True)
     Path('results/prym_screen.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
     print(json.dumps(report,sort_keys=True))
