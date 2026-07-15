@@ -1,5 +1,12 @@
 import FormalConjectures.WrittenOnTheWallII.GraphConjecture316
 
+/-!
+# Written on the Wall II, Conjecture 316
+
+Structural lemmas for the proof that the non-pendant core forced by the
+average-complement-degree hypothesis makes the graph well totally dominated.
+-/
+
 open SimpleGraph
 
 namespace WrittenOnTheWallII.GraphConjecture316
@@ -99,7 +106,7 @@ lemma minimalTotalDominating_eq_forced_of_two_le
   have htds := forcedVertices_totalDominating_of_two_le G hleaf_core hcore_clique hcard
   by_contra hne
   have hss : forcedVertices G ⊂ S :=
-    Finset.ssubset_iff_subset_ne.mpr ⟨hsub, hne.symm⟩
+    Finset.ssubset_iff_subset_ne.mpr ⟨hsub, fun hEq => hne hEq.symm⟩
   exact (hS.2 (forcedVertices G) hss) htds
 
 lemma pair_totalDominating_of_forced_singleton
@@ -152,7 +159,7 @@ lemma minimalTotalDominating_card_eq_two_of_forced_singleton
   have hpairEq : S = {a, x} := by
     by_contra hne
     have hss : ({a, x} : Finset α) ⊂ S :=
-      Finset.ssubset_iff_subset_ne.mpr ⟨hpairSub, hne.symm⟩
+      Finset.ssubset_iff_subset_ne.mpr ⟨hpairSub, fun hEq => hne hEq.symm⟩
     exact (hS.2 {a, x} hss) hpairTDS
   rw [hpairEq]
   have hne : a ≠ x := fun h => by subst x; exact G.loopless a hax
@@ -187,11 +194,13 @@ theorem wellTotallyDominated_of_all_pendant
   have hall_mem (U : Finset α) (hU : G.IsTotalDominatingSet U) : U = Finset.univ := by
     apply Finset.eq_univ_of_forall
     intro x
-    rcases (G.degree_eq_one_iff_existsUnique_adj).mp (hall x) with ⟨y, hxy, hyuniq⟩
+    rcases (G.degree_eq_one_iff_existsUnique_adj).mp (hall x) with ⟨y, hxy, _⟩
+    rcases (G.degree_eq_one_iff_existsUnique_adj).mp (hall y) with ⟨u, hyu, hyuniq⟩
     rcases hU y with ⟨z, hzU, hyz⟩
     have hz : z = x := by
-      have hyx : G.Adj y x := hxy.symm
-      exact (hyuniq z hyz).trans (hyuniq x hyx).symm
+      have hz' : z = u := hyuniq z hyz
+      have hx' : x = u := hyuniq x hxy.symm
+      exact hz'.trans hx'.symm
     simpa [hz] using hzU
   rw [hall_mem S hS.1, hall_mem T hT.1]
 
