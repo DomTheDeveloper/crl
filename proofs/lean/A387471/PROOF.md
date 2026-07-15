@@ -52,7 +52,7 @@ Since all six sine factors are positive, this is equivalent to
 \]
 
 The following identity is elementary and is kernel-checked in
-`A387471.lean`:
+`A387471Trig.lean`:
 
 \[
 \begin{aligned}
@@ -84,7 +84,7 @@ Then (1) is equivalent to
 Because `1 <= i,j,k <= 2n-1`,
 
 \[
-|A|,|B|,|C|\le 3n-3,
+|A|,|B|,|C|<3n,
 \]
 
 and hence
@@ -173,6 +173,8 @@ This is the weight-six row of Theorem 3.3, Table 1, in:
 
 Louis Christie, Kenneth J. Dykema, and Igor Klep,
 *Classifying minimal vanishing sums of roots of unity*, arXiv:2008.11268.
+Their Remark 2.5(c) also states that a type `(R_p:R_q)` determines the sum
+uniquely up to rotation.
 
 #### Three opposite pairs
 
@@ -311,15 +313,15 @@ a(n)=6n-5+12\mathbf 1_{5\mid n}.
 
 ## Formal-verification status
 
-The Lean development currently kernel-checks:
+The Lean development now kernel-checks, without `sorryAx`:
 
 - identity (2);
-- the equivalence between trigonometric Ceva and (3);
-- the integer linear reconstruction (10);
-- both exceptional index families;
-- the final arithmetic formula.
+- equivalence between trigonometric Ceva and (3);
+- the exact integer reconstruction (10);
+- ordinary and exceptional index-family reconstruction;
+- the final arithmetic formula;
+- transfer from a grid-level six-root classification to the index classification.
 
-The remaining formalization task is to encode the weight-six
-vanishing-sum classification and its three-case application above. The
-mathematical proof itself uses the published classification theorem exactly
-as stated.
+The remaining Lean work is to formalize the published weight-six
+vanishing-sum classification and package the final finite-set cardinality.
+The mathematical proof above uses that published theorem exactly as stated.
