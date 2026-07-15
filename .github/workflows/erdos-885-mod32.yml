@@ -1,4 +1,4 @@
-name: Erdős 885 full mod-thirty-two descent
+name: Erdős 885 isolated mod-thirty-two descent
 
 on:
   pull_request:
@@ -6,6 +6,10 @@ on:
       - 'research/erdos885/sage_kummer_mod32.py'
       - '.github/workflows/erdos-885-mod32.yml'
   workflow_dispatch:
+
+concurrency:
+  group: erdos-885-mod32-isolated
+  cancel-in-progress: true
 
 jobs:
   mod32:
