@@ -1,12 +1,6 @@
 name: Verify Lean proofs
 
-# Two independent checks:
-#   lean-core     — fast: core-Lean proofs (no Mathlib), also the ones runnable
-#                   in the in-browser Lean (lean4.js / WASM).
-#   lean-a317940  — the gold standard: compiles the A317940 nonnegativity proof
-#                   against real Mathlib and prints its axiom dependencies.
-#                   This is the independent kernel re-check that a browser/WASM
-#                   or sandbox environment cannot perform.
+# Independent kernel checks for the repository's Lean artifacts.
 
 on:
   push:
@@ -45,8 +39,6 @@ jobs:
         run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' proofs/lean/A317940/A317940.lean"
       - name: Resolve Mathlib dependency
         working-directory: proofs/lean/A317940
-        # If the pinned Mathlib tag ever drifts from the toolchain, bump
-        # `version` in lakefile.toml and the lean-toolchain file together.
         run: lake update
       - name: Fetch prebuilt Mathlib cache
         working-directory: proofs/lean/A317940
@@ -65,3 +57,115 @@ jobs:
           if grep -q "sorryAx" build.log; then
             echo "::error::Proof depends on sorryAx — not a real proof."; exit 1
           fi
+
+  lean-wow143:
+    name: WOWII 143 kernel audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout CRL
+        uses: actions/checkout@v4
+
+      - name: Checkout immutable proof source
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/test-expo-app
+          ref: fdf6a4a3107270de89cc435c1141ba196b4f2119
+          path: campaign
+
+      - name: Checkout pinned Formal Conjectures
+        uses: actions/checkout@v4
+        with:
+          repository: google-deepmind/formal-conjectures
+          ref: b2e608fc52d765510915a244bb69b1a2741acc3c
+          path: formal-conjectures
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Reject placeholders and custom axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            campaign/WOWII/GraphConjecture143Proof.lean
+            campaign/WOWII/GraphConjecture143Next.lean
+            campaign/WOWII/GraphConjecture143Leaves.lean
+            campaign/WOWII/GraphConjecture143Boundary.lean
+            campaign/WOWII/GraphConjecture143CycleAttach.lean
+            campaign/WOWII/GraphConjecture143ZZFinal.lean
+            campaign/WOWII/GraphConjecture143AxiomAudit.lean
+          )
+          ! grep -nE '(^|[[:space:]])(sorry|admit|native_decide)([[:space:]]|$)' "${files[@]}"
+          ! grep -nE '^[[:space:]]*(axiom|opaque)[[:space:]]' "${files[@]}"
+
+      - name: Prepare isolated proof tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf formal-conjectures/WOWII
+          mkdir -p formal-conjectures/WOWII
+          for f in \
+            GraphConjecture143Proof.lean \
+            GraphConjecture143Next.lean \
+            GraphConjecture143Leaves.lean \
+            GraphConjecture143Boundary.lean \
+            GraphConjecture143CycleAttach.lean \
+            GraphConjecture143ZZFinal.lean \
+            GraphConjecture143AxiomAudit.lean; do
+            cp "campaign/WOWII/$f" "formal-conjectures/WOWII/$f"
+          done
+
+      - name: Download Mathlib cache
+        working-directory: formal-conjectures
+        run: lake exe cache get
+
+      - name: Build official conjecture module
+        working-directory: formal-conjectures
+        run: lake build FormalConjectures.WrittenOnTheWallII.GraphConjecture143
+
+      - name: Compile complete proof and print axioms
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          export LEAN_PATH="$PWD:${LEAN_PATH:-}"
+          : > wow143-build.log
+          files=(
+            WOWII/GraphConjecture143Proof.lean
+            WOWII/GraphConjecture143Next.lean
+            WOWII/GraphConjecture143Leaves.lean
+            WOWII/GraphConjecture143Boundary.lean
+            WOWII/GraphConjecture143CycleAttach.lean
+            WOWII/GraphConjecture143ZZFinal.lean
+            WOWII/GraphConjecture143AxiomAudit.lean
+          )
+          for f in "${files[@]}"; do
+            echo "=== Checking $f ===" | tee -a wow143-build.log
+            lake env lean -o "${f%.lean}.olean" "$f" 2>&1 | tee -a wow143-build.log
+          done
+          cat wow143-build.log
+
+      - name: Assert clean axiom footprint
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -q 'sorryAx' wow143-build.log; then
+            echo '::error::conjecture143_proved depends on sorryAx'
+            exit 1
+          fi
+          grep -q 'conjecture143_proved' wow143-build.log
+          grep -iE 'axioms|propext|Classical.choice|Quot.sound' wow143-build.log || true
+
+      - name: Upload WOWII 143 audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wow143-kernel-audit
+          path: formal-conjectures/wow143-build.log
+          if-no-files-found: warn
+          retention-days: 30
