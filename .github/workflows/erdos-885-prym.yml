@@ -1,0 +1,31 @@
+name: Erdős 885 Prym elliptic rank screen
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/sage_prym_screen.py'
+      - '.github/workflows/erdos-885-prym.yml'
+  workflow_dispatch:
+
+jobs:
+  prym:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull SageMath container
+        run: docker pull sagemath/sagemath:latest
+      - name: Construct Prym elliptic curves and screen ranks
+        run: |
+          mkdir -p results
+          docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_prym_screen.py
+      - name: Show result
+        if: always()
+        run: cat results/prym_screen.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: erdos-885-prym-screen
+          path: results/prym_screen.json
+          if-no-files-found: warn
