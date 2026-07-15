@@ -1,0 +1,27 @@
+name: Erdős 885 known image subgroup
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/sage_known_subgroup.py'
+      - '.github/workflows/erdos-885-known-subgroup.yml'
+  workflow_dispatch:
+
+jobs:
+  subgroup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker pull sagemath/sagemath:latest
+      - name: Express known quotient points and certify subgroup rank
+        run: |
+          mkdir -p results
+          docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_known_subgroup.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: erdos-885-known-subgroup
+          path: results/known_subgroup.json
+          if-no-files-found: warn
