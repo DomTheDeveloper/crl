@@ -69,7 +69,10 @@ theorem core_clique_of_card_eq_three
   have hle :
       (coreComplementNeighbors G u).card ≤
         ∑ c ∈ coreVertices G, (coreComplementNeighbors G c).card := by
-    exact Finset.single_le_sum (fun _ _ => Nat.zero_le _) hu
+    exact Finset.single_le_sum
+      (s := coreVertices G)
+      (f := fun c => (coreComplementNeighbors G c).card)
+      (fun _ _ => Nat.zero_le _) hu
   omega
 
 #print axioms core_clique_of_card_eq_three
