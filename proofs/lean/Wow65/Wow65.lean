@@ -1,5 +1,12 @@
 import FormalConjectures.WrittenOnTheWallII.GraphConjecture65
 
+/-!
+# Written on the Wall II, Conjecture 65
+
+A formal proof that the distance terms in Conjecture 65 are each at most one,
+so the claimed bound follows from the existence of a two-vertex induced forest.
+-/
+
 namespace WrittenOnTheWallII.GraphConjecture65
 
 open Classical SimpleGraph
@@ -25,8 +32,8 @@ private lemma distToSet_le_one_of_adj
   split_ifs with hS
   · apply Finset.min'_le
     refine Finset.mem_image.mpr ⟨y, ?_, ?_⟩
-    · exact Set.mem_toFinset hy
-    · exact dist_eq_one_iff_adj.mpr hxy
+    · simpa using hy
+    · simpa using (dist_eq_one_iff_adj.mpr hxy)
   · exact (hS ⟨y, hy⟩).elim
 
 private lemma distMin_le_one_of_nonempty
@@ -34,7 +41,7 @@ private lemma distMin_le_one_of_nonempty
     distMin G S ≤ 1 := by
   classical
   unfold distMin
-  let outside := Finset.univ.filter (fun v : α => v ∉ S)
+  dsimp only
   split_ifs with hout
   · obtain ⟨u, huout⟩ := hout
     have hu : u ∉ S := (Finset.mem_filter.mp huout).2
@@ -52,7 +59,12 @@ private lemma two_le_largestInducedForestSize
   let s : Finset α := {u, v}
   have hs : s.card = 2 := by simp [s, huv]
   unfold largestInducedForestSize
-  apply le_sSup
+  have hbdd : BddAbove {n : ℕ | ∃ t : Finset α, (G.induce t).IsAcyclic ∧ t.card = n} := by
+    refine ⟨Fintype.card α, ?_⟩
+    intro n hn
+    obtain ⟨t, _, rfl⟩ := hn
+    exact Finset.card_le_univ t
+  apply le_csSup hbdd
   refine ⟨s, ?_, hs⟩
   apply IsAcyclic.of_card_le_two
   rw [ENat.card_eq_coe_fintype_card]
@@ -61,7 +73,7 @@ private lemma two_le_largestInducedForestSize
 /-- A proof of Written on the Wall II, Conjecture 65.
 
 The key observation is that `distMin G S ≤ 1` for every nonempty vertex set `S`
-in a connected graph.  The minimum- and maximum-degree vertex sets are nonempty,
+in a connected graph. The minimum- and maximum-degree vertex sets are nonempty,
 so the left side is at most two, while every nontrivial finite graph has an
 induced forest on two vertices. -/
 theorem conjecture65_proved
@@ -76,14 +88,15 @@ theorem conjecture65_proved
   let M : Set α := {v | G.degree v = G.maxDegree}
   obtain ⟨a, ha⟩ := G.exists_minimal_degree_vertex
   obtain ⟨m, hm⟩ := G.exists_maximal_degree_vertex
-  have hAne : A.Nonempty := ⟨a, ha⟩
-  have hMne : M.Nonempty := ⟨m, hm⟩
+  have hAne : A.Nonempty := ⟨a, ha.symm⟩
+  have hMne : M.Nonempty := ⟨m, hm.symm⟩
   have hA : distMin G A ≤ 1 := distMin_le_one_of_nonempty h hAne
   have hM : distMin G M ≤ 1 := distMin_le_one_of_nonempty h hMne
   have hforest : 2 ≤ G.largestInducedForestSize := two_le_largestInducedForestSize
   interval_cases hda : distMin G A <;>
     interval_cases hdm : distMin G M <;>
-    norm_num [hda, hdm] at *
+    norm_num [hda, hdm] at * <;>
+    omega
 
 /-- Exact replacement for the open theorem in Formal Conjectures. -/
 theorem conjecture65_exact
