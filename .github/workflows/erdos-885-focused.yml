@@ -1,0 +1,63 @@
+name: Erdős 885 focused final campaign
+
+on:
+  push:
+    branches:
+      - agent/erdos-885-focused
+  workflow_dispatch:
+
+concurrency:
+  group: erdos-885-focused
+  cancel-in-progress: true
+
+jobs:
+  bad-prime-partial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker pull sagemath/sagemath:latest
+      - run: |
+          mkdir -p results
+          docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_kummer_mod4_badpartial.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: focused-bad-prime-partial
+          path: results/kummer_mod4_badpartial.json
+          if-no-files-found: warn
+
+  extended-good-primes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker pull sagemath/sagemath:latest
+      - run: |
+          mkdir -p results
+          docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_kummer_mod4_continue.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: focused-extended-good-primes
+          path: results/kummer_mod4_continue.json
+          if-no-files-found: warn
+
+  prym-rank-screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker pull sagemath/sagemath:latest
+      - run: |
+          mkdir -p results
+          docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_prym_screen.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: focused-prym-rank-screen
+          path: results/prym_screen.json
+          if-no-files-found: warn
