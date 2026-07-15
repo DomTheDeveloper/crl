@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Certify the five elliptic quotient ranks for the three four-row curves
-containing the unique rank-2 triple [2578, 5553, 5922].
+"""Screen and certify the five elliptic quotient ranks for the three four-row
+curves containing the unique rank-2 triple [2578, 5553, 5922].
+
+Each factor is isolated: a difficult descent is reported, not allowed to erase
+certificates already completed for the other factors.
 """
 from __future__ import annotations
 
 import itertools
 import json
+import time
+import traceback
 from pathlib import Path
 
 from sage.all import EllipticCurve, Integer, QQ, proof
@@ -32,32 +37,60 @@ def quartic_curve(rows):
     return EllipticCurve(QQ, [0, S2, 0, A*S1, A*A]).global_minimal_model()
 
 
-proof.all(True)
+def screen(E):
+    started=time.time()
+    r={"minimal_ainvs":[str(x) for x in E.a_invariants()]}
+    try:
+        proof.all(False)
+        gs=E.gens(proof=False)
+        r["rank_lower_bound_from_gens"]=len(gs)
+        r["rank_heuristic"]=int(E.rank(proof=False))
+        r["gens_certain_after_heuristic"]=bool(E.gens_certain())
+    except Exception as exc:
+        r["heuristic_error"]=f"{type(exc).__name__}: {exc}"
+    try:
+        proof.all(True)
+        r["rank_proved"]=int(E.rank(proof=True))
+        r["rank_proved_success"]=True
+    except Exception as exc:
+        r["rank_proved_success"]=False
+        r["rank_proved_error"]=f"{type(exc).__name__}: {exc}"
+        r["rank_proved_traceback"]=traceback.format_exc(limit=6)
+    finally:
+        proof.all(True)
+    try:
+        r["root_number"]=str(E.root_number())
+    except Exception as exc:
+        r["root_number_error"]=f"{type(exc).__name__}: {exc}"
+    r["elapsed_seconds"]=round(time.time()-started,3)
+    return r
+
+
 out=[]
 for d in EXTRA:
     rows=BASE+[d]
-    triples=[]
+    entry={"rows":rows,"triple_factors":[]}
     for inds in itertools.combinations(range(4),3):
         rr=[rows[i] for i in inds]
-        E=triple_curve(rr)
-        triples.append({
-            "indices": list(inds),
-            "rows": rr,
-            "rank_proved": int(E.rank(proof=True)),
-            "gens_certain": bool(E.gens_certain()),
-            "minimal_ainvs": [str(x) for x in E.a_invariants()],
-        })
-    Q=quartic_curve(rows)
-    out.append({
-        "rows": rows,
-        "triple_factors": triples,
-        "quartic_factor": {
-            "rank_proved": int(Q.rank(proof=True)),
-            "gens_certain": bool(Q.gens_certain()),
-            "minimal_ainvs": [str(x) for x in Q.a_invariants()],
-        },
-        "rank_profile": [x["rank_proved"] for x in triples]+[int(Q.rank(proof=True))],
-    })
+        item={"indices":list(inds),"rows":rr}
+        try:
+            item.update(screen(triple_curve(rr)))
+        except Exception as exc:
+            item["curve_error"]=f"{type(exc).__name__}: {exc}"
+            item["curve_traceback"]=traceback.format_exc(limit=6)
+        entry["triple_factors"].append(item)
+    try:
+        entry["quartic_factor"]=screen(quartic_curve(rows))
+    except Exception as exc:
+        entry["quartic_factor"]={
+            "curve_error":f"{type(exc).__name__}: {exc}",
+            "curve_traceback":traceback.format_exc(limit=6),
+        }
+    entry["rank_profile_proved"]=[
+        x.get("rank_proved") for x in entry["triple_factors"]
+    ]+[entry["quartic_factor"].get("rank_proved")]
+    out.append(entry)
+
 Path("results").mkdir(exist_ok=True)
 Path("results/fourrow_profiles.json").write_text(json.dumps(out,indent=2,sort_keys=True)+"\n")
 print(json.dumps(out,sort_keys=True))
