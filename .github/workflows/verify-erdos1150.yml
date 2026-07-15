@@ -34,12 +34,16 @@ jobs:
         working-directory: proofs/lean/Erdos1150
         shell: bash
         run: |
-          set -o pipefail
-          lake build 2>&1 | tee build.log
+          set +e
+          lake build > build.log 2>&1
+          status=$?
+          echo "----- Lean diagnostic tail -----"
+          tail -n 160 build.log
+          exit $status
       - name: Reject sorryAx
+        if: success()
         working-directory: proofs/lean/Erdos1150
         run: |
-          cat build.log
           if grep -q "sorryAx" build.log; then
             echo "::error::Proof depends on sorryAx"; exit 1
           fi
