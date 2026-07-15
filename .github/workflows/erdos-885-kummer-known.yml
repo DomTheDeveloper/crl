@@ -1,0 +1,35 @@
+name: Erdős 885 classify Kummer survivors
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/sage_kummer_compat.py'
+      - 'research/erdos885/sage_kummer_known.py'
+      - '.github/workflows/erdos-885-kummer-known.yml'
+  workflow_dispatch:
+
+jobs:
+  classify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull SageMath container
+        run: docker pull sagemath/sagemath:latest
+      - name: Classify survivors against known projective points
+        run: |
+          mkdir -p results
+          docker run --rm \
+            -v "$PWD:/work" \
+            -w /work \
+            sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_kummer_known.py
+      - name: Show result
+        if: always()
+        run: cat results/kummer_known.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: erdos-885-kummer-known
+          path: results/kummer_known.json
+          if-no-files-found: warn
