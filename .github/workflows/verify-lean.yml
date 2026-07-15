@@ -75,14 +75,26 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Guard local wrapper against placeholders
-        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide|^\\s*axiom\\b' proofs/lean/Erdos865/FormalConjecturesExact.lean"
+      - name: Guard source and wrapper against placeholders
+        run: |
+          ! grep -nE '\bsorry\b|\badmit\b|^\s*axiom\b' external/erdos-lean/problems/865/Erdos865.lean
+          ! grep -nE '\bsorry\b|\badmit\b|native_decide|^\s*axiom\b' proofs/lean/Erdos865/FormalConjecturesExact.lean
       - name: Resolve pinned proof dependencies
         working-directory: external/erdos-lean/problems/865
         run: lake update
       - name: Fetch Mathlib cache
         working-directory: external/erdos-lean/problems/865
         run: lake exe cache get || echo "cache miss — building dependencies"
+      - name: Build pinned source proof
+        working-directory: external/erdos-lean/problems/865
+        shell: bash
+        run: |
+          set +e
+          lake build > source-build.log 2>&1
+          status=$?
+          echo "----- Source proof compiler tail -----"
+          tail -n 140 source-build.log
+          exit $status
       - name: Kernel-check exact Formal Conjectures theorem
         working-directory: external/erdos-lean/problems/865
         shell: bash
@@ -91,7 +103,7 @@ jobs:
           set +e
           lake env lean FormalConjecturesExact.lean > build.log 2>&1
           status=$?
-          echo "----- Lean compiler tail -----"
+          echo "----- Exact wrapper compiler tail -----"
           tail -n 140 build.log
           exit $status
       - name: Enforce axiom footprint
