@@ -78,7 +78,10 @@ theorem conjecture316_solved (G : SimpleGraph α) [DecidableRel G.Adj]
       rw [(Gᶜ).degree_pos_iff_exists_adj]
       exact ⟨v, hcomp⟩
     have hle : Gᶜ.degree u ≤ ∑ x, Gᶜ.degree x := by
-      exact Finset.single_le_sum (fun _ _ => Nat.zero_le _) (Finset.mem_univ u)
+      exact Finset.single_le_sum
+        (s := Finset.univ)
+        (f := fun x => Gᶜ.degree x)
+        (fun _ _ => Nat.zero_le _) (Finset.mem_univ u)
     omega
 
 #print axioms conjecture316_solved
