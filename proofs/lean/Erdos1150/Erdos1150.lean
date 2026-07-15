@@ -123,7 +123,11 @@ lemma dft_coeff_eq_eval (P : ℂ[X]) (n : ℕ) (hdeg : P.natDegree = n)
   refine Fintype.sum_equiv (ZMod.finEquiv (n + 1)).symm _ _ ?_
   intro j
   rw [stdAddChar_neg_mul_eq_pow]
-  simp [ZMod.finEquiv, ZMod.val, RingEquiv.refl_apply, mul_comm]
+  have hval : ((ZMod.finEquiv (n + 1)).symm j).val = j.val := by
+    have h := congrArg ZMod.val ((ZMod.finEquiv (n + 1)).apply_symm_apply j)
+    simpa [ZMod.finEquiv, ZMod.val] using h
+  rw [hval]
+  exact mul_comm _ _
 
 #print axioms dft_coeff_eq_eval
 
