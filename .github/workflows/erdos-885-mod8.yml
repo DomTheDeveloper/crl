@@ -1,0 +1,27 @@
+name: Erdős 885 full mod-eight descent
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/sage_kummer_mod8.py'
+      - '.github/workflows/erdos-885-mod8.yml'
+  workflow_dispatch:
+
+jobs:
+  mod8:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker pull sagemath/sagemath:latest
+      - name: Lift all five quotient classes modulo eight
+        run: |
+          mkdir -p results
+          docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_kummer_mod8.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: erdos-885-kummer-mod8
+          path: results/kummer_mod8.json
+          if-no-files-found: warn
