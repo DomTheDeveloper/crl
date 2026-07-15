@@ -1,4 +1,3 @@
-import FormalConjectures.ErdosProblems.«1150»
 import Mathlib.Analysis.Fourier.ZMod
 
 open Complex Finset MeasureTheory
