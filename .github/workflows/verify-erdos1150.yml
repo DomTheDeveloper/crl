@@ -22,8 +22,8 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Guard against placeholders
-        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' proofs/lean/Erdos1150/Erdos1150.lean"
+      - name: Guard against placeholders in all proof modules
+        run: "! grep -RnE --include='*.lean' '(^|[[:space:]])(sorry|admit|native_decide)([[:space:]]|$)' proofs/lean/Erdos1150"
       - name: Resolve dependencies
         working-directory: proofs/lean/Erdos1150
         run: lake update
