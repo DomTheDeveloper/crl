@@ -35,7 +35,7 @@ def coordinate_dictionary(FD):
     return d,collisions
 
 def gf2_rank(rows):
-    return 0 if not rows else Matrix(GF(2),rows).rank()
+    return 0 if not rows else int(Matrix(GF(2),rows).rank())
 
 def q2_square(x):
     x=QQ(x)
@@ -68,7 +68,7 @@ def factor_q2_kernel(FD):
                 if b:Q+=T
             pair=kummer_pair(FD,Q);div=all(q2_square(z) for z in pair)
             records.append({'free_bits':list(free),'torsion_bits':list(tb),'kummer':[str(z) for z in pair],
-                 'locally_divisible_by_2':div,'point':point_json(Q)})
+                 'locally_divisible_by_2':bool(div),'point':point_json(Q)})
             if div:rows.append(list(free)+list(tb))
     space=Matrix(GF(2),rows).row_space() if rows else Matrix(GF(2),0,r+2).row_space()
     return records,[list(map(int,v)) for v in space.basis()]
@@ -80,7 +80,7 @@ def main():
     dicts=[];dict_report=[]
     for FD in factors:
         d,col=coordinate_dictionary(FD);dicts.append(d)
-        dict_report.append({'kind':FD['kind'],'indices':list(FD.get('inds',())),'rank':FD['rank'],
+        dict_report.append({'kind':FD['kind'],'indices':list(FD.get('inds',())),'rank':int(FD['rank']),
                             'dictionary_size':len(d),'collisions':col})
     phase='known coordinates';coordinates=[];missing=[]
     for K in known:
@@ -91,35 +91,35 @@ def main():
                 missing.append({'point':K['id'],'factor':f,'quotient_point':point_json(Q)})
                 free.extend([None]*factors[f]['rank']);tors.extend([None,None])
             else:free.extend(rec['coeffs']);tors.extend(rec['torsion'])
-        coordinates.append({'id':K['id'],'free':free,'torsion':tors})
+        coordinates.append({'id':K['id'],'free':list(map(int,free)),'torsion':list(map(int,tors))})
     if missing:raise RuntimeError(f'{len(missing)} known quotient points outside coordinate bound')
     phase='integer subgroup';base=coordinates[0];free_rows=[];tors_rows=[]
     for C in coordinates[1:]:
         free_rows.append([ZZ(a)-ZZ(b) for a,b in zip(C['free'],base['free'])])
         tors_rows.append([(int(a)-int(b))&1 for a,b in zip(C['torsion'],base['torsion'])])
-    M=Matrix(ZZ,free_rows);free_rank=M.rank();L=M.row_module(ZZ);Sat=L.saturation()
+    M=Matrix(ZZ,free_rows);free_rank=int(M.rank());L=M.row_module(ZZ);Sat=L.saturation()
     sf=M.smith_form();S=sf[0] if isinstance(sf,tuple) else sf
     diag=[abs(ZZ(S[i,i])) for i in range(min(S.nrows(),S.ncols())) if S[i,i]!=0]
     smith_index=ZZ(1)
     for d in diag:smith_index*=d
     combined=[[int(x)&1 for x in fr]+tr for fr,tr in zip(free_rows,tors_rows)]
     known_space=Matrix(GF(2),combined).row_space()
-    phase='Q2 kernels';kernel_records=[];kernel_basis=[];offset=0;total_dim=sum(FD['rank']+2 for FD in factors)
+    phase='Q2 kernels';kernel_records=[];kernel_basis=[];offset=0;total_dim=sum(int(FD['rank'])+2 for FD in factors)
     for FD in factors:
         records,basis=factor_q2_kernel(FD);kernel_records.append(records)
         for v in basis:
             row=[0]*total_dim;row[offset:offset+len(v)]=v;kernel_basis.append(row)
-        offset+=FD['rank']+2
+        offset+=int(FD['rank'])+2
     kernel_space=Matrix(GF(2),kernel_basis).row_space() if kernel_basis else Matrix(GF(2),0,total_dim).row_space()
-    kernel_contained=all(v in known_space for v in kernel_space.basis())
-    out={'status':'success','phase':'complete','bound':BOUND,'known_point_count':len(known),'factor_ranks':[FD['rank'] for FD in factors],
-      'total_free_rank':sum(FD['rank'] for FD in factors),'dictionaries':dict_report,'missing_count':0,'coordinates':coordinates,
+    kernel_contained=bool(all(v in known_space for v in kernel_space.basis()))
+    out={'status':'success','phase':'complete','bound':BOUND,'known_point_count':len(known),'factor_ranks':[int(FD['rank']) for FD in factors],
+      'total_free_rank':sum(int(FD['rank']) for FD in factors),'dictionaries':dict_report,'missing_count':0,'coordinates':coordinates,
       'known_difference_free_rank':free_rank,'known_difference_torsion_mod2_rank':gf2_rank(tors_rows),
-      'known_difference_combined_mod2_rank':known_space.dimension(),'free_saturation_rank':Sat.rank(),
+      'known_difference_combined_mod2_rank':int(known_space.dimension()),'free_saturation_rank':int(Sat.rank()),
       'free_saturation_index_via_smith':str(smith_index),'smith_nonzero_diagonal':[str(x) for x in diag],
       'free_row_basis':[list(map(int,row)) for row in L.basis()],'saturated_free_basis':[list(map(int,row)) for row in Sat.basis()],
       'q2_factor_kernel_records':kernel_records,'q2_product_kernel_basis':kernel_basis,
-      'q2_product_kernel_dimension':kernel_space.dimension(),'q2_kernel_contained_in_known_mod2_span':kernel_contained,
+      'q2_product_kernel_dimension':int(kernel_space.dimension()),'q2_kernel_contained_in_known_mod2_span':kernel_contained,
       'stoll_hypothesis_1_holds_for_product':kernel_contained,
       'selmer_justification':'Certified factor 2-Selmer dimensions equal rank+2 on every factor, so Sha[2]=0 and Sel_2(A)=A(Q)/2A(Q).',
       'interpretation':'All coordinates and Q2 Kummer squareclass tests are exact.'}
