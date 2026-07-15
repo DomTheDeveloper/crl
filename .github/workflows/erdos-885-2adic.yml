@@ -1,0 +1,34 @@
+name: Erdős 885 two-adic coset probe
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/sage_2adic_probe.py'
+      - '.github/workflows/erdos-885-2adic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  q2-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker pull sagemath/sagemath:latest
+      - name: Evaluate final cosets over Q2
+        run: |
+          mkdir -p results
+          chmod 777 results
+          docker run --rm -v "$GITHUB_WORKSPACE:/work" -w /work \
+            sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_2adic_probe.py
+      - if: always()
+        run: cat results/two_adic_probe.json || true
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos-885-two-adic-probe
+          path: results/two_adic_probe.json
+          if-no-files-found: warn
