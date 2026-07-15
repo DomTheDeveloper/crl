@@ -1,0 +1,31 @@
+name: Erdős 885 bad-prime partial quotient sieve
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/sage_kummer_mod4_badpartial.py'
+      - '.github/workflows/erdos-885-kummer-mod4-badpartial.yml'
+  workflow_dispatch:
+
+jobs:
+  bad-primes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull SageMath container
+        run: docker pull sagemath/sagemath:latest
+      - name: Apply all good quotient projections at bad primes
+        run: |
+          mkdir -p results
+          docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_kummer_mod4_badpartial.py
+      - name: Show result
+        if: always()
+        run: cat results/kummer_mod4_badpartial.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: erdos-885-kummer-mod4-badpartial
+          path: results/kummer_mod4_badpartial.json
+          if-no-files-found: warn
