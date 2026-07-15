@@ -98,7 +98,8 @@ def main():
         free_rows.append([ZZ(a)-ZZ(b) for a,b in zip(C['free'],base['free'])])
         tors_rows.append([(int(a)-int(b))&1 for a,b in zip(C['torsion'],base['torsion'])])
     M=Matrix(ZZ,free_rows);free_rank=M.rank();L=M.row_module(ZZ);Sat=L.saturation()
-    S=M.smith_form();diag=[abs(ZZ(S[i,i])) for i in range(min(S.nrows(),S.ncols())) if S[i,i]!=0]
+    sf=M.smith_form();S=sf[0] if isinstance(sf,tuple) else sf
+    diag=[abs(ZZ(S[i,i])) for i in range(min(S.nrows(),S.ncols())) if S[i,i]!=0]
     smith_index=ZZ(1)
     for d in diag:smith_index*=d
     combined=[[int(x)&1 for x in fr]+tr for fr,tr in zip(free_rows,tors_rows)]
