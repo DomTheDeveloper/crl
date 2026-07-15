@@ -1,0 +1,79 @@
+name: Verify exact Erdős 865 proof
+
+on:
+  push:
+    paths:
+      - "proofs/lean/Erdos865/**"
+      - ".github/workflows/verify-erdos865.yml"
+  pull_request:
+    paths:
+      - "proofs/lean/Erdos865/**"
+      - ".github/workflows/verify-erdos865.yml"
+  workflow_dispatch:
+
+jobs:
+  lean-erdos865:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out certificate wrapper
+        uses: actions/checkout@v4
+
+      - name: Check out pinned source proof
+        uses: actions/checkout@v4
+        with:
+          repository: Jayyhk/erdos-lean
+          ref: 32434b3a0859bb1e485fa7e530f38eee73a3debf
+          path: external/erdos-lean
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Guard local wrapper against placeholders
+        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide|^\\s*axiom\\b' proofs/lean/Erdos865/FormalConjecturesExact.lean"
+
+      - name: Resolve pinned proof dependencies
+        working-directory: external/erdos-lean/problems/865
+        run: lake update
+
+      - name: Fetch Mathlib cache
+        working-directory: external/erdos-lean/problems/865
+        run: lake exe cache get || echo "cache miss — building dependencies"
+
+      - name: Kernel-check exact Formal Conjectures theorem
+        working-directory: external/erdos-lean/problems/865
+        shell: bash
+        run: |
+          set -o pipefail
+          cp "$GITHUB_WORKSPACE/proofs/lean/Erdos865/FormalConjecturesExact.lean" .
+          lake env lean FormalConjecturesExact.lean 2>&1 | tee build.log
+
+      - name: Enforce axiom footprint
+        working-directory: external/erdos-lean/problems/865
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          text = Path("build.log").read_text()
+          if "sorryAx" in text:
+              raise SystemExit("proof depends on sorryAx")
+
+          match = re.search(
+              r"formalConjectures_erdos_865.*?depends on axioms:\s*\[([^\]]*)\]",
+              text,
+              flags=re.DOTALL,
+          )
+          if not match:
+              raise SystemExit("could not find #print axioms output")
+
+          actual = {item.strip() for item in match.group(1).split(",") if item.strip()}
+          allowed = {"propext", "Classical.choice", "Quot.sound"}
+          unexpected = actual - allowed
+          print("axioms:", sorted(actual))
+          if unexpected:
+              raise SystemExit(f"unexpected axioms: {sorted(unexpected)}")
+          PY
