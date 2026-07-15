@@ -1,0 +1,51 @@
+name: Erdős 885 six-row triple ranks
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/sage_sixrow_triples.py'
+      - '.github/workflows/erdos-885-sixrow.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  triple-rank:
+    name: Triple ${{ matrix.triple }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        triple: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pull SageMath container
+        run: docker pull sagemath/sagemath:latest
+
+      - name: Certify triple quotient rank
+        run: |
+          mkdir -p results
+          chmod 777 results
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/work" \
+            -w /work \
+            sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_sixrow_triples.py \
+              --triple "${{ matrix.triple }}" \
+              --output "/work/results/triple_${{ matrix.triple }}.json"
+
+      - name: Show result
+        if: always()
+        run: cat "results/triple_${{ matrix.triple }}.json" || true
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos-885-sixrow-triple-${{ matrix.triple }}
+          path: results/triple_${{ matrix.triple }}.json
+          if-no-files-found: warn
