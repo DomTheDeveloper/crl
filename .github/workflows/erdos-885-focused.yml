@@ -4,10 +4,13 @@ on:
   push:
     branches:
       - agent/erdos-885-focused
+  pull_request:
+    paths:
+      - '.github/workflows/erdos-885-focused.yml'
   workflow_dispatch:
 
 concurrency:
-  group: erdos-885-focused
+  group: erdos-885-focused-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
