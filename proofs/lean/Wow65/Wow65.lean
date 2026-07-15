@@ -1,0 +1,98 @@
+import FormalConjectures.WrittenOnTheWallII.GraphConjecture65
+
+namespace WrittenOnTheWallII.GraphConjecture65
+
+open Classical SimpleGraph
+
+variable {α : Type*} [Fintype α] [DecidableEq α]
+
+private lemma Walk.exists_crossing
+    {G : SimpleGraph α} {S : Set α} {u v : α} (p : G.Walk u v)
+    (hu : u ∉ S) (hv : v ∈ S) :
+    ∃ x y, x ∉ S ∧ y ∈ S ∧ G.Adj x y := by
+  induction p with
+  | nil => exact (hu hv).elim
+  | @cons u w v huw p ih =>
+      by_cases hw : w ∈ S
+      · exact ⟨u, w, hu, hw, huw⟩
+      · exact ih hw hv
+
+private lemma distToSet_le_one_of_adj
+    {G : SimpleGraph α} {S : Set α} {x y : α}
+    (hy : y ∈ S) (hxy : G.Adj x y) :
+    distToSet G x S ≤ 1 := by
+  unfold distToSet
+  split_ifs with hS
+  · apply Finset.min'_le
+    refine Finset.mem_image.mpr ⟨y, ?_, ?_⟩
+    · exact Set.mem_toFinset hy
+    · exact dist_eq_one_iff_adj.mpr hxy
+  · exact (hS ⟨y, hy⟩).elim
+
+private lemma distMin_le_one_of_nonempty
+    {G : SimpleGraph α} (hG : G.Connected) {S : Set α} (hS : S.Nonempty) :
+    distMin G S ≤ 1 := by
+  classical
+  unfold distMin
+  let outside := Finset.univ.filter (fun v : α => v ∉ S)
+  split_ifs with hout
+  · obtain ⟨u, huout⟩ := hout
+    have hu : u ∉ S := (Finset.mem_filter.mp huout).2
+    obtain ⟨s, hs⟩ := hS
+    obtain ⟨p⟩ := hG u s
+    obtain ⟨x, y, hx, hy, hxy⟩ := p.exists_crossing hu hs
+    apply le_trans (Finset.min'_le _ ?_) (distToSet_le_one_of_adj hy hxy)
+    exact Finset.mem_image.mpr ⟨x, Finset.mem_filter.mpr ⟨Finset.mem_univ x, hx⟩, rfl⟩
+  · exact Nat.zero_le 1
+
+private lemma two_le_largestInducedForestSize
+    {G : SimpleGraph α} [Nontrivial α] :
+    2 ≤ G.largestInducedForestSize := by
+  obtain ⟨u, v, huv⟩ := exists_pair_ne α
+  let s : Finset α := {u, v}
+  have hs : s.card = 2 := by simp [s, huv]
+  unfold largestInducedForestSize
+  apply le_sSup
+  refine ⟨s, ?_, hs⟩
+  apply IsAcyclic.of_card_le_two
+  rw [ENat.card_eq_coe_fintype_card]
+  simp [s, huv]
+
+/-- A proof of Written on the Wall II, Conjecture 65.
+
+The key observation is that `distMin G S ≤ 1` for every nonempty vertex set `S`
+in a connected graph.  The minimum- and maximum-degree vertex sets are nonempty,
+so the left side is at most two, while every nontrivial finite graph has an
+induced forest on two vertices. -/
+theorem conjecture65_proved
+    {α : Type*} [Fintype α] [DecidableEq α] [Nontrivial α]
+    (G : SimpleGraph α) [DecidableRel G.Adj] (h : G.Connected) :
+    let A : Set α := {v | G.degree v = G.minDegree}
+    let M : Set α := {v | G.degree v = G.maxDegree}
+    (distMin G A : ℝ) + ⌈(distMin G M : ℝ) / 3⌉ ≤
+      (G.largestInducedForestSize : ℝ) := by
+  dsimp
+  let A : Set α := {v | G.degree v = G.minDegree}
+  let M : Set α := {v | G.degree v = G.maxDegree}
+  obtain ⟨a, ha⟩ := G.exists_minimal_degree_vertex
+  obtain ⟨m, hm⟩ := G.exists_maximal_degree_vertex
+  have hAne : A.Nonempty := ⟨a, ha⟩
+  have hMne : M.Nonempty := ⟨m, hm⟩
+  have hA : distMin G A ≤ 1 := distMin_le_one_of_nonempty h hAne
+  have hM : distMin G M ≤ 1 := distMin_le_one_of_nonempty h hMne
+  have hforest : 2 ≤ G.largestInducedForestSize := two_le_largestInducedForestSize
+  interval_cases hda : distMin G A <;>
+    interval_cases hdm : distMin G M <;>
+    norm_num [hda, hdm] at *
+
+/-- Exact replacement for the open theorem in Formal Conjectures. -/
+theorem conjecture65_exact
+    {α : Type*} [Fintype α] [DecidableEq α] [Nontrivial α]
+    (G : SimpleGraph α) [DecidableRel G.Adj] (h : G.Connected) :
+    let A : Set α := {v | G.degree v = G.minDegree}
+    let M : Set α := {v | G.degree v = G.maxDegree}
+    (distMin G A : ℝ) + ⌈(distMin G M : ℝ) / 3⌉ ≤
+      (G.largestInducedForestSize : ℝ) :=
+  conjecture65_proved G h
+
+end WrittenOnTheWallII.GraphConjecture65
