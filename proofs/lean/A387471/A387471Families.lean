@@ -35,7 +35,9 @@ theorem exceptional_sine_identity_one :
   have hquad :
       4 * Real.cos (Real.pi / 5) ^ 2 - 2 * Real.cos (Real.pi / 5) - 1 = 0 := by
     simpa using Real.quadratic_root_cos_pi_div_five
-  rw [Real.sin_neg, Real.sin_neg, Real.sin_pi_div_six, hsin1, hsin3]
+  rw [show -Real.pi / 6 = -(Real.pi / 6) by ring,
+    show -Real.pi / 10 = -(Real.pi / 10) by ring,
+    Real.sin_neg, Real.sin_neg, Real.sin_pi_div_six, hsin1, hsin3]
   linarith
 
 /-- The conjugate exceptional fifth-root identity. -/
@@ -43,7 +45,11 @@ theorem exceptional_sine_identity_two :
     Real.sin (-3 * Real.pi / 10) + Real.sin (Real.pi / 10) +
       Real.sin (Real.pi / 6) = 0 := by
   have h := exceptional_sine_identity_one
-  simp only [Real.sin_neg] at h ⊢
+  rw [show -Real.pi / 6 = -(Real.pi / 6) by ring,
+    show -Real.pi / 10 = -(Real.pi / 10) by ring,
+    Real.sin_neg, Real.sin_neg, Real.sin_pi_div_six] at h
+  rw [show -3 * Real.pi / 10 = -(3 * Real.pi / 10) by ring,
+    Real.sin_neg, Real.sin_pi_div_six]
   linarith
 
 #print axioms ordinary_sine_identity
