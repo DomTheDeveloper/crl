@@ -31,7 +31,7 @@ def allTriples (n : ℕ) : Finset Triple :=
   (indices n).product ((indices n).product (indices n))
 
 /-- The angle of the cevian with index `i`; here `θ = π/(6n)`. -/
-def cevianAngle (n i : ℕ) : ℝ :=
+noncomputable def cevianAngle (n i : ℕ) : ℝ :=
   (i : ℝ) * (Real.pi / (6 * (n : ℝ)))
 
 /-- The denominator-free trigonometric-Ceva equation.
