@@ -134,3 +134,5 @@ theorem conjecture65_exact
   conjecture65_proved G h
 
 end WrittenOnTheWallII.GraphConjecture65
+
+#print axioms WrittenOnTheWallII.GraphConjecture65.conjecture65_exact
