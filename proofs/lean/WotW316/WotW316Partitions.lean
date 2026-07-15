@@ -71,8 +71,13 @@ lemma card_filter_rel_eq_sum_ite
   | @insert a s ha ih =>
       rw [Finset.filter_insert]
       by_cases hra : r a
-      · simpa [hra, ha, ih, Nat.add_comm]
-      · simpa [hra, ha, ih, Nat.add_comm]
+      · rw [if_pos hra]
+        have haf : a ∉ s.filter r := by
+          simp [ha]
+        rw [Finset.card_insert_of_notMem haf, Finset.sum_insert ha, if_pos hra, ih]
+        omega
+      · rw [if_neg hra, Finset.sum_insert ha, if_neg hra, ih]
+        simp
 
 lemma sum_card_pendantNeighbors
     (hleaf_core : ∀ l ∈ pendantVertices G, ∀ c, G.Adj l c → c ∈ coreVertices G) :
@@ -97,7 +102,9 @@ lemma sum_card_pendantNeighbors
     _ = ∑ l ∈ pendantVertices G, (coreNeighbors G l).card := by
             apply Finset.sum_congr rfl
             intro l _
-            rw [card_filter_rel_eq_sum_ite (coreVertices G) (fun c => G.Adj l c)]
+            unfold coreNeighbors
+            exact (card_filter_rel_eq_sum_ite
+              (coreVertices G) (fun c => G.Adj l c)).symm
     _ = ∑ _l ∈ pendantVertices G, 1 := by
             apply Finset.sum_congr rfl
             intro l hl
