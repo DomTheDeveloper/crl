@@ -18,7 +18,7 @@ PARENT_MODULUS=Integer(sys.argv[1]) if len(sys.argv)>1 else Integer(8)
 if PARENT_MODULUS<=0 or not PARENT_MODULUS.is_power_of(2):
     raise ValueError('parent modulus must be a positive power of two')
 MODULUS=2*PARENT_MODULUS
-PRIMES=[31,43,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283,293,307,311,313,317,331,337,347,349,353,359,367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,461,463,467,479,487,491,499]
+PRIMES=[31,43,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283,293,307,311,313,317,331,337,347,349,353,359,367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,461,463,467,479,487,491,499,587,983,1621]
 
 def make_children(FD,Q):
     r=FD['rank'];out=[]
@@ -64,6 +64,10 @@ def main():
         survivors=kept;used.append(prime)
         progress.append({'prime':prime,'local_image_size':len(allowed),'survivors':len(survivors)})
         print(f'M={PARENT_MODULUS} p={prime} local={len(allowed)} survivors={len(survivors)}',flush=True)
+        if len(survivors)==len(known) and all(code%BASE==0 for code in survivors):
+            # Once only the zero child over every exact known parent remains, later
+            # primes cannot improve this level.
+            break
     decoded=[]
     for code in survivors:
         pi,mask=divmod(code,BASE);bits=[]
