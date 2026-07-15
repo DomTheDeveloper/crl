@@ -53,9 +53,9 @@ private lemma distMin_le_one_of_nonempty
       Finset.mem_image.mpr ⟨x, Finset.mem_filter.mpr ⟨Finset.mem_univ x, hx⟩, rfl⟩
     have hmin :
         (Finset.image (fun v => distToSet G v S)
-          (Finset.univ.filter (fun v => v ∉ S))).min'
-            (Finset.image_nonempty.mpr hout) ≤ distToSet G x S := by
-      simpa using Finset.min'_le
+          (Finset.univ.filter (fun v => v ∉ S))).min' ⟨distToSet G x S, hxmem⟩ ≤
+            distToSet G x S :=
+      Finset.min'_le
         (Finset.image (fun v => distToSet G v S)
           (Finset.univ.filter (fun v => v ∉ S)))
         (distToSet G x S) hxmem
@@ -84,7 +84,7 @@ private lemma two_le_largestInducedForestSize
       Fintype.card_le_of_injective f hf
     have hscard : Fintype.card s = s.card := by
       simpa using (Set.toFinset_card (s : Set α)).symm
-    rw [hscard, hs] at hcard
+    rw [Fintype.card_fin, hscard, hs] at hcard
     omega
   unfold largestInducedForestSize
   have hbdd : BddAbove {n : ℕ | ∃ t : Finset α, (G.induce t).IsAcyclic ∧ t.card = n} := by
