@@ -11,6 +11,10 @@ on:
       - ".github/workflows/verify-wotw316.yml"
   workflow_dispatch:
 
+concurrency:
+  group: wotw316-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lean-wotw316:
     runs-on: ubuntu-latest
