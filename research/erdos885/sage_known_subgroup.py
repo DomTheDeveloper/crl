@@ -3,12 +3,15 @@
 
 Each quotient point is expressed exactly in one certified Mordell--Weil basis by
 bounded exhaustive search and exact point equality. Integer linear algebra then
-computes the free rank, saturation index, and mod-2 span including torsion.
+computes the free rank, saturation index, mod-2 span, and exact Q_2
+localization-kernel inclusion. Since all five factor Sha[2] groups are already
+certified trivial, this is the first hypothesis of Stoll's Proposition 2.1 for
+the product of the five elliptic quotients.
 """
 from __future__ import annotations
 import itertools,json
 from pathlib import Path
-from sage.all import GF,Matrix,ZZ,proof
+from sage.all import GF,Matrix,QQ,ZZ,proof
 from sage_unified_descent import certified_factor_data,known_projective_points,point_json
 
 BOUND=6
@@ -33,6 +36,45 @@ def coordinate_dictionary(FD):
 
 def gf2_rank(rows):
     return 0 if not rows else Matrix(GF(2),rows).rank()
+
+def q2_square(x):
+    x=QQ(x)
+    if x==0:return True
+    num=ZZ(x.numerator());den=ZZ(x.denominator())
+    vn=num.valuation(2);vd=den.valuation(2)
+    if (vn-vd)&1:return False
+    a=(num>>vn)%8;b=(den>>vd)%8
+    return (a*pow(int(b),-1,8))%8==1
+
+def kummer_pair(FD,P):
+    E=FD['E'];roots=sorted([QQ(x) for x,m in E.two_division_polynomial().roots(QQ)])
+    if len(roots)!=3:raise RuntimeError('factor lacks full rational 2-torsion')
+    e1,e2,e3=roots
+    if P.is_zero():return (QQ(1),QQ(1))
+    x=QQ(P[0])
+    if x!=e1 and x!=e2:
+        return (x-e1,x-e2)
+    if x==e1:
+        return ((e1-e2)*(e1-e3),e1-e2)
+    return (e2-e1,(e2-e1)*(e2-e3))
+
+def factor_q2_kernel(FD):
+    r=FD['rank'];rows=[];records=[]
+    for free in itertools.product([0,1],repeat=r):
+        P=FD['E'](0)
+        for b,G in zip(free,FD['gens']):
+            if b:P+=G
+        for tb in itertools.product([0,1],repeat=2):
+            Q=P
+            for b,T in zip(tb,FD['tors']):
+                if b:Q+=T
+            pair=kummer_pair(FD,Q);div=all(q2_square(z) for z in pair)
+            rec={'free_bits':list(free),'torsion_bits':list(tb),'kummer':[str(z) for z in pair],
+                 'locally_divisible_by_2':div,'point':point_json(Q)}
+            records.append(rec)
+            if div:rows.append(list(free)+list(tb))
+    space=Matrix(GF(2),rows).row_space() if rows else Matrix(GF(2),0,r+2).row_space()
+    return records,[list(map(int,v)) for v in space.basis()]
 
 def main():
     proof.all(True);factors=certified_factor_data();known=known_projective_points(factors)
@@ -64,16 +106,31 @@ def main():
     S=M.smith_form();diag=[abs(ZZ(S[i,i])) for i in range(min(S.nrows(),S.ncols())) if S[i,i]!=0]
     smith_index=ZZ.prod(diag) if diag else ZZ(1)
     combined=[[int(x)&1 for x in fr]+tr for fr,tr in zip(free_rows,tors_rows)]
+    known_space=Matrix(GF(2),combined).row_space()
+    kernel_records=[];kernel_basis=[];offset=0
+    total_dim=sum(FD['rank']+2 for FD in factors)
+    for f,FD in enumerate(factors):
+        records,basis=factor_q2_kernel(FD);kernel_records.append(records)
+        for v in basis:
+            row=[0]*total_dim;row[offset:offset+len(v)]=v;kernel_basis.append(row)
+        offset+=FD['rank']+2
+    kernel_space=Matrix(GF(2),kernel_basis).row_space() if kernel_basis else Matrix(GF(2),0,total_dim).row_space()
+    kernel_contained=all(known_space.contains(v) for v in kernel_space.basis())
     out={'bound':BOUND,'known_point_count':len(known),'factor_ranks':[FD['rank'] for FD in factors],
       'total_free_rank':sum(FD['rank'] for FD in factors),'dictionaries':dict_report,
       'missing_count':0,'coordinates':coordinates,
       'known_difference_free_rank':free_rank,'known_difference_torsion_mod2_rank':gf2_rank(tors_rows),
-      'known_difference_combined_mod2_rank':gf2_rank(combined),
+      'known_difference_combined_mod2_rank':known_space.dimension(),
       'free_saturation_rank':Sat.rank(),'free_saturation_index_via_smith':str(smith_index),
       'smith_nonzero_diagonal':[str(x) for x in diag],
       'free_row_basis':[list(map(int,row)) for row in L.basis()],
       'saturated_free_basis':[list(map(int,row)) for row in Sat.basis()],
-      'interpretation':'All coordinates are proved by exact elliptic-curve point equality. Rank and Smith data are exact integer linear algebra.'}
+      'q2_factor_kernel_records':kernel_records,'q2_product_kernel_basis':kernel_basis,
+      'q2_product_kernel_dimension':kernel_space.dimension(),
+      'q2_kernel_contained_in_known_mod2_span':kernel_contained,
+      'stoll_hypothesis_1_holds_for_product':kernel_contained,
+      'selmer_justification':'The separately certified factor 2-Selmer dimensions equal rank+2 on every factor, so Sha[2]=0 and Sel_2(A)=A(Q)/2A(Q).',
+      'interpretation':'All coordinates and Q2 Kummer squareclass tests are exact. Rank, Smith data, and GF(2) containment are exact linear algebra.'}
     Path('results').mkdir(exist_ok=True);Path('results/known_subgroup.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
-    print(json.dumps({k:out[k] for k in ['known_difference_free_rank','known_difference_torsion_mod2_rank','known_difference_combined_mod2_rank','free_saturation_index_via_smith','missing_count']}))
+    print(json.dumps({k:out[k] for k in ['known_difference_free_rank','known_difference_torsion_mod2_rank','known_difference_combined_mod2_rank','free_saturation_index_via_smith','q2_product_kernel_dimension','q2_kernel_contained_in_known_mod2_span','missing_count']}))
 if __name__=='__main__':main()
