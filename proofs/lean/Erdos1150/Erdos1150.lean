@@ -18,7 +18,8 @@ lemma sum_stdAddChar_mul (t : ZMod N) :
 /-- Complex conjugation reverses the standard additive character. -/
 lemma conj_stdAddChar (x : ZMod N) :
     conj (ZMod.stdAddChar x) = ZMod.stdAddChar (-x) := by
-  simp only [ZMod.stdAddChar_apply, ← Circle.coe_inv_eq_conj, AddChar.map_neg_eq_inv]
+  simp only [ZMod.stdAddChar_apply, ← Circle.coe_inv_eq_conj, AddChar.map_neg_eq_inv,
+    Circle.coe_inv]
 
 /-- Conjugating the DFT reverses its character sign. -/
 lemma conj_dft (Φ : ZMod N → ℂ) (k : ZMod N) :
