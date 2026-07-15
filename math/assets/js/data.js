@@ -855,16 +855,17 @@ theorem collatz_conjecture (n : ℕ) (hn : 0 < n) :
     id: "a317940",
     title: "Nonnegativity of OEIS A317940",
     category: "Number Theory",
-    status: "solved",
-    year: "2018 (posed) · 2026 (candidate proof)",
-    by: "OEIS / DeepMind Formal Conjectures · submitted proof",
+    status: "review",
+    featured: true,
+    year: "2018 (posed) · 2026 (submitted)",
+    by: "Submitted through this system · under review",
     oeis: "A317940",
     tags: ["oeis", "dirichlet", "deepmind", "lean", "submission", "candidate-proof"],
     statement:
       "Let f be the rational arithmetic function with f(1)=1 whose Dirichlet square f∗f equals A046644 (the multiplicative function with A046644(pᵉ)=2^A005187(e)). A317940 records the numerators of f(n). Conjecture: f(n) ≥ 0 for every n ≥ 1.",
     latex: "f * f = A046644,\\quad f(1)=1 \\ \\Longrightarrow\\ f(n) \\ge 0 \\quad (n \\ge 1)",
     story:
-      "This is entry A317940 in Google DeepMind's Formal Conjectures — a curated set of open problems formalized in Lean 4 (each stated with `sorry`). OEIS notes 'no negative terms among the first 2²⁰ terms; is the sequence nonnegative?'. A proof was submitted to this library claiming to close it: a 659-line Lean 4 development that proves the exact statement `A317940_f_nonnegative`, plus the stronger fact f(n) > 0. The idea: f is the multiplicative lift of the formal square root of the binary Euler product ∏(1 + xᵗ/2), whose coefficients are all positive. The proof has now been independently kernel-checked against real Mathlib in CI (clean axiom footprint), so the formal theorem is verified — see the verification panel and /verifications.html.",
+      "This is entry A317940 in Google DeepMind's Formal Conjectures — a curated set of open problems formalized in Lean 4 (each stated with `sorry`). OEIS notes 'no negative terms among the first 2²⁰ terms; is the sequence nonnegative?'. This proof was submitted through this system (the /math/new/ pipeline) and is under review: a 659-line Lean 4 development that proves the exact statement `A317940_f_nonnegative`, plus the stronger fact f(n) > 0. The idea: f is the multiplicative lift of the formal square root of the binary Euler product ∏(1 + xᵗ/2), whose coefficients are all positive. The formal proof has been independently kernel-checked against real Mathlib in CI (clean axiom footprint) — so the theorem itself is machine-verified; what remains under review is novelty/priority and acceptance by OEIS/DeepMind. See the verification panel, the /math/a317940/ project page, and /verifications.html.",
     source: { name: "DeepMind Formal Conjectures (A317940) · OEIS A317940", url: "https://oeis.org/A317940" },
     verification: {
       note: "Bottom line: the exact DeepMind theorem A317940_f_nonnegative is now independently kernel-verified — compiled against real Mathlib on GitHub Actions with a clean axiom footprint (no sorryAx). Publication novelty and priority still warrant human/literature review, but the formal claim itself is proved. See /verifications.html for the live status.",

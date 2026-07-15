@@ -142,6 +142,20 @@
       )
     );
 
+    // Featured: a proof submitted through this system, under review
+    const feat = PROBLEMS.find((p) => p.featured);
+    if (feat) {
+      root.appendChild(
+        el("a", { class: "featured", href: "#/p/" + feat.id },
+          el("span", { class: "feat-tag" }, "★ Submitted through this system · Under review"),
+          el("div", { class: "feat-body" },
+            el("h3", { class: "feat-title" }, feat.title),
+            el("p", { class: "feat-sub" },
+              "A proof submitted via the ", el("strong", {}, "/math/new/"), " pipeline and currently under review. The formal theorem is machine-verified against Mathlib in CI (clean axioms); novelty & acceptance are pending. ",
+              el("span", { class: "feat-link" }, "See the proof, evidence & project site →"))))
+      );
+    }
+
     // controls
     const search = el("input", {
       class: "search", type: "search", placeholder: "Search problems, e.g. Goldbach, primes, Erdős…",

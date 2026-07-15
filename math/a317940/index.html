@@ -27,6 +27,7 @@
   .badges{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 6px}
   .b{font-size:.78rem;font-weight:600;padding:4px 11px;border-radius:20px;border:1px solid transparent;white-space:nowrap}
   .b.ok{color:var(--ok);background:rgba(55,208,160,.13);border-color:rgba(55,208,160,.4)}
+  .b.rev{color:#8fb3ff;background:rgba(124,150,255,.15);border-color:rgba(124,150,255,.45)}
   .b.mut{color:var(--muted);background:rgba(127,127,127,.12);border-color:var(--border)}
   section{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin:18px 0}
   h2{font-size:1.25rem;margin:.1em 0 .5em}
@@ -60,11 +61,13 @@
   <p class="sub">A machine-checked Lean&nbsp;4 proof of the Google DeepMind <em>Formal Conjectures</em> theorem
     <code>A317940_f_nonnegative</code> — an open OEIS conjecture.</p>
   <div class="badges">
-    <span class="b ok">✓ Proved</span>
-    <span class="b ok">Kernel-verified · Lean 4 + Mathlib (CI)</span>
+    <span class="b rev">⚗ Under review · submitted through this system</span>
+    <span class="b ok">Theorem kernel-verified · Lean 4 + Mathlib (CI)</span>
     <span class="b ok">axioms: propext · Classical.choice · Quot.sound</span>
     <span class="b mut">no sorry / admit / custom axiom</span>
   </div>
+  <p class="note" style="margin-top:6px">Submitted via the <a href="../new/">/math/new/</a> pipeline. The <em>formal
+    theorem</em> is machine-verified; what remains under review is novelty/priority and acceptance by OEIS/DeepMind.</p>
   <div class="toc">
     <a href="#abstract">Abstract</a><a href="#theorem">Theorem</a><a href="#proof">Proof idea</a>
     <a href="#verification">Verification</a><a href="#open">Open→closed</a><a href="#downloads">Downloads</a>
