@@ -83,9 +83,9 @@ theorem core_clique_of_card_eq_two
     rcases Finset.mem_filter.mp hx with ⟨hxCore, hux⟩
     rw [hcore] at hxCore
     simp only [Finset.mem_insert, Finset.mem_singleton] at hxCore
-    rcases hxCore with rfl | rfl
-    · exact G.loopless u hux
-    · exact hnot hux
+    rcases hxCore with hxu | hxv
+    · exact G.loopless u (by simpa [hxu] using hux)
+    · exact hnot (by simpa [hxv] using hux)
   have hvempty : coreNeighbors G v = ∅ := by
     apply Finset.eq_empty_iff_forall_notMem.mpr
     intro x hx
@@ -93,9 +93,9 @@ theorem core_clique_of_card_eq_two
     rcases Finset.mem_filter.mp hx with ⟨hxCore, hvx⟩
     rw [hcore] at hxCore
     simp only [Finset.mem_insert, Finset.mem_singleton] at hxCore
-    rcases hxCore with rfl | rfl
-    · exact hnot hvx.symm
-    · exact G.loopless v hvx
+    rcases hxCore with hxu | hxv
+    · exact hnot (by simpa [hxu, G.adj_comm] using hvx)
+    · exact G.loopless v (by simpa [hxv] using hvx)
   have hsumCore :
       (∑ c ∈ coreVertices G, (coreNeighbors G c).card) = 0 := by
     rw [hcore]
