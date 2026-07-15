@@ -5,7 +5,10 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - claude/gracious-hamilton-8k6xhz
+      - main
+      - master
   workflow_dispatch:
 
 permissions:
