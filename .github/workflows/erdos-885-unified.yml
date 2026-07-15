@@ -1,0 +1,31 @@
+name: Erdős 885 basis-stable unified descent
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/sage_unified_descent.py'
+      - '.github/workflows/erdos-885-unified.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: erdos-885-unified-descent
+  cancel-in-progress: true
+
+jobs:
+  unified:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker pull sagemath/sagemath:latest
+      - name: Recompute mod-2 and mod-4 in one fixed Mordell-Weil basis
+        run: |
+          mkdir -p results
+          docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_unified_descent.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: erdos-885-unified-descent
+          path: results/unified_descent.json
+          if-no-files-found: warn
