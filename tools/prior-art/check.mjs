@@ -32,9 +32,15 @@ const GH = process.env.GITHUB_TOKEN;
 const UPSTREAM_RAW =
   "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean";
 
+// The submitter's own GitHub account — its repos/issues are part of THIS
+// submission, not prior art, so they're excluded from the search.
+const SELF = /(^|\/|github\.com\/)DomTheDeveloper\//i;
+
 async function get(url, opts = {}, kind = "text") {
   const ctl = AbortSignal.timeout ? AbortSignal.timeout(25000) : undefined;
-  const res = await fetch(url, { signal: ctl, ...opts });
+  // A real User-Agent is required by OEIS (and polite elsewhere).
+  const headers = { "User-Agent": "A317940-prior-art-check (+https://github.com/DomTheDeveloper/crl)", ...(opts.headers || {}) };
+  const res = await fetch(url, { signal: ctl, ...opts, headers });
   if (!res.ok) throw new Error("HTTP " + res.status);
   return kind === "json" ? res.json() : res.text();
 }
@@ -67,10 +73,12 @@ async function github() {
   for (const [kind, q] of queries) {
     try {
       const j = await get(`https://api.github.com/search/${kind}?q=${encodeURIComponent(q)}&per_page=20`, { headers: H }, "json");
-      // ignore matches that are just the OEIS auto-statement (still `sorry`) or our own repo
+      // Exclude (a) the submitter's own repos/issues and (b) the OEIS auto-statement
+      // (which is the still-`sorry` conjecture itself, not a proof).
       const items = (j.items || []).filter((it) => {
-        const repo = (it.repository && it.repository.full_name) || (it.html_url || "");
-        return !/DomTheDeveloper\/crl/i.test(repo) && !/formal-conjectures\/.*Auto\//i.test(it.html_url || "");
+        const repo = (it.repository && it.repository.full_name) || "";
+        const url = it.html_url || "";
+        return !SELF.test(repo) && !SELF.test(url) && !/formal-conjectures\/.*Auto\//i.test(url);
       });
       add({ source: `GitHub ${kind}: "${q}"`, status: items.length ? "hit" : "clear",
         summary: items.length ? `${items.length} candidate match(es) — inspect` : "no external proof matches",

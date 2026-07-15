@@ -1,6 +1,6 @@
 {
   "subject": "A317940_f_nonnegative (OEIS A317940 nonnegativity)",
-  "generated_at": "2026-07-15T01:30:32.345Z",
+  "generated_at": "2026-07-15T01:33:34.669Z",
   "generated_by": "CI (GitHub Actions, full network + token)",
   "verdict": "NO PRIOR FORMAL PROOF FOUND across reachable sources; upstream still open. (Not an exhaustive literature review.)",
   "hits": 0,
