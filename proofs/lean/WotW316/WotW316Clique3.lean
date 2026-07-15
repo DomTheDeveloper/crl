@@ -36,6 +36,25 @@ theorem core_clique_of_card_eq_three
   have hexact := sum_compl_degrees_exact G hleaf_core
   have hupper := upper_bound_sum_compl_degrees_of_average G hG havg
   have hpart := pendant_card_add_core_card G
+  have hn : Fintype.card α = (pendantVertices G).card + 3 := by omega
+  have hsub : Fintype.card α - 2 = (pendantVertices G).card + 1 := by omega
+  have hbase :
+      (pendantVertices G).card * (Fintype.card α - 2) +
+          (pendantVertices G).card * ((coreVertices G).card - 1) =
+        (pendantVertices G).card * Fintype.card α := by
+    rw [hsub, hcard, hn]
+    norm_num
+    ring
+  have hleZero :
+      ((pendantVertices G).card * (Fintype.card α - 2) +
+          (pendantVertices G).card * ((coreVertices G).card - 1)) +
+          (∑ c ∈ coreVertices G, (coreComplementNeighbors G c).card) ≤
+        (pendantVertices G).card * (Fintype.card α - 2) +
+          (pendantVertices G).card * ((coreVertices G).card - 1) := by
+    calc
+      _ = ∑ v, Gᶜ.degree v := hexact.symm
+      _ ≤ (pendantVertices G).card * Fintype.card α := hupper
+      _ = _ := hbase.symm
   have hzero :
       (∑ c ∈ coreVertices G, (coreComplementNeighbors G c).card) = 0 := by
     omega
@@ -47,8 +66,10 @@ theorem core_clique_of_card_eq_three
     exact Finset.mem_filter.mpr ⟨hv, hcomp⟩
   have hpos : 0 < (coreComplementNeighbors G u).card :=
     Finset.card_pos.mpr ⟨v, hmem⟩
-  have hsumpos : 0 < ∑ c ∈ coreVertices G, (coreComplementNeighbors G c).card := by
-    exact Finset.sum_pos (fun _ _ => Nat.zero_le _) ⟨u, hu, hpos⟩
+  have hle :
+      (coreComplementNeighbors G u).card ≤
+        ∑ c ∈ coreVertices G, (coreComplementNeighbors G c).card := by
+    exact Finset.single_le_sum (fun _ _ => Nat.zero_le _) hu
   omega
 
 #print axioms core_clique_of_card_eq_three
