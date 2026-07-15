@@ -71,8 +71,8 @@ lemma card_filter_rel_eq_sum_ite
   | @insert a s ha ih =>
       rw [Finset.filter_insert]
       by_cases hra : r a
-      · simp [hra, ha, ih]
-      · simp [hra, ha, ih]
+      · simpa [hra, ha, ih, Nat.add_comm]
+      · simpa [hra, ha, ih, Nat.add_comm]
 
 lemma sum_card_pendantNeighbors
     (hleaf_core : ∀ l ∈ pendantVertices G, ∀ c, G.Adj l c → c ∈ coreVertices G) :
