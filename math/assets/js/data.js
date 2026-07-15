@@ -1000,7 +1000,7 @@ shows h obeys f's recursion, so f = h and f(n) > 0 for all n >= 1.  ∎`
     title: "A300997 — Cellular-Automaton Stabilization",
     category: "Combinatorics",
     status: "solved",
-    year: "2024 (AlphaProof)",
+    year: "AlphaProof (proof file © 2026)",
     by: "Google DeepMind AlphaProof",
     oeis: "A300997",
     tags: ["oeis", "deepmind", "alphaproof", "lean", "cellular-automaton", "corroborated"],
