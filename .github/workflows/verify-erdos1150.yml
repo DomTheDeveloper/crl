@@ -40,6 +40,14 @@ jobs:
           echo "----- Lean diagnostic tail -----"
           tail -n 160 build.log
           exit $status
+      - name: Upload Lean diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos1150-build-log
+          path: proofs/lean/Erdos1150/build.log
+          if-no-files-found: warn
+          retention-days: 7
       - name: Reject sorryAx
         if: success()
         working-directory: proofs/lean/Erdos1150
