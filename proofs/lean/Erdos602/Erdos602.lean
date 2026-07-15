@@ -8,22 +8,26 @@ namespace Erdos602
 A direct proof of the exact `erdos_602.variants.countable_index` statement.
 
 At stage `i`, choose two points of `A i` outside the finite set of all points
-chosen earlier.  Color every second chosen point blue and everything else red.
+chosen earlier. Color every second chosen point blue and everything else red.
 The globally fresh choices ensure that the first point selected for each `A i`
 is never blue, while the second one is blue.
 
-The countability and bounded-intersection assumptions are not needed for this
-countable-index lemma; infinitude of every `A i` is sufficient.
+The countability and intersection assumptions are not used: infinitude of every
+`A i` alone suffices for a countable family.
 -/
 theorem countable_index_proof :
     answer(True) ↔
-    ∀ (α : Type) (A : ℕ → Set α) (_ : ∀ i, (A i).Infinite)
-      (_ : ∀ i, Countable (A i)) (_ : ∃ n, ∀ i j, (A i ∩ A j).ncard ≤ n),
-      ∃ f : α → ℕ, ∀ i, ∃ x ∈ A i, ∃ y ∈ A i, f x ≠ f y := by
+    ∀ {α : Type*} (A : ℕ → Set α),
+      (∀ i, (A i).Countable ∧ (A i).Infinite) →
+      (∀ i j, i ≠ j → (A i ∩ A j).Finite) →
+      (∀ i j, i ≠ j → Set.ncard (A i ∩ A j) ≠ 1) →
+      HasPropertyB ℕ A := by
   show True ↔ _
   simp only [true_iff]
-  intro α A hInfinite _hCountable _hInter
+  intro α A hSets _hFiniteInter _hNotOne
   classical
+
+  have hInfinite (i : ℕ) : (A i).Infinite := (hSets i).2
 
   have pair_exists (i : ℕ) (s : Finset α) :
       ∃ p : α × α,
@@ -89,15 +93,19 @@ theorem countable_index_proof :
       rw [← hij_eq] at hymem
       exact hx_fresh i hymem
 
-  let f : α → ℕ := fun a => if ∃ j, a = y j then 1 else 0
+  let f : α → Fin 2 := fun a => if ∃ j, a = y j then 1 else 0
   refine ⟨f, ?_⟩
-  intro i
-  refine ⟨x i, hxA i, y i, hyA i, ?_⟩
+  intro i hMono
   have hx_not_blue : ¬ ∃ j, x i = y j := by
     rintro ⟨j, h⟩
     exact cross_ne i j h
-  have hy_blue : ∃ j, y i = y j := ⟨i, rfl⟩
-  simp [f, hx_not_blue, hy_blue]
+  have hfx : f (x i) = 0 := by
+    simp [f, hx_not_blue]
+  have hfy : f (y i) = 1 := by
+    simp [f]
+  have hEq := hMono (x i) (hxA i) (y i) (hyA i)
+  rw [hfx, hfy] at hEq
+  exact absurd hEq (by decide)
 
 #print axioms countable_index_proof
 
