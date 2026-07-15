@@ -1,0 +1,51 @@
+name: Erdős 885 Sage quotient screen
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/**'
+      - '.github/workflows/erdos-885-sage.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quotient-screen:
+    name: Packet ${{ matrix.packet }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        packet: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pull SageMath container
+        run: docker pull sagemath/sagemath:latest
+
+      - name: Compute five elliptic quotients
+        run: |
+          mkdir -p results
+          chmod 777 results
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/work" \
+            -w /work \
+            sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_quotients.py \
+              --packet "${{ matrix.packet }}" \
+              --output "/work/results/packet_${{ matrix.packet }}.json"
+
+      - name: Show result
+        if: always()
+        run: cat "results/packet_${{ matrix.packet }}.json" || true
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos-885-packet-${{ matrix.packet }}
+          path: results/packet_${{ matrix.packet }}.json
+          if-no-files-found: warn
