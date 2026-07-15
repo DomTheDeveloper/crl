@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'research/erdos885/sage_unified_descent.py'
+      - 'research/erdos885/sage_unified_mod8.py'
       - '.github/workflows/erdos-885-unified.yml'
   workflow_dispatch:
 
@@ -18,14 +19,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker pull sagemath/sagemath:latest
-      - name: Recompute mod-2 and mod-4 in one fixed Mordell-Weil basis
+      - name: Recompute mod-2, mod-4 and mod-8 in one fixed Mordell-Weil basis
         run: |
           mkdir -p results
           docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest \
-            sage -python research/erdos885/sage_unified_descent.py
+            sage -python research/erdos885/sage_unified_mod8.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: erdos-885-unified-descent
-          path: results/unified_descent.json
+          name: erdos-885-unified-mod8
+          path: results/unified_mod8.json
           if-no-files-found: warn
