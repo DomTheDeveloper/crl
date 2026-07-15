@@ -71,6 +71,14 @@ lemma dft_parseval_conj (Φ : ZMod N → ℂ) :
             intro j _
             ring
 
-#print axioms dft_parseval_conj
+/-- Real norm-square form of discrete Parseval. -/
+lemma dft_parseval_norm_sq (Φ : ZMod N → ℂ) :
+    ∑ k : ZMod N, ‖ZMod.dft Φ k‖ ^ 2 =
+      (N : ℝ) * ∑ j : ZMod N, ‖Φ j‖ ^ 2 := by
+  have h := dft_parseval_conj Φ
+  simp_rw [Complex.conj_mul'] at h
+  exact_mod_cast h
+
+#print axioms dft_parseval_norm_sq
 
 end Erdos1150Proof
