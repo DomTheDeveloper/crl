@@ -120,13 +120,9 @@ lemma dft_coeff_eq_eval (P : ℂ[X]) (n : ℕ) (hdeg : P.natDegree = n)
   rw [ZMod.dft_apply, Polynomial.eval_eq_sum_range, hdeg]
   simp only [smul_eq_mul]
   rw [← Fin.sum_univ_eq_sum_range]
-  refine Fintype.sum_equiv (ZMod.finEquiv (n + 1)).symm _ _ ?_
-  intro j
+  apply Finset.sum_congr rfl
+  intro j _
   rw [stdAddChar_neg_mul_eq_pow]
-  have hval : ((ZMod.finEquiv (n + 1)).symm j).val = j.val := by
-    have h := congrArg ZMod.val ((ZMod.finEquiv (n + 1)).apply_symm_apply j)
-    simpa [ZMod.finEquiv, ZMod.val] using h
-  rw [hval]
   exact mul_comm _ _
 
 #print axioms dft_coeff_eq_eval
