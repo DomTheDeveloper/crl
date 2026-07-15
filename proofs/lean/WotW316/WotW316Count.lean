@@ -30,6 +30,15 @@ def missingCoreNeighbors (l : α) : Finset α :=
 def missingPendantNeighbors (c : α) : Finset α :=
   (pendantVertices G).filter fun l => ¬ G.Adj c l
 
+lemma card_filter_not_rel_eq_sum_ite
+    (s : Finset α) (r : α → Prop) [DecidablePred r] :
+    (s.filter fun x => ¬ r x).card = ∑ x ∈ s, if r x then 0 else 1 := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | @insert a s ha ih =>
+      by_cases hra : r a <;> simp [ha, hra, ih]
+
 lemma coreNeighbors_eq_neighborFinset_of_pendant
     {l : α} (hl : l ∈ pendantVertices G)
     (hleaf_core : ∀ l ∈ pendantVertices G, ∀ c, G.Adj l c → c ∈ coreVertices G) :
@@ -89,17 +98,20 @@ lemma sum_card_missingPendantNeighbors
     calc
       (∑ c ∈ coreVertices G, (missingPendantNeighbors G c).card) =
           ∑ c ∈ coreVertices G,
-            ∑ l ∈ pendantVertices G, if ¬G.Adj c l then 1 else 0 := by
+            ∑ l ∈ pendantVertices G, if G.Adj c l then 0 else 1 := by
               apply Finset.sum_congr rfl
               intro c _
-              simp [missingPendantNeighbors]
+              exact card_filter_not_rel_eq_sum_ite (pendantVertices G) (fun l => G.Adj c l)
       _ = ∑ l ∈ pendantVertices G,
-            ∑ c ∈ coreVertices G, if ¬G.Adj c l then 1 else 0 := by
+            ∑ c ∈ coreVertices G, if G.Adj c l then 0 else 1 := by
               rw [Finset.sum_comm]
       _ = ∑ l ∈ pendantVertices G, (missingCoreNeighbors G l).card := by
               apply Finset.sum_congr rfl
               intro l _
-              simp [missingCoreNeighbors, G.adj_comm]
+              rw [card_filter_not_rel_eq_sum_ite (coreVertices G) (fun c => G.Adj l c)]
+              apply Finset.sum_congr rfl
+              intro c _
+              rw [G.adj_comm]
   rw [hdouble]
   calc
     (∑ l ∈ pendantVertices G, (missingCoreNeighbors G l).card) =
