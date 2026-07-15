@@ -48,8 +48,18 @@ private lemma distMin_le_one_of_nonempty
     obtain ⟨s, hs⟩ := hS
     obtain ⟨p⟩ := hG u s
     obtain ⟨x, y, hx, hy, hxy⟩ := walk_exists_crossing p hu hs
-    apply le_trans (Finset.min'_le _ ?_) (distToSet_le_one_of_adj hy hxy)
-    exact Finset.mem_image.mpr ⟨x, Finset.mem_filter.mpr ⟨Finset.mem_univ x, hx⟩, rfl⟩
+    have hxmem : distToSet G x S ∈
+        Finset.image (fun v => distToSet G v S) (Finset.univ.filter (fun v => v ∉ S)) :=
+      Finset.mem_image.mpr ⟨x, Finset.mem_filter.mpr ⟨Finset.mem_univ x, hx⟩, rfl⟩
+    have hmin :
+        (Finset.image (fun v => distToSet G v S)
+          (Finset.univ.filter (fun v => v ∉ S))).min'
+            (Finset.image_nonempty.mpr hout) ≤ distToSet G x S := by
+      simpa using Finset.min'_le
+        (Finset.image (fun v => distToSet G v S)
+          (Finset.univ.filter (fun v => v ∉ S)))
+        (distToSet G x S) hxmem
+    exact hmin.trans (distToSet_le_one_of_adj hy hxy)
   · exact Nat.zero_le 1
 
 private lemma two_le_largestInducedForestSize
@@ -72,7 +82,10 @@ private lemma two_le_largestInducedForestSize
       omega
     have hcard : Fintype.card (Fin 3) ≤ Fintype.card s :=
       Fintype.card_le_of_injective f hf
-    simp [s, huv] at hcard
+    have hscard : Fintype.card s = s.card := by
+      simpa using (Set.toFinset_card (s : Set α)).symm
+    rw [hscard, hs] at hcard
+    omega
   unfold largestInducedForestSize
   have hbdd : BddAbove {n : ℕ | ∃ t : Finset α, (G.induce t).IsAcyclic ∧ t.card = n} := by
     refine ⟨Fintype.card α, ?_⟩
