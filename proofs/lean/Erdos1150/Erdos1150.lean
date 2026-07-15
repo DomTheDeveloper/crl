@@ -32,7 +32,7 @@ lemma dft_inverse_sum (Φ : ZMod N → ℂ) (x : ZMod N) :
     ∑ k : ZMod N, ZMod.stdAddChar (x * k) * ZMod.dft Φ k = (N : ℂ) * Φ x := by
   have h := congrFun (ZMod.dft_dft Φ) (-x)
   rw [ZMod.dft_apply] at h
-  simpa only [smul_eq_mul, mul_neg, neg_neg] using h
+  simpa only [smul_eq_mul, mul_neg, neg_neg, mul_comm] using h
 
 /-- Discrete Parseval identity for the unnormalised DFT, in conjugate-product form. -/
 lemma dft_parseval_conj (Φ : ZMod N → ℂ) :
