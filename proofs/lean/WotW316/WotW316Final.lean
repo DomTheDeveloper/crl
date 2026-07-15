@@ -39,7 +39,8 @@ theorem conjecture316_solved (G : SimpleGraph α) [DecidableRel G.Adj]
         have hsub : forcedVertices G ⊆ coreVertices G := by
           intro c hc
           exact ((mem_forcedVertices_iff G).1 hc).1
-        exact Finset.card_pos.mpr ⟨hFne.some, hsub hFne.some_mem⟩
+        rcases hFne with ⟨c, hcF⟩
+        exact Finset.card_pos.mpr ⟨c, hsub hcF⟩
       have hqcases :
           (coreVertices G).card = 1 ∨ (coreVertices G).card = 2 ∨
             (coreVertices G).card = 3 := by
