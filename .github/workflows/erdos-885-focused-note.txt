@@ -1,0 +1,1 @@
+This marker records the source head used for the isolated focused branch.
