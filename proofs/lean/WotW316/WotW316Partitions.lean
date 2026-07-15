@@ -30,7 +30,11 @@ lemma pendant_core_partition :
 lemma pendant_core_disjoint :
     Disjoint (pendantVertices G) (coreVertices G) := by
   classical
-  simp [coreVertices]
+  apply Finset.disjoint_left.mpr
+  intro x hxP hxC
+  have hxnot : x ∉ pendantVertices G := by
+    simpa [coreVertices] using hxC
+  exact hxnot hxP
 
 lemma neighborFinset_eq_pendant_union_core (v : α) :
     G.neighborFinset v = pendantNeighbors G v ∪ coreNeighbors G v := by
@@ -51,7 +55,7 @@ lemma pendantNeighbors_disjoint_coreNeighbors (v : α) :
   intro x hxP hxC
   have hxP' := (Finset.mem_filter.mp hxP).1
   have hxC' := (Finset.mem_filter.mp hxC).1
-  exact (pendant_core_disjoint G).le_bot ⟨hxP', hxC'⟩
+  exact (Finset.disjoint_left.mp (pendant_core_disjoint G)) hxP' hxC'
 
 lemma degree_eq_pendantNeighbors_add_coreNeighbors (v : α) :
     G.degree v = (pendantNeighbors G v).card + (coreNeighbors G v).card := by
@@ -65,7 +69,10 @@ lemma card_filter_rel_eq_sum_ite
   induction s using Finset.induction_on with
   | empty => simp
   | @insert a s ha ih =>
-      by_cases hra : r a <;> simp [ha, hra, ih]
+      rw [Finset.filter_insert]
+      by_cases hra : r a
+      · simp [hra, ha, ih]
+      · simp [hra, ha, ih]
 
 lemma sum_card_pendantNeighbors
     (hleaf_core : ∀ l ∈ pendantVertices G, ∀ c, G.Adj l c → c ∈ coreVertices G) :
@@ -86,7 +93,7 @@ lemma sum_card_pendantNeighbors
             intro l _
             apply Finset.sum_congr rfl
             intro c _
-            rw [G.adj_comm]
+            simpa only [G.adj_comm]
     _ = ∑ l ∈ pendantVertices G, (coreNeighbors G l).card := by
             apply Finset.sum_congr rfl
             intro l _
@@ -124,7 +131,7 @@ lemma missingPendant_disjoint_coreComplement (c : α) :
   intro x hxP hxC
   have hxP' := (Finset.mem_filter.mp hxP).1
   have hxC' := (Finset.mem_filter.mp hxC).1
-  exact (pendant_core_disjoint G).le_bot ⟨hxP', hxC'⟩
+  exact (Finset.disjoint_left.mp (pendant_core_disjoint G)) hxP' hxC'
 
 lemma degree_compl_eq_missingPendant_add_core
     {c : α} (hc : c ∈ coreVertices G) :
