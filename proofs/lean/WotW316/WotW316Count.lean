@@ -40,7 +40,7 @@ lemma card_filter_not_rel_eq_sum_ite
       rw [Finset.filter_insert]
       by_cases hra : r a
       · simp [hra, ha, ih]
-      · simp [hra, ha, ih]
+      · simpa [hra, ha, ih, Nat.add_comm]
 
 lemma coreNeighbors_eq_neighborFinset_of_pendant
     {l : α} (hl : l ∈ pendantVertices G)
@@ -116,7 +116,7 @@ lemma sum_card_missingPendantNeighbors
                     ∑ c ∈ coreVertices G, if G.Adj l c then 0 else 1 := by
                       apply Finset.sum_congr rfl
                       intro c _
-                      rw [G.adj_comm]
+                      simpa only [G.adj_comm]
                 _ = (missingCoreNeighbors G l).card := by
                       unfold missingCoreNeighbors
                       exact (card_filter_not_rel_eq_sum_ite
