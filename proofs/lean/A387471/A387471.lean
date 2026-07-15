@@ -7,8 +7,8 @@ This file does two separate things.
 
 1. It gives an exact Lean statement of the OEIS conjecture using the
    trigonometric-Ceva sine-product equation.
-2. It kernel-checks the algebraic reduction from the proposed classification
-   of the three sine arguments to the ordinary and exceptional index triples.
+2. It kernel-checks the trigonometric and algebraic reductions from the
+   concurrence equation to the ordinary and exceptional index triples.
 
 The remaining research-level dependency is deliberately exposed as
 `ABCClassified`: proving that every rational-angle sine solution satisfies
@@ -111,6 +111,100 @@ def ABCClassified (n A B C : ℤ) : Prop :=
 def IndexClassified (n i j k : ℤ) : Prop :=
   OrdinaryIndices n i j k ∨ ExceptionalIndices n i j k
 
+/-! ## Trigonometric reduction -/
+
+/-- The exact product-to-sum identity behind the reduction to three sines. -/
+theorem product_difference_identity (x y z : ℝ) :
+    Real.sin x * Real.sin y * Real.sin z -
+        Real.sin (Real.pi / 3 - x) * Real.sin (Real.pi / 3 - y) *
+          Real.sin (Real.pi / 3 - z) =
+      Real.sqrt 3 / 4 *
+        (Real.sin (x + y - z - Real.pi / 6) +
+          Real.sin (x + z - y - Real.pi / 6) +
+          Real.sin (y + z - x - Real.pi / 6)) := by
+  have hsqrt : (Real.sqrt 3 : ℝ) ^ 2 = 3 := by norm_num
+  simp only [Real.sin_sub, Real.sin_add, Real.cos_sub, Real.cos_add,
+    Real.sin_pi_div_three, Real.cos_pi_div_three,
+    Real.sin_pi_div_six, Real.cos_pi_div_six]
+  ring_nf at *
+  nlinarith
+
+/-- The trigonometric-Ceva product equation is equivalent to a three-sine
+vanishing relation. -/
+theorem product_concurrent_iff_three_sines (x y z : ℝ) :
+    (Real.sin x * Real.sin y * Real.sin z =
+      Real.sin (Real.pi / 3 - x) * Real.sin (Real.pi / 3 - y) *
+        Real.sin (Real.pi / 3 - z)) ↔
+      Real.sin (x + y - z - Real.pi / 6) +
+        Real.sin (x + z - y - Real.pi / 6) +
+        Real.sin (y + z - x - Real.pi / 6) = 0 := by
+  constructor
+  · intro h
+    have hz :
+        Real.sin x * Real.sin y * Real.sin z -
+            Real.sin (Real.pi / 3 - x) * Real.sin (Real.pi / 3 - y) *
+              Real.sin (Real.pi / 3 - z) = 0 := sub_eq_zero.mpr h
+    rw [product_difference_identity] at hz
+    have hc : Real.sqrt 3 / 4 ≠ 0 := by positivity
+    exact (mul_eq_zero.mp hz).resolve_left hc
+  · intro h
+    apply sub_eq_zero.mp
+    rw [product_difference_identity, h, mul_zero]
+
+/-- The lattice angle `a*π/(6n)` for an integer coefficient `a`. -/
+noncomputable def latticeAngle (n : ℕ) (a : ℤ) : ℝ :=
+  (a : ℝ) * (Real.pi / (6 * (n : ℝ)))
+
+/-- The three integer coefficients produced by the linear change of variables. -/
+def reducedA (n i j k : ℕ) : ℤ := (i : ℤ) + j - k - n
+def reducedB (n i j k : ℕ) : ℤ := (i : ℤ) + k - j - n
+def reducedC (n i j k : ℕ) : ℤ := (j : ℤ) + k - i - n
+
+/-- First reduced angle. -/
+theorem latticeAngle_reducedA (n i j k : ℕ) (hn : 0 < n) :
+    latticeAngle n (reducedA n i j k) =
+      cevianAngle n i + cevianAngle n j - cevianAngle n k - Real.pi / 6 := by
+  have hn0 : (n : ℝ) ≠ 0 := by exact_mod_cast (Nat.ne_of_gt hn)
+  simp [latticeAngle, reducedA, cevianAngle]
+  field_simp [hn0]
+  ring
+
+/-- Second reduced angle. -/
+theorem latticeAngle_reducedB (n i j k : ℕ) (hn : 0 < n) :
+    latticeAngle n (reducedB n i j k) =
+      cevianAngle n i + cevianAngle n k - cevianAngle n j - Real.pi / 6 := by
+  have hn0 : (n : ℝ) ≠ 0 := by exact_mod_cast (Nat.ne_of_gt hn)
+  simp [latticeAngle, reducedB, cevianAngle]
+  field_simp [hn0]
+  ring
+
+/-- Third reduced angle. -/
+theorem latticeAngle_reducedC (n i j k : ℕ) (hn : 0 < n) :
+    latticeAngle n (reducedC n i j k) =
+      cevianAngle n j + cevianAngle n k - cevianAngle n i - Real.pi / 6 := by
+  have hn0 : (n : ℝ) ≠ 0 := by exact_mod_cast (Nat.ne_of_gt hn)
+  simp [latticeAngle, reducedC, cevianAngle]
+  field_simp [hn0]
+  ring
+
+/-- The reduced three-sine equation attached to a cevian index triple. -/
+def ReducedSineEquation (n i j k : ℕ) : Prop :=
+  Real.sin (latticeAngle n (reducedA n i j k)) +
+    Real.sin (latticeAngle n (reducedB n i j k)) +
+    Real.sin (latticeAngle n (reducedC n i j k)) = 0
+
+/-- Fully formalized bridge from trigonometric Ceva to the integer-lattice
+three-sine equation. -/
+theorem cevianConcurrent_iff_reduced (n i j k : ℕ) (hn : 0 < n) :
+    CevianConcurrent n i j k ↔ ReducedSineEquation n i j k := by
+  unfold CevianConcurrent ReducedSineEquation
+  rw [product_concurrent_iff_three_sines]
+  rw [← latticeAngle_reducedA n i j k hn,
+    ← latticeAngle_reducedB n i j k hn,
+    ← latticeAngle_reducedC n i j k hn]
+
+/-! ## Algebraic reconstruction -/
+
 /-- A permutation of `(0,s,-s)` reconstructs to the ordinary family. -/
 theorem reconstruct_ordinary {n A B C i j k s : ℤ}
     (hrec : Reconstruct n A B C i j k)
@@ -169,6 +263,9 @@ theorem closedForm_eq_family_count (n : ℕ) (hn : 1 ≤ n) :
   · simp [closedForm, h]
     omega
 
+#print axioms product_difference_identity
+#print axioms product_concurrent_iff_three_sines
+#print axioms cevianConcurrent_iff_reduced
 #print axioms reconstruct_ordinary
 #print axioms reconstruct_exceptional
 #print axioms classification_transfer
