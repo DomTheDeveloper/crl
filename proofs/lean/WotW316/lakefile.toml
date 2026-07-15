@@ -1,5 +1,5 @@
 name = "wotw316"
-defaultTargets = ["WotW316", "WotW316Count"]
+defaultTargets = ["WotW316", "WotW316StructureExtra", "WotW316Count"]
 
 [[require]]
 name = "formal_conjectures"
@@ -8,6 +8,9 @@ rev = "b2e608fc52d765510915a244bb69b1a2741acc3c"
 
 [[lean_lib]]
 name = "WotW316"
+
+[[lean_lib]]
+name = "WotW316StructureExtra"
 
 [[lean_lib]]
 name = "WotW316Count"
