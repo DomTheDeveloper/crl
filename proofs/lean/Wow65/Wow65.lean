@@ -13,7 +13,7 @@ open Classical SimpleGraph
 
 variable {α : Type*} [Fintype α] [DecidableEq α]
 
-private lemma Walk.exists_crossing
+private lemma walk_exists_crossing
     {G : SimpleGraph α} {S : Set α} {u v : α} (p : G.Walk u v)
     (hu : u ∉ S) (hv : v ∈ S) :
     ∃ x y, x ∉ S ∧ y ∈ S ∧ G.Adj x y := by
@@ -34,7 +34,7 @@ private lemma distToSet_le_one_of_adj
     refine Finset.mem_image.mpr ⟨y, ?_, ?_⟩
     · simpa using hy
     · simpa using (dist_eq_one_iff_adj.mpr hxy)
-  · exact (hS ⟨y, hy⟩).elim
+  · exact (hS ⟨y, by simpa using hy⟩).elim
 
 private lemma distMin_le_one_of_nonempty
     {G : SimpleGraph α} (hG : G.Connected) {S : Set α} (hS : S.Nonempty) :
@@ -47,7 +47,7 @@ private lemma distMin_le_one_of_nonempty
     have hu : u ∉ S := (Finset.mem_filter.mp huout).2
     obtain ⟨s, hs⟩ := hS
     obtain ⟨p⟩ := hG u s
-    obtain ⟨x, y, hx, hy, hxy⟩ := p.exists_crossing hu hs
+    obtain ⟨x, y, hx, hy, hxy⟩ := walk_exists_crossing p hu hs
     apply le_trans (Finset.min'_le _ ?_) (distToSet_le_one_of_adj hy hxy)
     exact Finset.mem_image.mpr ⟨x, Finset.mem_filter.mpr ⟨Finset.mem_univ x, hx⟩, rfl⟩
   · exact Nat.zero_le 1
@@ -58,6 +58,21 @@ private lemma two_le_largestInducedForestSize
   obtain ⟨u, v, huv⟩ := exists_pair_ne α
   let s : Finset α := {u, v}
   have hs : s.card = 2 := by simp [s, huv]
+  have hac : (G.induce s).IsAcyclic := by
+    intro w p hp
+    have hlen : 3 ≤ p.length := hp.three_le_length
+    let f : Fin 3 → s := fun i => p.getVert (i.val + 1)
+    have hf : Function.Injective f := by
+      intro i j hij
+      apply Fin.ext
+      have hij' : i.val + 1 = j.val + 1 := hp.getVert_injOn
+        (by simp only [Set.mem_setOf_eq]; omega)
+        (by simp only [Set.mem_setOf_eq]; omega)
+        hij
+      omega
+    have hcard : Fintype.card (Fin 3) ≤ Fintype.card s :=
+      Fintype.card_le_of_injective f hf
+    simp [s, huv] at hcard
   unfold largestInducedForestSize
   have hbdd : BddAbove {n : ℕ | ∃ t : Finset α, (G.induce t).IsAcyclic ∧ t.card = n} := by
     refine ⟨Fintype.card α, ?_⟩
@@ -65,10 +80,7 @@ private lemma two_le_largestInducedForestSize
     obtain ⟨t, _, rfl⟩ := hn
     exact Finset.card_le_univ t
   apply le_csSup hbdd
-  refine ⟨s, ?_, hs⟩
-  apply IsAcyclic.of_card_le_two
-  rw [ENat.card_eq_coe_fintype_card]
-  simp [s, huv]
+  exact ⟨s, hac, hs⟩
 
 /-- A proof of Written on the Wall II, Conjecture 65.
 
