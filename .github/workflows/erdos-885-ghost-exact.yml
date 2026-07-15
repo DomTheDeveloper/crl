@@ -1,4 +1,4 @@
-name: Erdős 885 exact ghost classification
+name: Erdős 885 isolated exact ghost classification
 
 on:
   pull_request:
@@ -6,6 +6,10 @@ on:
       - 'research/erdos885/sage_ghost_exact.py'
       - '.github/workflows/erdos-885-ghost-exact.yml'
   workflow_dispatch:
+
+concurrency:
+  group: erdos-885-ghost-exact-isolated
+  cancel-in-progress: true
 
 jobs:
   classify:
