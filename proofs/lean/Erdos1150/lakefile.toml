@@ -1,10 +1,12 @@
 name = "erdos1150"
 defaultTargets = ["Erdos1150"]
 
+# Fast proof-development loop. The final theorem is rechecked against the exact
+# Formal Conjectures commit before upstream submission.
 [[require]]
-name = "formal_conjectures"
-git = "https://github.com/google-deepmind/formal-conjectures.git"
-rev = "b2e608fc52d765510915a244bb69b1a2741acc3c"
+name = "mathlib"
+scope = "leanprover-community"
+version = "git#v4.27.0"
 
 [[lean_lib]]
 name = "Erdos1150"
