@@ -1,0 +1,62 @@
+{
+  "subject": "A317940_f_nonnegative (OEIS A317940 nonnegativity)",
+  "generated_at": "2026-07-15T01:30:32.345Z",
+  "generated_by": "CI (GitHub Actions, full network + token)",
+  "verdict": "NO PRIOR FORMAL PROOF FOUND across reachable sources; upstream still open. (Not an exhaustive literature review.)",
+  "hits": 0,
+  "unreachable": [
+    "GitHub code: \"A317940_f_nonnegative\"",
+    "GitHub code: \"A317940 language:lean\"",
+    "GitHub code: \"A317940 language:coq\"",
+    "GitHub issues: \"A317940 nonnegative in:title,body\"",
+    "OEIS A317940",
+    "arXiv"
+  ],
+  "sources": [
+    {
+      "source": "DeepMind upstream (auto_oeis)",
+      "status": "clear",
+      "summary": "theorem still stated with `sorry` — OPEN upstream",
+      "detail": "theorem A317940_f_nonnegative (n : ℕ) (h : n > 0) : A317940_f n ≥ 0 := by sorry",
+      "url": "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean"
+    },
+    {
+      "source": "GitHub code: \"A317940_f_nonnegative\"",
+      "status": "unreachable",
+      "summary": "search failed (HTTP 401)"
+    },
+    {
+      "source": "GitHub code: \"A317940 language:lean\"",
+      "status": "unreachable",
+      "summary": "search failed (HTTP 401)"
+    },
+    {
+      "source": "GitHub code: \"A317940 language:coq\"",
+      "status": "unreachable",
+      "summary": "search failed (HTTP 401)"
+    },
+    {
+      "source": "GitHub issues: \"A317940 nonnegative in:title,body\"",
+      "status": "unreachable",
+      "summary": "search failed (HTTP 401)"
+    },
+    {
+      "source": "OEIS A317940",
+      "status": "unreachable",
+      "summary": "could not fetch (HTTP 403)",
+      "url": "https://oeis.org/A317940"
+    },
+    {
+      "source": "arXiv",
+      "status": "unreachable",
+      "summary": "could not fetch (HTTP 403)"
+    },
+    {
+      "source": "Our recorded prior-art boundary",
+      "status": "clear",
+      "summary": "PRIOR_ART.md present: digit-sum product identity is classical; positivity argument + A317940 application appear new",
+      "detail": "# Prior-art boundary  The binary digit-sum generating-product identity is known. Maxwell Schneider and Robert Schneider, *Digit sums and generating functions* (2018), give general base-B product identities that include"
+    }
+  ],
+  "caveat": "Automated prior-art search over code hosts, OEIS and arXiv. A negative result is evidence, not proof, of novelty; a full literature/expert review is still advised."
+}

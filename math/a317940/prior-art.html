@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prior-art check — A317940 nonnegativity proof</title>
+<meta name="description" content="A deep, reproducible prior-art search for the A317940 nonnegativity proof: is there any pre-existing formal proof? Live upstream check, GitHub code search, OEIS, arXiv, and an automated crawler report." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%8D%3C/text%3E%3C/svg%3E" />
+<style>
+  :root{--bg:#0e1116;--panel:#161c27;--panel2:#1b2430;--border:#273140;--text:#e6edf3;--muted:#93a1b1;
+    --ok:#37d0a0;--warn:#f6c35a;--danger:#ff6b6b;--accent:#7c5cff;--mono:ui-monospace,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+  @media (prefers-color-scheme:light){:root{--bg:#f7f8fa;--panel:#fff;--panel2:#f0f3f6;--border:#d6dce3;--text:#1a1f24;--muted:#5a6472;}}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6}
+  a{color:var(--ok);text-decoration:none}a:hover{text-decoration:underline}
+  code{font-family:var(--mono);background:rgba(127,127,127,.16);padding:.1em .35em;border-radius:5px;font-size:.9em}
+  .wrap{max-width:880px;margin:0 auto;padding:28px 20px 70px}
+  .crumbs{font-size:.85rem;color:var(--muted);margin-bottom:14px}
+  h1{font-size:clamp(1.6rem,4vw,2.2rem);margin:.1em 0 .2em}
+  .sub{color:var(--muted);margin:0 0 12px}
+  section{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin:16px 0}
+  h2{font-size:1.2rem;margin:.1em 0 .5em}
+  .verdict{border-radius:12px;padding:14px 18px;font-weight:600;margin:6px 0 2px}
+  .verdict.ok{color:var(--ok);background:rgba(55,208,160,.12);border:1px solid rgba(55,208,160,.4)}
+  .verdict.warn{color:var(--warn);background:rgba(246,195,90,.1);border:1px solid rgba(246,195,90,.4)}
+  .verdict.bad{color:var(--danger);background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.4)}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
+  .pill{font-size:.76rem;font-weight:600;padding:2px 9px;border-radius:20px;white-space:nowrap}
+  .pill.clear{color:var(--ok);background:rgba(55,208,160,.13);border:1px solid rgba(55,208,160,.4)}
+  .pill.hit{color:var(--danger);background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.4)}
+  .pill.unk{color:var(--muted);background:rgba(127,127,127,.12);border:1px solid var(--border)}
+  .btn{font-family:inherit;font-size:.92rem;padding:8px 16px;border-radius:9px;border:1px solid transparent;
+    background:linear-gradient(92deg,var(--accent),#6a4cff);color:#fff;font-weight:600;cursor:pointer}
+  .btn:disabled{opacity:.6}
+  .note{color:var(--muted);font-size:.88rem} .mono{font-family:var(--mono)}
+  .axbox{font-family:var(--mono);font-size:.82rem;background:#0b1017;color:#cdd9e5;border:1px solid var(--border);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre-wrap;margin:8px 0}
+  ul{margin:.4em 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumbs"><a href="../#/">∑ Math Proof Playground</a> › <a href="./">A317940 project</a> › Prior-art check</div>
+  <h1>🔍 Prior-art check — A317940 nonnegativity</h1>
+  <p class="sub">Is there any <em>pre-existing</em> proof of <code>A317940_f_nonnegative</code>? This page searches deep,
+    reproducibly, and honestly — because the one thing still under review for our submission is <strong>novelty</strong>.</p>
+
+  <div id="verdict" class="verdict ok">Verdict: no pre-existing formal proof found across the checked sources; the DeepMind
+    conjecture is still open upstream. (Evidence of novelty — not a substitute for an expert literature review.)</div>
+
+  <section>
+    <h2>1 · Live check — still open upstream?</h2>
+    <p class="note">Fetches DeepMind's actual conjecture file right now and checks whether the theorem is still stated with
+      <code>sorry</code> (Lean's marker for “unproved”). If it ever stops being <code>sorry</code>, someone proved it upstream.</p>
+    <button class="btn" id="run">▶ Run live check</button>
+    <div id="live"></div>
+  </section>
+
+  <section>
+    <h2>2 · GitHub code search <span class="pill clear">verified 2026-07-15</span></h2>
+    <p class="note">Searched all of GitHub's indexed code (via the code-search API). No existing A317940 proof — notably,
+      DeepMind's AlphaProof published a proof for the neighbouring sequence <a href="../archive/a300997/">A300997</a>, but
+      <strong>not</strong> for A317940.</p>
+    <table><thead><tr><th>Query</th><th>Results</th><th></th></tr></thead><tbody>
+      <tr><td class="mono">A317940 org:google-deepmind</td><td><b>0</b></td><td><span class="pill clear">clear</span></td></tr>
+      <tr><td class="mono">A317940_f_nonnegative language:lean</td><td><b>0</b></td><td><span class="pill clear">clear</span></td></tr>
+      <tr><td class="mono">A317940 language:lean</td><td><b>0</b></td><td><span class="pill clear">clear</span></td></tr>
+    </tbody></table>
+    <p class="note">Reproduce: <a href="https://github.com/search?q=A317940+language%3Alean&type=code" target="_blank" rel="noopener">GitHub code search “A317940 language:lean” ↗</a> ·
+      <a href="https://github.com/search?q=A317940_f_nonnegative&type=code" target="_blank" rel="noopener">the exact theorem ↗</a>.</p>
+  </section>
+
+  <section>
+    <h2>3 · Automated crawler report</h2>
+    <p class="note">The <code>tools/prior-art/check.mjs</code> crawler runs deep in CI (weekly + on demand:
+      <a href="https://github.com/DomTheDeveloper/crl/actions/workflows/prior-art.yml" target="_blank" rel="noopener">prior-art workflow ↗</a>)
+      across GitHub, OEIS and arXiv, and fails loudly if any source turns up a candidate prior proof. Latest committed report:</p>
+    <div id="report" class="note">Loading <code>prior-art-report.json</code>…</div>
+  </section>
+
+  <section>
+    <h2>4 · Search it yourself</h2>
+    <ul>
+      <li><a href="https://oeis.org/A317940" target="_blank" rel="noopener">OEIS A317940</a> — the sequence page (comments / references / links). The listed comment is the open <em>question</em>, not a proof.</li>
+      <li><a href="https://arxiv.org/abs/1801" target="_blank" rel="noopener">arXiv</a> — search <span class="mono">“Dirichlet square root” positivity</span> / <span class="mono">digit sum generating function</span>.</li>
+      <li><a href="https://scholar.google.com/scholar?q=%22A317940%22+OR+%22Dirichlet+square+root%22+positivity" target="_blank" rel="noopener">Google Scholar ↗</a></li>
+      <li><a href="https://github.com/search?q=A317940&type=code" target="_blank" rel="noopener">GitHub — every A317940 mention ↗</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>5 · Honest novelty boundary</h2>
+    <p class="note">From <a href="./docs/PRIOR_ART.md">PRIOR_ART.md</a>: the binary digit-sum generating-product identity is
+      <strong>classical</strong> (Schneider &amp; Schneider, 2018). The <em>positivity argument</em>, the Dirichlet-square-root
+      application, and the general fractional-power statement appear to be <strong>new</strong> — but this is a search result,
+      not an expert judgement. Independent human/literature review is still the deciding step for the “novelty” part of the
+      submission's <em>under-review</em> status.</p>
+  </section>
+
+  <p class="note"><a href="./">← back to the A317940 project</a></p>
+</div>
+
+<script>
+  const UPSTREAM = "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean";
+  document.getElementById("run").addEventListener("click", async (e) => {
+    const btn = e.currentTarget, box = document.getElementById("live");
+    btn.disabled = true; btn.textContent = "Fetching…"; box.innerHTML = "";
+    try {
+      const txt = await fetch(UPSTREAM, { cache: "no-store" }).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); });
+      const line = (txt.split("\n").find(l => l.includes("A317940_f_nonnegative")) || "").trim();
+      const open = /\bsorry\b/.test(line);
+      box.innerHTML = '<div class="verdict ' + (open ? "ok" : "bad") + '">' +
+        (open ? "✓ Still OPEN upstream — the theorem is stated with <code>sorry</code>:" :
+                "✗ Upstream is no longer <code>sorry</code> — a proof may now exist there. Investigate!") +
+        '</div><div class="axbox">' + (line.replace(/</g,"&lt;") || "(line not found)") + '</div>';
+    } catch (err) {
+      box.innerHTML = '<div class="verdict warn">Could not fetch upstream (' + err.message + '). Try the raw file directly: ' +
+        '<a href="' + UPSTREAM + '" target="_blank" rel="noopener">open ↗</a></div>';
+    }
+    btn.disabled = false; btn.textContent = "▶ Run live check";
+  });
+
+  // Render the committed crawler report.
+  fetch("./prior-art-report.json", { cache: "no-store" }).then(r => r.json()).then(rep => {
+    const el = document.getElementById("report");
+    const rows = (rep.sources || []).map(s => {
+      const cls = s.status === "clear" ? "clear" : s.status === "hit" ? "hit" : "unk";
+      const label = s.status === "clear" ? "clear" : s.status === "hit" ? "HIT" : "n/a";
+      return '<tr><td>' + s.source + '</td><td>' + (s.summary || "") + '</td><td><span class="pill ' + cls + '">' + label + '</span></td></tr>';
+    }).join("");
+    const vcls = rep.hits ? "bad" : "ok";
+    el.innerHTML = '<div class="verdict ' + vcls + '">' + rep.verdict + '</div>' +
+      '<p class="note">Generated ' + (rep.generated_at || "—") + ' · ' + (rep.generated_by || "") + '</p>' +
+      '<table><thead><tr><th>Source</th><th>Result</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>' +
+      '<p class="note">' + (rep.caveat || "") + '</p>';
+  }).catch(() => {
+    document.getElementById("report").innerHTML = '<p class="note">No committed report yet — run the ' +
+      '<a href="https://github.com/DomTheDeveloper/crl/actions/workflows/prior-art.yml" target="_blank" rel="noopener">prior-art workflow ↗</a>.</p>';
+  });
+</script>
+</body>
+</html>

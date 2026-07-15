@@ -1,0 +1,42 @@
+name: Prior-art check (A317940)
+
+# Deep prior-art crawl for the A317940 nonnegativity proof. Runs on demand and
+# weekly. Uses the default GITHUB_TOKEN for the code/issue search API and has
+# full network for OEIS + arXiv (unlike a sandbox). Fails loudly if any source
+# turns up a candidate prior proof, and uploads the JSON report as an artifact.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"   # Mondays 06:00 UTC
+  push:
+    paths: ["tools/prior-art/**", ".github/workflows/prior-art.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  prior-art:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run prior-art crawler
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node tools/prior-art/check.mjs
+      - name: Summarize
+        if: always()
+        run: |
+          echo "## Prior-art report (A317940)" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat math/a317940/prior-art-report.json >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "(no report)" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prior-art-report
+          path: math/a317940/prior-art-report.json
