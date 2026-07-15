@@ -1,5 +1,5 @@
 name = "a387471"
-defaultTargets = ["A387471"]
+defaultTargets = ["A387471", "A387471Trig"]
 
 [[require]]
 name = "mathlib"
@@ -8,3 +8,6 @@ version = "git#v4.27.0"
 
 [[lean_lib]]
 name = "A387471"
+
+[[lean_lib]]
+name = "A387471Trig"
