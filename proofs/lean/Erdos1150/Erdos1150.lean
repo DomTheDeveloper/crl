@@ -102,6 +102,15 @@ lemma exists_sqrt_le_norm_dft (Φ : ZMod N → ℂ) (hunit : ∀ j, ‖Φ j‖ =
   rw [hconstant] at hsum_lt
   linarith
 
-#print axioms exists_sqrt_le_norm_dft
+/-- Every character appearing in the DFT is a natural power of one root of unity. -/
+lemma stdAddChar_neg_mul_eq_pow (j k : ZMod N) :
+    (ZMod.stdAddChar (-(j * k)) : ℂ) =
+      (ZMod.stdAddChar (-k) : ℂ) ^ j.val := by
+  have hj : -(j * k) = j.val • (-k) := by
+    rw [← ZMod.natCast_zmod_val j]
+    simp [nsmul_eq_mul]
+  rw [hj, AddChar.map_nsmul_eq_pow]
+
+#print axioms stdAddChar_neg_mul_eq_pow
 
 end Erdos1150Proof
