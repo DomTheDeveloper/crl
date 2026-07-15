@@ -1,0 +1,10 @@
+name = "a387471"
+defaultTargets = ["A387471"]
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+version = "git#v4.27.0"
+
+[[lean_lib]]
+name = "A387471"
