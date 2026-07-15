@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Checkerboard no-three-in-line — defect moments and four-direction asymptotics</title>
+<meta name="description" content="Research and verification artifacts for defect-moment bounds and four-direction asymptotics in the checkerboard no-three-in-line problem. Includes a partial sorry-free Lean 4 formalization and an honest account of what remains open." />
+<style>
+  :root{--bg:#0e1116;--panel:#161c27;--panel2:#1b2430;--border:#273140;--text:#e6edf3;--muted:#93a1b1;--ok:#37d0a0;--accent:#7c5cff;--warn:#f6c35a;--danger:#ff6b6b;--mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;--serif:Georgia,"Iowan Old Style","Times New Roman",serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  @media (prefers-color-scheme:light){:root{--bg:#f7f8fa;--panel:#fff;--panel2:#f0f3f6;--border:#d6dce3;--text:#1a1f24;--muted:#5a6472}}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;background-image:radial-gradient(1000px 520px at 88% -12%,rgba(124,92,255,.10),transparent 60%),radial-gradient(760px 420px at -8% 4%,rgba(55,208,160,.08),transparent 55%)}
+  a{color:var(--ok);text-decoration:none}a:hover{text-decoration:underline} code{font-family:var(--mono);background:rgba(127,127,127,.16);padding:.1em .35em;border-radius:5px;font-size:.9em}
+  .wrap{max-width:940px;margin:0 auto;padding:30px 20px 80px}.crumbs{font-size:.85rem;color:var(--muted);margin-bottom:18px}h1{font-size:clamp(1.7rem,4.4vw,2.5rem);line-height:1.2;letter-spacing:-.02em;margin:.1em 0 .15em}.sub{font-size:1.08rem;color:var(--muted);margin:0 0 14px}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 6px}.b{font-size:.78rem;font-weight:600;padding:4px 11px;border-radius:20px;border:1px solid transparent;white-space:nowrap}.b.ok{color:var(--ok);background:rgba(55,208,160,.13);border-color:rgba(55,208,160,.4)}.b.warn{color:var(--warn);background:rgba(246,195,90,.1);border-color:rgba(246,195,90,.4)}.b.open{color:#ff9b9b;background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.4)}.b.mut{color:var(--muted);background:rgba(127,127,127,.12);border-color:var(--border)}
+  section{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin:18px 0}h2{font-size:1.25rem;margin:.1em 0 .5em}h3{font-size:1rem;margin:1.1em 0 .3em}.abstract{font-family:var(--serif);font-size:1.06rem}.thm{font-family:var(--mono);background:var(--panel2);border:1px solid var(--border);border-left:3px solid var(--ok);border-radius:0 10px 10px 0;padding:14px 16px;overflow-x:auto;font-size:.92rem;white-space:pre-wrap;margin:10px 0}.callout{border-left:3px solid var(--warn);background:rgba(246,195,90,.09);padding:10px 14px;border-radius:0 10px 10px 0;margin:12px 0;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}th{color:var(--muted);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}.note{color:var(--muted);font-size:.9rem}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:700px){.grid2{grid-template-columns:1fr}}.foot{color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:26px;padding-top:16px}
+</style>
+</head>
+<body><div class="wrap">
+  <div class="crumbs"><a href="../#/">∑ Math Proof Playground</a> › Checkerboard no-three-in-line</div>
+  <h1>Defect moments and four-direction asymptotics for checkerboard no-three-in-line sets</h1>
+  <p class="sub">A research package built around Thomas Prellberg's 2026 checkerboard-restricted no-three-in-line problem.</p>
+  <div class="badges">
+    <span class="b warn">Research draft · external review required</span>
+    <span class="b ok">Exact symbolic and solver checks included</span>
+    <span class="b mut">Partial sorry-free Lean 4 formalization</span>
+    <span class="b open">Full all-slope NTIL lower bound remains open</span>
+  </div>
+
+  <section id="abstract">
+    <h2>Abstract</h2>
+    <p class="abstract">For one color class of an <em>n</em>×<em>n</em> checkerboard, every no-three-in-line set obeys capacity two on rows, columns and diagonals of slopes ±1. The project develops a defect-moment identity for these four direction families, derives finite upper bounds, and studies Prellberg's finite and continuum linear programs. The strongest current research-draft claims are a proof of the finite bound <code>Dmono(n) ≤ 2n−4</code>, matching upper and lower certificates for the four-direction LP limit <code>α = 1.576823396873808…</code>, and an asymptotic rounding argument for the integral four-direction packing problem. The classical all-slope no-three-in-line construction problem is not solved.</p>
+  </section>
+
+  <section id="results">
+    <h2>Claim map</h2>
+    <table><thead><tr><th>Statement</th><th>Status in this repository</th></tr></thead><tbody>
+      <tr><td><code>Dmono(n) ≤ 2n−4</code> for <code>n ≥ 6</code></td><td>Complete paper proof; exact symbolic, SMT/SAT and MIP corroboration; Lean formalizes the final algebraic contradictions.</td></tr>
+      <tr><td><code>Dmono(n) ≤ ceil(2^(2/3)n)</code></td><td>Research-draft finite strengthening; exact algebraic certificates formalized, with the capacity majorization still paper-level.</td></tr>
+      <tr><td>Three four-direction LP limits equal <code>α</code></td><td>Exact continuum primal/dual certificate plus continuum-to-finite transfer; independently checkable Python algebra.</td></tr>
+      <tr><td>Integral four-direction optimum equals <code>αn+o(n)</code></td><td>Paper-level argument using bounded-rank hypergraph edge coloring; not yet formalized in Lean.</td></tr>
+      <tr><td>Actual checkerboard NTIL limit equals <code>α</code></td><td><strong>Open.</strong> This requires controlling every rational slope simultaneously.</td></tr>
+    </tbody></table>
+  </section>
+
+  <section id="theorems">
+    <h2>Core formulas</h2>
+    <div class="thm">Dmono(n) ≤ 2n − 4                       (n ≥ 6)
+Dmono(n) ≤ min(2n − 4, ceil(2^(2/3)n))
+α = 2(1 − p) = 1.576823396873808…
+401p³ − 331p² + 19p + 7 = 0
+401α³ − 1744α² + 2240α − 768 = 0</div>
+    <p class="note">The exact checkerboard conjectures are not currently entries in Google DeepMind's Formal Conjectures repository. The repository does contain the classical unrestricted no-three-in-line problem, which is stronger and remains unsolved here.</p>
+  </section>
+
+  <section id="proof">
+    <h2>Proof architecture</h2>
+    <ol>
+      <li>Encode unused row, column and principal-diagonal capacity as defect measures.</li>
+      <li>Compute the same centered second moment from the row/column side and the diagonal side.</li>
+      <li>Use weighted Cauchy–Schwarz to obtain the master defect-moment inequality.</li>
+      <li>At deficit one, compare the forced diagonal second moment with the largest geometrically possible offsets, ruling out size <code>2n−3</code>.</li>
+      <li>Match Prellberg's continuum dual certificate by an exact algebraic primal transport certificate.</li>
+      <li>Transfer continuum certificates to finite LPs by exact sampling, smoothing and Riemann-sum arguments.</li>
+      <li>For the four fixed directions only, round diffuse fractional solutions using bounded-rank small-codegree hypergraph edge coloring.</li>
+    </ol>
+  </section>
+
+  <section id="verification">
+    <h2>Verification boundary</h2>
+    <div class="grid2">
+      <div><h3>Machine checked</h3><ul>
+        <li>cubic transformations and parity contradiction inequalities in Lean;</li>
+        <li>exact polynomial reductions;</li>
+        <li>finite SAT/SMT/MIP instances;</li>
+        <li>exact algebraic continuum-certificate identities;</li>
+        <li>selected exact rational all-line LP certificates.</li>
+      </ul></div>
+      <div><h3>Not yet fully formalized</h3><ul>
+        <li>capacity-profile derivation and complete master identity;</li>
+        <li>measure smoothing and continuum-to-finite lower transfer;</li>
+        <li>Kahn's hypergraph edge-coloring theorem and its application;</li>
+        <li>the full all-slope NTIL lower bound, which remains open.</li>
+      </ul></div>
+    </div>
+    <div class="callout">“Partial Lean formalization” is intentional. No page or badge should describe the whole checkerboard result as Lean-verified until the combinatorial, analytic and hypergraph components are also formalized.</div>
+  </section>
+
+  <section id="files">
+    <h2>Files</h2>
+    <table><tbody>
+      <tr><td><a href="./docs/HUMAN_PROOF.md">HUMAN_PROOF.md</a></td><td class="note">Readable theorem chain and proof sketch</td></tr>
+      <tr><td><a href="./docs/VERIFICATION_REPORT.md">VERIFICATION_REPORT.md</a></td><td class="note">Claim-by-claim verification audit</td></tr>
+      <tr><td><a href="./docs/PRIOR_ART.md">PRIOR_ART.md</a></td><td class="note">What comes from Prellberg and what appears new</td></tr>
+      <tr><td><a href="./docs/FORMALIZATION_STATUS.md">FORMALIZATION_STATUS.md</a></td><td class="note">Exact Lean scope</td></tr>
+      <tr><td><a href="../../proofs/lean/Checkerboard/Checkerboard.lean">Checkerboard.lean</a></td><td class="note">Lean project entry point</td></tr>
+      <tr><td><a href="./submission/FORMAL_CONJECTURES_ISSUE.md">Formal Conjectures issue draft</a></td><td class="note">Proposal to add the checkerboard-specific statements</td></tr>
+    </tbody></table>
+  </section>
+
+  <section id="reproduce">
+    <h2>Reproduce the Lean checks</h2>
+    <div class="thm">cd proofs/lean/Checkerboard
+lake update
+lake build
+
+# Guard against unfinished proof markers
+grep -RnE '\bsorry\b|\badmit\b' .</div>
+    <p class="note">GitHub Actions workflow: <code>.github/workflows/verify-checkerboard.yml</code>.</p>
+  </section>
+
+  <section id="open">
+    <h2>What remains open</h2>
+    <p>The major missing theorem is a correlated multiscale rounding or direct construction producing <code>(α−o(1))n</code> actual checkerboard points with at most two points on <em>every</em> Euclidean line. Fixed-direction rounding does not solve this, because the number of relevant primitive directions grows with <em>n</em>.</p>
+  </section>
+
+  <div class="foot">Source problem: <a href="https://arxiv.org/abs/2605.09215" target="_blank" rel="noopener">T. Prellberg, “No-three-in-line sets on the checkerboard grid”</a>. Classical formal entry: <a href="https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/GreensOpenProblems/72.lean" target="_blank" rel="noopener">Formal Conjectures Green 72</a>.</div>
+</div></body></html>

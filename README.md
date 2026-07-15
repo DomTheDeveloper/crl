@@ -29,6 +29,11 @@ The whole thing is plain HTML/CSS/JS — no build step, no framework, no server.
 
 OEIS **A-numbers** are linked where relevant (e.g. Goldbach → A002375, Mersenne → A000668).
 
+## Featured research projects
+
+- [**OEIS A317940**](./math/a317940/) — complete Lean-verified positivity proof and submission package.
+- [**Checkerboard no-three-in-line**](./math/checkerboard/) — defect-moment bounds, exact four-direction certificates, and a partial sorry-free Lean formalization. The all-slope lower-bound conjecture remains open.
+
 ## Run locally
 
 It's fully static, so any static server works:
