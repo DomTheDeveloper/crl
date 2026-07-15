@@ -1,0 +1,45 @@
+name: Verify Erdős 1150 proof
+
+on:
+  push:
+    paths:
+      - "proofs/lean/Erdos1150/**"
+      - ".github/workflows/verify-erdos1150.yml"
+  pull_request:
+    paths:
+      - "proofs/lean/Erdos1150/**"
+      - ".github/workflows/verify-erdos1150.yml"
+  workflow_dispatch:
+
+jobs:
+  lean-erdos1150:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Guard against placeholders
+        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' proofs/lean/Erdos1150/Erdos1150.lean"
+      - name: Resolve dependencies
+        working-directory: proofs/lean/Erdos1150
+        run: lake update
+      - name: Fetch Mathlib cache
+        working-directory: proofs/lean/Erdos1150
+        run: lake exe cache get || echo "cache miss — building dependencies"
+      - name: Build and kernel-check
+        working-directory: proofs/lean/Erdos1150
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build 2>&1 | tee build.log
+      - name: Reject sorryAx
+        working-directory: proofs/lean/Erdos1150
+        run: |
+          cat build.log
+          if grep -q "sorryAx" build.log; then
+            echo "::error::Proof depends on sorryAx"; exit 1
+          fi
