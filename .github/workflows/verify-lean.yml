@@ -10,10 +10,20 @@ name: Verify Lean proofs
 
 on:
   push:
-    paths: ["proofs/lean/**", ".github/workflows/verify-lean.yml"]
+    paths:
+      - "proofs/lean/core/**"
+      - "proofs/lean/A317940/**"
+      - ".github/workflows/verify-lean.yml"
   pull_request:
-    paths: ["proofs/lean/**", ".github/workflows/verify-lean.yml"]
+    paths:
+      - "proofs/lean/core/**"
+      - "proofs/lean/A317940/**"
+      - ".github/workflows/verify-lean.yml"
   workflow_dispatch:
+
+concurrency:
+  group: verify-lean-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lean-core:
@@ -45,8 +55,6 @@ jobs:
         run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' proofs/lean/A317940/A317940.lean"
       - name: Resolve Mathlib dependency
         working-directory: proofs/lean/A317940
-        # If the pinned Mathlib tag ever drifts from the toolchain, bump
-        # `version` in lakefile.toml and the lean-toolchain file together.
         run: lake update
       - name: Fetch prebuilt Mathlib cache
         working-directory: proofs/lean/A317940
