@@ -993,5 +993,73 @@ shows h obeys f's recursion, so f = h and f(n) > 0 for all n >= 1.  ∎`
       }
     ],
     playground: { kind: "z3" }
+  },
+
+  {
+    id: "a300997",
+    title: "A300997 — Cellular-Automaton Stabilization",
+    category: "Combinatorics",
+    status: "solved",
+    year: "2024 (AlphaProof)",
+    by: "Google DeepMind AlphaProof",
+    oeis: "A300997",
+    tags: ["oeis", "deepmind", "alphaproof", "lean", "cellular-automaton", "corroborated"],
+    statement:
+      "a(n) is the number of steps for a 1D mass-splitting cellular automaton — started with a single cell of mass n, each cell keeping ⌈x/2⌉ and passing ⌊x/2⌋ to its right neighbour — to reach the stable configuration of n cells of mass 1. Theorem: consecutive values differ by 1 or 2, i.e. a(n+1) − a(n) ∈ {1, 2}.",
+    latex: "a(n+1) - a(n) \\in \\{1, 2\\}\\quad (n \\ge 1)",
+    story:
+      "This one is solved — but by Google DeepMind's AlphaProof, not by this project. Their complete, machine-checked Lean proof (1,118 lines, no sorry) lives in the alphaproof-nexus-results repository. It was included in the submitted package only as a computational reconstruction, which the package's own report is careful to note is 'not a new priority claim'. Our contribution here is an independent finite corroboration: a from-scratch re-implementation of the automaton reproduces the sequence and the gap lemma for n ≤ 600.",
+    source: { name: "DeepMind AlphaProof · oeis_a300997_finite_difference_is_one_or_two.lean", url: "https://github.com/google-deepmind/alphaproof-nexus-results/blob/main/APNOutputs/OEIS/oeis_a300997_finite_difference_is_one_or_two.lean" },
+    verification: {
+      note: "Honest attribution: the PROOF is DeepMind AlphaProof's (0 sorry, kernel-checked in their repo). This project did not author it and does not re-run their full FormalConjectures build in CI. What we add and CI-check is an independent FINITE computational corroboration — real evidence, but not a proof.",
+      checks: [
+        { state: "pass", label: "DeepMind's proof exists & is sorry-free", detail: "Fetched from google-deepmind/alphaproof-nexus-results; 1,118 lines, 0 sorry/admit; sha256 ce24e889…1bf47c. Proves target_theorem_0: ∀ n≥1, a(n+1)=a(n)+1 ∨ a(n+1)=a(n)+2." },
+        { state: "pass", label: "Independent finite corroboration (CI)", detail: "Our own re-implementation (tests/a300997.mjs) reproduces a(1..16)=0,1,3,4,6,8,10,11,13,15,17,19,21,23,24,26 and finds a(n+1)-a(n) ∈ {1,2} for all n=1..600 — 0 violations." },
+        { state: "partial", label: "Kernel re-verified here", detail: "Not re-run in our CI (needs the FormalConjectures library, not just Mathlib). DeepMind's own CI kernel-verifies it; you can also run it in their repo." },
+        { state: "partial", label: "Authored by us", detail: "No — the proof is DeepMind's. We only corroborate it finitely. (Contrast A317940, whose proof was in the submitted package and which we DID kernel-verify against Mathlib in CI.)" }
+      ]
+    },
+    proofs: [
+      {
+        system: "lean",
+        verified: true,
+        runnable: false,
+        codeUrl: "./materials/a300997/DeepMind_AlphaProof_a300997.lean",
+        lines: 1118,
+        note: "By Google DeepMind AlphaProof (Apache-2.0, © 2026 Google LLC). No sorry. Load the full 1,118-line proof or open it under Materials.",
+        code:
+`import FormalConjectures.Util.ProblemImports
+
+-- a n = stabilization time of the mass-splitting cellular automaton started at [n].
+noncomputable def a (n : ℕ) : ℕ := ⟨…⟩   -- (full definition in the file)
+
+/- … 1000+ lines: the CA↔list model, coupling lemmas, the "chip" position P n,
+   coupling_diff : a (n+1) = a n + (n - P n (a n)), and chip_pos : n - P n (a n) ∈ {1,2} … -/
+
+theorem target_theorem_0 :
+    ∀ n : ℕ, 1 ≤ n → a (n + 1) = a n + 1 ∨ a (n + 1) = a n + 2 := by
+  intro n hn
+  have hc : n - P n (a n) = 1 ∨ n - P n (a n) = 2 := chip_pos n hn
+  have hd : a (n + 1) = a n + (n - P n (a n)) := coupling_diff n hn (by omega)
+  omega`
+      },
+      {
+        system: "note",
+        verified: true,
+        runnable: false,
+        note: "Our independent finite corroboration (see Materials → CORROBORATION.md).",
+        code:
+`a(1..16) = 0, 1, 3, 4, 6, 8, 10, 11, 13, 15, 17, 19, 21, 23, 24, 26
+gap lemma  a(n+1) - a(n) ∈ {1, 2}  verified for n = 1..600  (0 violations)
+-- reproduced from scratch; consistent with DeepMind's theorem, not a substitute for it.`
+      }
+    ],
+    materials: [
+      { group: "Proof (by DeepMind AlphaProof)", type: "lean", label: "DeepMind_AlphaProof_a300997.lean", path: "./materials/a300997/DeepMind_AlphaProof_a300997.lean", note: "1,118 lines, no sorry, Apache-2.0" },
+      { group: "Proof (by DeepMind AlphaProof)", type: "link", label: "Original in alphaproof-nexus-results", href: "https://github.com/google-deepmind/alphaproof-nexus-results/blob/main/APNOutputs/OEIS/oeis_a300997_finite_difference_is_one_or_two.lean", note: "Source of truth (DeepMind)" },
+      { group: "Our corroboration", type: "md", label: "CORROBORATION.md", path: "./materials/a300997/CORROBORATION.md", note: "Finite check + attribution" },
+      { group: "Discussion", type: "link", label: "OEIS A300997", href: "https://oeis.org/A300997", note: "The sequence" }
+    ],
+    playground: { kind: "a300997" }
   }
 ];

@@ -209,10 +209,37 @@
     return res;
   }
 
+  /* ---------------- OEIS A300997 — mass-splitting cellular automaton ----------------
+     a(n) = number of steps for the 1D CA started at [n] (each cell gives floor(x/2)
+     to its right neighbour, keeps ceil(x/2)) to reach the stable config [1,1,...,1]
+     (n ones). DeepMind AlphaProof proved a(n+1) - a(n) ∈ {1,2}; this reproduces the
+     sequence and that gap lemma computationally.                                     */
+  function a300997_T(n) {
+    if (n < 1) return 0;
+    let cfg = [n], t = 0;
+    const isTarget = () => { if (cfg.length !== n) return false; for (const x of cfg) if (x !== 1) return false; return true; };
+    while (!isTarget()) {
+      const nxt = new Array(cfg.length + 1).fill(0);
+      for (let i = 0; i < cfg.length; i++) { nxt[i] += (cfg[i] + 1) >> 1; nxt[i + 1] += cfg[i] >> 1; }
+      while (nxt.length && nxt[nxt.length - 1] === 0) nxt.pop();
+      cfg = nxt; t++;
+      if (t > 6 * n + 50) throw new Error("A300997 did not stabilize for n=" + n);
+    }
+    return t;
+  }
+  // Returns { values, gapViolations } for n=1..N (gap lemma: T(n+1)-T(n) ∈ {1,2}).
+  function a300997_check(N) {
+    const v = []; for (let n = 1; n <= N; n++) v.push(a300997_T(n));
+    const bad = [];
+    for (let i = 0; i < v.length - 1; i++) { const g = v[i + 1] - v[i]; if (g !== 1 && g !== 2) bad.push([i + 1, g]); }
+    return { values: v, gapViolations: bad };
+  }
+
   window.MP_NUM = {
     isPrime, goldbach, goldbachAll, collatz, twinPrimes,
     erdosStraus, legendre, mersenne, solveSAT,
     a317940_f, a046644, a005187, ratToString: (r) => r.d === 1n ? r.n.toString() : r.n.toString() + "/" + r.d.toString(),
-    ratPositive: (r) => r.n > 0n
+    ratPositive: (r) => r.n > 0n,
+    a300997_T, a300997_check
   };
 })();

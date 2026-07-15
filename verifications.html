@@ -122,6 +122,22 @@ $ grep -c 'sorry' proofs/lean/A317940/A317940.lean
       <em>novel</em> vs. the literature is a separate human question (see the prior-art note under the problem's Materials).</p>
   </section>
 
+  <section style="border-color:rgba(124,150,255,.45)">
+    <h2 style="font-size:1.2rem">The second problem: A300997 — solved by DeepMind, corroborated by us</h2>
+    <p class="std">The package also contained OEIS <a href="https://oeis.org/A300997" target="_blank" rel="noopener">A300997</a>
+      (a cellular-automaton stabilization time). Being scrupulous about credit: this one is
+      <strong>already solved — by Google DeepMind's AlphaProof</strong>, not by this project. Their complete
+      machine-checked Lean proof (1,118 lines, <strong>0 <code>sorry</code></strong>, sha256 <code>ce24e889…091bf47c</code>)
+      proves <code>∀ n≥1, a(n+1)=a(n)+1 ∨ a(n+1)=a(n)+2</code> —
+      <a href="https://github.com/google-deepmind/alphaproof-nexus-results/blob/main/APNOutputs/OEIS/oeis_a300997_finite_difference_is_one_or_two.lean" target="_blank" rel="noopener">source ↗</a>.
+      The submission itself flagged its A300997 material as a reconstruction, “not a new priority claim.”</p>
+    <p class="note"><strong>Our verifiable contribution</strong> (CI: <code>tests/a300997.mjs</code>): an independent, from-scratch
+      re-implementation of the automaton reproduces the sequence and the gap lemma for n = 1..600 — 0 violations:
+      <span class="mono">a(1..16) = 0,1,3,4,6,8,10,11,13,15,17,19,21,23,24,26</span>. Finite evidence consistent with DeepMind's
+      theorem — <em>not</em> a substitute for it. So: <strong>A317940 = a proof we verified; A300997 = a proof we
+      corroborated and correctly attribute to DeepMind.</strong></p>
+  </section>
+
   <div class="summary">
     <div class="kpi ok"><div class="n">10 / 10</div><div class="l">Solutions valid</div></div>
     <div class="kpi ok"><div class="n">0</div><div class="l">Invalid / failing</div></div>

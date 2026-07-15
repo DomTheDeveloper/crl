@@ -21,3 +21,5 @@ jobs:
           node-version: "20"
       - name: Run solver test suite
         run: node tests/run.mjs
+      - name: A300997 finite corroboration
+        run: node tests/a300997.mjs

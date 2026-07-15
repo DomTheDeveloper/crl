@@ -446,6 +446,7 @@
       case "sat": pgSat(host); break;
       case "z3": pgZ3(host); break;
       case "a317940": pgA317940(host); break;
+      case "a300997": pgA300997(host); break;
       case "coq": pgCoq(host, p.playground); break;
       default: host.appendChild(el("p", { class: "muted" }, "Explorer coming soon."));
     }
@@ -673,6 +674,34 @@
     host.appendChild(ta);
     host.appendChild(el("div", { class: "row" }, el("button", { class: "btn primary", onclick: go }, "▶ Solve")));
     host.appendChild(out); go();
+  }
+
+  function pgA300997(host) {
+    host.appendChild(el("p", { class: "muted" },
+      "Simulate the mass-splitting cellular automaton and reproduce DeepMind AlphaProof's gap lemma yourself: enter n to see the stabilization time a(n), or sweep 1…n to check a(n+1) − a(n) ∈ {1,2}. (The proof is DeepMind's; this is finite corroboration.)"));
+    const inp = bigInput("n, e.g. 27", 27);
+    const out = el("div", { class: "live-out" });
+    const single = () => {
+      out.innerHTML = "";
+      const n = parseInt(inp.value.trim(), 10);
+      if (!Number.isFinite(n) || n < 1) { out.appendChild(bad("Enter an integer ≥ 1.")); return; }
+      if (n > 1500) { out.appendChild(bad("Keep n under 1500 in the browser (the CA is O(n²) per value).")); return; }
+      const t = NUM.a300997_T(n);
+      out.appendChild(el("div", { class: "verdict good" }, "a(" + n + ") = " + t + "  (stabilization steps)"));
+    };
+    const sweep = () => {
+      out.innerHTML = "";
+      const N = Math.min(parseInt(inp.value.trim(), 10) || 400, 1000);
+      const r = NUM.a300997_check(N);
+      out.appendChild(el("div", { class: "verdict " + (r.gapViolations.length ? "bad" : "good") },
+        r.gapViolations.length ? ("✗ " + r.gapViolations.length + " gap violation(s)!") : "✓ a(n+1) − a(n) ∈ {1,2} for all n = 1…" + N + " (0 violations)"));
+      out.appendChild(el("p", { class: "muted small" }, "a(1..16) = " + r.values.slice(0, 16).join(", ")));
+    };
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") single(); });
+    host.appendChild(el("div", { class: "row" }, inp,
+      el("button", { class: "btn primary", onclick: single }, "▶ Compute a(n)"),
+      el("button", { class: "btn ghost", onclick: sweep }, "⤳ Sweep gap lemma 1…n")));
+    host.appendChild(out); single();
   }
 
   function pgZ3(host) {
