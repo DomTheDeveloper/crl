@@ -79,6 +79,29 @@ lemma dft_parseval_norm_sq (Φ : ZMod N → ℂ) :
   simp_rw [Complex.conj_mul'] at h
   exact_mod_cast h
 
-#print axioms dft_parseval_norm_sq
+/-- A unit-modulus input vector has a Fourier coefficient of size at least `sqrt N`. -/
+lemma exists_sqrt_le_norm_dft (Φ : ZMod N → ℂ) (hunit : ∀ j, ‖Φ j‖ = 1) :
+    ∃ k : ZMod N, Real.sqrt N ≤ ‖ZMod.dft Φ k‖ := by
+  by_contra h
+  push_neg at h
+  have hterm : ∀ k : ZMod N, ‖ZMod.dft Φ k‖ ^ 2 < (N : ℝ) := by
+    intro k
+    have hsqrt : Real.sqrt (N : ℝ) ^ 2 = (N : ℝ) := Real.sq_sqrt (by positivity)
+    have hsq := (sq_lt_sq₀ (norm_nonneg (ZMod.dft Φ k)) (Real.sqrt_nonneg _)).2 (h k)
+    simpa only [hsqrt] using hsq
+  have hsum_lt :
+      (∑ k : ZMod N, ‖ZMod.dft Φ k‖ ^ 2) < ∑ _k : ZMod N, (N : ℝ) := by
+    refine Finset.sum_lt_sum (fun k _ => (hterm k).le) ?_
+    exact ⟨0, Finset.mem_univ _, hterm 0⟩
+  have hparseval := dft_parseval_norm_sq Φ
+  have hinput : (∑ j : ZMod N, ‖Φ j‖ ^ 2) = (N : ℝ) := by
+    simp [hunit]
+  rw [hinput] at hparseval
+  have hconstant : (∑ _k : ZMod N, (N : ℝ)) = (N : ℝ) * N := by
+    simp
+  rw [hconstant] at hsum_lt
+  linarith
+
+#print axioms exists_sqrt_le_norm_dft
 
 end Erdos1150Proof
