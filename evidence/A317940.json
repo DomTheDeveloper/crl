@@ -30,17 +30,19 @@
   "kernel_verification": {
     "verifier": "Lean 4 (toolchain leanprover/lean4:v4.27.0) + Mathlib, via `lake build` on GitHub Actions",
     "workflow": ".github/workflows/verify-lean.yml (job lean-a317940)",
-    "run_url": "https://github.com/DomTheDeveloper/crl/actions/runs/29376765402",
+    "run_url": "https://github.com/DomTheDeveloper/crl/actions/runs/29378868663",
+    "verified_at_commit": "546d7cec7d202de88b1bc68170aa9c05618ddb1d",
     "mathlib_oleans_fetched": 7869,
-    "build_result": "Build completed successfully (7886 jobs).",
+    "axiom_line": "A317940.lean:664: 'A317940_f_nonnegative' depends on axioms: [propext, Classical.choice, Quot.sound]",
     "axioms": ["propext", "Classical.choice", "Quot.sound"],
-    "no_sorryAx": true
+    "no_sorryAx": true,
+    "reproduced_across_commits": ["3e85f323f9fe366e7fc684cb5febce0f8ecf6afc", "546d7cec7d202de88b1bc68170aa9c05618ddb1d"]
   },
   "independent_numeric_corroboration": {
     "method": "From-scratch exact-rational reimplementation of the DeepMind definitions (not the author's code).",
     "anchors_reproduced": {"a(1)": 1, "a(2)": 1, "a(3)": 1, "a(4)": 7},
     "positivity_checked": "f(n) > 0 for all 1 <= n <= 200000"
   },
-  "commit": "3e85f323f9fe366e7fc684cb5febce0f8ecf6afc",
+  "commit": "546d7cec7d202de88b1bc68170aa9c05618ddb1d",
   "caveats": "Kernel-validity of the formal theorem is established. Research novelty and publication priority (whether this result/argument is new vs. the literature) are separate human questions — see proofs/... and math/materials/a317940/PRIOR_ART.md."
 }
