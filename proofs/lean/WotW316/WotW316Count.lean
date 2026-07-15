@@ -37,7 +37,10 @@ lemma card_filter_not_rel_eq_sum_ite
   induction s using Finset.induction_on with
   | empty => simp
   | @insert a s ha ih =>
-      by_cases hra : r a <;> simp [ha, hra, ih]
+      rw [Finset.filter_insert]
+      by_cases hra : r a
+      · simp [hra, ha, ih]
+      · simp [hra, ha, ih]
 
 lemma coreNeighbors_eq_neighborFinset_of_pendant
     {l : α} (hl : l ∈ pendantVertices G)
@@ -108,10 +111,16 @@ lemma sum_card_missingPendantNeighbors
       _ = ∑ l ∈ pendantVertices G, (missingCoreNeighbors G l).card := by
               apply Finset.sum_congr rfl
               intro l _
-              rw [card_filter_not_rel_eq_sum_ite (coreVertices G) (fun c => G.Adj l c)]
-              apply Finset.sum_congr rfl
-              intro c _
-              rw [G.adj_comm]
+              calc
+                (∑ c ∈ coreVertices G, if G.Adj c l then 0 else 1) =
+                    ∑ c ∈ coreVertices G, if G.Adj l c then 0 else 1 := by
+                      apply Finset.sum_congr rfl
+                      intro c _
+                      rw [G.adj_comm]
+                _ = (missingCoreNeighbors G l).card := by
+                      unfold missingCoreNeighbors
+                      exact (card_filter_not_rel_eq_sum_ite
+                        (coreVertices G) (fun c => G.Adj l c)).symm
   rw [hdouble]
   calc
     (∑ l ∈ pendantVertices G, (missingCoreNeighbors G l).card) =
