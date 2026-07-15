@@ -1,0 +1,27 @@
+name: Erdős 885 rank-two Q2 localization
+
+on:
+  pull_request:
+    paths:
+      - 'research/erdos885/sage_rank2_q2.py'
+      - '.github/workflows/erdos-885-rank2-q2.yml'
+  workflow_dispatch:
+
+jobs:
+  q2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker pull sagemath/sagemath:latest
+      - name: Test all global mod-two classes for local divisibility
+        run: |
+          mkdir -p results
+          docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest \
+            sage -python research/erdos885/sage_rank2_q2.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: erdos-885-rank2-q2
+          path: results/rank2_q2.json
+          if-no-files-found: warn
