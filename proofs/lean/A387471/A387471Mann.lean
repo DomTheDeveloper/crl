@@ -7,7 +7,7 @@ import A387471Roots
 
 The final theorem in this module will show that every ratio in a minimal
 vanishing sum of at most six powers of a canonical root is a 30th root of
-unity.  The proof is by conductor descent using prime-residue Fourier
+unity. The proof is by conductor descent using prime-residue Fourier
 coefficients.
 -/
 
@@ -55,7 +55,6 @@ theorem residue_constant_of_minimal {N p : ℕ} (s : Finset (Fin N))
     have hr := congrFun hzero r₀
     simpa [residueVector, fiber, Vanishes] using hr
   have hfiber_eq : fiber = s := by
-    apply Finset.eq_of_subset_of_card_le (Finset.filter_subset _ _)
     by_contra hne
     have hproper : fiber ⊂ s :=
       (Finset.ssubset_iff_subset_ne).2 ⟨Finset.filter_subset _ _, hne⟩
