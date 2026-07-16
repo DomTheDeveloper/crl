@@ -1,0 +1,1 @@
+Compile after the indexed C5 embedding milestone and explicit normalization of both remaining modular-adjacency terms in C5 domination.
