@@ -89,7 +89,7 @@ theorem residueVector_eq_zero_squareful {ι : Type*} {p m : ℕ}
     (by simpa [Vanishes] using hvan)
     (conjugatingExponent p m t)
     (conjugatingExponent_coprime_squareful hp hpm t)
-  simpa only [canonicalRoot_conjugatingExponent hp hm] using hconj
+  simpa [exponentResidue, canonicalRoot_conjugatingExponent hp hm] using hconj
 
 /-- If `p > 6` occurs only once in the conductor, the at-most-six terms miss a
 residue class. All Fourier coefficients except one are Galois conjugates, and
@@ -116,7 +116,7 @@ theorem residueVector_eq_zero_large_prime {ι : Type*} {p m : ℕ}
     (by simpa [Vanishes] using hvan)
     (conjugatingExponent p m t)
     (conjugatingExponent_coprime_squarefree hp hpm t ht)
-  simpa only [canonicalRoot_conjugatingExponent hp hm] using hconj
+  simpa [exponentResidue, canonicalRoot_conjugatingExponent hp hm] using hconj
 
 /-- A bad prime factor of the conductor forces all exponents in a minimal
 weight-at-most-six relation into one residue class. -/
