@@ -36,6 +36,7 @@ jobs:
           python scripts/checkerboard/generate_outer_marginal_ae_certificate.py
           python scripts/checkerboard/generate_outer_projection_ae_certificate.py
           python scripts/checkerboard/generate_outer_measure_certificate.py
+          python scripts/checkerboard/generate_dual_bernstein_certificate.py
 
       - name: Install elan
         run: |
@@ -79,6 +80,7 @@ jobs:
             Checkerboard/LP/OuterMarginalAE.lean \
             Checkerboard/LP/OuterProjectionAE.lean \
             Checkerboard/LP/OuterMeasureCertificate.lean \
+            Checkerboard/LP/DualBernsteinData.lean \
             Checkerboard/LP/FiniteModel.lean \
             Checkerboard/LP/FiniteDual.lean \
             Checkerboard/LP/ContinuumModel.lean \
@@ -105,6 +107,8 @@ jobs:
           name: checkerboard-lp-kernel-audit
           path: |
             math/checkerboard/lp/certificates/q_weights_exact.csv
+            math/checkerboard/lp/certificates/dual_triangles_reconstructed.tsv
+            math/checkerboard/lp/certificates/dual_bernstein_reconstructed.tsv
             proofs/lean/Checkerboard/Checkerboard/LP/OuterCertificateData.lean
             proofs/lean/Checkerboard/Checkerboard/LP/OuterDensityCertificate.lean
             proofs/lean/Checkerboard/Checkerboard/LP/OuterSupportCertificate.lean
@@ -112,6 +116,7 @@ jobs:
             proofs/lean/Checkerboard/Checkerboard/LP/OuterMarginalAE.lean
             proofs/lean/Checkerboard/Checkerboard/LP/OuterProjectionAE.lean
             proofs/lean/Checkerboard/Checkerboard/LP/OuterMeasureCertificate.lean
+            proofs/lean/Checkerboard/Checkerboard/LP/DualBernsteinData.lean
             proofs/lean/Checkerboard/build.log
           if-no-files-found: warn
           retention-days: 30
