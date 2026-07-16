@@ -4,3 +4,4 @@ import Checkerboard.CeilingAlgebra
 import Checkerboard.MasterAlgebra
 import Checkerboard.FiniteFramework
 import Checkerboard.CapacityProfiles
+import Checkerboard.DeficitAlgebra
