@@ -18,7 +18,8 @@ lemma vanishes_sdiff {ι : Type*} [DecidableEq ι] (s t : Finset ι) (z : ι →
     Vanishes (s \ t) z := by
   rw [Vanishes] at hs ht ⊢
   have hsplit := Finset.sum_sdiff hts (f := z)
-  linarith
+  rw [hs, ht] at hsplit
+  simpa using hsplit
 
 lemma singleton_not_vanishes {n : ℕ} {A B C : ℤ} (r : Fin 6) :
     ¬ Vanishes {r} (sixRoot n A B C) := by
