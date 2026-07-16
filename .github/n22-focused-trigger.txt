@@ -1,1 +1,1 @@
-Trigger only the optimized strict assumption-capable CaDiCaL matrix for the 14 remaining D_mono(22) all-double families; top 130 is already independently audited complete.
+Trigger the optimized exact audits for the 14 remaining all-double D_mono(22) families and all 11 singleton boundary cases; top 130 is already independently audited complete.
