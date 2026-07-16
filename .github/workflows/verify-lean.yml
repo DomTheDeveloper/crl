@@ -66,11 +66,11 @@ jobs:
       - name: Checkout CRL
         uses: actions/checkout@v4
 
-      - name: Checkout immutable proof source
+      - name: Checkout immutable CRL proof source
         uses: actions/checkout@v4
         with:
-          repository: DomTheDeveloper/test-expo-app
-          ref: fdf6a4a3107270de89cc435c1141ba196b4f2119
+          repository: DomTheDeveloper/crl
+          ref: formal-conjectures-wowii-143
           path: campaign
 
       - name: Checkout pinned Formal Conjectures
