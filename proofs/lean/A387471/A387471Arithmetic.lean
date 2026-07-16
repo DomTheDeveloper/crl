@@ -50,7 +50,36 @@ theorem exists_missing_residue {ι : Type*} [DecidableEq ι] {p : ℕ}
   have hpcard : Fintype.card (ZMod p) = p := ZMod.card p
   omega
 
+/-- The power used to realize the Fourier frequency `t` by a Galois
+conjugation fixing the quotient-conductor part. -/
+def conjugatingExponent (p m : ℕ) (t : ZMod p) : ℕ :=
+  1 + (p - t.val) * m
+
+/-- The conjugating exponent is always coprime to the quotient part `m`. -/
+theorem conjugatingExponent_coprime_quotient (p m : ℕ) (t : ZMod p) :
+    (conjugatingExponent p m t).Coprime m := by
+  simp [conjugatingExponent]
+
+/-- If `p ∣ m`, every Fourier frequency is represented by an exponent coprime
+to the full conductor `p*m`. -/
+theorem conjugatingExponent_coprime_squareful {p m : ℕ} (hp : p.Prime)
+    (hpm : p ∣ m) (t : ZMod p) :
+    (conjugatingExponent p m t).Coprime (p * m) := by
+  let u := conjugatingExponent p m t
+  have hum : u.Coprime m := conjugatingExponent_coprime_quotient p m t
+  refine Nat.coprime_of_dvd ?_
+  intro q hq hqu
+  intro hqpm
+  have hqm : q ∣ m := by
+    rcases (hq.dvd_mul.mp hqpm) with hqp | hqm
+    · have hqp_eq : q = p := (Nat.prime_dvd_prime_iff_eq hq hp).mp hqp
+      simpa [hqp_eq] using hpm
+    · exact hqm
+  exact hq.ne_one (Nat.eq_one_of_dvd_coprimes hum hqu hqm)
+
 #print axioms exists_bad_prime_of_not_dvd_thirty
 #print axioms exists_missing_residue
+#print axioms conjugatingExponent_coprime_quotient
+#print axioms conjugatingExponent_coprime_squareful
 
 end A387471
