@@ -1,0 +1,106 @@
+name: Checkerboard Lean staged compiler
+
+on:
+  push:
+    branches:
+      - agent/checkerboard-lean-all-n
+    paths:
+      - "proofs/lean/Checkerboard/**"
+      - ".github/workflows/checkerboard-lean-linux.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: checkerboard-lean-linux-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Lean and Mathlib cache
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: proofs/lean/Checkerboard
+          build: false
+          use-mathlib-cache: true
+          use-github-cache: true
+
+      - name: Compile modules in dependency order
+        id: compile
+        working-directory: proofs/lean/Checkerboard
+        shell: bash
+        run: |
+          set +e
+          : > staged-build.log
+          modules=(
+            Model
+            FiberSums
+            FourCertificate
+            FourCertificateBudget
+            NatCertificateBudget
+            PolynomialSums
+            FinPolynomialSums
+            QuadraticWeights
+            QuadraticCosts
+            AllNUpper
+            N6Base
+            AllNTheorem
+            DefectMoments
+            FiniteExact
+            Finite21Lower
+            N21Profiles
+            N21Boolean
+            N21Exact
+          )
+          code=0
+          for module in "${modules[@]}"; do
+            echo "=== Checkerboard.${module} ===" | tee -a staged-build.log
+            lake env lean "Checkerboard/${module}.lean" 2>&1 | tee -a staged-build.log
+            code=${PIPESTATUS[0]}
+            if [[ "$code" != 0 ]]; then
+              break
+            fi
+          done
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Assemble branch-readable result
+        if: always()
+        working-directory: proofs/lean/Checkerboard
+        shell: bash
+        env:
+          COMPILE_CODE: ${{ steps.compile.outputs.exit_code }}
+        run: |
+          {
+            echo "Checkerboard Lean staged compiler"
+            echo "source_commit=${GITHUB_SHA}"
+            echo "compile_exit=${COMPILE_CODE:-not-run}"
+            echo
+            tail -n 500 staged-build.log 2>/dev/null || true
+          } > /tmp/checkerboard-lean-linux.txt
+
+      - name: Persist result on branch
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p ci-results
+          cp /tmp/checkerboard-lean-linux.txt ci-results/checkerboard-lean-linux.txt
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add ci-results/checkerboard-lean-linux.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "Record staged Lean compiler result [skip ci]"
+            git push origin HEAD:agent/checkerboard-lean-all-n
+          fi
+
+      - name: Enforce success
+        if: always()
+        env:
+          COMPILE_CODE: ${{ steps.compile.outputs.exit_code }}
+        run: '[[ "${COMPILE_CODE:-1}" == 0 ]]'
