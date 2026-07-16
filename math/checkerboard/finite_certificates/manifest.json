@@ -1,0 +1,103 @@
+{
+  "format": "checkerboard-finite-certificate-manifest-v1",
+  "definition": "D_mono(n,p) is the maximum size of a subset of {(x,y): 0<=x,y<n and (x+y) mod 2=p} containing no three collinear points on any Euclidean line.",
+  "exact_values": {
+    "17": {
+      "0": 26,
+      "1": 26,
+      "combined": 26
+    },
+    "21": {
+      "0": 32,
+      "1": 32,
+      "combined": 32
+    }
+  },
+  "construction_certificates": [
+    {
+      "n": 17,
+      "parity": 0,
+      "size": 26,
+      "path": "constructions/n17_p0_26.json",
+      "sha256": "b284822b416c0aa11b1c9e740eb83d48bbbf08e87207b05660812eb3eea57740"
+    },
+    {
+      "n": 17,
+      "parity": 1,
+      "size": 26,
+      "path": "constructions/n17_p1_26.json",
+      "sha256": "ebf6459df2ef45255be667d00a8c1af9810434d2e2d1adde79d33a0ee418f119"
+    },
+    {
+      "n": 21,
+      "parity": 0,
+      "size": 32,
+      "path": "constructions/n21_p0_32.json",
+      "sha256": "c9b9fbd9d4f01e1fe49d61876499166e8b012301217c7bf4ffa9d7e50f3980cf"
+    },
+    {
+      "n": 21,
+      "parity": 1,
+      "size": 32,
+      "path": "constructions/n21_p1_32.json",
+      "sha256": "5072d5c6e48d8d77c999af61c00e536b6978dbc7d345ff08cff1233e36c1cb13"
+    }
+  ],
+  "upper_instances": [
+    {
+      "n": 17,
+      "parity": 0,
+      "excluded_size": 27,
+      "encoding": "full-all-slope",
+      "variables": 3709,
+      "clauses": 24765,
+      "cnf_sha256": "7b3a37138b8ae8374da08e2685c3fd4fc5a7b4a1f8aa331ed4805ae83273e221",
+      "exact_dual_objective": "1788/67"
+    },
+    {
+      "n": 17,
+      "parity": 1,
+      "excluded_size": 27,
+      "encoding": "full-all-slope",
+      "variables": 3681,
+      "clauses": 24402,
+      "cnf_sha256": "ff571ad45466c593d242ed453ba575b84f36b54a5145704d65bf87555f9adccf",
+      "exact_dual_objective": "80/3"
+    },
+    {
+      "n": 21,
+      "parity": 0,
+      "excluded_size": 33,
+      "encoding": "exact-dual-slack-reduced-all-slope",
+      "candidate_points": 136,
+      "variables": 4096,
+      "clauses": 20946,
+      "cnf_sha256": "6e086de861ac3dfb4e099422fc2fccab8e926322d05d2020e21e05ac2dea847c",
+      "exact_dual_objective": "2476/75",
+      "integer_slack_budget": 1
+    },
+    {
+      "n": 21,
+      "parity": 1,
+      "excluded_size": 33,
+      "encoding": "exact-dual-slack-reduced-all-slope",
+      "candidate_points": 132,
+      "variables": 3960,
+      "clauses": 19944,
+      "cnf_sha256": "10bd70ac54894a10df3e814aa453a9c80f149f465a102a147de9edf082a0a38e",
+      "exact_dual_objective": "33",
+      "integer_slack_budget": 0
+    }
+  ],
+  "solver_policy": {
+    "timeouts": "no result",
+    "unknown": "no result",
+    "accepted_upper_result": "both CaDiCaL and Kissat report UNSAT and the emitted DRAT/LRAT artifact passes the configured proof checkers",
+    "accepted_construction_result": "both CaDiCaL and Kissat report SAT on the fully fixed instance and both exact coordinate checkers pass"
+  },
+  "pinned_tools": {
+    "cadical_commit": "7b99c07f0bcab5824a5a3ce62c7066554017f641",
+    "kissat_commit": "8af8e56f174b778aef3aa45af9f739b2a5f492c2",
+    "drat_trim_commit": "2e3b2dc0ecf938addbd779d42877b6ed69d9a985"
+  }
+}
