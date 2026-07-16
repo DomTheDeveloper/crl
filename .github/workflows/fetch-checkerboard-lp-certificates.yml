@@ -6,15 +6,14 @@ on:
       - agent/checkerboard-lp-asymptotic-lean
     paths:
       - ".github/workflows/fetch-checkerboard-lp-certificates.yml"
-  pull_request:
-    paths:
-      - ".github/workflows/fetch-checkerboard-lp-certificates.yml"
-      - "proofs/lean/Checkerboard/**"
-      - "math/checkerboard/lp/**"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: fetch-checkerboard-lp-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   fetch-certificates:
@@ -50,3 +49,4 @@ jobs:
             fetched/source/odd_fat_certificate
             fetched/source/*.tex
           if-no-files-found: error
+          retention-days: 30
