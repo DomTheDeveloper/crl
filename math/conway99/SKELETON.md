@@ -1,155 +1,67 @@
-# Matching-cross skeleton and the exact `s=84` branch
+# Matching-cross skeleton and the `s=84` branch
 
-This document derives a second transition system inside every putative Conway
-99-graph and a specialized exact encoding of its extremal branch. None of the
-bounded runs reported here settles the original problem.
+## 1. Second transition system
 
-## 1. A second canonical 2-factor
-
-Use the canonical 84-vertex root reduction and put
+In the 84-vertex root reduction put
 
 ```text
 M = X^T X,
 Y = X^T P X,
 ```
 
-where `P` swaps the two vertices in each of the seven fixed matching pairs.
-From
-
-```text
-X B = 2 J - X - P X
-```
-
-one obtains, by left multiplication with `X^T` and `X^T P`,
+where `P` exchanges the endpoints of the seven fixed base pairs. The exact
+incidence equation implies
 
 ```text
 M B = Y B = 4 J - M - Y.
 ```
 
-For distinct labels `u,v`, `Y[u,v]` is the number, zero, one, or two, of fixed
-matching pairs split between the two labels. Therefore the weighted graph
+For each fixed base pair `{i,i'}`, the selected graph gives a perfect matching
+between the 12 labels containing `i` and the 12 labels containing `i'`.
+Superposing these seven matchings gives a weighted degree-two transition system
+`F` on the four signed parallel edges over each edge of `K7`.
 
-```text
-F[u,v] = Y[u,v] B[u,v]
-```
+Independently, the selected intersecting-label edges form a 2-factor `C` on the
+84 labels.
 
-has weighted degree two at every vertex: this is the diagonal identity
-`(YB)[u,u]=2`.
+## 2. Overlap parameter
 
-There is a direct combinatorial interpretation. For each fixed base pair
-`{i,i'}`, the exact incidence equations give a perfect matching between the 12
-labels containing `i` and the 12 labels containing `i'`. Superposing these
-seven perfect matchings produces `F`; an edge with `Y=2` appears twice. Every
-84-label vertex belongs to two fixed base pairs, hence has weighted degree two.
+A `C`-edge is *short* when its nonshared endpoints are a fixed base pair. These
+are precisely the simple edges common to `C` and `F`. Let their number be `s`.
 
-After collapsing each fixed base pair to one of seven group vertices, the 84
-labels are the four signed parallel edges above every edge of `K_7`. Thus `F`
-is a transition system, or circuit decomposition, of the multigraph `4 K_7`.
-This is independent of the transition 2-factor `C` on the edges of
-`K_14-7K_2` derived in `STRUCTURE.md`.
+Equivalently, `s` is the number of ones in a 14-by-7 short-transition matrix
+with 84 available entries. Positive row and column deficits cannot equal one.
+The detailed deficit classification and certificates are in
+`DEFICIT_SEARCH.md`.
 
-## 2. The overlap parameter `s`
+## 3. Exact structure when `s=84`
 
-Call a `C`-edge *short* when its two nonshared base endpoints form one of the
-seven fixed matching pairs. These are exactly the simple edges common to `C`
-and `F`. Let their number be `s`.
+If all 84 transitions are short, `C` is fixed and consists of 21 four-cycles,
+one on each four-label fiber above an edge of `K7`. Each fiber, together with
+the root and the corresponding four root-neighborhood vertices, induces
+`SRG(9,4,1,2)`.
 
-Equivalently, form a 14-by-7 zero-one matrix `Z`. Its row indexed by a base
-point `a` and column indexed by a fixed pair `p` is one when the transition
-matching at `a` pairs the two points of `p`. Entries in the column belonging to
-the fixed pair containing `a` are unavailable and are treated as zero. Then
+Every outside vertex has exactly one neighbor in each such nine-set. Therefore:
 
-```text
-s = sum Z.
-```
+- intersecting fibers have no cross edges;
+- every pair of disjoint fibers is joined by a 4-by-4 permutation matrix.
 
-Each row compares two perfect matchings on 12 points. It can have
-`0,1,2,3,4`, or `6` common edges, but not five: after five common edges the two
-remaining points are forced to form the sixth. Each column is the fixed-point
-set of a permutation of 12 points, so it can have size `0,...,10` or `12`, but
-not 11.
+Thus the reduced graph is a four-fold cover of `KG(7,2)` with an internal
+four-cycle in every fiber. This reduction is exact.
 
-Measure deficits from the all-one pattern on the 84 available entries. No
-positive row deficit and no positive column deficit can equal one. Therefore:
+## 4. Symmetry
 
-- deficit one is impossible immediately;
-- deficit two must occur in one row and creates two columns of deficit one;
-- deficit three must occur in one row and creates three columns of deficit one.
+Fix the seed label `{0,2}`. The 240 possible disjoint-label triangles through
+it form one orbit under the complete 7,680-element setwise seed stabilizer.
+The fuller seed-star classification used for certificate generation contains
+1,712 exact canonical cubes.
 
-Hence every putative graph satisfies the exact exclusion
+## 5. Critical encoder correction
 
-```text
-s not in {81,82,83}.
-```
-
-This conclusion uses only the two perfect-matching systems and does not assume
-any automorphism of the unknown graph.
-
-## 3. Structure of the extremal branch `s=84`
-
-If `s=84`, every transition at every base point pairs the six remaining fixed
-base pairs. The 84-label `C`-factor is then fixed and consists of 21 disjoint
-four-cycles, one on the four signed labels joining each pair of the seven base
-groups. The weighted 2-factor `F` equals `C`, so every selected disjoint-label
-edge has `Y=0`.
-
-For a group pair `e`, combine:
-
-- the fixed root;
-- the four root-neighborhood vertices in the two groups;
-- the four labels in the corresponding four-cycle.
-
-These nine vertices induce `SRG(9,4,1,2)`. Every pair of its vertices already
-has the full required number of common neighbors inside the nine-set. An
-outside vertex therefore has at most one neighbor in it. The nine vertices
-have ten external neighbors each, giving 90 edges to the 90 outside vertices,
-so every outside vertex has exactly one neighbor in the nine-set.
-
-Consequences for the 21 four-vertex label fibers are exact:
-
-- fibers whose two group pairs intersect have no cross edges;
-- between every two disjoint fibers, the 4-by-4 cross block is a perfect
-  matching.
-
-Thus the reduced graph in this branch is a four-fold cover of the Kneser graph
-`KG(7,2)`, with an internal four-cycle in every fiber. The 21-cell partition is
-equitable, with quotient matrix
-
-```text
-2 I + A(KG(7,2)).
-```
-
-Its quotient spectrum is
-
-```text
-12^1, 3^14, (-2)^6,
-```
-
-which is compatible with, but does not imply, the full reduced spectrum.
-
-## 4. Exhaustive symmetry in the specialized branch
-
-Fix the seed label `{0,2}`. There are exactly 240 possible all-`Y=0`
-disjoint-label triangles through it. The complete 7,680-element setwise
-stabilizer of the seed in `Aut(7K_2)` acts transitively on these 240 triangles.
-Therefore one representative triangle may be fixed without loss.
-
-`src/s84_symmetry_audit.py` enumerates the stabilizer and all candidates and
-checks the single-orbit claim directly.
-
-## 5. Exact cover CNF
-
-`src/s84_cover_sat.py` encodes the entire `s=84` branch, not a relaxation:
-
-- the 84 short transition edges are fixed;
-- each of the 105 disjoint fiber pairs is constrained to a 4-by-4 permutation
-  matrix;
-- every reduced common-neighbor equation is included;
-- one representative of the 240-element seed-triangle orbit is fixed;
-- SAT output is written in the standard reduced-edge witness format;
-- UNSAT output can retain a CaDiCaL proof trace.
-
-With the pinned PySAT version, the deterministic symmetry-broken CNF has
+The first version of `src/s84_cover_sat.py` used integer `1` as a sentinel for
+fixed truth. DIMACS variable identifiers are also positive integers, so variable
+number 1 was accidentally treated as a constant. The old deterministic sizes
+and hashes
 
 ```text
 263,457 variables
@@ -157,7 +69,25 @@ With the pinned PySAT version, the deterministic symmetry-broken CNF has
 SHA-256 913237d12c4cbc7dee7d99f8f2b0228ac004858af53a4f8c600cdd6d4fdac1b3
 ```
 
-This is substantially smaller than both the 1.23-million-variable general CNF
-and the earlier 483,537-variable triangle-explicit encoding of the same branch.
-A timeout is still no result. An UNSAT claim requires retaining and
-independently checking the proof against this exact CNF.
+are invalid for the intended model and must not be cited as evidence.
+
+The corrected encoder uses identity-tested singleton objects `TRUE` and
+`FALSE`. Its unsymmetrized exact base CNF is
+
+```text
+263,760 variables
+616,560 clauses
+SHA-256 09e71a0ecf915961be435f5f93784c061f4eaded737f95dff91fc7acd44aeec4
+```
+
+The corrected single-triangle symmetry-broken CNF is
+
+```text
+263,760 variables
+616,563 clauses
+SHA-256 e2de6ea248f5f18846bcab0d4e92e120c9ddad951437e87f351182e6b218ddfa
+```
+
+No `s=84` UNSAT claim is accepted until every one of the 1,712 corrected
+symmetry cubes has an independently checked proof against the corrected base.
+Solver agreement without proof checking remains only computational evidence.
