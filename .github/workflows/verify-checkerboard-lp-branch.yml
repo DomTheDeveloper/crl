@@ -72,6 +72,7 @@ jobs:
             Checkerboard/LP/PrimalParameterBounds.lean \
             Checkerboard/LP/MiddleCertificate.lean \
             Checkerboard/LP/MiddleGeometry.lean \
+            Checkerboard/LP/AffineIntervalMeasure.lean \
             Checkerboard/LP/OuterCertificateData.lean \
             Checkerboard/LP/OuterDensityCertificate.lean \
             Checkerboard/LP/OuterSupportCertificate.lean \
