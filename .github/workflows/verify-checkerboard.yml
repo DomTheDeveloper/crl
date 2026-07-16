@@ -13,7 +13,12 @@ on:
 
 jobs:
   lean-checkerboard:
-    runs-on: ubuntu-latest
+    name: lean-checkerboard (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
@@ -24,9 +29,12 @@ jobs:
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
-      - name: Guard against unfinished proof markers
+      - name: Guard against unfinished proof markers and custom axioms
         working-directory: proofs/lean/Checkerboard
-        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' --include='*.lean' ."
+        shell: bash
+        run: |
+          ! grep -RnE '\bsorry\b|\badmit\b|native_decide' --include='*.lean' .
+          ! grep -RnE '^[[:space:]]*(axiom|constant)[[:space:]]' --include='*.lean' Checkerboard Checkerboard.lean
 
       - name: Resolve Mathlib dependency
         working-directory: proofs/lean/Checkerboard
@@ -43,10 +51,28 @@ jobs:
           set -o pipefail
           lake build 2>&1 | tee build.log
 
-      - name: Reject sorryAx
+      - name: Run explicit axiom audit
+        working-directory: proofs/lean/Checkerboard
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean Checkerboard/FinalTheorem.lean 2>&1 | tee axiom-audit.log
+          ! grep -q "sorryAx" axiom-audit.log
+
+      - name: Reject sorryAx in build output
         working-directory: proofs/lean/Checkerboard
         run: |
           if grep -q "sorryAx" build.log; then
             echo "::error::The build depends on sorryAx."
             exit 1
           fi
+
+      - name: Upload audit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkerboard-audit-${{ matrix.os }}
+          path: |
+            proofs/lean/Checkerboard/build.log
+            proofs/lean/Checkerboard/axiom-audit.log
+          if-no-files-found: ignore
