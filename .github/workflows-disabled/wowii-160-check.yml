@@ -1,0 +1,94 @@
+name: WOWII 160 Kernel Audit
+
+on:
+  pull_request:
+    paths:
+      - 'WOWII/GraphConjecture160*.lean'
+      - '.github/workflows/wowii-160-check.yml'
+  push:
+    branches:
+      - formal-conjectures-wowii-143
+    paths:
+      - 'WOWII/GraphConjecture160*.lean'
+      - '.github/workflows/wowii-160-check.yml'
+  workflow_dispatch:
+
+jobs:
+  lean-wow160:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout proof campaign
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned Formal Conjectures
+        uses: actions/checkout@v4
+        with:
+          repository: google-deepmind/formal-conjectures
+          ref: b2e608fc52d765510915a244bb69b1a2741acc3c
+          path: formal-conjectures
+
+      - name: Reject placeholders, native evaluators, and custom axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            WOWII/GraphConjecture160Disproof.lean
+            WOWII/GraphConjecture160AxiomAudit.lean
+          )
+          ! grep -nE '(^|[[:space:]])(sorry|admit)([[:space:]]|$)' "${files[@]}"
+          ! grep -nE 'native_decide|decide[[:space:]]+\+native' "${files[@]}"
+          ! grep -nE '^[[:space:]]*(axiom|opaque)[[:space:]]' "${files[@]}"
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Download Mathlib cache
+        working-directory: formal-conjectures
+        run: lake exe cache get
+
+      - name: Build upstream conjecture module
+        working-directory: formal-conjectures
+        run: lake build FormalConjectures.WrittenOnTheWallII.GraphConjecture160
+
+      - name: Prepare isolated proof tree
+        run: |
+          rm -rf formal-conjectures/WOWII
+          mkdir -p formal-conjectures/WOWII
+          cp WOWII/GraphConjecture160Disproof.lean formal-conjectures/WOWII/
+          cp WOWII/GraphConjecture160AxiomAudit.lean formal-conjectures/WOWII/
+
+      - name: Compile proof and print axioms
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          export LEAN_PATH="$PWD:${LEAN_PATH:-}"
+          : > wow160-build.log
+          for f in \
+            WOWII/GraphConjecture160Disproof.lean \
+            WOWII/GraphConjecture160AxiomAudit.lean; do
+            echo "=== Checking $f ===" | tee -a wow160-build.log
+            lake env lean -o "${f%.lean}.olean" "$f" 2>&1 | tee -a wow160-build.log
+          done
+          cat wow160-build.log
+
+      - name: Enforce axiom audit
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q 'sorryAx' wow160-build.log
+          grep -q 'conjecture160_false' wow160-build.log
+
+      - name: Upload Lean diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wow160-kernel-audit-log
+          path: formal-conjectures/wow160-build.log
+          if-no-files-found: warn
+          retention-days: 30
