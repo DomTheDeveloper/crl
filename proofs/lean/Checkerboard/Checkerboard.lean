@@ -3,6 +3,7 @@ import Checkerboard.FiniteContradictions
 import Checkerboard.CeilingAlgebra
 import Checkerboard.MasterAlgebra
 import Checkerboard.Model
+import Checkerboard.FiberSums
 import Checkerboard.DefectMoments
 import Checkerboard.FiniteExact
 import Checkerboard.Finite21Lower
