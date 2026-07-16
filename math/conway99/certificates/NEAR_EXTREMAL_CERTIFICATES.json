@@ -1,0 +1,49 @@
+{
+  "problem": "Conway99",
+  "date": "2026-07-16",
+  "qualification": "This manifest records independently checked DRUP packages for fixed overlap branches. It does not settle the full Conway 99-graph problem.",
+  "checker": {
+    "implementation": "math/conway99/src/drup_check.cpp",
+    "mode": "deletion-aware RUP",
+    "independent_of_solver": true
+  },
+  "s80": {
+    "status": "CERTIFIED_UNSAT",
+    "transition_orbits": 4,
+    "cnf_sha256": {
+      "same0": "786d8673d442d7d7a697a14267582a43fd5fe7f7738abf7994fcfb33134986ac",
+      "same1": "382f81aaf93146f3ac4cdf1145a7dbdaf8ef3156ab1f7f5609508fb59139c819",
+      "diff0": "c2c29dacc8ecdca9d2aa642dc9060db96f3d6cdc1dd5a70b149e4aa223dafe82",
+      "diff1": "3c23c38b2e7805c506b7284d581b24fe30a9d0871601634ba3f67a0e53c2221d"
+    },
+    "detailed_manifest_sha256": "3beedfaa42c4c7d81ce90132c102f7279c4a7d11d4ab530d8cbe99073e767067"
+  },
+  "s78": {
+    "status": "CERTIFIED_UNSAT",
+    "raw_transition_states": 300160,
+    "transition_orbits": 29,
+    "checked_proof_lines": 1127195,
+    "detailed_manifest_sha256": "f2856c20f22fccc3520552e818c1ddb7324aed5b053411d37210eef996242b2c",
+    "representatives_sha256": "2a03ae7bf952bddace1d3e7c49e2cf5093c6004ecd21c0b2c44e6fde4748d8e0"
+  },
+  "s77": {
+    "status": "CERTIFIED_UNSAT",
+    "raw_transition_states": 1989120,
+    "skeleton_orbits": 6,
+    "transition_orbits": 36,
+    "checked_proof_lines": 592740,
+    "detailed_manifest_sha256": "d7e2c34dfbcddd2ae4d00b060fe7d7c1233e09e44c4893aee843a968799187b6",
+    "representatives_sha256": "11e07d8e14df11dfc825420f8a37caf5be2819aa65e825ebe050683876450ca9",
+    "orbit_summary_sha256": "739a40eb73d9d3fc4cbf694a0b7340e01420d722984b560f702acc0aa7a32ef9"
+  },
+  "mathematical_exclusions": {
+    "overlap_values": [79, 81, 82, 83],
+    "reason": "The bipartite deficit support cannot have a positive row or column of degree one."
+  },
+  "external_bundle": {
+    "filename": "conway99_s77_s78_certificates.tar.gz",
+    "sha256": "deb59d020bfd0cc12524813f6ae49e85d9c4919746ec4002b3d88d6d00d639b1",
+    "contents": "s=77 and s=78 detailed manifests, representatives, compressed DRUP traces, and checker sources"
+  },
+  "current_implication": "Every putative Conway graph has s=84 or s<=76."
+}
