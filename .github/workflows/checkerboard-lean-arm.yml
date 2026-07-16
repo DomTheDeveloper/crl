@@ -1,0 +1,108 @@
+name: Checkerboard Lean ARM compiler
+
+on:
+  push:
+    branches:
+      - agent/checkerboard-lean-all-n
+    paths:
+      - "proofs/lean/Checkerboard/**"
+      - ".github/workflows/checkerboard-lean-arm.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: checkerboard-lean-arm-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  compile:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    defaults:
+      run:
+        working-directory: proofs/lean/Checkerboard
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reject unfinished markers
+        run: |
+          set -euxo pipefail
+          ! grep -RnE '\bsorry\b|\badmit\b|native_decide' --include='*.lean' .
+
+      - name: Install Lean and Mathlib cache
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: proofs/lean/Checkerboard
+          build: false
+          use-mathlib-cache: true
+          use-github-cache: true
+
+      - name: Compile all checkerboard modules
+        id: compile
+        shell: bash
+        run: |
+          set +e
+          set -o pipefail
+          lake build 2>&1 | tee build.log
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Kernel replay
+        if: steps.compile.outputs.exit_code == '0'
+        id: kernel
+        shell: bash
+        run: |
+          set +e
+          set -o pipefail
+          lake env leanchecker Checkerboard 2>&1 | tee kernel.log
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Publish compiler result to PR
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMPILE_CODE: ${{ steps.compile.outputs.exit_code }}
+          KERNEL_CODE: ${{ steps.kernel.outputs.exit_code }}
+        run: |
+          {
+            echo "<!-- checkerboard-lean-arm:${GITHUB_SHA} -->"
+            echo "### Checkerboard Lean ARM audit"
+            echo
+            echo "Commit: \`${GITHUB_SHA}\`"
+            echo "Compile exit: \`${COMPILE_CODE:-not-run}\`"
+            echo "Kernel replay exit: \`${KERNEL_CODE:-not-run}\`"
+            echo
+            echo '<details><summary>Compiler tail</summary>'
+            echo
+            echo '```text'
+            tail -n 240 build.log 2>/dev/null || true
+            echo '```'
+            echo '</details>'
+            if [[ -f kernel.log ]]; then
+              echo
+              echo '<details><summary>Kernel replay</summary>'
+              echo
+              echo '```text'
+              tail -n 160 kernel.log
+              echo '```'
+              echo '</details>'
+            fi
+          } > /tmp/checkerboard-lean-comment.md
+          gh pr comment 48 --body-file /tmp/checkerboard-lean-comment.md
+
+      - name: Enforce success
+        if: always()
+        shell: bash
+        env:
+          COMPILE_CODE: ${{ steps.compile.outputs.exit_code }}
+          KERNEL_CODE: ${{ steps.kernel.outputs.exit_code }}
+        run: |
+          [[ "${COMPILE_CODE:-1}" == 0 ]]
+          [[ "${KERNEL_CODE:-1}" == 0 ]]
