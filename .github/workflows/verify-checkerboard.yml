@@ -11,6 +11,10 @@ on:
       - ".github/workflows/verify-checkerboard.yml"
   workflow_dispatch:
 
+concurrency:
+  group: checkerboard-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lean-checkerboard:
     runs-on: ubuntu-latest
