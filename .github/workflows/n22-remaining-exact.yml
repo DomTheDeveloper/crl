@@ -18,19 +18,19 @@ permissions:
   contents: read
 
 concurrency:
-  group: n22-remaining-kissat-${{ github.ref }}
+  group: n22-remaining-cadical-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   remaining:
-    name: kissat remaining t${{ matrix.top }} s${{ matrix.shard }}
+    name: cadical remaining t${{ matrix.top }} s${{ matrix.shard }}
     runs-on: ubuntu-latest
     timeout-minutes: 330
     strategy:
       fail-fast: false
       max-parallel: 20
       matrix:
-        top: [144, 136, 132, 130, 96, 80, 72, 68, 66, 48, 40, 36, 34, 24, 20, 18, 12]
+        top: [144, 136, 132, 130, 96, 80, 72, 68, 66, 48, 40, 36, 34, 24, 20]
         shard: [0, 1, 2, 3]
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
           python-version: "3.11"
       - name: Install exact SAT dependencies
         run: pip install --disable-pip-version-check python-sat
-      - name: Solve exact boundary shard with Kissat
+      - name: Solve exact boundary shard with CaDiCaL
         shell: bash
         working-directory: math/checkerboard/compute
         run: |
@@ -49,7 +49,7 @@ jobs:
             --top "${{ matrix.top }}" \
             --shard "${{ matrix.shard }}" \
             --shards 4 \
-            --solver kissat404 \
+            --solver cadical195 \
             --out "results/double_${{ matrix.top }}_${{ matrix.shard }}.jsonl" \
             | tee "results/double_${{ matrix.top }}_${{ matrix.shard }}.log"
       - name: Require complete UNSAT summary
@@ -68,6 +68,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: remaining-kissat-${{ matrix.top }}-${{ matrix.shard }}
+          name: remaining-cadical-${{ matrix.top }}-${{ matrix.shard }}
           path: math/checkerboard/compute/results/*
           retention-days: 14
