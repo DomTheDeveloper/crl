@@ -1,23 +1,14 @@
 name: Global canonical n22 search
 
 on:
-  push:
-    branches:
-      - agent/n22-exhaustive-compute
-    paths:
-      - ".github/workflows/n22-global-canonical.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
-
-concurrency:
-  group: n22-global-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   parked:
     name: Global monolith parked
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Monolithic search parked; the exhaustive sharded matrix is the authoritative campaign."
+      - run: echo "Monolithic search parked; the exhaustive sharded matrix is authoritative."
