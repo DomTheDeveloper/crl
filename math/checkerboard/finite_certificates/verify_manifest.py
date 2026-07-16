@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify committed construction hashes and generated instance metadata."""
+"""Verify committed certificate hashes and generated instance metadata."""
 from __future__ import annotations
 
 import argparse
@@ -21,6 +21,14 @@ def main() -> None:
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
     assert manifest["format"] == "checkerboard-finite-certificate-manifest-v1"
     root = args.manifest.parent
+
+    for entry in manifest["data_certificates"]:
+        path = root / entry["path"]
+        assert sha256(path) == entry["sha256"], path
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        assert payload["format"] == "checkerboard-four-direction-dual-profiles-v1"
+        assert len(payload["profiles"]) == 4
+        print(f"PASS data={path.name} sha256={entry['sha256']}")
 
     for entry in manifest["construction_certificates"]:
         path = root / entry["path"]
