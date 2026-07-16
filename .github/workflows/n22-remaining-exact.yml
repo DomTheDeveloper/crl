@@ -1,0 +1,62 @@
+name: Focused remaining n22 exact search
+
+on:
+  push:
+    branches: [agent/n22-exhaustive-compute]
+    paths:
+      - ".github/workflows/n22-remaining-exact.yml"
+      - "math/checkerboard/compute/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  remaining:
+    name: remaining t${{ matrix.top }} s${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        top: [144, 136, 132, 130, 96, 80, 72, 68, 66, 48, 40, 36, 34, 24, 20, 18, 12]
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install exact SAT dependencies
+        run: pip install --disable-pip-version-check python-sat
+      - name: Solve exact boundary shard
+        shell: bash
+        working-directory: math/checkerboard/compute
+        run: |
+          set -o pipefail
+          mkdir -p results
+          timeout 300m python -u n22_double_shard_reduced.py \
+            --top "${{ matrix.top }}" \
+            --shard "${{ matrix.shard }}" \
+            --shards 4 \
+            --out "results/double_${{ matrix.top }}_${{ matrix.shard }}.jsonl" \
+            | tee "results/double_${{ matrix.top }}_${{ matrix.shard }}.log"
+      - name: Require complete UNSAT summary
+        if: success()
+        working-directory: math/checkerboard/compute
+        run: |
+          python - "results/double_${{ matrix.top }}_${{ matrix.shard }}.jsonl" <<'PY'
+          import json,sys
+          rows=[json.loads(x) for x in open(sys.argv[1]) if x.strip()]
+          assert not any(r.get('event')=='WITNESS' or r.get('status')=='SAT' for r in rows)
+          s=[r for r in rows if r.get('event')=='shard_summary']
+          assert len(s)==1 and s[0].get('closed') and s[0].get('status')=='UNSAT'
+          print(json.dumps(s[0],indent=2))
+          PY
+      - name: Upload exact shard manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: remaining-double-${{ matrix.top }}-${{ matrix.shard }}
+          path: math/checkerboard/compute/results/*
+          retention-days: 14
