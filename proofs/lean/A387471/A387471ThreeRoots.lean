@@ -34,9 +34,10 @@ lemma ratio_cube_eq_one_of_sum_inv_sum {x y z : ℂ}
   have hquad : x ^ 2 + x * z + z ^ 2 = 0 := by
     linear_combination (x + z) * hsum - hpair
   have hcubes : x ^ 3 = z ^ 3 := by
-    have : x ^ 3 - z ^ 3 = (x - z) * (x ^ 2 + x * z + z ^ 2) := by ring
-    rw [this, hquad, mul_zero, sub_eq_zero] at this
-    exact this
+    apply sub_eq_zero.mp
+    calc
+      x ^ 3 - z ^ 3 = (x - z) * (x ^ 2 + x * z + z ^ 2) := by ring
+      _ = 0 := by rw [hquad, mul_zero]
   rw [div_pow, hcubes, div_self (pow_ne_zero 3 hz)]
 
 /-- In every vanishing triple of powers of one canonical root, each quotient
