@@ -7,6 +7,12 @@ on:
     paths:
       - "math/checkerboard/compute/**"
       - ".github/workflows/n22-exhaustive-compute.yml"
+  pull_request:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
+    paths:
+      - "math/checkerboard/compute/**"
+      - ".github/workflows/n22-exhaustive-compute.yml"
   workflow_dispatch:
 
 permissions:
