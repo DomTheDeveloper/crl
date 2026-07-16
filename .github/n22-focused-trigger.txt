@@ -1,0 +1,2 @@
+Trigger the focused reverse-order Kissat matrix for the remaining D_mono(22) all-double families.
+Run requested: 2026-07-16.
