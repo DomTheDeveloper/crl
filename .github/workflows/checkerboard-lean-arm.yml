@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
@@ -63,6 +63,43 @@ jobs:
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
           exit 0
 
+      - name: Assemble audit report
+        if: always()
+        shell: bash
+        env:
+          COMPILE_CODE: ${{ steps.compile.outputs.exit_code }}
+          KERNEL_CODE: ${{ steps.kernel.outputs.exit_code }}
+        run: |
+          {
+            echo "Checkerboard Lean ARM audit"
+            echo "source_commit=${GITHUB_SHA}"
+            echo "compile_exit=${COMPILE_CODE:-not-run}"
+            echo "kernel_replay_exit=${KERNEL_CODE:-not-run}"
+            echo
+            echo "=== COMPILER TAIL ==="
+            tail -n 300 build.log 2>/dev/null || true
+            if [[ -f kernel.log ]]; then
+              echo
+              echo "=== KERNEL REPLAY ==="
+              tail -n 200 kernel.log
+            fi
+          } > /tmp/checkerboard-lean-arm.txt
+
+      - name: Persist audit report on branch
+        if: always()
+        shell: bash
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p ci-results
+          cp /tmp/checkerboard-lean-arm.txt ci-results/checkerboard-lean-arm.txt
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add ci-results/checkerboard-lean-arm.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "Record checkerboard Lean compiler result [skip ci]"
+            git push origin HEAD:agent/checkerboard-lean-all-n
+          fi
+
       - name: Publish compiler result to PR
         if: always()
         shell: bash
@@ -95,7 +132,7 @@ jobs:
               echo '</details>'
             fi
           } > /tmp/checkerboard-lean-comment.md
-          gh pr comment 48 --body-file /tmp/checkerboard-lean-comment.md
+          gh pr comment 48 --body-file /tmp/checkerboard-lean-comment.md || true
 
       - name: Enforce success
         if: always()
