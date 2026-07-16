@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - tmp-voronovskaja-verify-20260716
+  pull_request:
   workflow_dispatch:
 
 permissions:
