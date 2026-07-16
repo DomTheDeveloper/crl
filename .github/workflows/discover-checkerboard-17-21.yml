@@ -1,0 +1,107 @@
+name: Discover checkerboard 17x17 and 21x21 values
+
+on:
+  pull_request:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
+    paths:
+      - math/checkerboard/finite_certificates/**
+      - .github/workflows/discover-checkerboard-17-21.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    name: n=${{ matrix.n }} parity=${{ matrix.parity }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - n: 17
+            parity: 0
+          - n: 17
+            parity: 1
+          - n: 21
+            parity: 0
+          - n: 21
+            parity: 1
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test deterministic encoding
+        working-directory: math/checkerboard/finite_certificates
+        run: python3 test_encoding.py
+
+      - name: Build pinned CaDiCaL and Kissat
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git clone https://github.com/arminbiere/cadical.git "$RUNNER_TEMP/cadical"
+          git -C "$RUNNER_TEMP/cadical" checkout 7b99c07f0bcab5824a5a3ce62c7066554017f641
+          (cd "$RUNNER_TEMP/cadical" && ./configure && make -j2)
+          git clone https://github.com/arminbiere/kissat.git "$RUNNER_TEMP/kissat"
+          git -C "$RUNNER_TEMP/kissat" checkout 8af8e56f174b778aef3aa45af9f739b2a5f492c2
+          (cd "$RUNNER_TEMP/kissat" && ./configure && make -j2)
+          "$RUNNER_TEMP/cadical/build/cadical" --version
+          "$RUNNER_TEMP/kissat/build/kissat" --version
+
+      - name: Solve candidate thresholds independently
+        shell: bash
+        env:
+          N: ${{ matrix.n }}
+          PARITY: ${{ matrix.parity }}
+        run: |
+          set -u
+          root="math/checkerboard/finite_certificates"
+          out="discovery/n${N}-p${PARITY}"
+          mkdir -p "$out"
+          if [[ "$N" == 17 ]]; then
+            candidates=(26 27 28)
+          else
+            candidates=(33 34 35)
+          fi
+
+          classify() {
+            local code="$1" log="$2"
+            if [[ "$code" == 124 ]]; then echo TIMEOUT; return; fi
+            if grep -q '^s SATISFIABLE' "$log"; then echo SAT; return; fi
+            if grep -q '^s UNSATISFIABLE' "$log"; then echo UNSAT; return; fi
+            echo ERROR
+          }
+
+          printf 'n\tparity\tminimum\tcadical\tkissat\tcnf_sha256\n' > "$out/results.tsv"
+          for k in "${candidates[@]}"; do
+            stem="$out/n${N}-p${PARITY}-k${k}"
+            python3 "$root/generate_cnf.py" --n "$N" --parity "$PARITY" --at-least "$k" \
+              --cnf "$stem.cnf" --metadata "$stem.json" | tee "$stem.generator.log"
+
+            timeout 45m "$RUNNER_TEMP/cadical/build/cadical" "$stem.cnf" > "$stem.cadical.log" 2>&1
+            cadical_code=$?
+            timeout 45m "$RUNNER_TEMP/kissat/build/kissat" "$stem.cnf" > "$stem.kissat.log" 2>&1
+            kissat_code=$?
+            cadical_status="$(classify "$cadical_code" "$stem.cadical.log")"
+            kissat_status="$(classify "$kissat_code" "$stem.kissat.log")"
+            hash="$(sha256sum "$stem.cnf" | awk '{print $1}')"
+            printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$N" "$PARITY" "$k" "$cadical_status" "$kissat_status" "$hash" \
+              | tee -a "$out/results.tsv"
+
+            if [[ "$cadical_status" == SAT ]]; then
+              python3 "$root/check_model.py" --metadata "$stem.json" --solver-output "$stem.cadical.log" \
+                --write-coordinates "$stem.cadical.model.json" | tee "$stem.cadical.check.log"
+            fi
+            if [[ "$kissat_status" == SAT ]]; then
+              python3 "$root/check_model.py" --metadata "$stem.json" --solver-output "$stem.kissat.log" \
+                --write-coordinates "$stem.kissat.model.json" | tee "$stem.kissat.check.log"
+            fi
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: checkerboard-discovery-n${{ matrix.n }}-p${{ matrix.parity }}
+          path: discovery/
+          if-no-files-found: error
