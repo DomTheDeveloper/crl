@@ -104,8 +104,11 @@ lemma exists_adj_cycleVertex_of_inducedC5
       have h_prev_back2 : c (i - 1) ≠ c (i - 2) :=
         hc_ne (by fin_cases i <;> decide)
       have hbackEdge : G.Adj (c (i - 1)) (c (i - 2)) := by
-        convert cycle_back_step_adj hc (i - 1) using 1 <;>
+        have hidx : (i - 1 - 1 : Fin 5) = i - 2 := by
           fin_cases i <;> decide
+        have h := cycle_back_step_adj hc (i - 1)
+        rw [hidx] at h
+        exact h
       apply hNoP5 x a (c i) (c (i - 1)) (c (i - 2))
       unfold FormsInducedP5
       exact ⟨hxa.ne, hx_cycle_ne i, hx_cycle_ne (i - 1), hx_cycle_ne (i - 2),
@@ -121,8 +124,11 @@ lemma exists_adj_cycleVertex_of_inducedC5
       have h_next_two : c (i + 1) ≠ c (i + 2) :=
         hc_ne (by fin_cases i <;> decide)
       have hnextEdge : G.Adj (c (i + 1)) (c (i + 2)) := by
-        convert cycle_step_adj hc (i + 1) using 1 <;>
+        have hidx : (i + 1 + 1 : Fin 5) = i + 2 := by
           fin_cases i <;> decide
+        have h := cycle_step_adj hc (i + 1)
+        rw [hidx] at h
+        exact h
       apply hNoP5 x a (c i) (c (i + 1)) (c (i + 2))
       unfold FormsInducedP5
       exact ⟨hxa.ne, hx_cycle_ne i, hx_cycle_ne (i + 1), hx_cycle_ne (i + 2),
