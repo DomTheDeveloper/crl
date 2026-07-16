@@ -13,6 +13,12 @@
       "combined": 32
     }
   },
+  "data_certificates": [
+    {
+      "path": "dual_profiles.json",
+      "sha256": "1f383c213976e4570339e7fa9071b75948ae0e148792dde3fe2e05233fd90a28"
+    }
+  ],
   "construction_certificates": [
     {
       "n": 17,
