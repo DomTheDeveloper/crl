@@ -1,0 +1,24 @@
+
+noncomputable def c (n : ℕ) : ℚ := (4 : ℚ) ^ n * a n
+
+theorem c_pos (n : ℕ) : 0 < c n := by
+  exact mul_pos (pow_pos (by norm_num) n) (a_pos n)
+
+noncomputable def Cseries : PowerSeries ℚ := PowerSeries.rescale 4 Aseries
+
+theorem Cseries_sq_eq :
+    Cseries * Cseries = PowerSeries.rescale 4 Bseries := by
+  unfold Cseries
+  rw [← map_mul]
+  change PowerSeries.rescale 4 Qseries = PowerSeries.rescale 4 Bseries
+  rw [Qseries_eq_Bseries]
+
+theorem c_convolution (n : ℕ) :
+    Finset.sum (range (n + 1)) (fun i => c i * c (n - i)) =
+      (2 : ℚ) ^ (A005187 n) := by
+  have h := congrArg (PowerSeries.coeff n) Cseries_sq_eq
+  rw [PowerSeries.coeff_mul, Nat.sum_antidiagonal_eq_sum_range_succ_mk,
+    PowerSeries.coeff_rescale] at h
+  simp only [Cseries, Aseries, Bseries, PowerSeries.coeff_rescale,
+    PowerSeries.coeff_mk] at h
+  exact h.trans (four_pow_mul_b n)

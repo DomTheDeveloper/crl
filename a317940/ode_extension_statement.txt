@@ -1,0 +1,17 @@
+
+noncomputable def Bseries : PowerSeries ℚ := PowerSeries.mk b
+
+theorem Bseries_derivative :
+    PowerSeries.derivative ℚ Bseries = Dseries * Bseries := by sorry
+
+theorem Qseries_constant : PowerSeries.constantCoeff Qseries = 1 := by sorry
+
+theorem Bseries_constant : PowerSeries.constantCoeff Bseries = 1 := by sorry
+
+theorem ode_unique (F G : PowerSeries ℚ)
+    (hF : PowerSeries.derivative ℚ F = Dseries * F)
+    (hG : PowerSeries.derivative ℚ G = Dseries * G)
+    (h0 : PowerSeries.constantCoeff F = PowerSeries.constantCoeff G) :
+    F = G := by sorry
+
+theorem Qseries_eq_Bseries : Qseries = Bseries := by sorry

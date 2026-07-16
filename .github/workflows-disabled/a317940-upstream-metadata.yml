@@ -1,0 +1,60 @@
+name: A317940 upstream metadata patch audit
+
+on:
+  pull_request:
+    branches: [claude/react-native-expo-ghpages-pgXVQ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  metadata-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: google-deepmind/formal-conjectures
+          ref: auto_oeis
+          path: formal-conjectures
+          fetch-depth: 1
+      - name: Apply solved-status metadata
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('formal-conjectures/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean')
+          s = p.read_text()
+          needle = 'theorem A317940_f_nonnegative (n : ℕ) (h : n > 0) : A317940_f n ≥ 0 := by sorry'
+          attrs = '''@[category research solved,
+            formal_proof using lean4 at "https://github.com/DomTheDeveloper/test-expo-app/blob/0baa78c8f9c4002af27312fc5017778915869d0a/A317940/A317940.lean",
+            AMS 11]
+          '''
+          if s.count(needle) != 1:
+              raise SystemExit('Exact target theorem not found once')
+          p.write_text(s.replace(needle, attrs + needle))
+          PY
+      - name: Install Lean
+        working-directory: formal-conjectures
+        run: |
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/mathlib
+          key: formal-conjectures-a317940-${{ hashFiles('formal-conjectures/lake-manifest.json') }}
+          restore-keys: |
+            formal-conjectures-a317940-
+      - name: Fetch cache
+        working-directory: formal-conjectures
+        run: |
+          lake exe cache unpack || true
+          lake exe cache get
+      - name: Build dependency and metadata-patched file
+        working-directory: formal-conjectures
+        run: |
+          lake --wfail build FormalConjectures.Util.ProblemImports
+          lake env lean FormalConjectures/OEIS/Auto/317940_cd729cdd.lean

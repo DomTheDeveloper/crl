@@ -1,0 +1,54 @@
+
+noncomputable def Bseries : PowerSeries ℚ := PowerSeries.mk b
+
+theorem Bseries_derivative :
+    PowerSeries.derivative ℚ Bseries = Dseries * Bseries := by
+  ext n
+  rw [PowerSeries.coeff_derivative, PowerSeries.coeff_mul,
+    Nat.sum_antidiagonal_eq_sum_range_succ_mk]
+  simp only [Bseries, Dseries, PowerSeries.coeff_mk]
+  simpa [mul_comm] using b_derivative_coeff n
+
+theorem Qseries_constant : PowerSeries.constantCoeff Qseries = 1 := by
+  simp [Qseries, Aseries, a_zero]
+
+theorem Bseries_constant : PowerSeries.constantCoeff Bseries = 1 := by
+  simp [Bseries, b_zero]
+
+theorem ode_unique (F G : PowerSeries ℚ)
+    (hF : PowerSeries.derivative ℚ F = Dseries * F)
+    (hG : PowerSeries.derivative ℚ G = Dseries * G)
+    (h0 : PowerSeries.constantCoeff F = PowerSeries.constantCoeff G) :
+    F = G := by
+  ext n
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+      cases n with
+      | zero =>
+          simpa [PowerSeries.coeff_zero_eq_constantCoeff_apply] using h0
+      | succ m =>
+          have hFc := congrArg (PowerSeries.coeff m) hF
+          have hGc := congrArg (PowerSeries.coeff m) hG
+          rw [PowerSeries.coeff_derivative, PowerSeries.coeff_mul,
+            Nat.sum_antidiagonal_eq_sum_range_succ_mk] at hFc hGc
+          have hs :
+              Finset.sum (range (m + 1))
+                  (fun i => PowerSeries.coeff i Dseries *
+                    PowerSeries.coeff (m - i) F) =
+                Finset.sum (range (m + 1))
+                  (fun i => PowerSeries.coeff i Dseries *
+                    PowerSeries.coeff (m - i) G) := by
+            apply Finset.sum_congr rfl
+            intro i hi
+            congr 1
+            exact ih (m - i) (Nat.lt_succ_of_le (Nat.sub_le m i))
+          rw [hs] at hFc
+          have hmul :
+              PowerSeries.coeff (m + 1) F * (m + 1 : ℚ) =
+                PowerSeries.coeff (m + 1) G * (m + 1 : ℚ) :=
+            hFc.trans hGc.symm
+          exact mul_right_cancel₀ (by positivity) hmul
+
+theorem Qseries_eq_Bseries : Qseries = Bseries := by
+  apply ode_unique Qseries Bseries Qseries_derivative Bseries_derivative
+  rw [Qseries_constant, Bseries_constant]

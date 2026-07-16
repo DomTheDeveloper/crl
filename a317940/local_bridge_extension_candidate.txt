@@ -1,0 +1,31 @@
+
+theorem four_pow_mul_b (n : ℕ) :
+    (4 : ℚ) ^ n * b n = (2 : ℚ) ^ (A005187 n) := by
+  have h4 (r : ℕ) : (4 : ℚ) ^ r = (2 : ℚ) ^ (2 * r) := by
+    calc
+      (4 : ℚ) ^ r = ((2 : ℚ) ^ 2) ^ r := by norm_num
+      _ = (2 : ℚ) ^ (2 * r) := by rw [pow_mul]
+  induction n using Nat.evenOddRec with
+  | h0 => norm_num [A005187, b_zero]
+  | h_even r ih =>
+      rw [b_even, A005187_rec, show 2 * r / 2 = r by omega]
+      calc
+        (4 : ℚ) ^ (2 * r) * b r =
+            (4 : ℚ) ^ r * ((4 : ℚ) ^ r * b r) := by
+              rw [show 2 * r = r + r by omega, pow_add]
+              ring
+        _ = (4 : ℚ) ^ r * (2 : ℚ) ^ (A005187 r) := by rw [ih]
+        _ = (2 : ℚ) ^ (2 * r) * (2 : ℚ) ^ (A005187 r) := by rw [h4]
+        _ = (2 : ℚ) ^ (2 * r + A005187 r) :=
+          (pow_add (2 : ℚ) (2 * r) (A005187 r)).symm
+  | h_odd r ih =>
+      rw [b_odd, A005187_rec, show (2 * r + 1) / 2 = r by omega]
+      calc
+        (4 : ℚ) ^ (2 * r + 1) * (b r / 2) =
+            (2 : ℚ) ^ (2 * r + 1) * ((4 : ℚ) ^ r * b r) := by
+              rw [show 2 * r + 1 = r + r + 1 by omega,
+                pow_add, pow_add, h4]
+              ring
+        _ = (2 : ℚ) ^ (2 * r + 1) * (2 : ℚ) ^ (A005187 r) := by rw [ih]
+        _ = (2 : ℚ) ^ (2 * r + 1 + A005187 r) :=
+          (pow_add (2 : ℚ) (2 * r + 1) (A005187 r)).symm

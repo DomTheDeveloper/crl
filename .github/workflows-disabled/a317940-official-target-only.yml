@@ -1,0 +1,101 @@
+name: A317940 official target-only audit
+
+on:
+  push:
+    branches: [a317940-axle-temp]
+  pull_request:
+    branches: [claude/react-native-expo-ghpages-pgXVQ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  target-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout proof workspace
+        uses: actions/checkout@v4
+
+      - name: Generate complete source
+        run: |
+          python3 a317940/patch_candidate.py
+          if grep -nE '\b(sorry|admit|axiom)\b' a317940/candidate.generated.lean; then
+            exit 1
+          fi
+
+      - name: Checkout Formal Conjectures
+        uses: actions/checkout@v4
+        with:
+          repository: google-deepmind/formal-conjectures
+          ref: auto_oeis
+          path: formal-conjectures
+          fetch-depth: 1
+
+      - name: Install proof and audit file
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          src = Path('a317940/candidate.generated.lean').read_text()
+          src = src.replace(
+              'import Mathlib\nimport Mathlib.Data.Nat.EvenOddRec\n',
+              'import FormalConjectures.Util.ProblemImports\nimport Mathlib.Data.Nat.EvenOddRec\n',
+              1,
+          )
+          target = Path('formal-conjectures/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean')
+          target.write_text(src)
+          Path('formal-conjectures/A317940AxiomAudit.lean').write_text(
+              src + '\n#print axioms A317940_f_nonnegative\n'
+          )
+          PY
+
+      - name: Install Lean
+        working-directory: formal-conjectures
+        run: |
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/mathlib
+          key: formal-conjectures-a317940-${{ hashFiles('formal-conjectures/lake-manifest.json') }}
+          restore-keys: |
+            formal-conjectures-a317940-
+
+      - name: Fetch mathlib cache
+        working-directory: formal-conjectures
+        run: |
+          lake exe cache unpack || true
+          lake exe cache get
+
+      - name: Build import dependency
+        working-directory: formal-conjectures
+        run: lake --wfail build FormalConjectures.Util.ProblemImports
+
+      - name: Compile exact target
+        working-directory: formal-conjectures
+        run: |
+          set -o pipefail
+          lake env lean -DwarningAsError=true FormalConjectures/OEIS/Auto/317940_cd729cdd.lean \
+            2>&1 | tee a317940-upstream-file-build.log
+
+      - name: Print axioms
+        working-directory: formal-conjectures
+        run: |
+          set -o pipefail
+          lake env lean -DwarningAsError=true A317940AxiomAudit.lean \
+            2>&1 | tee a317940-axiom-audit.log
+          grep -F 'A317940_f_nonnegative' a317940-axiom-audit.log
+
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: a317940-official-target-audit
+          path: |
+            formal-conjectures/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean
+            formal-conjectures/A317940AxiomAudit.lean
+            formal-conjectures/a317940-upstream-file-build.log
+            formal-conjectures/a317940-axiom-audit.log
