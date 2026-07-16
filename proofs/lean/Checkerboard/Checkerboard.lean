@@ -4,6 +4,7 @@ import Checkerboard.CeilingAlgebra
 import Checkerboard.MasterAlgebra
 import Checkerboard.LP.AlgebraicParameter
 import Checkerboard.LP.CubicInterval
+import Checkerboard.LP.CubicField
 import Checkerboard.LP.PrimalParameters
 import Checkerboard.LP.PrimalParameterBounds
 import Checkerboard.LP.MiddleCertificate
