@@ -5,7 +5,7 @@ import Checkerboard.FiberSums
 # Four-direction rational line-cover certificates
 
 A no-three-in-line set has capacity at most two on every row, column, sum
-diagonal, and difference diagonal.  This file packages that observation as a
+diagonal, and difference diagonal. This file packages that observation as a
 generic exact rational certificate theorem.
 -/
 
@@ -45,6 +45,7 @@ private theorem fiberCard_le_two_of_collinear
     (hcollinear : ∀ {a b c : Point n},
       f a = f b → f a = f c → determinant a b c = 0)
     (value : β) : fiberCard s f value ≤ 2 := by
+  change (s.filter fun p => f p = value).card ≤ 2
   by_contra h
   have hthree : 2 < (s.filter fun p => f p = value).card :=
     Nat.lt_of_not_ge h
@@ -68,7 +69,8 @@ private theorem fiberCard_le_two_of_collinear
   exact hntil ⟨a, haS⟩ ⟨b, hbS⟩ ⟨c, hcS⟩ hab' hac' hbc'
     (hcollinear (haf.trans hbf.symm) (haf.trans hcf.symm))
 
-private theorem rowFiber_le_two {n : ℕ} {s : Finset (Point n)}
+/-- A no-three-in-line set occupies each row at most twice. -/
+theorem rowFiber_le_two {n : ℕ} {s : Finset (Point n)}
     (hntil : NoThreeInLine s) (i : Fin n) :
     fiberCard s (fun p : Point n => p.1) i ≤ 2 := by
   apply fiberCard_le_two_of_collinear hntil (fun p : Point n => p.1)
@@ -77,7 +79,8 @@ private theorem rowFiber_le_two {n : ℕ} {s : Finset (Point n)}
   have hacv : a.1.1 = c.1.1 := congrArg Fin.val hac
   simp [determinant, habv, hacv]
 
-private theorem columnFiber_le_two {n : ℕ} {s : Finset (Point n)}
+/-- A no-three-in-line set occupies each column at most twice. -/
+theorem columnFiber_le_two {n : ℕ} {s : Finset (Point n)}
     (hntil : NoThreeInLine s) (i : Fin n) :
     fiberCard s (fun p : Point n => p.2) i ≤ 2 := by
   apply fiberCard_le_two_of_collinear hntil (fun p : Point n => p.2)
@@ -86,7 +89,8 @@ private theorem columnFiber_le_two {n : ℕ} {s : Finset (Point n)}
   have hacv : a.2.1 = c.2.1 := congrArg Fin.val hac
   simp [determinant, habv, hacv]
 
-private theorem sumFiber_le_two {n : ℕ} {s : Finset (Point n)}
+/-- A no-three-in-line set occupies each sum diagonal at most twice. -/
+theorem sumFiber_le_two {n : ℕ} {s : Finset (Point n)}
     (hntil : NoThreeInLine s) (i : Fin (2 * n - 1)) :
     fiberCard s sumIndex i ≤ 2 := by
   apply fiberCard_le_two_of_collinear hntil sumIndex
@@ -106,7 +110,8 @@ private theorem sumFiber_le_two {n : ℕ} {s : Finset (Point n)}
   rw [determinant, hb, hc]
   ring
 
-private theorem differenceFiber_le_two {n : ℕ} {s : Finset (Point n)}
+/-- A no-three-in-line set occupies each difference diagonal at most twice. -/
+theorem differenceFiber_le_two {n : ℕ} {s : Finset (Point n)}
     (hntil : NoThreeInLine s) (i : Fin (2 * n - 1)) :
     fiberCard s differenceIndex i ≤ 2 := by
   apply fiberCard_le_two_of_collinear hntil differenceIndex
@@ -202,8 +207,10 @@ theorem card_le_of_fourCertificate {n k : ℕ} {q : ℚ}
         intro p hp
         exact hcover ⟨p, hp⟩
   have hupper := fourCertificate_bound w hrow hcolumn hsum hdifference hntil
-  have hlt : (s.card : ℚ) < k + 1 := by
+  have hltQ : (s.card : ℚ) < k + 1 := by
     nlinarith
-  exact_mod_cast (Nat.lt_succ_iff.mp (by exact_mod_cast hlt : s.card < k + 1))
+  have hltN : s.card < k + 1 := by
+    exact_mod_cast hltQ
+  omega
 
 end Checkerboard
