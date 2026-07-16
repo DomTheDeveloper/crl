@@ -14,10 +14,13 @@ ap.add_argument('--out',required=True)
 ap.add_argument('--solver',default='cadical195')
 ap.add_argument('--left-conflicts',type=int,default=10000)
 ap.add_argument('--rb-conflicts',type=int,default=3000)
+ap.add_argument('--left-recheck-conflicts',type=int,default=100000)
+ap.add_argument('--rb-recheck-conflicts',type=int,default=20000)
 ap.add_argument('--left-recheck-every',type=int,default=4)
 ap.add_argument('--rb-recheck-every',type=int,default=8)
 a=ap.parse_args()
 assert a.top in c.DOUBLES and 0<=a.shard<a.shards
+assert min(a.left_conflicts,a.rb_conflicts,a.left_recheck_conflicts,a.rb_recheck_conflicts)>0
 assert a.left_recheck_every>0 and a.rb_recheck_every>0
 out=Path(a.out);out.parent.mkdir(parents=True,exist_ok=True);cnf,info=rcore.build_double(a.top)
 allm=[m for m in c.DOUBLES if m>=a.top]
@@ -50,7 +53,7 @@ def emit(f,rec,echo=False):
  if echo:print(json.dumps(rec),flush=True)
 
 start=time.time();stats={'left_direct':0,'left_refined':0,'rb_direct':0,'rb_refined':0,'leaves':0,'witness':0}
-print(json.dumps({'event':'built','top':a.top,'shard':a.shard,'shards':a.shards,'lefts':lefts,'left_total_global':len(lefts_all),'rb_total':len(allm),'vars':cnf.nv,'clauses':len(cnf.clauses),'pb':info,'solver':a.solver,'left_conflicts':a.left_conflicts,'rb_conflicts':a.rb_conflicts,'left_recheck_every':a.left_recheck_every,'rb_recheck_every':a.rb_recheck_every}),flush=True)
+print(json.dumps({'event':'built','top':a.top,'shard':a.shard,'shards':a.shards,'lefts':lefts,'left_total_global':len(lefts_all),'rb_total':len(allm),'vars':cnf.nv,'clauses':len(cnf.clauses),'pb':info,'solver':a.solver,'left_conflicts':a.left_conflicts,'rb_conflicts':a.rb_conflicts,'left_recheck_conflicts':a.left_recheck_conflicts,'rb_recheck_conflicts':a.rb_recheck_conflicts,'left_recheck_every':a.left_recheck_every,'rb_recheck_every':a.rb_recheck_every}),flush=True)
 s=Solver(name=a.solver,bootstrap_with=cnf.clauses);del cnf;gc.collect()
 with s,out.open('w',buffering=1) as f:
  for left in lefts:
@@ -87,14 +90,14 @@ with s,out.open('w',buffering=1) as f:
        emit(f,rec);stats['leaves']+=1
       tested+=1
       if tested%a.rb_recheck_every==0 and tested<len(rr_list):
-       rz,rdt=limited(s,alb,a.rb_conflicts)
+       rz,rdt=limited(s,alb,a.rb_recheck_conflicts)
        if rz is True:
         rec=witness(s,'rb_recheck',left,rb);emit(f,rec,True);sys.exit(2)
        if rz is False:
         rec={'event':'rb_refined','top':a.top,'shard':a.shard,'left':left,'rb':rb,'status':'UNSAT','tested_rr':tested,'rr_total':len(rr_list),'sec':rdt};emit(f,rec);stats['rb_refined']+=1;break
      closed+=1
    if closed<len(allm) and closed%a.left_recheck_every==0:
-    lz,ldt=limited(s,al,a.left_conflicts)
+    lz,ldt=limited(s,al,a.left_recheck_conflicts)
     if lz is True:
      rec=witness(s,'left_recheck',left);emit(f,rec,True);sys.exit(2)
     if lz is False:
