@@ -1,0 +1,66 @@
+name: Verify Erdős 846 sharpness theorem
+
+on:
+  push:
+    paths:
+      - "proofs/lean/Erdos846Sharp/**"
+      - ".github/workflows/verify-erdos846-sharp.yml"
+  pull_request:
+    paths:
+      - "proofs/lean/Erdos846Sharp/**"
+      - ".github/workflows/verify-erdos846-sharp.yml"
+  workflow_dispatch:
+
+jobs:
+  lean-erdos846-sharp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Reject placeholders and custom axioms
+        run: |
+          ! grep -RnE '\bsorry\b|\badmit\b|native_decide|^[[:space:]]*(axiom|opaque)[[:space:]]' \
+            proofs/lean/Erdos846Sharp/Erdos846Sharp.lean
+
+      - name: Resolve Mathlib
+        working-directory: proofs/lean/Erdos846Sharp
+        run: lake update
+
+      - name: Fetch Mathlib cache
+        working-directory: proofs/lean/Erdos846Sharp
+        run: lake exe cache get || echo "cache miss — Mathlib will build normally"
+
+      - name: Build and kernel-check
+        working-directory: proofs/lean/Erdos846Sharp
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build 2>&1 | tee build.log
+
+      - name: Assert clean axiom footprint
+        working-directory: proofs/lean/Erdos846Sharp
+        run: |
+          cat build.log
+          if grep -q 'sorryAx' build.log; then
+            echo '::error::Proof depends on sorryAx'
+            exit 1
+          fi
+          grep -q 'four_mul_triangleFree_card_edges_le_sq' build.log
+          grep -q 'exists_triangleFree_extremizer' build.log
+          grep -iE 'axioms|propext|Classical.choice|Quot.sound' build.log || true
+
+      - name: Upload audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos846-sharp-kernel-audit
+          path: proofs/lean/Erdos846Sharp/build.log
+          if-no-files-found: warn
+          retention-days: 30
