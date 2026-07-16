@@ -1,0 +1,65 @@
+name: Temporary external Voronovskaja verification
+
+on:
+  pull_request:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
+    paths:
+      - '.github/workflows/tmp-voronovskaja-verify.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out proof branch
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: solve-voronovskaja-no-sorry
+          path: formal-conjectures
+
+      - name: Install elan
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | \
+            sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch mathlib cache
+        working-directory: formal-conjectures
+        run: lake exe cache get
+
+      - name: Compile proof stack
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build \
+            FormalConjecturesForMathlib.MeasureTheory.Measure.CharacteristicFunction.TaylorExpansion \
+            FormalConjecturesForMathlib.Order.Filter.ENNReal \
+            FormalConjecturesForMathlib.MeasureTheory.Measure.LevyConvergence \
+            FormalConjecturesForMathlib.Probability.CentralLimitTheorem \
+            FormalConjecturesForMathlib.Probability.Distributions.Bernoulli \
+            FormalConjecturesForMathlib.Probability.Distributions.Binomial \
+            FormalConjecturesForMathlib.Probability.Distributions.StandardizedBinomial \
+            FormalConjecturesForMathlib.Probability.Distributions.StandardizedBinomialTails \
+            FormalConjecturesForMathlib.Probability.Distributions.StandardizedBinomialMGF \
+            FormalConjecturesForMathlib.Probability.CDFConvergence \
+            FormalConjecturesForMathlib.Probability.Distributions.PoweredGaussian \
+            FormalConjecturesForMathlib.Probability.Distributions.PoweredBinomialLimit \
+            FormalConjecturesForMathlib.Probability.Distributions.PoweredBinomialTails \
+            FormalConjecturesForMathlib.Probability.Distributions.PoweredBinomialMoments \
+            FormalConjectures.Paper.VoronovskajaProof \
+            FormalConjectures.Paper.VoronovskajaAffine \
+            FormalConjectures.Paper.VoronovskajaEndpoints \
+            2>&1 | tee /tmp/voronovskaja-lean.log
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: voronovskaja-lean-log
+          path: /tmp/voronovskaja-lean.log
