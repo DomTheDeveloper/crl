@@ -74,10 +74,23 @@ theorem fourier_eq_zero {p : ℕ} {ρ : ℂ} (hρ : IsPrimitiveRoot ρ p)
     (primitive_powers_injective hρ)
   simpa [Fourier] using h
 
+/-- Regrouping a finite weighted sum by a finite-valued tag. -/
+theorem sum_weighted_fibers {ι κ R : Type*} [DecidableEq ι] [Fintype κ]
+    [DecidableEq κ] [CommSemiring R] (s : Finset ι) (tag : ι → κ)
+    (w : κ → R) (g : ι → R) :
+    ∑ r : κ, w r * ∑ i ∈ s with tag i = r, g i =
+      ∑ i ∈ s, w (tag i) * g i := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | @insert i s hi ih =>
+      simp [hi, ih]
+
 #print axioms vanishes_empty
 #print axioms aeval_exponentPolynomial
 #print axioms vanishing_relation_coprime_power
 #print axioms primitive_powers_injective
 #print axioms fourier_eq_zero
+#print axioms sum_weighted_fibers
 
 end A387471
