@@ -80,7 +80,7 @@ theorem p_root_unique_in_isolating_interval {x y : ℝ}
     ring
   rcases mul_eq_zero.mp hfactor with hxy0 | hbr0
   · exact sub_eq_zero.mp hxy0
-  · exact False.elim (ne_of_lt hbracket hbr0)
+  · exact False.elim ((ne_of_lt hbracket) hbr0)
 
 /-- The exact middle root used in the checkerboard certificates. -/
 def checkerboardP : ℝ := Classical.choose exists_p_root_in_isolating_interval
