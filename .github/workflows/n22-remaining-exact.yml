@@ -6,6 +6,12 @@ on:
     paths:
       - ".github/workflows/n22-remaining-exact.yml"
       - "math/checkerboard/compute/**"
+  pull_request:
+    branches: [agent/n22-exhaustive-compute]
+    paths:
+      - ".github/n22-focused-trigger.txt"
+      - ".github/workflows/n22-remaining-exact.yml"
+      - "math/checkerboard/compute/**"
   workflow_dispatch:
 
 permissions:
