@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify committed constructions and exact dual profiles
+      - name: Verify exact theorem and committed certificates
         working-directory: math/checkerboard/finite_certificates
         run: |
           set -euxo pipefail
@@ -31,6 +31,10 @@ jobs:
           python3 test_encoding.py
           python3 verify_profiles.py
           python3 verify_profiles_independent.py
+          python3 verify_exhaustive_upper_bounds.py | tee exhaustive-proof.log
+          grep -q 'VERIFIED D_mono(21,0) <= 32 nodes=13560' exhaustive-proof.log
+          grep -q 'VERIFIED D_mono(21,1) <= 32 nodes=13239' exhaustive-proof.log
+          grep -q 'ALL N=21 EXHAUSTIVE UPPER BOUNDS VERIFIED nodes=26799' exhaustive-proof.log
           python3 check_coordinates_independent.py constructions/*.json
 
       - name: Regenerate every upper-bound instance and verify its semantics
@@ -55,6 +59,7 @@ jobs:
           done
           python3 verify_manifest.py --metadata "$out"/*.json
           sha256sum "$out"/*.cnf "$out"/*.json | tee "$out/SHA256SUMS"
+          cp exhaustive-proof.log "$out/"
 
       - uses: actions/upload-artifact@v4
         with:
