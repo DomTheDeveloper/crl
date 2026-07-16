@@ -20,7 +20,8 @@ recorded only as performance data.
 - seven perfect matchings between the stars of the seven fixed matching pairs;
 - exact classification and multiplicities of the 11 adjacent-pair local types;
 - exact rank-30 and rank-40 integral projector identities for structural pruning;
-- exact spectrum and 13 radius-one profiles for the 231-vertex triangle graph;
+- exact spectrum and 12 allowable radius-one profiles for the 231-vertex
+  triangle graph, with the apparent `t=11` profile ruled out exactly;
 - a necessary 36,484-variable transition/triangle CP-SAT relaxation;
 - exact full-stabilizer audit reducing the seed split from six overlapping
   cases to five disjoint orbit classes of sizes `1,10,10,20,80`;
@@ -32,7 +33,10 @@ recorded only as performance data.
 
 - all five seed classes have radius-one transition/triangle completions;
 - all 11 adjacent-pair local types survive ordinary spectral interlacing;
+- all 12 allowable triangle profiles survive their purely local constraints;
 - bounded transition/triangle CP-SAT runs returned `UNKNOWN`;
+- a 600-second exact SAT attempt on the globally fixed `t=12` transition branch
+  returned timeout/no result;
 - bounded complete-CNF runs returned timeout/no result.
 
 These results show that a successful proof must couple multiple local cores;

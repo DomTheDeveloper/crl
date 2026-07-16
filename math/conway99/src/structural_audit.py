@@ -47,6 +47,10 @@ def cycle_type_of_two_matchings(fixed, other, n=12):
     assert all(len(v)==2 for v in adj)
     return tuple(sorted(sizes, reverse=True))
 
+def has_derangement(n):
+    """A derangement exists exactly for n=0 or n>=2."""
+    return n == 0 or n >= 2
+
 def audit():
     rm=make_root_model(14)
     assert rm.m==84 and rm.v==99
@@ -103,8 +107,11 @@ def audit():
     assert sum(e*m for e,m in q_spectrum.items())==0
     assert sum(e*e*m for e,m in q_spectrum.items())==231*18
 
+    allowed_t=[t for t in range(13) if has_derangement(12-t)]
+    assert allowed_t==list(range(11))+[12]
+    assert 11 not in allowed_t and len(allowed_t)==12
     radius_one=[]
-    for t in range(13):
+    for t in allowed_t:
         row=(32-t,144+3*t,36-3*t,t)
         assert sum(row)==212
         assert sum(j*row[j] for j in range(4))==216
@@ -126,7 +133,8 @@ def audit():
                     "G40":{"rank":40,"nonzero_eigenvalue":105,"trace":4200,"diagonal":50}},
       "adjacent_pair_local_types":{"count":11,"total_matchings":10395,
         "cycle_type_counts":{"+".join(map(str,k)):v for k,v in sorted(types.items())}},
-      "triangle_graph_radius_one_profiles":[list(x) for x in radius_one],
+      "triangle_graph_radius_one":{"allowed_t":allowed_t,
+        "profile_count":len(radius_one),"profiles":[list(x) for x in radius_one]},
     }
 
 def main():

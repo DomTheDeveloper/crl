@@ -246,16 +246,27 @@ n1+2n2+3n3 = 216,
 n2+3n3 = 36.
 ```
 
-Consequently, for an integer `t(T)` with `0 <= t(T) <= 12`, every triangle has
-profile
+Consequently, for `t(T)=n3(T)`, every triangle has profile
 
 ```text
 (n0,n1,n2,n3) = (32-t, 144+3t, 36-3t, t).
 ```
 
-This compresses all radius-one triangle-graph possibilities to 13 profiles.
-Compatibility among profiles at adjacent triangles is a promising next exact
-enumeration layer.
+There is one further exact restriction. The 36 external neighbors of `T` split
+into three 12-sets according to which vertex of `T` they meet. Between every
+pair of these sets, the cross edges form a perfect matching. Composing the
+three matchings gives a permutation of 12 points, and `t(T)` is exactly its
+number of fixed points. A permutation cannot have exactly 11 fixed points:
+the single remaining point would also have to be fixed. Conversely, a
+permutation on 12 points can have any number of fixed points from 0 through 10,
+or all 12. Thus only 12 radius-one profiles are arithmetically possible:
+
+```text
+t in {0,1,2,3,4,5,6,7,8,9,10,12}.
+```
+
+For a root triangle `{r,i,i'}`, this same `t` is the number of fixed points of
+the matched-star permutation `phi_i` from Section 4.
 
 ## 8. Transition-triangle hypergraph relaxation
 
@@ -279,8 +290,9 @@ or cube generator, followed by exact SAT and projector-minor checks.
 ## 9. Current implication for the search
 
 None of the five exhaustive seed branches is eliminated by radius-one
-transition/triangle constraints. All 11 adjacent-pair local types also survive
-ordinary spectral interlacing. Thus a proof must couple multiple local cores.
+transition/triangle constraints. All 11 adjacent-pair local types and all 12
+allowable triangle profiles survive their respective purely local constraints.
+Thus a proof must couple multiple local cores.
 
 The next exact search layer should branch on transition matchings and the seven
 matched-star permutations, generate triangle-hypergraph cubes, reject cubes by
