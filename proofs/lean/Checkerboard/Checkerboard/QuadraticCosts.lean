@@ -129,10 +129,10 @@ theorem evenQuadratic_cost_one (m : ℕ) (hm : 1 ≤ m) :
     (∑ j : Fin (2 * (2 * m) - 1),
       if j.1 % 2 = 0 then evenCapExpr m j else 0)) = _
   rw [even_axis_sum, even_axis_sum]
-  rw [add_comm (∑ j : Fin (2 * (2 * m) - 1),
-      if j.1 % 2 = 1 then evenCapExpr m j else 0)]
-  rw [parity_partition (fun j : Fin (2 * (2 * m) - 1) => evenCapExpr m j),
-    even_all_diag_sum m hm]
+  have hpartition :=
+    parity_partition (fun j : Fin (2 * (2 * m) - 1) => evenCapExpr m j)
+  rw [add_comm] at hpartition
+  rw [hpartition, even_all_diag_sum m hm]
   ring
 
 end Checkerboard
