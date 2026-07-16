@@ -11,9 +11,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: n22-remaining-kissat-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   remaining:
-    name: remaining t${{ matrix.top }} s${{ matrix.shard }}
+    name: kissat remaining t${{ matrix.top }} s${{ matrix.shard }}
     runs-on: ubuntu-latest
     timeout-minutes: 330
     strategy:
@@ -29,7 +33,7 @@ jobs:
           python-version: "3.11"
       - name: Install exact SAT dependencies
         run: pip install --disable-pip-version-check python-sat
-      - name: Solve exact boundary shard
+      - name: Solve exact boundary shard with Kissat
         shell: bash
         working-directory: math/checkerboard/compute
         run: |
@@ -39,6 +43,7 @@ jobs:
             --top "${{ matrix.top }}" \
             --shard "${{ matrix.shard }}" \
             --shards 4 \
+            --solver kissat404 \
             --out "results/double_${{ matrix.top }}_${{ matrix.shard }}.jsonl" \
             | tee "results/double_${{ matrix.top }}_${{ matrix.shard }}.log"
       - name: Require complete UNSAT summary
@@ -57,6 +62,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: remaining-double-${{ matrix.top }}-${{ matrix.shard }}
+          name: remaining-kissat-${{ matrix.top }}-${{ matrix.shard }}
           path: math/checkerboard/compute/results/*
           retention-days: 14
