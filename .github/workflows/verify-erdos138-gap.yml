@@ -1,0 +1,65 @@
+name: Verify strengthened Erdős 138 gap
+
+on:
+  push:
+    paths:
+      - "proofs/lean/Erdos138Gap/**"
+      - ".github/workflows/verify-erdos138-gap.yml"
+  pull_request:
+    paths:
+      - "proofs/lean/Erdos138Gap/**"
+      - ".github/workflows/verify-erdos138-gap.yml"
+  workflow_dispatch:
+
+jobs:
+  lean-erdos138-gap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Reject placeholders and custom axioms
+        run: |
+          ! grep -RnE '\bsorry\b|\badmit\b|native_decide|^[[:space:]]*(axiom|opaque)[[:space:]]' \
+            proofs/lean/Erdos138Gap/Erdos138Gap.lean
+
+      - name: Resolve pinned dependencies
+        working-directory: proofs/lean/Erdos138Gap
+        run: lake update
+
+      - name: Fetch Mathlib cache
+        working-directory: proofs/lean/Erdos138Gap
+        run: lake exe cache get || echo "cache miss — dependencies will build normally"
+
+      - name: Build and kernel-check
+        working-directory: proofs/lean/Erdos138Gap
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build 2>&1 | tee build.log
+
+      - name: Assert clean axiom footprint
+        working-directory: proofs/lean/Erdos138Gap
+        run: |
+          cat build.log
+          if grep -q 'sorryAx' build.log; then
+            echo '::error::Proof depends on sorryAx'
+            exit 1
+          fi
+          grep -q 'W_diff_ge_k_plus_one' build.log
+          grep -iE 'axioms|propext|Classical.choice|Quot.sound' build.log || true
+
+      - name: Upload audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos138-gap-kernel-audit
+          path: proofs/lean/Erdos138Gap/build.log
+          if-no-files-found: warn
+          retention-days: 30
