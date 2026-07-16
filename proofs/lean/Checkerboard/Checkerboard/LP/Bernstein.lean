@@ -62,7 +62,10 @@ theorem QuadraticBernsteinCertificate.eval_nonneg
 theorem quadraticBernstein_basis_sum
     {l0 l1 l2 : ℝ} (hsum : l0 + l1 + l2 = 1) :
     l0^2 + l1^2 + l2^2 + 2*l0*l1 + 2*l0*l2 + 2*l1*l2 = 1 := by
-  nlinarith [sq_nonneg (l0 + l1 + l2 - 1)]
+  calc
+    l0^2 + l1^2 + l2^2 + 2*l0*l1 + 2*l0*l2 + 2*l1*l2 =
+        (l0 + l1 + l2)^2 := by ring
+    _ = 1 := by rw [hsum]; norm_num
 
 /-- A uniform lower bound on all six coefficients gives the same lower bound on
 the polynomial over normalized barycentric coordinates. -/
@@ -74,15 +77,13 @@ theorem quadraticBernstein_lower_bound
     (hsum : l0 + l1 + l2 = 1) :
     m ≤ quadraticBernstein c200 c020 c002 c110 c101 c011 l0 l1 l2 := by
   have hbasis := quadraticBernstein_basis_sum hsum
+  have h200 : 0 ≤ (c200 - m) * l0^2 := mul_nonneg (sub_nonneg.mpr hc200) (sq_nonneg l0)
+  have h020 : 0 ≤ (c020 - m) * l1^2 := mul_nonneg (sub_nonneg.mpr hc020) (sq_nonneg l1)
+  have h002 : 0 ≤ (c002 - m) * l2^2 := mul_nonneg (sub_nonneg.mpr hc002) (sq_nonneg l2)
+  have h110 : 0 ≤ 2 * (c110 - m) * l0 * l1 := by positivity
+  have h101 : 0 ≤ 2 * (c101 - m) * l0 * l2 := by positivity
+  have h011 : 0 ≤ 2 * (c011 - m) * l1 * l2 := by positivity
   unfold quadraticBernstein
-  nlinarith [mul_nonneg (sub_nonneg.mpr hc200) (sq_nonneg l0),
-    mul_nonneg (sub_nonneg.mpr hc020) (sq_nonneg l1),
-    mul_nonneg (sub_nonneg.mpr hc002) (sq_nonneg l2),
-    mul_nonneg (mul_nonneg (by norm_num : (0 : ℝ) ≤ 2) (sub_nonneg.mpr hc110))
-      (mul_nonneg hl0 hl1),
-    mul_nonneg (mul_nonneg (by norm_num : (0 : ℝ) ≤ 2) (sub_nonneg.mpr hc101))
-      (mul_nonneg hl0 hl2),
-    mul_nonneg (mul_nonneg (by norm_num : (0 : ℝ) ≤ 2) (sub_nonneg.mpr hc011))
-      (mul_nonneg hl1 hl2)]
+  nlinarith
 
 end Checkerboard
