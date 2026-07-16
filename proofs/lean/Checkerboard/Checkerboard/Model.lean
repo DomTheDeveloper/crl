@@ -25,7 +25,7 @@ def InColor {n : ℕ} (parity : ℕ) (p : Point n) : Prop :=
 def Monochromatic {n : ℕ} (parity : ℕ) (s : Finset (Point n)) : Prop :=
   ∀ p : ↥s, InColor parity p.1
 
-/-- No three distinct selected points are collinear.  Quantifying over the
+/-- No three distinct selected points are collinear. Quantifying over the
 subtype `↥s` makes direct checking of explicit constructions finite and small. -/
 def NoThreeInLine {n : ℕ} (s : Finset (Point n)) : Prop :=
   ∀ a b c : ↥s, a ≠ b → a ≠ c → b ≠ c →
@@ -46,11 +46,11 @@ inductive LineFamily
   | difference
   deriving DecidableEq, Fintype, Repr
 
-/-- Principal rows, columns, and slope `±1` diagonals.  The second component is
+/-- Principal rows, columns, and slope `±1` diagonals. The second component is
 an index in `0, …, 2n-2`; unused row/column indices simply describe empty lines. -/
 abbrev PrincipalLine (n : ℕ) := LineFamily × Fin (2 * n - 1)
 
-/-- Integer line coordinate.  Difference diagonals are shifted by `n-1`, so all
+/-- Integer line coordinate. Difference diagonals are shifted by `n-1`, so all
 four families use nonnegative indices. -/
 def lineValue {n : ℕ} (family : LineFamily) (p : Point n) : ℤ :=
   match family with
@@ -192,6 +192,8 @@ theorem card_le_of_certificate {n parity q k : ℕ} {s : Finset (Point n)}
     (hcolor : Monochromatic parity s) (hntil : NoThreeInLine s) :
     s.card ≤ k := by
   have hb := certificate_bound weight (fun p => hglobal p.1 (hcolor p)) hntil
+  have hmul : q * s.card < q * (k + 1) := lt_of_le_of_lt hb hcost
+  have hlt : s.card < k + 1 := (Nat.mul_lt_mul_left hq).mp hmul
   omega
 
 end Checkerboard
