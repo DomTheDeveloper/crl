@@ -6,6 +6,7 @@ on:
       - agent/checkerboard-lp-asymptotic-lean
     paths:
       - "proofs/lean/Checkerboard/**"
+      - "scripts/checkerboard/generate_outer_certificate.py"
       - ".github/workflows/verify-checkerboard-lp-branch.yml"
   workflow_dispatch:
 
@@ -22,6 +23,9 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+
+      - name: Generate exact outer certificate sources
+        run: python scripts/checkerboard/generate_outer_certificate.py
 
       - name: Install elan
         run: |
@@ -46,11 +50,33 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          lake env lean Checkerboard/LP/AlgebraicParameter.lean 2>&1 | tee lp-build.log
-          lake env lean Checkerboard/LP/FiniteModel.lean 2>&1 | tee -a lp-build.log
-          lake env lean Checkerboard/LP/LimitTransfer.lean 2>&1 | tee -a lp-build.log
+          for source in \
+            Checkerboard/LP/AlgebraicParameter.lean \
+            Checkerboard/LP/CubicInterval.lean \
+            Checkerboard/LP/PrimalParameterBounds.lean \
+            Checkerboard/LP/MiddleCertificate.lean \
+            Checkerboard/LP/MiddleGeometry.lean \
+            Checkerboard/LP/OuterCertificateData.lean \
+            Checkerboard/LP/FiniteModel.lean \
+            Checkerboard/LP/FiniteDual.lean \
+            Checkerboard/LP/ContinuumModel.lean \
+            Checkerboard/LP/LimitTransfer.lean \
+            Checkerboard/LP/AsymptoticSqueeze.lean
+          do
+            lake env lean "$source" 2>&1 | tee -a lp-build.log
+          done
           lake build 2>&1 | tee -a lp-build.log
 
       - name: Reject sorryAx
         working-directory: proofs/lean/Checkerboard
         run: "! grep -q sorryAx lp-build.log"
+
+      - name: Upload generated exact certificate
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkerboard-outer-certificate-generated
+          path: |
+            math/checkerboard/lp/certificates/q_weights_exact.csv
+            proofs/lean/Checkerboard/Checkerboard/LP/OuterCertificateData.lean
+            proofs/lean/Checkerboard/lp-build.log
+          if-no-files-found: error
