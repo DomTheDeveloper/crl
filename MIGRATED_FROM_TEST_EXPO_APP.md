@@ -1,12 +1,9 @@
-# Migrated math branch
+# Imported math branch
 
-- Source repository: `DomTheDeveloper/test-expo-app`
-- Source branch: `a317940-proof`
-- Source commit: `1cea8d7ab0cbb1d3878873e254e03bce75922883`
-- Source default branch used for the delta: `claude/react-native-expo-ghpages-pgXVQ`
-- Canonical CRL branch: `migrated/test-expo-app/a317940-proof`
+This branch is a self-contained CRL snapshot of the original `a317940-proof` math work.
 
-This branch is a math-only snapshot. Files that originally lived under
-`.github/workflows/` were preserved under
-`.github/workflows-disabled/` so importing the branch does not
-accidentally launch obsolete verification jobs.
+- Canonical repository: `DomTheDeveloper/crl`
+- Canonical branch: `a317940-proof`
+- Historical source commit identifier: `1cea8d7ab0cbb1d3878873e254e03bce75922883`
+
+The former source repository is not required and may be deleted. Workflow files were preserved under `.github/workflows-disabled/` to prevent obsolete verification jobs from running automatically.
