@@ -1,14 +1,18 @@
-# Strengthened Erdős 138 consecutive-gap theorem
+# Formalized Erdős 138 consecutive-gap refinement
 
 This project imports the AlphaProof Nexus proof at commit
-`0647711a71183c1ea492ad60860776617ce1ea88` and tests the endpoint strengthening
+`0647711a71183c1ea492ad60860776617ce1ea88` and formalizes the endpoint refinement
 
 ```text
 W(k + 1) - W(k) ≥ k + 1   for k > 0.
 ```
 
-The only mathematical change is allowing the greedy extension index `i = k`, which the
-intersection argument appears to support.
+The April 10, 2026 Erdős Problems discussion already records the stronger informal
+`r`-color statement `W_r(k+1)-W_r(k) ≥ k+r-1`; this project therefore claims formalization,
+not mathematical novelty.
+
+The proof allows the greedy extension index `i = k`, which the original intersection
+argument supports.
 
 Verification:
 
@@ -18,4 +22,4 @@ lake exe cache get
 lake build
 ```
 
-The result remains a proof candidate until the kernel build passes and prior art is audited.
+The result remains unverified until the kernel build passes.
