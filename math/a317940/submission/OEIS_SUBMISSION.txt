@@ -1,7 +1,7 @@
 Suggested A317940 update
 
 PROOF:
-Let f be the rational arithmetic function in the definition and put c_e=f(p^e), independent of the prime p. Since A005187(e)=2e-s_2(e), where s_2 is the binary digit sum, the normalized local target coefficients are b_e=2^{-s_2(e)}. Their generating series is
+Let f be the rational arithmetic function in the definition and put c_e=f(p^e), independent of the prime p. Since A005187(e)=2e-s_2(e), where s_2 is the binary digit sum, the normalized local target coefficients are b_e=2^{-s_2(e}. Their generating series is
 
 B(x)=sum_{e>=0} b_e x^e = product_{r>=0} (1+x^(2^r)/2).
 
@@ -15,7 +15,7 @@ sum_{j=0}^e c_j c_{e-j}=2^A005187(e).
 
 The multiplicative function h defined by h(p^e)=c_e therefore satisfies h*h=A046644. Separating the endpoint divisors shows that h obeys exactly the recursion defining f, so f=h by induction. Thus f(n)>0 for every n>=1. In particular all signed numerators are positive, strengthening the nonnegativity conjecture.
 
-A complete Lean 4 verification of the exact Google DeepMind Formal Conjectures statement A317940_f_nonnegative is available at: https://github.com/DomTheDeveloper/test-expo-app/blob/e48e2ec5e9bf036b490776650dfbe1e2127b8275/A317940/A317940.lean .
+A complete Lean 4 verification of the exact Google DeepMind Formal Conjectures statement A317940_f_nonnegative is available at: https://github.com/DomTheDeveloper/crl/blob/30a35b51c1158a67b45437130b519d57a8c82ff9/A317940/A317940.lean .
 
 Suggested COMMENT replacement/addition:
 All terms are positive. This follows from positivity of the coefficients of the formal square root of product_{r>=0}(1+x^(2^r)/2); see the proof link.
