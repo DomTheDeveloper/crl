@@ -44,15 +44,20 @@ theorem unitDeficit_moments {ι : Type*} [DecidableEq ι]
       ∑ i in s, (w i : ℝ) * z i ^ 2 := by
   obtain ⟨a, ha, hwa, hzero⟩ := exists_unique_one_of_sum_eq_one s w hsum
   have hfirst : (∑ i in s, (w i : ℝ) * z i) = z a := by
-    apply Finset.sum_eq_single_of_mem a ha
-    intro b hb hba
-    simp [hzero b hb hba]
+    calc
+      (∑ i in s, (w i : ℝ) * z i) = (w a : ℝ) * z a := by
+        apply Finset.sum_eq_single_of_mem a ha
+        intro b hb hba
+        simp [hzero b hb hba]
+      _ = z a := by simp [hwa]
   have hsecond : (∑ i in s, (w i : ℝ) * z i ^ 2) = z a ^ 2 := by
-    apply Finset.sum_eq_single_of_mem a ha
-    intro b hb hba
-    simp [hzero b hb hba]
+    calc
+      (∑ i in s, (w i : ℝ) * z i ^ 2) = (w a : ℝ) * z a ^ 2 := by
+        apply Finset.sum_eq_single_of_mem a ha
+        intro b hb hba
+        simp [hzero b hb hba]
+      _ = z a ^ 2 := by simp [hwa]
   rw [hfirst, hsecond]
-  simp [hwa]
 
 /-- A unit deficit's second moment is bounded by every uniform squared-radius bound. -/
 theorem unitDeficit_second_le {ι : Type*} [DecidableEq ι]
@@ -62,9 +67,12 @@ theorem unitDeficit_second_le {ι : Type*} [DecidableEq ι]
     (∑ i in s, (w i : ℝ) * z i ^ 2) ≤ R := by
   obtain ⟨a, ha, hwa, hzero⟩ := exists_unique_one_of_sum_eq_one s w hsum
   have hsecond : (∑ i in s, (w i : ℝ) * z i ^ 2) = z a ^ 2 := by
-    apply Finset.sum_eq_single_of_mem a ha
-    intro b hb hba
-    simp [hzero b hb hba]
+    calc
+      (∑ i in s, (w i : ℝ) * z i ^ 2) = (w a : ℝ) * z a ^ 2 := by
+        apply Finset.sum_eq_single_of_mem a ha
+        intro b hb hba
+        simp [hzero b hb hba]
+      _ = z a ^ 2 := by simp [hwa]
   rw [hsecond]
   exact hradius a ha
 
