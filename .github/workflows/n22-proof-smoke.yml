@@ -1,0 +1,66 @@
+name: Verify n22 DRAT proof pipeline
+
+on:
+  push:
+    branches: [agent/n22-exhaustive-compute]
+    paths:
+      - ".github/workflows/n22-proof-smoke.yml"
+      - "math/checkerboard/compute/emit_scope_drat.py"
+      - "math/checkerboard/compute/n22_exact_core.py"
+      - "math/checkerboard/compute/n22_data.py"
+  pull_request:
+    branches: [agent/n22-exhaustive-compute]
+    paths:
+      - ".github/n22-focused-trigger.txt"
+      - ".github/workflows/n22-proof-smoke.yml"
+      - "math/checkerboard/compute/emit_scope_drat.py"
+      - "math/checkerboard/compute/n22_exact_core.py"
+      - "math/checkerboard/compute/n22_data.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: n22-proof-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  drat-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install exact SAT dependency
+        run: pip install --disable-pip-version-check python-sat
+      - name: Build pinned independent DRAT checker
+        run: |
+          git clone https://github.com/marijnheule/drat-trim.git /tmp/drat-trim
+          git -C /tmp/drat-trim checkout 2e3b2dc0ecf938addbd779d42877b6ed69d9a985
+          make -C /tmp/drat-trim drat-trim
+      - name: Emit exact CaDiCaL DRAT scope proof
+        working-directory: math/checkerboard/compute
+        run: |
+          python emit_scope_drat.py \
+            --top 40 --left 72 --rb 1536 \
+            --solver cadical195 \
+            --out proof-smoke
+      - name: Independently verify DRAT
+        working-directory: math/checkerboard/compute
+        run: |
+          /tmp/drat-trim/drat-trim proof-smoke.cnf proof-smoke.drat | tee proof-smoke.verify.log
+          grep -q 's VERIFIED' proof-smoke.verify.log
+      - name: Upload proof smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: n22-drat-proof-smoke
+          path: |
+            math/checkerboard/compute/proof-smoke.cnf
+            math/checkerboard/compute/proof-smoke.drat
+            math/checkerboard/compute/proof-smoke.json
+            math/checkerboard/compute/proof-smoke.verify.log
+          retention-days: 30
