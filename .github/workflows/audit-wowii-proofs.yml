@@ -1,0 +1,124 @@
+name: Audit WOWII Lean proofs
+
+on:
+  push:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
+    paths:
+      - math/wowii/**
+      - .github/workflows/audit-wowii-proofs.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out CRL proof archive
+        uses: actions/checkout@v4
+
+      - name: Check out pinned Formal Conjectures environment
+        uses: actions/checkout@v4
+        with:
+          repository: google-deepmind/formal-conjectures
+          ref: b2e608fc52d765510915a244bb69b1a2741acc3c
+          path: formal-conjectures
+
+      - name: Install Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Prepare clean proof modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p formal-conjectures/WOWII
+          cp math/wowii/65/proof/GraphConjecture65Proof.lean formal-conjectures/WOWII/
+          cp math/wowii/143/proof/WOWII/*.lean formal-conjectures/WOWII/
+
+          cat > formal-conjectures/WOWII/Audit.lean <<'EOF'
+          import WOWII.GraphConjecture65Proof
+          import WOWII.GraphConjecture143ZZFinal
+
+          namespace WrittenOnTheWallII.GraphConjecture65
+          open Classical SimpleGraph
+          variable {α : Type*} [Fintype α] [DecidableEq α] [Nontrivial α]
+
+          example (G : SimpleGraph α) [DecidableRel G.Adj] (h : G.Connected) :
+              let A : Set α := {v | G.degree v = G.minDegree}
+              let M : Set α := {v | G.degree v = G.maxDegree}
+              (distMin G A : ℝ) + ⌈(distMin G M : ℝ) / 3⌉ ≤
+                (G.largestInducedForestSize : ℝ) := by
+            exact conjecture65_proved G h
+
+          #print axioms conjecture65_proved
+          end WrittenOnTheWallII.GraphConjecture65
+
+          namespace WrittenOnTheWallII.GraphConjecture143
+          open Classical SimpleGraph
+          variable {α : Type*} [Fintype α] [DecidableEq α] [Nontrivial α]
+
+          example (G : SimpleGraph α) [DecidableRel G.Adj] (h : G.Connected)
+              (hσ : 0 < secondSmallestDegree G) :
+              (G.girth : ℝ) + 1 ≤
+                (largestInducedTreeSize G : ℝ) * (secondSmallestDegree G : ℝ) := by
+            exact conjecture143_proved G h hσ
+
+          #print axioms conjecture143_proved
+          end WrittenOnTheWallII.GraphConjecture143
+          EOF
+
+      - name: Reject explicit proof holes
+        shell: bash
+        working-directory: formal-conjectures
+        run: |
+          set -euo pipefail
+          if grep -RInE '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)' WOWII; then
+            echo 'Explicit proof hole or custom axiom found.' >&2
+            exit 1
+          fi
+
+      - name: Download Mathlib cache
+        shell: bash
+        working-directory: formal-conjectures
+        run: |
+          set -euo pipefail
+          lake exe cache get
+
+      - name: Compile CRL-hosted WOWII 65 proof
+        shell: bash
+        working-directory: formal-conjectures
+        run: lake env lean WOWII/GraphConjecture65Proof.lean
+
+      - name: Compile full six-module WOWII 143 proof
+        shell: bash
+        working-directory: formal-conjectures
+        run: lake env lean WOWII/GraphConjecture143ZZFinal.lean
+
+      - name: Verify exact theorem types and axiom dependencies
+        shell: bash
+        working-directory: formal-conjectures
+        run: |
+          set -euo pipefail
+          lake env lean WOWII/Audit.lean 2>&1 | tee wowii-audit.log
+          if grep -q 'sorryAx' wowii-audit.log; then
+            echo 'Audit failed: theorem depends on Lean sorryAx.' >&2
+            exit 1
+          fi
+          grep -F 'conjecture65_proved' wowii-audit.log
+          grep -F 'conjecture143_proved' wowii-audit.log
+
+      - name: Upload audit transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wowii-lean-audit
+          path: formal-conjectures/wowii-audit.log
+          if-no-files-found: warn
