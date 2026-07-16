@@ -27,10 +27,13 @@ def weighted_equals_reduced_bdd(cnf,lits,weights,bound,vp,tag='rpb'):
 
 def base_cnf(vp):
  cnf=CNF()
+ # A sequential at-most-two counter is equivalent to the former expansion by
+ # every forbidden triple, but is substantially smaller on the long lines.
  for L in d.LINES:
-  for a,b,c in itertools.combinations(L,3):cnf.append([-a,-b,-c])
+  if len(L)==3:cnf.append([-L[0],-L[1],-L[2]])
+  else:cnf.extend(CardEnc.atmost(list(L),2,vpool=vp,encoding=CEnc.seqcounter).clauses)
  cnf.extend(CardEnc.equals(list(range(1,len(d.P)+1)),34,vpool=vp,encoding=CEnc.seqcounter).clauses)
- lits=[];ws=[]
+ lits=[];ws=[];high_low=[]
  for i,cov in enumerate(d.COVERAGE,1):
   if cov>d.DEN:lits.append(i);ws.append(cov-d.DEN)
  for w,L,nm in d.WL:
@@ -39,9 +42,16 @@ def base_cnf(vp):
   for o in range(len(L)):cnf.append([ql]+[L[j] for j in range(len(L)) if j!=o])
   for a,b in itertools.combinations(L,2):cnf.append([-ql,-a,-b])
   cnf.append([-qe,ql]);lits.extend((qe,ql));ws.extend((w,w))
+  # Every deficient line with 2*w > 112 is nonempty and contributes w to
+  # the exact slack identity. Two such deficient lines would contribute more
+  # than the entire slack budget, so at most one low flag can be true.
+  if 2*w>d.BUD:high_low.append(ql)
   if w>d.BUD:cnf.extend(CardEnc.equals(list(L),2,vpool=vp,encoding=CEnc.seqcounter).clauses)
   elif 2*w>d.BUD:cnf.append(list(L))
- info=weighted_equals_reduced_bdd(cnf,lits,ws,d.BUD,vp,'slack');return cnf,info
+ cnf.extend(CardEnc.atmost(high_low,1,vpool=vp,encoding=CEnc.seqcounter).clauses)
+ info=weighted_equals_reduced_bdd(cnf,lits,ws,d.BUD,vp,'slack')
+ info['high_low_amo']=len(high_low)
+ return cnf,info
 
 def build_double(top):
  vp=IDPool(start_from=len(d.P)+1);cnf,info=base_cnf(vp)
