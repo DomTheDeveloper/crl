@@ -77,9 +77,38 @@ theorem conjugatingExponent_coprime_squareful {p m : ℕ} (hp : p.Prime)
     · exact hqm
   exact hq.ne_one (Nat.eq_one_of_dvd_coprimes hum hqu hqm)
 
+/-- Outside the unique missing frequency `m⁻¹`, the conjugating exponent is
+coprime to `p*m` when `p ∤ m`. -/
+theorem conjugatingExponent_coprime_squarefree {p m : ℕ} (hp : p.Prime)
+    (hpm : ¬ p ∣ m) (t : ZMod p)
+    (ht : t ≠ ((m : ZMod p)⁻¹)) :
+    (conjugatingExponent p m t).Coprime (p * m) := by
+  letI : Fact p.Prime := ⟨hp⟩
+  let u := conjugatingExponent p m t
+  have hum : u.Coprime m := conjugatingExponent_coprime_quotient p m t
+  have hm0 : (m : ZMod p) ≠ 0 := by
+    simpa [ZMod.natCast_eq_zero_iff] using hpm
+  have hup : u.Coprime p := by
+    rw [Nat.coprime_comm, hp.coprime_iff_not_dvd]
+    intro hpu
+    have hu0 : (u : ZMod p) = 0 := by
+      exact ZMod.natCast_eq_zero_iff.mpr hpu
+    have hrel : (1 : ZMod p) - t * (m : ZMod p) = 0 := by
+      simpa [u, conjugatingExponent, Nat.cast_add, Nat.cast_mul,
+        Nat.cast_sub (Nat.le_of_lt t.val_lt), ZMod.natCast_zmod_val] using hu0
+    have htm : t * (m : ZMod p) = 1 := (sub_eq_zero.mp hrel).symm
+    exact ht (eq_inv_of_mul_eq_one_left htm)
+  refine Nat.coprime_of_dvd ?_
+  intro q hq hqu
+  intro hqpm
+  rcases (hq.dvd_mul.mp hqpm) with hqp | hqm
+  · exact hq.ne_one (Nat.eq_one_of_dvd_coprimes hup hqu hqp)
+  · exact hq.ne_one (Nat.eq_one_of_dvd_coprimes hum hqu hqm)
+
 #print axioms exists_bad_prime_of_not_dvd_thirty
 #print axioms exists_missing_residue
 #print axioms conjugatingExponent_coprime_quotient
 #print axioms conjugatingExponent_coprime_squareful
+#print axioms conjugatingExponent_coprime_squarefree
 
 end A387471
