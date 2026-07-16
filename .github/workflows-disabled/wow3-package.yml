@@ -1,0 +1,90 @@
+name: Build WOW3 source bundle
+
+on:
+  pull_request:
+    paths:
+      - 'WOW3_PACKAGE_TRIGGER.md'
+      - '.github/workflows/wow3-package.yml'
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact hardened proof commit
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/test-expo-app
+          ref: 2823819a49d6ec5a0f3f7711213a0358e4d136b2
+          path: proofs
+
+      - name: Checkout exact Formal Conjectures commit
+        uses: actions/checkout@v4
+        with:
+          repository: google-deepmind/formal-conjectures
+          ref: b2e608fc52d765510915a244bb69b1a2741acc3c
+          path: formal-conjectures
+
+      - name: Assemble source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=wow3
+          mkdir -p "$root/WOWII65" "$root/WOWII143" "$root/WOWII160" \
+            "$root/official-statements" "$root/workflows"
+
+          cp proofs/WOWII/GraphConjecture65Proof.lean "$root/WOWII65/"
+
+          cp proofs/WOWII/GraphConjecture143Proof.lean "$root/WOWII143/"
+          cp proofs/WOWII/GraphConjecture143Next.lean "$root/WOWII143/"
+          cp proofs/WOWII/GraphConjecture143Leaves.lean "$root/WOWII143/"
+          cp proofs/WOWII/GraphConjecture143Boundary.lean "$root/WOWII143/"
+          cp proofs/WOWII/GraphConjecture143CycleAttach.lean "$root/WOWII143/"
+          cp proofs/WOWII/GraphConjecture143ZZFinal.lean "$root/WOWII143/"
+          cp proofs/WOWII/GraphConjecture143AxiomAudit.lean "$root/WOWII143/"
+          cp proofs/WOWII/GraphConjecture143Proof.md "$root/WOWII143/"
+
+          cp proofs/WOWII/GraphConjecture160Disproof.lean "$root/WOWII160/"
+          cp proofs/WOWII/GraphConjecture160AxiomAudit.lean "$root/WOWII160/"
+
+          cp formal-conjectures/FormalConjectures/WrittenOnTheWallII/GraphConjecture65.lean \
+            "$root/official-statements/"
+          cp formal-conjectures/FormalConjectures/WrittenOnTheWallII/GraphConjecture143.lean \
+            "$root/official-statements/"
+          cp formal-conjectures/FormalConjectures/WrittenOnTheWallII/GraphConjecture160.lean \
+            "$root/official-statements/"
+
+          cp proofs/.github/workflows/wowii-pr-check.yml "$root/workflows/wowii-143-check.yml"
+          cp proofs/.github/workflows/wowii-160-check.yml "$root/workflows/"
+          cp proofs/.github/workflows/wowii-all-check.yml "$root/workflows/"
+
+          printf '%s\n' '2823819a49d6ec5a0f3f7711213a0358e4d136b2' > "$root/PROOF_COMMIT.txt"
+          printf '%s\n' 'b2e608fc52d765510915a244bb69b1a2741acc3c' > "$root/FORMAL_CONJECTURES_COMMIT.txt"
+
+          cat > "$root/SOURCE_README.md" <<'EOF'
+          # WOW3 exact source bundle
+
+          This source tree was generated from immutable Git commits.
+
+          - Proof repository commit: `2823819a49d6ec5a0f3f7711213a0358e4d136b2`
+          - Formal Conjectures commit: `b2e608fc52d765510915a244bb69b1a2741acc3c`
+
+          Contents:
+
+          - complete Lean proof of WOWII Graph Conjecture 65;
+          - complete modular Lean proof and axiom audit of WOWII Graph Conjecture 143;
+          - hardened Lean disproof and axiom audit of WOWII Graph Conjecture 160;
+          - exact official theorem statement files;
+          - GitHub Actions verification workflows.
+          EOF
+
+          find "$root" -type f -print0 | sort -z | xargs -0 sha256sum > "$root/SHA256SUMS.txt"
+          zip -r wow3-source-bundle.zip "$root"
+
+      - name: Upload source bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: wow3-source-bundle
+          path: wow3-source-bundle.zip
+          if-no-files-found: error
+          retention-days: 30
