@@ -4,13 +4,16 @@ on:
   push:
     branches:
       - ci/voronovskaja-verify
+  pull_request:
+    paths:
+      - '.github/workflows/voronovskaja-verify.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: crl-voronovskaja-verify
+  group: crl-voronovskaja-verify-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
