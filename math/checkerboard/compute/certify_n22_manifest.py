@@ -2,10 +2,10 @@
 """Turn one closed n=22 decision manifest into a minimal LRAT certificate frontier.
 
 The manifest may contain many child solves performed before a parent was later
-closed by learned-clause re-probing.  This tool keeps the largest closed nodes,
+closed by learned-clause re-probing. This tool keeps the largest closed nodes,
 verifies deterministic boundary contradictions directly, and optionally emits
 and independently checks DRAT/LRAT proofs for every solver-derived frontier
-node.  It is resumable: a node with a previously verified metadata record is
+node. It is resumable: a node with a previously verified metadata record is
 not solved again.
 """
 from __future__ import annotations
@@ -26,15 +26,14 @@ def mask_ids(side: str, mask: int) -> list[int]:
     return [d.BIDS[side][i] for i in range(11) if (mask >> i) & 1]
 
 
+def canonical_quad(top: int, left: int, rb: int, rr: int) -> bool:
+    q = (top, left, rb, rr)
+    return q == min(q, (left, top, rr, rb), (rb, rr, top, left), (rr, rb, left, top))
+
+
 def required_rrs(top: int, left: int, rb: int) -> list[int]:
     allm = [m for m in d.DOUBLES if m >= top]
-    return [
-        rr for rr in allm
-        if (rr & 1) == (rb & 1)
-        and not (left == top and rr < rb)
-        and not (rb == top and rr < left)
-        and not (rr == top and rb < left)
-    ]
+    return [rr for rr in allm if (rr & 1) == (rb & 1) and canonical_quad(top, left, rb, rr)]
 
 
 def sha256(path: Path) -> str:
@@ -121,11 +120,14 @@ def frontier(rows: list[dict[str, Any]]) -> tuple[dict[str, Any], list[dict[str,
             nodes.append(make_node(top, row))
             continue
         for rb in allm:
+            rr_values = required_rrs(top, left, rb)
+            if not rr_values:
+                continue
             row = latest_closure(rows, ('rb', 'rb_refined'), left=left, rb=rb)
             if row is not None:
                 nodes.append(make_node(top, row))
                 continue
-            for rr in required_rrs(top, left, rb):
+            for rr in rr_values:
                 row = latest_closure(rows, ('leaf',), left=left, rb=rb, rr=rr)
                 assert row is not None, f'missing terminal closure top={top} left={left} rb={rb} rr={rr}'
                 nodes.append(make_node(top, row))
@@ -218,6 +220,7 @@ def main() -> int:
             certificates.append(checked_solver_certificate(node, args, out_dir))
     report = {
         'status': 'VERIFIED_UNSAT_FRONTIER',
+        'symmetry': 'parity-preserving Klein-four lexicographic canonicalization',
         'top': summary['top'],
         'shard': summary['shard'],
         'nodes': len(certificates),
