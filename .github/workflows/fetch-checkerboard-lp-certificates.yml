@@ -1,0 +1,47 @@
+name: Fetch checkerboard LP certificates
+
+on:
+  push:
+    branches:
+      - agent/checkerboard-lp-asymptotic-lean
+    paths:
+      - ".github/workflows/fetch-checkerboard-lp-certificates.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch-certificates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download arXiv source and ancillary certificate
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p fetched
+          curl --retry 5 --retry-delay 2 -L --fail \
+            https://arxiv.org/e-print/2605.09215v1 \
+            -o fetched/prellberg-source.tar
+          mkdir -p fetched/source
+          tar -xf fetched/prellberg-source.tar -C fetched/source
+          find fetched/source -maxdepth 4 -type f -print | sort
+          test -f fetched/source/odd_fat_certificate/bernstein_coefficients.tsv
+          test -f fetched/source/odd_fat_certificate/constants.tsv
+          test -f fetched/source/odd_fat_certificate/sign_checks.tsv
+          test -f fetched/source/odd_fat_certificate/triangles.tsv
+          test -f fetched/source/odd_fat_certificate/verify_odd_fat_certificate.py
+
+      - name: Verify upstream dual certificate
+        run: python fetched/source/odd_fat_certificate/verify_odd_fat_certificate.py
+
+      - name: Upload exact source package
+        uses: actions/upload-artifact@v4
+        with:
+          name: prellberg-odd-fat-certificate
+          path: |
+            fetched/source/odd_fat_certificate
+            fetched/source/*.tex
+          if-no-files-found: error
