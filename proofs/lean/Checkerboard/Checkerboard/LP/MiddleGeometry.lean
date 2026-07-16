@@ -230,9 +230,10 @@ theorem middleMapped_mem_continuumTriangle
     have hdelta : 0 ≤ middleLength * ((a + b) - 3 / 4) :=
       mul_nonneg hM (sub_nonneg.mpr hAB)
     have hminaddmax : min a b + max a b = a + b := min_add_max a b
-    dsimp [middleMappedX, middleMappedY, a, b]
-    rw [middle_diag_lower_identity] at hdelta
-    nlinarith [primalE_pos]
+    have hid := middle_diag_lower_identity
+    dsimp [a, b] at hdelta hminaddmax
+    dsimp [middleMappedX, middleMappedY]
+    nlinarith [hdelta, hminaddmax, hid, primalE_pos]
   exact ⟨hy, sub_nonneg.mp hdiag, hsum⟩
 
 /-- Exact diagonal formulas used in the pushforward calculation. -/
