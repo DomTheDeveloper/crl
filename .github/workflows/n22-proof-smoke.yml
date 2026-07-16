@@ -1,10 +1,11 @@
-name: Verify n22 DRAT and LRAT proof pipeline
+name: Verify n22 symmetry, DRAT, and LRAT pipeline
 
 on:
   push:
     branches: [agent/n22-exhaustive-compute]
     paths:
       - ".github/workflows/n22-proof-smoke.yml"
+      - "math/checkerboard/compute/audit_n22_symmetry.cpp"
       - "math/checkerboard/compute/emit_scope_drat.py"
       - "math/checkerboard/compute/n22_exact_core.py"
       - "math/checkerboard/compute/n22_data.py"
@@ -13,6 +14,7 @@ on:
     paths:
       - ".github/n22-focused-trigger.txt"
       - ".github/workflows/n22-proof-smoke.yml"
+      - "math/checkerboard/compute/audit_n22_symmetry.cpp"
       - "math/checkerboard/compute/emit_scope_drat.py"
       - "math/checkerboard/compute/n22_exact_core.py"
       - "math/checkerboard/compute/n22_data.py"
@@ -34,6 +36,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Exhaustively audit the boundary symmetry partition
+        working-directory: math/checkerboard/compute
+        run: |
+          g++ -O3 -std=c++20 -Wall -Wextra -Wpedantic audit_n22_symmetry.cpp -o audit_n22_symmetry
+          ./audit_n22_symmetry | tee symmetry-audit.json
+          grep -q '"PASS":true' symmetry-audit.json
       - name: Install exact SAT dependency
         run: pip install --disable-pip-version-check python-sat
       - name: Build pinned independent proof checkers
@@ -62,8 +70,9 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: n22-drat-lrat-proof-smoke
+          name: n22-symmetry-drat-lrat-proof-smoke
           path: |
+            math/checkerboard/compute/symmetry-audit.json
             math/checkerboard/compute/proof-smoke.cnf
             math/checkerboard/compute/proof-smoke.drat
             math/checkerboard/compute/proof-smoke.lrat
