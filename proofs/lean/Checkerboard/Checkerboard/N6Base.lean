@@ -4,10 +4,10 @@ import Checkerboard.FourCertificate
 # The final 6×6 base cases
 
 The uniform quadratic cover is sharp at value nine on the 6-board, so an
-integrality argument is required.  Each color class has eighteen points.  We
+integrality argument is required. Each color class has eighteen points. We
 transport an arbitrary monochromatic set to eighteen Boolean variables, and
-`bv_decide` checks the finite Presburger statement that row, column, and slope
-`±1` capacities already force at most eight selected points.
+`bv_decide` checks the finite statement that row, column, and slope `±1`
+capacities already force at most eight selected points.
 -/
 
 namespace Checkerboard
@@ -87,7 +87,7 @@ private theorem chosenOnLine_image
     subst p
     apply Finset.mem_image.mpr
     exact ⟨i, Finset.mem_filter.mpr
-      ⟨Finset.mem_univ _, hpS, hpL⟩, rfl⟩
+      ⟨Finset.mem_univ _, ⟨hpS, hpL⟩⟩, rfl⟩
 
 private theorem upper_of_boolean_certificate
     {parity : ℕ} (point : Fin 18 → Point 6)
@@ -107,25 +107,28 @@ private theorem upper_of_boolean_certificate
     have himage := chosenOnLine_image point hsurj s hcolor line
     have hcardImage := Finset.card_image_of_injective
       (chosenOnLine point s line) hinj
-    have heq :
-        (Finset.univ.filter fun i => x i = true ∧ OnLine line (point i)).card =
-          (s.filter (OnLine line)).card := by
-      change (chosenOnLine point s line).card = _
+    have hchosen :
+        (chosenOnLine point s line).card = (s.filter (OnLine line)).card := by
       calc
         (chosenOnLine point s line).card =
             ((chosenOnLine point s line).image point).card := hcardImage.symm
         _ = (s.filter (OnLine line)).card := congrArg Finset.card himage
+    have heq :
+        (Finset.univ.filter fun i => x i = true ∧ OnLine line (point i)).card =
+          (s.filter (OnLine line)).card := by
+      simpa [x, chosenOnLine] using hchosen
     rw [heq]
     exact principalLine_card_le_two hntil line
   have hbool := hfinite x hline
   have himage := chosenIndices_image point hsurj s hcolor
   have hcardImage := Finset.card_image_of_injective (chosenIndices point s) hinj
-  have heq : (Finset.univ.filter fun i => x i = true).card = s.card := by
-    change (chosenIndices point s).card = s.card
+  have hchosen : (chosenIndices point s).card = s.card := by
     calc
       (chosenIndices point s).card = ((chosenIndices point s).image point).card :=
         hcardImage.symm
       _ = s.card := congrArg Finset.card himage
+  have heq : (Finset.univ.filter fun i => x i = true).card = s.card := by
+    simpa [x, chosenIndices] using hchosen
   rwa [heq] at hbool
 
 private theorem n6p0_boolean_bound :
