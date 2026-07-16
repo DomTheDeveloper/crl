@@ -1,4 +1,4 @@
-name: Discover checkerboard 17x17 and 21x21 values
+name: Verify checkerboard 17x17 and 21x21 constructions
 
 on:
   pull_request:
@@ -9,32 +9,42 @@ on:
       - .github/workflows/discover-checkerboard-17-21.yml
   workflow_dispatch:
 
+concurrency:
+  group: checkerboard-constructions-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
-  discover:
-    name: n=${{ matrix.n }} parity=${{ matrix.parity }}
+  constructions:
+    name: n=${{ matrix.n }} parity=${{ matrix.parity }} target=${{ matrix.target }}
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
         include:
           - n: 17
             parity: 0
+            target: 26
           - n: 17
             parity: 1
+            target: 26
           - n: 21
             parity: 0
+            target: 32
           - n: 21
             parity: 1
+            target: 32
     steps:
       - uses: actions/checkout@v4
 
-      - name: Test deterministic encoding
+      - name: Test deterministic encoding and exact profiles
         working-directory: math/checkerboard/finite_certificates
-        run: python3 test_encoding.py
+        run: |
+          python3 test_encoding.py
+          python3 verify_profiles.py
 
       - name: Build pinned CaDiCaL and Kissat
         shell: bash
@@ -49,21 +59,30 @@ jobs:
           "$RUNNER_TEMP/cadical/build/cadical" --version
           "$RUNNER_TEMP/kissat/build/kissat" --version
 
-      - name: Solve candidate thresholds independently
+      - name: Generate the full all-slope SAT instance
         shell: bash
         env:
           N: ${{ matrix.n }}
           PARITY: ${{ matrix.parity }}
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euxo pipefail
+          root="math/checkerboard/finite_certificates"
+          out="construction/n${N}-p${PARITY}-k${TARGET}"
+          mkdir -p "$(dirname "$out")"
+          python3 "$root/generate_cnf.py" --n "$N" --parity "$PARITY" --at-least "$TARGET" \
+            --cnf "$out.cnf" --metadata "$out.metadata.json" | tee "$out.generator.log"
+
+      - name: Solve independently and check both models
+        shell: bash
+        env:
+          N: ${{ matrix.n }}
+          PARITY: ${{ matrix.parity }}
+          TARGET: ${{ matrix.target }}
         run: |
           set -u
           root="math/checkerboard/finite_certificates"
-          out="discovery/n${N}-p${PARITY}"
-          mkdir -p "$out"
-          if [[ "$N" == 17 ]]; then
-            candidates=(26 27 28)
-          else
-            candidates=(33 34 35)
-          fi
+          stem="construction/n${N}-p${PARITY}-k${TARGET}"
 
           classify() {
             local code="$1" log="$2"
@@ -73,37 +92,30 @@ jobs:
             echo ERROR
           }
 
-          printf 'n\tparity\tminimum\tcadical\tkissat\tcnf_sha256\n' > "$out/results.tsv"
-          for k in "${candidates[@]}"; do
-            stem="$out/n${N}-p${PARITY}-k${k}"
-            python3 "$root/generate_cnf.py" --n "$N" --parity "$PARITY" --at-least "$k" \
-              --cnf "$stem.cnf" --metadata "$stem.json" | tee "$stem.generator.log"
+          set +e
+          timeout 30m "$RUNNER_TEMP/cadical/build/cadical" "$stem.cnf" > "$stem.cadical.log" 2>&1
+          cadical_code=$?
+          timeout 30m "$RUNNER_TEMP/kissat/build/kissat" "$stem.cnf" > "$stem.kissat.log" 2>&1
+          kissat_code=$?
+          set -e
+          cadical_status="$(classify "$cadical_code" "$stem.cadical.log")"
+          kissat_status="$(classify "$kissat_code" "$stem.kissat.log")"
+          printf 'solver\tstatus\texit_code\nCaDiCaL\t%s\t%s\nKissat\t%s\t%s\n' \
+            "$cadical_status" "$cadical_code" "$kissat_status" "$kissat_code" | tee "$stem.results.tsv"
 
-            set +e
-            timeout 45m "$RUNNER_TEMP/cadical/build/cadical" "$stem.cnf" > "$stem.cadical.log" 2>&1
-            cadical_code=$?
-            timeout 45m "$RUNNER_TEMP/kissat/build/kissat" "$stem.cnf" > "$stem.kissat.log" 2>&1
-            kissat_code=$?
-            set -e
-            cadical_status="$(classify "$cadical_code" "$stem.cadical.log")"
-            kissat_status="$(classify "$kissat_code" "$stem.kissat.log")"
-            hash="$(sha256sum "$stem.cnf" | awk '{print $1}')"
-            printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$N" "$PARITY" "$k" "$cadical_status" "$kissat_status" "$hash" \
-              | tee -a "$out/results.tsv"
-
-            if [[ "$cadical_status" == SAT ]]; then
-              python3 "$root/check_model.py" --metadata "$stem.json" --solver-output "$stem.cadical.log" \
-                --write-coordinates "$stem.cadical.model.json" | tee "$stem.cadical.check.log"
-            fi
-            if [[ "$kissat_status" == SAT ]]; then
-              python3 "$root/check_model.py" --metadata "$stem.json" --solver-output "$stem.kissat.log" \
-                --write-coordinates "$stem.kissat.model.json" | tee "$stem.kissat.check.log"
-            fi
-          done
+          # A timeout, UNKNOWN output, or solver error is deliberately no result.
+          [[ "$cadical_status" == SAT ]]
+          [[ "$kissat_status" == SAT ]]
+          python3 "$root/check_model.py" --metadata "$stem.metadata.json" --solver-output "$stem.cadical.log" \
+            --write-coordinates "$stem.cadical.model.json" | tee "$stem.cadical.check.log"
+          python3 "$root/check_model.py" --metadata "$stem.metadata.json" --solver-output "$stem.kissat.log" \
+            --write-coordinates "$stem.kissat.model.json" | tee "$stem.kissat.check.log"
+          sha256sum "$stem.cnf" "$stem.metadata.json" "$stem.cadical.model.json" "$stem.kissat.model.json" \
+            | tee "$stem.sha256"
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: checkerboard-discovery-n${{ matrix.n }}-p${{ matrix.parity }}
-          path: discovery/
+          name: checkerboard-construction-n${{ matrix.n }}-p${{ matrix.parity }}
+          path: construction/
           if-no-files-found: error
