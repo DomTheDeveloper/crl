@@ -7,6 +7,7 @@ import Checkerboard.LP.CubicInterval
 import Checkerboard.LP.PrimalParameters
 import Checkerboard.LP.PrimalParameterBounds
 import Checkerboard.LP.MiddleCertificate
+import Checkerboard.LP.MiddleGeometry
 import Checkerboard.LP.DualDefinitions
 import Checkerboard.LP.Bernstein
 import Checkerboard.LP.FiniteModel
