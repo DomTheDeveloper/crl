@@ -4,8 +4,10 @@ import Checkerboard.CeilingAlgebra
 import Checkerboard.MasterAlgebra
 import Checkerboard.LP.AlgebraicParameter
 import Checkerboard.LP.PrimalParameters
+import Checkerboard.LP.DualDefinitions
 import Checkerboard.LP.Bernstein
 import Checkerboard.LP.FiniteModel
 import Checkerboard.LP.FiniteDual
 import Checkerboard.LP.ContinuumModel
 import Checkerboard.LP.LimitTransfer
+import Checkerboard.LP.AsymptoticSqueeze
