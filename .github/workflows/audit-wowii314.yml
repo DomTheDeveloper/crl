@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 60
     steps:
       - name: Check out CRL proof archive
@@ -87,12 +87,35 @@ jobs:
         working-directory: formal-conjectures
         run: lake exe cache get
 
-      - name: Compile exact proof stack
+      - name: Compile exact proof stack in dependency order
         shell: bash
         working-directory: formal-conjectures
         run: |
-          set -o pipefail
-          lake env lean WOWII/ZZGraphConjecture314Final.lean 2>&1 | tee wowii314-build.log
+          set -euo pipefail
+          : > wowii314-build.log
+          files=(
+            WOWII/GraphConjecture143Proof.lean
+            WOWII/ZZGraphConjecture314Core.lean
+            WOWII/ZZGraphConjecture314DominatingEdge.lean
+            WOWII/ZZGraphConjecture314BipartiteCommon.lean
+            WOWII/ZZGraphConjecture314ChainGraph.lean
+            WOWII/ZZGraphConjecture314Cycle5.lean
+            WOWII/ZZGraphConjecture314Cycle5Blowup.lean
+            WOWII/ZZGraphConjecture314P5Bridge.lean
+            WOWII/ZZGraphConjecture314ConditionalFinal.lean
+            WOWII/ZZGraphConjecture314GeodesicP5.lean
+            WOWII/ZZGraphConjecture314BipartiteClassification.lean
+            WOWII/ZZGraphConjecture314CycleDichotomy.lean
+            WOWII/ZZGraphConjecture314C5Embedding.lean
+            WOWII/ZZGraphConjecture314C5Dominates.lean
+            WOWII/ZZGraphConjecture314C5Bags.lean
+            WOWII/ZZGraphConjecture314C5BlowupClassification.lean
+            WOWII/ZZGraphConjecture314Final.lean
+          )
+          for file in "${files[@]}"; do
+            echo "=== Checking $file ===" | tee -a wowii314-build.log
+            lake env lean "$file" 2>&1 | tee -a wowii314-build.log
+          done
 
       - name: Verify theorem type and audit axioms
         shell: bash
