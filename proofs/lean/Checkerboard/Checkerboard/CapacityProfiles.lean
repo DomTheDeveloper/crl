@@ -54,6 +54,14 @@ theorem sum_range_affine_sq (N : ℕ) (a b : ℝ) :
           ring
     _ = _ := by rw [sum_range_cast_sq, sum_range_cast_id]
 
+/-- Sum of the doubled centered row coordinates. -/
+theorem centered2_sum (n : ℕ) :
+    (∑ k in Finset.range n, centered2Nat n k) = 0 := by
+  simp_rw [centered2Nat, Finset.sum_sub_distrib, ← Finset.mul_sum]
+  rw [sum_range_cast_id]
+  simp
+  ring
+
 /-- Sum of squares of the doubled centered row coordinates. -/
 theorem centered2_square_sum (n : ℕ) :
     (∑ k in Finset.range n,
