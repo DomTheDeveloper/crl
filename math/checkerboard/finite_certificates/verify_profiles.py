@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 """Exact verification of the compact 17x17 and 21x21 line-cover profiles.
 
-The script uses only Python's standard library and integer arithmetic. It
-lifts each symmetry-reduced profile to the actual rows, columns, and slope
-+/-1 diagonals, checks every eligible point-cover inequality, and checks the
-exact dual objective. For n=21 it additionally regenerates the zero/one
-slack candidate sets used by the finite upper-bound reduction.
+The script uses only Python's standard library and integer arithmetic. It reads
+the machine-readable certificate data in ``dual_profiles.json``, lifts each
+symmetry-reduced profile to the actual rows, columns, and slope +/-1 diagonals,
+checks every eligible point-cover inequality, and checks the exact dual
+objective. For n=21 it additionally regenerates the zero/one slack candidate
+sets used by the finite upper-bound reduction.
 """
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from fractions import Fraction
+from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -23,16 +26,25 @@ class Profile:
     objective_numerator: int
 
 
-PROFILES = (
-    Profile(17, 0, 67, (0, 0, 10, 18, 24, 29, 35, 38, 39),
-            (20, 14, 9, 5, 2, 0, 0, 0, 0), 1788),
-    Profile(17, 1, 33, (0, 0, 5, 9, 12, 15, 17, 18),
-            (12, 9, 6, 4, 2, 1, 0, 0, 0), 880),
-    Profile(21, 0, 75, (0, 0, 0, 10, 18, 24, 30, 36, 41, 44, 45),
-            (28, 21, 15, 10, 6, 3, 1, 0, 0, 0, 0), 2476),
-    Profile(21, 1, 48, (0, 0, 6, 11, 15, 18, 22, 25, 27, 28),
-            (15, 12, 8, 6, 3, 2, 0, 0, 0, 0, 0), 1584),
-)
+def load_profiles(path: Path | None = None) -> tuple[Profile, ...]:
+    source = path or Path(__file__).with_name("dual_profiles.json")
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    assert payload["format"] == "checkerboard-four-direction-dual-profiles-v1"
+    profiles = tuple(Profile(
+        n=int(entry["n"]),
+        parity=int(entry["parity"]),
+        denominator=int(entry["denominator"]),
+        diagonal=tuple(map(int, entry["diagonal"])),
+        axis=tuple(map(int, entry["axis"])),
+        objective_numerator=int(entry["objective_numerator"]),
+    ) for entry in payload["profiles"])
+    assert [(profile.n, profile.parity) for profile in profiles] == [
+        (17, 0), (17, 1), (21, 0), (21, 1)
+    ]
+    return profiles
+
+
+PROFILES = load_profiles()
 
 
 def points(n: int, parity: int) -> list[tuple[int, int]]:
@@ -88,6 +100,11 @@ def computed_objective_numerator(profile: Profile) -> int:
 def verify(profile: Profile) -> dict[str, int | str]:
     if profile.n % 2 != 1:
         raise AssertionError("these profiles are for odd side lengths")
+    if profile.parity not in (0, 1):
+        raise AssertionError("parity must be zero or one")
+    expected_orbits = (profile.n + 1) // 2
+    assert len(profile.axis) == expected_orbits
+    assert len(profile.diagonal) == expected_orbits - profile.parity
     if any(weight < 0 for weight in profile.diagonal + profile.axis):
         raise AssertionError("dual weights must be nonnegative")
     expected_points = (profile.n * profile.n + (1 if profile.parity == 0 else -1)) // 2
