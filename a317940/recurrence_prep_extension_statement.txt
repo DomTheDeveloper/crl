@@ -1,0 +1,11 @@
+
+noncomputable def interiorSum (f : ArithmeticFunction ℚ) (n : ℕ) : ℚ :=
+  Finset.sum (divisors n) fun d =>
+    if d > 1 ∧ d < n then f d * f (n / d) else 0
+
+theorem square_decomp (f : ArithmeticFunction ℚ)
+    (hf1 : f 1 = 1) {n : ℕ} (hn : 1 < n) :
+    (f * f) n = 2 * f n + interiorSum f n := by sorry
+
+theorem rootAF_rec {n : ℕ} (hn : 1 < n) :
+    rootAF n = (A046644 n - interiorSum rootAF n) / 2 := by sorry

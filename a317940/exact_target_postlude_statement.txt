@@ -1,0 +1,4 @@
+
+
+theorem A317940_f_nonnegative (n : ℕ) (h : n > 0) :
+    A317940_f n ≥ 0 := by sorry

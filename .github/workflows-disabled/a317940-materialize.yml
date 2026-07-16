@@ -1,0 +1,37 @@
+name: Materialize A317940 proof
+
+on:
+  push:
+    branches: [a317940-proof]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: a317940-proof
+      - name: Generate single-file proof
+        run: |
+          python3 a317940/patch_candidate.py
+          mkdir -p A317940
+          cp a317940/candidate.generated.lean A317940/A317940.lean
+          if grep -nE '\b(sorry|admit|axiom)\b' A317940/A317940.lean; then
+            echo 'Forbidden placeholder or custom axiom found.' >&2
+            exit 1
+          fi
+      - name: Commit generated proof
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add A317940/A317940.lean
+          if git diff --cached --quiet; then
+            echo 'Generated proof is already current.'
+            exit 0
+          fi
+          git commit -m 'Materialize verified A317940 Lean proof'
+          git push origin HEAD:a317940-proof

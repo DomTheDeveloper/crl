@@ -1,0 +1,9 @@
+
+theorem mul_apply_divisors (f g : ArithmeticFunction ℚ) (n : ℕ) :
+    (f * g) n =
+      Finset.sum (divisors n) (fun d => f d * g (n / d)) := by sorry
+
+theorem rootAF_sq_prime_pow {p e : ℕ} (hp : p.Prime) :
+    (rootAF * rootAF) (p ^ e) = (2 : ℚ) ^ (A005187 e) := by sorry
+
+theorem rootAF_sq_eq_target : rootAF * rootAF = targetAF := by sorry

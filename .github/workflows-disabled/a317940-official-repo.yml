@@ -1,0 +1,133 @@
+name: A317940 official Formal Conjectures verification
+
+on:
+  push:
+    branches: [a317940-axle-temp]
+  pull_request:
+    branches: [claude/react-native-expo-ghpages-pgXVQ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  official-repository:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout proof workspace
+        uses: actions/checkout@v4
+
+      - name: Generate complete verified source
+        run: |
+          python3 a317940/patch_candidate.py
+          test -f a317940/candidate.generated.lean
+          if grep -nE '\b(sorry|admit|axiom)\b' a317940/candidate.generated.lean; then
+            echo 'Forbidden placeholder or custom axiom found in candidate.' >&2
+            exit 1
+          fi
+
+      - name: Checkout DeepMind Formal Conjectures
+        uses: actions/checkout@v4
+        with:
+          repository: google-deepmind/formal-conjectures
+          ref: auto_oeis
+          path: formal-conjectures
+          fetch-depth: 1
+
+      - name: Install exact proof into upstream tree
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          source = Path('a317940/candidate.generated.lean').read_text()
+          old = 'import Mathlib\nimport Mathlib.Data.Nat.EvenOddRec\n'
+          new = 'import FormalConjectures.Util.ProblemImports\nimport Mathlib.Data.Nat.EvenOddRec\n'
+          if old not in source:
+              raise SystemExit('Unexpected candidate import header')
+          source = source.replace(old, new, 1)
+
+          target = Path('formal-conjectures/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean')
+          target.write_text(source)
+
+          audit = Path('formal-conjectures/A317940AxiomAudit.lean')
+          audit.write_text(source + '\n#print axioms A317940_f_nonnegative\n')
+
+          if 'theorem A317940_f_nonnegative (n : ℕ) (h : n > 0)' not in source:
+              raise SystemExit('Exact upstream theorem signature missing')
+          if any(token in source for token in ('by sorry', 'Admitted', 'axiom ')):
+              raise SystemExit('Forbidden proof placeholder found')
+          print(f'Installed {len(source)} bytes into {target}')
+          PY
+
+      - name: Install Lean toolchain
+        working-directory: formal-conjectures
+        run: |
+          set -o pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore mathlib cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/mathlib
+          key: formal-conjectures-a317940-${{ hashFiles('formal-conjectures/lake-manifest.json') }}
+          restore-keys: |
+            formal-conjectures-a317940-
+
+      - name: Download mathlib cache
+        working-directory: formal-conjectures
+        run: |
+          lake exe cache unpack || true
+          lake exe cache get
+
+      - name: Build upstream import dependency
+        working-directory: formal-conjectures
+        run: |
+          set -o pipefail
+          lake --wfail build FormalConjectures.Util.ProblemImports \
+            2>&1 | tee a317940-import-build.log
+
+      - name: Compile exact upstream file
+        working-directory: formal-conjectures
+        run: |
+          set -o pipefail
+          lake env lean -DwarningAsError=true FormalConjectures/OEIS/Auto/317940_cd729cdd.lean \
+            2>&1 | tee a317940-upstream-file-build.log
+
+      - name: Run axiom audit
+        working-directory: formal-conjectures
+        run: |
+          set -o pipefail
+          lake env lean -DwarningAsError=true A317940AxiomAudit.lean \
+            2>&1 | tee a317940-axiom-audit.log
+          grep -F 'A317940_f_nonnegative' a317940-axiom-audit.log
+
+      - name: Build full Formal Conjectures project
+        working-directory: formal-conjectures
+        run: |
+          set -o pipefail
+          lake --wfail build 2>&1 | tee a317940-full-build.log
+
+      - name: Save mathlib cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/mathlib
+          key: formal-conjectures-a317940-${{ hashFiles('formal-conjectures/lake-manifest.json') }}
+
+      - name: Upload official-repository audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a317940-official-formal-conjectures-audit
+          path: |
+            formal-conjectures/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean
+            formal-conjectures/A317940AxiomAudit.lean
+            formal-conjectures/a317940-import-build.log
+            formal-conjectures/a317940-upstream-file-build.log
+            formal-conjectures/a317940-axiom-audit.log
+            formal-conjectures/a317940-full-build.log
+          if-no-files-found: warn

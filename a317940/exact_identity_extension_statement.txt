@@ -1,0 +1,14 @@
+
+theorem A317940_f_unfold (n : ℕ) :
+    A317940_f n =
+      if n = 0 then 0
+      else if n = 1 then 1
+      else
+        let A_n : ℚ := A046644 n
+        let sum_of_products : ℚ := Finset.sum (divisors n) fun d =>
+          if _h_prop : d > 1 ∧ d < n then
+            A317940_f d * A317940_f (n / d)
+          else 0
+        (A_n - sum_of_products) / 2 := by sorry
+
+theorem A317940_f_eq_rootAF (n : ℕ) : A317940_f n = rootAF n := by sorry

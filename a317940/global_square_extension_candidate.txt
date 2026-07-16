@@ -1,0 +1,35 @@
+
+theorem mul_apply_divisors (f g : ArithmeticFunction ℚ) (n : ℕ) :
+    (f * g) n =
+      Finset.sum (divisors n) (fun d => f d * g (n / d)) := by
+  rw [ArithmeticFunction.mul_apply, ← Nat.map_div_right_divisors,
+    Finset.sum_map, Function.Embedding.coeFn_mk]
+
+theorem rootAF_sq_prime_pow {p e : ℕ} (hp : p.Prime) :
+    (rootAF * rootAF) (p ^ e) = (2 : ℚ) ^ (A005187 e) := by
+  rw [mul_apply_divisors, Nat.divisors_prime_pow hp, Finset.sum_map]
+  simp only [Function.Embedding.coeFn_mk]
+  calc
+    Finset.sum (range (e + 1))
+        (fun j => rootAF (p ^ j) * rootAF (p ^ e / p ^ j)) =
+      Finset.sum (range (e + 1))
+        (fun j => c j * c (e - j)) := by
+          apply Finset.sum_congr rfl
+          intro j hj
+          have hje : j ≤ e := Nat.le_of_lt_succ (Finset.mem_range.mp hj)
+          have hdiv : p ^ e / p ^ j = p ^ (e - j) := by
+            apply Nat.div_eq_of_eq_mul_left
+            · exact pow_pos hp.pos j
+            · rw [← pow_add]
+              congr 1
+              omega
+          rw [rootAF_prime_pow hp, hdiv, rootAF_prime_pow hp]
+    _ = (2 : ℚ) ^ (A005187 e) := c_convolution e
+
+theorem rootAF_sq_eq_target : rootAF * rootAF = targetAF := by
+  apply (ArithmeticFunction.IsMultiplicative.eq_iff_eq_on_prime_powers
+      (rootAF * rootAF)
+      (rootAF_multiplicative.mul rootAF_multiplicative)
+      targetAF targetAF_multiplicative).2
+  intro p e hp
+  rw [rootAF_sq_prime_pow hp, targetAF_prime_pow hp]
