@@ -16,18 +16,17 @@ lemma isSyndetic_mono {S T : Set ℕ} (hST : S ⊆ T) (hS : IsSyndetic S) :
   exact ⟨x, hST hx.1, hx.2⟩
 
 /--
-For the Cassels basis, two distinct cells of any partition cannot both have
-syndetic self-sumsets.  Thus every partition has at most one syndetic cell.
-No finiteness or countability assumption on the index type is needed.
+If one cell of a partition of the Cassels basis has a syndetic self-sumset,
+then every other cell has arbitrarily long gaps in its self-sumset.
 -/
-theorem cassels_set_at_most_one_syndetic_cell
+theorem cassels_set_large_gaps_of_other_syndetic
     {ι : Type*}
     (parts : ι → Set ℕ)
     (hcover : ∀ x, x ∈ Erdos741.cassels_set ↔ ∃ i, x ∈ parts i)
     (hdisj : ∀ i j, i ≠ j → Disjoint (parts i) (parts j))
-    (i j : ι) (hij : i ≠ j) :
-    ¬ (IsSyndetic (parts i + parts i) ∧ IsSyndetic (parts j + parts j)) := by
-  rintro ⟨hsyni, hsynj⟩
+    (i j : ι) (hij : i ≠ j)
+    (hsynj : IsSyndetic (parts j + parts j)) :
+    Erdos741.HasLargeGaps (parts i + parts i) := by
   let rest : Set ℕ := {x | ∃ k, k ≠ i ∧ x ∈ parts k}
 
   have hpartition : Erdos741.cassels_set = parts i ∪ rest := by
@@ -73,8 +72,24 @@ theorem cassels_set_at_most_one_syndetic_cell
   rcases hgood with ⟨-, hgap⟩
   have hcases := hgap (parts i) rest hpartition hdisjirest
   rcases hcases with hgapi | hgapRest
-  · exact (Erdos741.not_syndetic_of_large_gaps (parts i + parts i) hgapi) hsyni
-  · exact (Erdos741.not_syndetic_of_large_gaps (rest + rest) hgapRest) hsynRest
+  · exact hgapi
+  · exact False.elim ((Erdos741.syndetic_not_large_gaps (rest + rest) hsynRest) hgapRest)
+
+/--
+For the Cassels basis, two distinct cells of any partition cannot both have
+syndetic self-sumsets.  Thus every partition has at most one syndetic cell.
+-/
+theorem cassels_set_at_most_one_syndetic_cell
+    {ι : Type*}
+    (parts : ι → Set ℕ)
+    (hcover : ∀ x, x ∈ Erdos741.cassels_set ↔ ∃ i, x ∈ parts i)
+    (hdisj : ∀ i j, i ≠ j → Disjoint (parts i) (parts j))
+    (i j : ι) (hij : i ≠ j) :
+    ¬ (IsSyndetic (parts i + parts i) ∧ IsSyndetic (parts j + parts j)) := by
+  rintro ⟨hsyni, hsynj⟩
+  have hgapi :=
+    cassels_set_large_gaps_of_other_syndetic parts hcover hdisj i j hij hsynj
+  exact (Erdos741.syndetic_not_large_gaps (parts i + parts i) hsyni) hgapi
 
 /-- Every partition indexed by a nontrivial type has a non-syndetic cell. -/
 theorem cassels_set_arbitrary_partition_obstruction
@@ -90,21 +105,21 @@ theorem cassels_set_arbitrary_partition_obstruction
 
 /--
 Closed existential form: there is an additive basis of order two such that,
-in every partition indexed by any type, at most one cell has a syndetic
-self-sumset.
+in every partition indexed by any type, a syndetic cell forces arbitrarily
+large gaps in every other cell.
 -/
-theorem exists_basis_with_at_most_one_syndetic_cell :
+theorem exists_basis_with_strong_partition_obstruction :
     ∃ A : Set ℕ,
       IsAddBasisOfOrder (A ∪ {0}) 2 ∧
       ∀ (ι : Type) (parts : ι → Set ℕ),
         (∀ x, x ∈ A ↔ ∃ i, x ∈ parts i) →
         (∀ i j, i ≠ j → Disjoint (parts i) (parts j)) →
-        ∀ i j, i ≠ j →
-          ¬ (IsSyndetic (parts i + parts i) ∧ IsSyndetic (parts j + parts j)) := by
+        ∀ i j, i ≠ j → IsSyndetic (parts j + parts j) →
+          Erdos741.HasLargeGaps (parts i + parts i) := by
   refine ⟨Erdos741.cassels_set, Erdos741.cassels_set_is_good.1, ?_⟩
-  intro ι parts hcover hdisj i j hij
-  exact cassels_set_at_most_one_syndetic_cell parts hcover hdisj i j hij
+  intro ι parts hcover hdisj i j hij hsynj
+  exact cassels_set_large_gaps_of_other_syndetic parts hcover hdisj i j hij hsynj
 
-#print axioms Erdos741Finite.exists_basis_with_at_most_one_syndetic_cell
+#print axioms Erdos741Finite.exists_basis_with_strong_partition_obstruction
 
 end Erdos741Finite
