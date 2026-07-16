@@ -9,6 +9,10 @@ on:
       - .github/workflows/check-checkerboard-certificate-sources.yml
   workflow_dispatch:
 
+concurrency:
+  group: checkerboard-source-audit-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
