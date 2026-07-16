@@ -37,6 +37,7 @@ jobs:
           python scripts/checkerboard/generate_outer_projection_ae_certificate.py
           python scripts/checkerboard/generate_outer_measure_certificate.py
           python scripts/checkerboard/generate_dual_bernstein_certificate.py
+          python scripts/checkerboard/generate_dual_function_identities.py
 
       - name: Install elan
         run: |
@@ -80,6 +81,8 @@ jobs:
             Checkerboard/LP/OuterMarginalAE.lean \
             Checkerboard/LP/OuterProjectionAE.lean \
             Checkerboard/LP/OuterMeasureCertificate.lean \
+            Checkerboard/LP/DualCertifiedFunctions.lean \
+            Checkerboard/LP/DualFunctionIdentities.lean \
             Checkerboard/LP/DualBernsteinData.lean \
             Checkerboard/LP/FiniteModel.lean \
             Checkerboard/LP/FiniteDual.lean \
@@ -116,6 +119,7 @@ jobs:
             proofs/lean/Checkerboard/Checkerboard/LP/OuterMarginalAE.lean
             proofs/lean/Checkerboard/Checkerboard/LP/OuterProjectionAE.lean
             proofs/lean/Checkerboard/Checkerboard/LP/OuterMeasureCertificate.lean
+            proofs/lean/Checkerboard/Checkerboard/LP/DualFunctionIdentities.lean
             proofs/lean/Checkerboard/Checkerboard/LP/DualBernsteinData.lean
             proofs/lean/Checkerboard/build.log
           if-no-files-found: warn
