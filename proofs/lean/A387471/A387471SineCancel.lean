@@ -40,10 +40,11 @@ lemma coefficient_eq_zero_of_self_pair {n : ℕ} (hn : 0 < n) {A : ℤ}
   have hnum : Complex.exp ((latticeAngle n A : ℂ) * Complex.I) -
       Complex.exp (-(latticeAngle n A : ℂ) * Complex.I) = 0 := by simpa using hpair
   rw [exp_sub_exp_neg_eq_two_sin_mul_I] at hnum
-  have hsin : Real.sin (latticeAngle n A) = 0 := by
-    have hI : (Complex.I : ℂ) ≠ 0 := Complex.I_ne_zero
-    have htwo : (2 : ℂ) ≠ 0 := by norm_num
-    exact_mod_cast (mul_eq_zero.mp (mul_eq_zero.mp hnum |>.resolve_left htwo) |>.resolve_right hI)
+  have hsinc : (Real.sin (latticeAngle n A) : ℂ) = 0 := by
+    have hleft : (2 : ℂ) * (Real.sin (latticeAngle n A) : ℂ) = 0 :=
+      (mul_eq_zero.mp hnum).resolve_right Complex.I_ne_zero
+    exact (mul_eq_zero.mp hleft).resolve_left (by norm_num)
+  have hsin : Real.sin (latticeAngle n A) = 0 := by exact_mod_cast hsinc
   exact coefficient_eq_zero_of_sine hn hA hsin
 
 #print axioms coefficients_eq_neg_of_sine_add_eq_zero
