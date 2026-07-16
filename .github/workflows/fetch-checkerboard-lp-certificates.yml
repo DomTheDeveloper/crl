@@ -6,6 +6,11 @@ on:
       - agent/checkerboard-lp-asymptotic-lean
     paths:
       - ".github/workflows/fetch-checkerboard-lp-certificates.yml"
+  pull_request:
+    paths:
+      - ".github/workflows/fetch-checkerboard-lp-certificates.yml"
+      - "proofs/lean/Checkerboard/**"
+      - "math/checkerboard/lp/**"
   workflow_dispatch:
 
 permissions:
