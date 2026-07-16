@@ -18,10 +18,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: n22-exhaustive-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   double:
     name: double t${{ matrix.top }} s${{ matrix.shard }}
