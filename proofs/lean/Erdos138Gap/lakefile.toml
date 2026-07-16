@@ -1,0 +1,10 @@
+name = "erdos138_gap"
+defaultTargets = ["Erdos138Gap"]
+
+[[require]]
+name = "alphaproof_nexus"
+git = "https://github.com/google-deepmind/alphaproof-nexus-results"
+rev = "0647711a71183c1ea492ad60860776617ce1ea88"
+
+[[lean_lib]]
+name = "Erdos138Gap"
