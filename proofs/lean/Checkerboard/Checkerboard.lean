@@ -20,3 +20,4 @@ import Checkerboard.Finite21Lower
 import Checkerboard.N21Profiles
 import Checkerboard.N21Boolean
 import Checkerboard.N21Exact
+import Checkerboard.AxiomAudit
