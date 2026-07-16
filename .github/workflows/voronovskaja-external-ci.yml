@@ -35,11 +35,11 @@ jobs:
         with:
           ref: ci/voronovskaja-external-runner
 
-      - name: Check out canonical proof branch
+      - name: Check out canonical proof commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: solve-voronovskaja-no-sorry
+          ref: b38c2fe292a2fd4e1166d24141a23d1f5ccc6964
           path: formal-conjectures
 
       - name: Install elan
@@ -55,6 +55,8 @@ jobs:
           cd formal-conjectures
           set +e
           {
+            echo '=== CANONICAL COMMIT ==='
+            git rev-parse HEAD
             echo '=== TOOLCHAIN ==='
             cat lean-toolchain
             lean --version
