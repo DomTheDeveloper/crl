@@ -1,0 +1,115 @@
+name: Verify WOWII 143 isolated proof
+
+on:
+  push:
+    branches: ["verify-wowii-143-isolated"]
+    paths:
+      - "WOWII/GraphConjecture143*.lean"
+      - ".github/workflows/verify-wow143-isolated.yml"
+  pull_request:
+    paths:
+      - "WOWII/GraphConjecture143*.lean"
+      - ".github/workflows/verify-wow143-isolated.yml"
+  workflow_dispatch:
+
+jobs:
+  lean-wow143:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout proof campaign
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned Formal Conjectures
+        uses: actions/checkout@v4
+        with:
+          repository: google-deepmind/formal-conjectures
+          ref: b2e608fc52d765510915a244bb69b1a2741acc3c
+          path: formal-conjectures
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Reject proof placeholders and custom axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            WOWII/GraphConjecture143Proof.lean
+            WOWII/GraphConjecture143Next.lean
+            WOWII/GraphConjecture143Leaves.lean
+            WOWII/GraphConjecture143Boundary.lean
+            WOWII/GraphConjecture143CycleAttach.lean
+            WOWII/GraphConjecture143ZZFinal.lean
+            WOWII/GraphConjecture143AxiomAudit.lean
+          )
+          ! grep -nE '(^|[[:space:]])(sorry|admit|native_decide)([[:space:]]|$)' "${files[@]}"
+          ! grep -nE '^[[:space:]]*(axiom|opaque)[[:space:]]' "${files[@]}"
+
+      - name: Prepare isolated proof tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf formal-conjectures/WOWII
+          mkdir -p formal-conjectures/WOWII
+          cp WOWII/GraphConjecture143Proof.lean formal-conjectures/WOWII/
+          cp WOWII/GraphConjecture143Next.lean formal-conjectures/WOWII/
+          cp WOWII/GraphConjecture143Leaves.lean formal-conjectures/WOWII/
+          cp WOWII/GraphConjecture143Boundary.lean formal-conjectures/WOWII/
+          cp WOWII/GraphConjecture143CycleAttach.lean formal-conjectures/WOWII/
+          cp WOWII/GraphConjecture143ZZFinal.lean formal-conjectures/WOWII/
+          cp WOWII/GraphConjecture143AxiomAudit.lean formal-conjectures/WOWII/
+
+      - name: Download Mathlib cache
+        working-directory: formal-conjectures
+        run: lake exe cache get
+
+      - name: Build upstream conjecture module
+        working-directory: formal-conjectures
+        run: lake build FormalConjectures.WrittenOnTheWallII.GraphConjecture143
+
+      - name: Compile complete proof and audit axioms
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          export LEAN_PATH="$PWD:${LEAN_PATH:-}"
+          : > wow143-build.log
+          files=(
+            WOWII/GraphConjecture143Proof.lean
+            WOWII/GraphConjecture143Next.lean
+            WOWII/GraphConjecture143Leaves.lean
+            WOWII/GraphConjecture143Boundary.lean
+            WOWII/GraphConjecture143CycleAttach.lean
+            WOWII/GraphConjecture143ZZFinal.lean
+            WOWII/GraphConjecture143AxiomAudit.lean
+          )
+          for f in "${files[@]}"; do
+            echo "=== Checking $f ===" | tee -a wow143-build.log
+            lake env lean -o "${f%.lean}.olean" "$f" 2>&1 | tee -a wow143-build.log
+          done
+          cat wow143-build.log
+
+      - name: Reject sorryAx dependency
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -q 'sorryAx' wow143-build.log; then
+            echo '::error::The audited theorem depends on sorryAx'
+            exit 1
+          fi
+          grep -F '#print axioms WrittenOnTheWallII.GraphConjecture143.conjecture143_proved' \
+            WOWII/GraphConjecture143AxiomAudit.lean
+
+      - name: Upload Lean diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wow143-isolated-build-log
+          path: formal-conjectures/wow143-build.log
+          if-no-files-found: warn
+          retention-days: 14

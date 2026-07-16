@@ -1,0 +1,51 @@
+
+@[simp] theorem c_zero : c 0 = 1 := by
+  simp [c]
+
+noncomputable def rootAF : ArithmeticFunction ℚ :=
+  ⟨fun n => if n = 0 then 0 else n.factorization.prod fun _ e => c e, by simp⟩
+
+noncomputable def targetAF : ArithmeticFunction ℚ :=
+  ⟨A046644, by simp [A046644]⟩
+
+@[simp] theorem targetAF_apply (n : ℕ) : targetAF n = A046644 n := rfl
+
+@[simp] theorem rootAF_prime_pow {p e : ℕ} (hp : p.Prime) :
+    rootAF (p ^ e) = c e := by
+  simp [rootAF, hp.ne_zero, hp.factorization_pow, c_zero]
+
+@[simp] theorem targetAF_prime_pow {p e : ℕ} (hp : p.Prime) :
+    targetAF (p ^ e) = (2 : ℚ) ^ (A005187 e) := by
+  have hzero : (2 : ℚ) ^ (A005187 0) = 1 := by simp [A005187]
+  simp [targetAF, A046644, hp.ne_zero, hp.factorization_pow,
+    Finsupp.prod_single_index, hzero]
+
+theorem rootAF_multiplicative : rootAF.IsMultiplicative := by
+  rw [ArithmeticFunction.IsMultiplicative.iff_ne_zero]
+  constructor
+  · simp [rootAF]
+  · intro m n hm hn hcop
+    change (if m * n = 0 then 0 else
+        (m * n).factorization.prod fun _ e => c e) =
+      (if m = 0 then 0 else m.factorization.prod fun _ e => c e) *
+        (if n = 0 then 0 else n.factorization.prod fun _ e => c e)
+    rw [if_neg (mul_ne_zero hm hn), if_neg hm, if_neg hn,
+      Nat.factorization_mul_of_coprime hcop,
+      ← Finsupp.prod_add_index_of_disjoint]
+    exact hcop.disjoint_primeFactors
+
+theorem targetAF_multiplicative : targetAF.IsMultiplicative := by
+  rw [ArithmeticFunction.IsMultiplicative.iff_ne_zero]
+  constructor
+  · simp [targetAF, A046644]
+  · intro m n hm hn hcop
+    change (if m * n = 0 then 0 else
+        (m * n).factorization.prod fun _ e => (2 : ℚ) ^ (A005187 e)) =
+      (if m = 0 then 0 else
+          m.factorization.prod fun _ e => (2 : ℚ) ^ (A005187 e)) *
+        (if n = 0 then 0 else
+          n.factorization.prod fun _ e => (2 : ℚ) ^ (A005187 e))
+    rw [if_neg (mul_ne_zero hm hn), if_neg hm, if_neg hn,
+      Nat.factorization_mul_of_coprime hcop,
+      ← Finsupp.prod_add_index_of_disjoint]
+    exact hcop.disjoint_primeFactors

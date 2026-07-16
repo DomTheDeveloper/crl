@@ -1,0 +1,53 @@
+name: Verify generalized digital Euler positivity
+
+on:
+  push:
+    branches: [a317940-proof]
+  pull_request:
+    branches: [claude/react-native-expo-ghpages-pgXVQ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Submit generalized theorem to AXLE
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          source = Path('A317940/DigitalEulerPositivity.lean').read_text()
+          payload = {
+              'formal_statement': source,
+              'content': source,
+              'environment': 'lean-4.27.0',
+              'mathlib_options': False,
+              'ignore_imports': True,
+              'timeout_seconds': 600,
+          }
+          Path('digital-euler-request.json').write_text(json.dumps(payload))
+          PY
+          curl --fail-with-body --retry 3 --retry-delay 5 \
+            -sS -X POST https://axle.axiommath.ai/api/v1/verify_proof \
+            -H 'Content-Type: application/json' \
+            --data-binary @digital-euler-request.json | tee digital-euler-response.json
+          python3 - <<'PY'
+          import json, sys
+          from pathlib import Path
+          response = json.loads(Path('digital-euler-response.json').read_text())
+          print(json.dumps(response, indent=2))
+          if not response.get('okay', False):
+              sys.exit(1)
+          PY
+      - name: Upload verifier response
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: digital-euler-positivity-verification
+          path: |
+            A317940/DigitalEulerPositivity.lean
+            digital-euler-response.json

@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{Strict Positivity of the Dirichlet Square Root Behind OEIS A317940}
+\author{Dominic Dabish\\\small AI-assisted discovery and Lean formalization; independent review pending}
+\date{July 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+Let $g$ be the multiplicative arithmetic function determined by
+$g(p^e)=2^{A005187(e)}$, where
+$A005187(e)=\sum_{k\ge0}\lfloor e/2^k\rfloor$.
+If $f(1)=1$ and $f*f=g$ under Dirichlet convolution, OEIS A317940 records the numerators of $f(n)$ and asks whether they are nonnegative. We prove the stronger statement $f(n)>0$ for every $n\ge1$. The proof reduces the problem to positivity of the formal square root of a binary Euler product. The exact Formal Conjectures statement has also been verified in Lean 4.
+\end{abstract}
+
+\section{Local reduction}
+Because $g$ is multiplicative, its normalized Dirichlet square root is multiplicative. Put $c_e=f(p^e)$. Then
+\begin{equation}\label{local}
+\sum_{j=0}^{e}c_jc_{e-j}=2^{A005187(e)}.
+\end{equation}
+The recurrence $A005187(e)=e+A005187(\lfloor e/2\rfloor)$ yields
+$A005187(e)=2e-s_2(e)$, where $s_2(e)$ is the binary digit sum. Set $b_e=2^{-s_2(e)}$. Then
+$b_{2r}=b_r$ and $b_{2r+1}=b_r/2$.
+
+\section{The binary Euler product}
+Let $B(z)=\sum_{e\ge0}b_ez^e$. Unique binary expansion gives
+\[
+B(z)=\prod_{r\ge0}\left(1+\frac{z^{2^r}}2\right).
+\]
+Let $A(z)^2=B(z)$ with $A(0)=1$, and write $A(z)=\sum a_ez^e$.
+
+\begin{lemma}
+Every nonconstant coefficient of $\log A(z)$ is strictly positive.
+\end{lemma}
+\begin{proof}
+Write $n=2^vm$ with $m$ odd. Expanding the formal logarithm gives
+\[
+[z^n]\log A(z)=\frac1{2m}\left(2^{-m}-\sum_{j=1}^{v}2^{-j-2^jm}\right).
+\]
+The negative sum is strictly smaller than
+$2^{-2m}\sum_{j\ge1}2^{-j}=2^{-2m}<2^{-m}$.
+\end{proof}
+
+\begin{theorem}
+Every coefficient $a_e$ is strictly positive.
+\end{theorem}
+\begin{proof}
+Since $A=\exp(\log A)$ and every nonconstant coefficient of $\log A$ is positive, the coefficient of $z^e$ in $A$ has the positive linear contribution $[z^e]\log A$, while all higher exponential contributions are nonnegative.
+\end{proof}
+
+\section{Return to Dirichlet convolution}
+Set $c_e=4^ea_e$. Rescaling $A(z)^2=B(z)$ by $z\mapsto4z$ gives
+\[
+\sum_{j=0}^{e}c_jc_{e-j}=4^eb_e=2^{A005187(e)},
+\]
+so \eqref{local} holds and $c_e>0$.
+Define the multiplicative arithmetic function $h$ by $h(p^e)=c_e$.
+Then $h*h=g$. Separating the endpoint divisors in this equality gives, for $n>1$,
+\[
+h(n)=\frac12\left(g(n)-\sum_{\substack{d\mid n\\1<d<n}}h(d)h(n/d)\right).
+\]
+This is exactly the recursion defining the rational function behind A317940. By strong induction, $f=h$, and hence $f(n)>0$ for all $n\ge1$.
+
+\begin{theorem}
+The rational function underlying OEIS A317940 is strictly positive at every positive integer. In particular, A317940 has no negative or zero signed numerator.
+\end{theorem}
+
+\section{Generalization}
+For $0<q\le1$ and $\alpha>0$, every coefficient of
+\[
+\prod_{r\ge0}(1+qz^{2^r})^\alpha
+\]
+is strictly positive. Indeed, for $n=2^vm$ with $m$ odd,
+\[
+[z^n]\log\prod_{r\ge0}(1+qz^{2^r})^\alpha
+=\frac{\alpha}{m}\left(q^m-\sum_{j=1}^{v}\frac{q^{2^jm}}{2^j}\right)>0.
+\]
+
+\section*{Formal verification}
+A Lean 4 proof checks the exact theorem named \texttt{A317940\_f\_nonnegative} against the Google DeepMind Formal Conjectures definitions. The proof contains no placeholders or custom axioms. A complete upstream-repository build and axiom audit accompany the source.
+\end{document}

@@ -1,0 +1,153 @@
+name: Temporary A317940 AXLE verification
+
+on:
+  push:
+    branches: [a317940-axle-temp]
+  pull_request:
+    branches: [claude/react-native-expo-ghpages-pgXVQ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate sources and verify upstream specification
+        shell: bash
+        run: |
+          python3 a317940/patch_candidate.py
+          curl --fail-with-body --retry 3 --retry-delay 5 -sS \
+            https://raw.githubusercontent.com/google-deepmind/formal-conjectures/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean \
+            -o a317940/upstream-317940_cd729cdd.lean
+          python3 - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          upstream_path = Path("a317940/upstream-317940_cd729cdd.lean")
+          formal_path = Path("a317940/formal_statement.generated.lean")
+          upstream = upstream_path.read_text()
+          formal = formal_path.read_text()
+
+          def strip_comments(source: str) -> str:
+              out = []
+              i = 0
+              depth = 0
+              while i < len(source):
+                  if source.startswith("/-", i):
+                      depth += 1
+                      i += 2
+                  elif depth and source.startswith("-/", i):
+                      depth -= 1
+                      i += 2
+                  elif depth:
+                      i += 1
+                  elif source.startswith("--", i):
+                      newline = source.find("\n", i)
+                      if newline < 0:
+                          break
+                      out.append("\n")
+                      i = newline + 1
+                  else:
+                      out.append(source[i])
+                      i += 1
+              if depth:
+                  raise RuntimeError("Unclosed Lean block comment")
+              return "".join(out)
+
+          def compact(source: str) -> str:
+              return "".join(strip_comments(source).split())
+
+          def between(source: str, start: str, end: str) -> str:
+              i = source.index(start)
+              j = source.index(end, i + len(start))
+              return source[i:j]
+
+          checks = {
+              "A005187": (
+                  between(upstream, "noncomputable def A005187", "noncomputable def A046644"),
+                  between(formal, "noncomputable def A005187", "noncomputable def A046644"),
+              ),
+              "A046644": (
+                  between(upstream, "noncomputable def A046644", "noncomputable def A317940_f"),
+                  between(formal, "noncomputable def A046644", "noncomputable def A317940_f"),
+              ),
+              "A317940_f": (
+                  between(upstream, "noncomputable def A317940_f", "noncomputable def A317940"),
+                  between(formal, "noncomputable def A317940_f", "namespace A317940Verified"),
+              ),
+              "A317940_f_nonnegative": (
+                  between(upstream, "theorem A317940_f_nonnegative", ":= by sorry") + ":= by sorry",
+                  between(formal, "theorem A317940_f_nonnegative", ":= by sorry") + ":= by sorry",
+              ),
+          }
+
+          result = {
+              "upstream_url": "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/auto_oeis/FormalConjectures/OEIS/Auto/317940_cd729cdd.lean",
+              "upstream_sha256": hashlib.sha256(upstream.encode()).hexdigest(),
+              "formal_statement_sha256": hashlib.sha256(formal.encode()).hexdigest(),
+              "checks": {},
+          }
+          for name, (expected, actual) in checks.items():
+              expected_compact = compact(expected)
+              actual_compact = compact(actual)
+              matches = expected_compact == actual_compact
+              result["checks"][name] = {
+                  "matches": matches,
+                  "upstream_sha256": hashlib.sha256(expected_compact.encode()).hexdigest(),
+                  "generated_sha256": hashlib.sha256(actual_compact.encode()).hexdigest(),
+              }
+              if not matches:
+                  raise RuntimeError(f"Upstream specification mismatch: {name}")
+
+          Path("a317940/spec-integrity.json").write_text(json.dumps(result, indent=2) + "\n")
+          print(json.dumps(result, indent=2))
+          PY
+      - name: Submit to AXLE strict verifier
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          payload = {
+              "formal_statement": Path("a317940/formal_statement.generated.lean").read_text(),
+              "content": Path("a317940/candidate.generated.lean").read_text(),
+              "environment": "lean-4.27.0",
+              "mathlib_options": False,
+              "ignore_imports": True,
+              "timeout_seconds": 600,
+          }
+          Path("request.json").write_text(json.dumps(payload))
+          PY
+          curl --fail-with-body --retry 3 --retry-delay 5 \
+            -sS -X POST https://axle.axiommath.ai/api/v1/verify_proof \
+            -H 'Content-Type: application/json' \
+            --data-binary @request.json | tee axle-response.json
+          python3 - <<'PY'
+          import json, sys
+          from pathlib import Path
+          r = json.loads(Path("axle-response.json").read_text())
+          print(json.dumps(r, indent=2))
+          print("AXLE_OKAY=" + str(r.get("okay")))
+          print("FAILED_DECLARATIONS=" + repr(r.get("failed_declarations")))
+          print("LEAN_WARNINGS=" + repr(r.get("lean_messages", {}).get("warnings")))
+          if not r.get("okay", False):
+              sys.exit(1)
+          if r.get("lean_messages", {}).get("warnings"):
+              sys.exit("Lean linter warnings remain")
+          PY
+      - name: Upload AXLE response and generated sources
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a317940-axle-response
+          path: |
+            axle-response.json
+            a317940/spec-integrity.json
+            a317940/upstream-317940_cd729cdd.lean
+            a317940/formal_statement.generated.lean
+            a317940/candidate.generated.lean
+          if-no-files-found: warn

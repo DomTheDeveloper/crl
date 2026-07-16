@@ -1,0 +1,20 @@
+
+@[simp] theorem c_zero : c 0 = 1 := by sorry
+
+noncomputable def rootAF : ArithmeticFunction ℚ :=
+  ⟨fun n => if n = 0 then 0 else n.factorization.prod fun _ e => c e, by sorry⟩
+
+noncomputable def targetAF : ArithmeticFunction ℚ :=
+  ⟨A046644, by sorry⟩
+
+@[simp] theorem targetAF_apply (n : ℕ) : targetAF n = A046644 n := by sorry
+
+@[simp] theorem rootAF_prime_pow {p e : ℕ} (hp : p.Prime) :
+    rootAF (p ^ e) = c e := by sorry
+
+@[simp] theorem targetAF_prime_pow {p e : ℕ} (hp : p.Prime) :
+    targetAF (p ^ e) = (2 : ℚ) ^ (A005187 e) := by sorry
+
+theorem rootAF_multiplicative : rootAF.IsMultiplicative := by sorry
+
+theorem targetAF_multiplicative : targetAF.IsMultiplicative := by sorry

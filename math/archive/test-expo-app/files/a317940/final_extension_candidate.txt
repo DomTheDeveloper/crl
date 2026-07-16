@@ -1,0 +1,18 @@
+
+theorem rootAF_pos {n : ℕ} (hn : 0 < n) : 0 < rootAF n := by
+  change 0 < (if n = 0 then 0 else
+    n.factorization.prod fun _ e => c e)
+  rw [if_neg hn.ne']
+  unfold Finsupp.prod
+  apply Finset.prod_pos
+  intro p hp
+  exact c_pos _
+
+theorem A317940_nonnegative (n : ℕ) (hn : n > 0) :
+    A317940_f n ≥ 0 := by
+  rw [A317940_f_eq_rootAF]
+  exact le_of_lt (rootAF_pos hn)
+
+theorem exact_spec_verified : ExactSpec := by
+  intro n hn
+  exact A317940_nonnegative n hn

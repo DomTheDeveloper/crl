@@ -1,0 +1,42 @@
+
+noncomputable def interiorSum (f : ArithmeticFunction ℚ) (n : ℕ) : ℚ :=
+  Finset.sum (divisors n) fun d =>
+    if d > 1 ∧ d < n then f d * f (n / d) else 0
+
+theorem square_decomp (f : ArithmeticFunction ℚ)
+    (hf1 : f 1 = 1) {n : ℕ} (hn : 1 < n) :
+    (f * f) n = 2 * f n + interiorSum f n := by
+  rw [mul_apply_divisors]
+  have hn0 : n ≠ 0 := by omega
+  calc
+    Finset.sum (divisors n) (fun d => f d * f (n / d)) =
+        Finset.sum (divisors n) (fun d =>
+          (if d = 1 then f n else 0) +
+          (if d = n then f n else 0) +
+          (if d > 1 ∧ d < n then f d * f (n / d) else 0)) := by
+      apply Finset.sum_congr rfl
+      intro d hd
+      have hdpos : 0 < d := Nat.pos_of_mem_divisors hd
+      have hdle : d ≤ n := Nat.divisor_le hd
+      by_cases h1 : d = 1
+      · subst d
+        have hne : (1 : ℕ) ≠ n := _root_.ne_of_lt hn
+        simp [hf1, hne]
+      by_cases hdn : d = n
+      · subst d
+        rw [Nat.div_self (by omega), hf1]
+        simp [h1]
+      have hgt : 1 < d := by omega
+      have hlt : d < n := lt_of_le_of_ne hdle hdn
+      simp [h1, hdn, hgt, hlt]
+    _ = 2 * f n + interiorSum f n := by
+      rw [Finset.sum_add_distrib, Finset.sum_add_distrib]
+      simp [interiorSum, hn0]
+      ring
+
+theorem rootAF_rec {n : ℕ} (hn : 1 < n) :
+    rootAF n = (A046644 n - interiorSum rootAF n) / 2 := by
+  have hsquare := congrArg (fun F : ArithmeticFunction ℚ => F n) rootAF_sq_eq_target
+  change (rootAF * rootAF) n = A046644 n at hsquare
+  rw [square_decomp rootAF rootAF_multiplicative.map_one hn] at hsquare
+  linarith

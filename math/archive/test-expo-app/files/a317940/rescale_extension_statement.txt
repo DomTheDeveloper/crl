@@ -1,0 +1,13 @@
+
+noncomputable def c (n : ℕ) : ℚ := (4 : ℚ) ^ n * a n
+
+theorem c_pos (n : ℕ) : 0 < c n := by sorry
+
+noncomputable def Cseries : PowerSeries ℚ := PowerSeries.rescale 4 Aseries
+
+theorem Cseries_sq_eq :
+    Cseries * Cseries = PowerSeries.rescale 4 Bseries := by sorry
+
+theorem c_convolution (n : ℕ) :
+    Finset.sum (range (n + 1)) (fun i => c i * c (n - i)) =
+      (2 : ℚ) ^ (A005187 n) := by sorry

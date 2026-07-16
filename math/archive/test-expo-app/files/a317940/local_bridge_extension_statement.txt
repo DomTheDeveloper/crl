@@ -1,0 +1,3 @@
+
+theorem four_pow_mul_b (n : ℕ) :
+    (4 : ℚ) ^ n * b n = (2 : ℚ) ^ (A005187 n) := by sorry

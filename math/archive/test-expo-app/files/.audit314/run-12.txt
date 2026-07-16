@@ -1,0 +1,1 @@
+Compile the latest full proof stack after explicit path-index bounds, symmetric C5 embedding facts, and hardened downstream equality transports.
