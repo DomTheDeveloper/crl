@@ -1,0 +1,20 @@
+import WOWII.GraphConjecture65Proof
+import WOWII.GraphConjecture160Disproof
+import WOWII.GraphConjecture143ZZFinal
+import WOWII.ZZGraphConjecture133SmallL
+import WOWII.ZZGraphConjecture314ConditionalFinal
+
+/-!
+Consolidated kernel-facing axiom audit for the completed WOWII theorems and
+for the proven branches/families of the two remaining problems.
+-/
+
+#print axioms WrittenOnTheWallII.GraphConjecture65.conjecture65_proved
+#print axioms WrittenOnTheWallII.GraphConjecture160.counterexample160_refutes_statement
+#print axioms WrittenOnTheWallII.GraphConjecture160.conjecture160_false
+#print axioms WrittenOnTheWallII.GraphConjecture143.conjecture143_proved
+#print axioms WrittenOnTheWallII.GraphConjecture133.conjecture133_of_hasC4
+#print axioms WrittenOnTheWallII.GraphConjecture133.conjecture133_of_noC4_of_floor_l_le_one
+#print axioms WrittenOnTheWallII.GraphConjecture314.isWellTotallyDominated_of_connected_chain_graph
+#print axioms WrittenOnTheWallII.GraphConjecture314.isWellTotallyDominated_of_cycle5_blowup
+#print axioms WrittenOnTheWallII.GraphConjecture314.isWellTotallyDominated_of_WOWII314StructuralClassification
