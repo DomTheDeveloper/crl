@@ -44,10 +44,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Test deterministic encodings and exact profiles
+      - name: Test deterministic encodings, profiles, and committed hashes
         working-directory: math/checkerboard/finite_certificates
         run: |
           set -euxo pipefail
+          python3 verify_manifest.py
           python3 test_encoding.py
           python3 verify_profiles.py
 
@@ -83,6 +84,8 @@ jobs:
           python3 "$root/generate_cnf.py" --n "$N" --parity "$PARITY" --at-least "$TARGET" \
             --cnf "$stem.search.cnf" --metadata "$stem.search.metadata.json" \
             | tee "$stem.search-generator.log"
+          python3 "$root/verify_instance_semantics.py" --cnf "$stem.search.cnf" \
+            --metadata "$stem.search.metadata.json" | tee "$stem.search-semantic-check.log"
           python3 "$root/check_model.py" --metadata "$stem.search.metadata.json" \
             --coordinates "$cert" | tee "$stem.determinant-check.log"
 
