@@ -39,17 +39,7 @@ theorem canonicalRoot_pow_intResidue (N : ℕ) [NeZero N] (a : ℤ) :
   rw [canonicalRoot_pow_eq_stdAddChar, intResidue_cast]
   exact ZMod.stdAddChar_coe a
 
-/-- Canonical residues respect congruence modulo the order. -/
-theorem intResidue_eq_of_modEq {N : ℕ} [NeZero N] {a b : ℤ}
-    (h : a ≡ b [ZMOD N]) : intResidue N a = intResidue N b := by
-  apply Fin.ext
-  have hz : (a : ZMod N) = (b : ZMod N) :=
-    (ZMod.intCast_eq_intCast_iff a b N).2 h
-  have := congrArg ZMod.val hz
-  simpa [intResidue, ZMod.val_intCast] using this
-
 #print axioms intResidue_cast
 #print axioms canonicalRoot_pow_intResidue
-#print axioms intResidue_eq_of_modEq
 
 end A387471
