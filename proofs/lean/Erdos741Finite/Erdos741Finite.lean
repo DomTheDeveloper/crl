@@ -15,6 +15,15 @@ lemma isSyndetic_mono {S T : Set ℕ} (hST : S ⊆ T) (hS : IsSyndetic S) :
   rcases hp n with ⟨x, hx⟩
   exact ⟨x, hST hx.1, hx.2⟩
 
+/-- Convert the interval-complement form used by `GoodCasselsProperty` to `HasLargeGaps`. -/
+lemma hasLargeGaps_of_interval_gaps {S : Set ℕ}
+    (h : ∀ k, ∃ x, Icc x (x + k) ⊆ Sᶜ) : Erdos741.HasLargeGaps S := by
+  intro C
+  rcases h C with ⟨N, hN⟩
+  refine ⟨N, ?_⟩
+  intro x hxN hxC
+  exact hN ⟨hxN, hxC⟩
+
 /--
 If one cell of a partition of the Cassels basis has a syndetic self-sumset,
 then every other cell has arbitrarily long gaps in its self-sumset.
@@ -72,8 +81,10 @@ theorem cassels_set_large_gaps_of_other_syndetic
   rcases hgood with ⟨-, hgap⟩
   have hcases := hgap (parts i) rest hpartition hdisjirest
   rcases hcases with hgapi | hgapRest
-  · exact hgapi
-  · exact False.elim ((Erdos741.syndetic_not_large_gaps (rest + rest) hsynRest) hgapRest)
+  · exact hasLargeGaps_of_interval_gaps hgapi
+  · have hlargeRest : Erdos741.HasLargeGaps (rest + rest) :=
+      hasLargeGaps_of_interval_gaps hgapRest
+    exact False.elim ((Erdos741.syndetic_not_large_gaps (rest + rest) hsynRest) hlargeRest)
 
 /--
 For the Cassels basis, two distinct cells of any partition cannot both have
