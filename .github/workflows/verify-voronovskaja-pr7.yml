@@ -1,0 +1,101 @@
+name: Verify Voronovskaja PR 7
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/verify-voronovskaja-pr7.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out verifier repository
+        uses: actions/checkout@v4
+
+      - name: Check out canonical proof branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: solve-voronovskaja-no-sorry
+          path: formal-conjectures
+
+      - name: Install pinned Lean toolchain
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Show pinned versions
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euxo pipefail
+          source "$HOME/.elan/env"
+          cat lean-toolchain
+          lake --version
+          lean --version
+
+      - name: Fetch mathlib cache
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euxo pipefail
+          source "$HOME/.elan/env"
+          lake exe cache get
+
+      - name: Audit explicit placeholders
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euxo pipefail
+          if grep -R -nE '\bsorry\b|\badmit\b|^[[:space:]]*axiom[[:space:]]' \
+            FormalConjectures/Paper/Voronovskaja*.lean \
+            FormalConjecturesForMathlib/Probability/Distributions/Powered*.lean \
+            FormalConjecturesForMathlib/Probability/Distributions/StandardizedBinomial*.lean \
+            FormalConjecturesForMathlib/Probability/CentralLimitTheorem.lean \
+            FormalConjecturesForMathlib/Probability/CDFConvergence.lean \
+            FormalConjecturesForMathlib/MeasureTheory/Measure/LevyConvergence.lean \
+            FormalConjecturesForMathlib/MeasureTheory/Measure/CharacteristicFunction/TaylorExpansion.lean \
+            FormalConjecturesForMathlib/Order/Filter/ENNReal.lean; then
+            echo 'Explicit placeholder found' >&2
+            exit 1
+          fi
+
+      - name: Compile exact theorem and dependency chain
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -o pipefail
+          source "$HOME/.elan/env"
+          lake build FormalConjectures.Paper.VoronovskajaTypeFormula 2>&1 | tee /tmp/voronovskaja-build.log
+
+      - name: Axiom audit
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -o pipefail
+          source "$HOME/.elan/env"
+          cat > VoronovskajaAxiomAudit.lean <<'EOF'
+          import FormalConjectures.Paper.VoronovskajaTypeFormula
+          #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bernstein_operators
+          #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
+          #print axioms VoronovskajaTypeFormula.tendsto_bezierBernstein_all
+          #print axioms VoronovskajaTypeFormula.tendsto_classical_bezierBernstein_all
+          EOF
+          lake env lean VoronovskajaAxiomAudit.lean 2>&1 | tee /tmp/voronovskaja-axioms.log
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: voronovskaja-pr7-diagnostics
+          path: |
+            /tmp/voronovskaja-build.log
+            /tmp/voronovskaja-axioms.log
+          if-no-files-found: ignore
