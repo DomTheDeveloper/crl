@@ -44,13 +44,62 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Test deterministic arithmetic and encodings
+      - name: Test deterministic arithmetic, encodings, and committed hashes
         working-directory: math/checkerboard/finite_certificates
         run: |
+          set -euxo pipefail
+          python3 verify_manifest.py
           python3 test_encoding.py
           python3 verify_profiles.py
           python3 generate_reduced_n21.py --parity 0 --cnf /tmp/n21-p0.cnf --metadata /tmp/n21-p0.json
           python3 generate_reduced_n21.py --parity 1 --cnf /tmp/n21-p1.cnf --metadata /tmp/n21-p1.json
+          python3 verify_instance_semantics.py --cnf /tmp/n21-p0.cnf --metadata /tmp/n21-p0.json
+          python3 verify_instance_semantics.py --cnf /tmp/n21-p1.cnf --metadata /tmp/n21-p1.json
+          python3 verify_manifest.py --metadata /tmp/n21-p0.json /tmp/n21-p1.json
+
+      - name: Generate and independently validate exact decision instance
+        shell: bash
+        env:
+          N: ${{ matrix.n }}
+          PARITY: ${{ matrix.parity }}
+          TARGET: ${{ matrix.target }}
+          ENCODING: ${{ matrix.encoding }}
+        run: |
+          set -euxo pipefail
+          root="math/checkerboard/finite_certificates"
+          stem="certificates/n${N}-p${PARITY}-k${TARGET}"
+          mkdir -p "$(dirname "$stem")"
+          if [[ "$ENCODING" == full ]]; then
+            python3 "$root/generate_cnf.py" --n "$N" --parity "$PARITY" --at-least "$TARGET" \
+              --cnf "$stem.cnf" --metadata "$stem.metadata.json" | tee "$stem.generator.log"
+          else
+            python3 "$root/generate_reduced_n21.py" --parity "$PARITY" \
+              --cnf "$stem.cnf" --metadata "$stem.metadata.json" | tee "$stem.generator.log"
+          fi
+          python3 "$root/verify_instance_semantics.py" --cnf "$stem.cnf" \
+            --metadata "$stem.metadata.json" | tee "$stem.semantic-check.log"
+          python3 "$root/verify_manifest.py" --metadata "$stem.metadata.json" \
+            | tee "$stem.manifest-check.log"
+          sha256sum "$stem.cnf" "$stem.metadata.json" | tee "$stem.inputs.sha256"
+
+      - name: Cross-check with CP-SAT and HiGHS
+        shell: bash
+        env:
+          N: ${{ matrix.n }}
+          PARITY: ${{ matrix.parity }}
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euxo pipefail
+          python3 -m pip install --disable-pip-version-check \
+            'ortools==9.15.6755' 'scipy==1.17.0'
+          root="math/checkerboard/finite_certificates"
+          stem="certificates/n${N}-p${PARITY}-k${TARGET}"
+          timeout 20m python3 "$root/crosscheck_upper_solvers.py" --solver cpsat \
+            --n "$N" --parity "$PARITY" --target "$TARGET" --seconds 900 \
+            | tee "$stem.cpsat.log"
+          timeout 20m python3 "$root/crosscheck_upper_solvers.py" --solver highs \
+            --n "$N" --parity "$PARITY" --target "$TARGET" --seconds 900 \
+            | tee "$stem.highs.log"
 
       - name: Build pinned solvers and proof checkers
         shell: bash
@@ -71,27 +120,6 @@ jobs:
           "$RUNNER_TEMP/cadical/build/cadical" --version
           "$RUNNER_TEMP/kissat/build/kissat" --version
           "$RUNNER_TEMP/drat-trim/drat-trim" -h | head -40
-
-      - name: Generate exact decision instance
-        shell: bash
-        env:
-          N: ${{ matrix.n }}
-          PARITY: ${{ matrix.parity }}
-          TARGET: ${{ matrix.target }}
-          ENCODING: ${{ matrix.encoding }}
-        run: |
-          set -euxo pipefail
-          root="math/checkerboard/finite_certificates"
-          stem="certificates/n${N}-p${PARITY}-k${TARGET}"
-          mkdir -p "$(dirname "$stem")"
-          if [[ "$ENCODING" == full ]]; then
-            python3 "$root/generate_cnf.py" --n "$N" --parity "$PARITY" --at-least "$TARGET" \
-              --cnf "$stem.cnf" --metadata "$stem.metadata.json" | tee "$stem.generator.log"
-          else
-            python3 "$root/generate_reduced_n21.py" --parity "$PARITY" \
-              --cnf "$stem.cnf" --metadata "$stem.metadata.json" | tee "$stem.generator.log"
-          fi
-          sha256sum "$stem.cnf" "$stem.metadata.json" | tee "$stem.inputs.sha256"
 
       - name: Prove UNSAT with CaDiCaL and cross-check with Kissat
         shell: bash
@@ -130,7 +158,7 @@ jobs:
           [[ "$kissat_status" == UNSAT ]]
           test -s "$stem.cadical.drat"
 
-      - name: Check DRAT, emit LRAT, and check LRAT independently
+      - name: Check DRAT, emit LRAT, and check LRAT
         shell: bash
         env:
           N: ${{ matrix.n }}
