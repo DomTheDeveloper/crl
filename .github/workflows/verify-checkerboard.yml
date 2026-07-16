@@ -4,12 +4,17 @@ on:
   push:
     paths:
       - "proofs/lean/Checkerboard/**"
+      - "scripts/checkerboard/**"
       - ".github/workflows/verify-checkerboard.yml"
   pull_request:
     paths:
       - "proofs/lean/Checkerboard/**"
+      - "scripts/checkerboard/**"
       - ".github/workflows/verify-checkerboard.yml"
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: checkerboard-${{ github.event.pull_request.number || github.ref }}
@@ -21,6 +26,13 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+
+      - name: Generate exact certificate sources
+        run: |
+          python scripts/checkerboard/generate_outer_certificate.py
+          python scripts/checkerboard/generate_outer_density_certificate.py
+          python scripts/checkerboard/generate_outer_support_certificate.py
+          python scripts/checkerboard/generate_outer_geometry_certificate.py
 
       - name: Install elan
         run: |
@@ -40,12 +52,35 @@ jobs:
         working-directory: proofs/lean/Checkerboard
         run: lake exe cache get || echo "cache miss — Mathlib will build from source"
 
-      - name: Build and kernel-check
+      - name: Compile LP modules
         working-directory: proofs/lean/Checkerboard
         shell: bash
         run: |
           set -o pipefail
-          lake build 2>&1 | tee build.log
+          : > build.log
+          for source in \
+            Checkerboard/LP/AlgebraicParameter.lean \
+            Checkerboard/LP/CubicInterval.lean \
+            Checkerboard/LP/CubicField.lean \
+            Checkerboard/LP/PrimalParameterBounds.lean \
+            Checkerboard/LP/MiddleCertificate.lean \
+            Checkerboard/LP/MiddleGeometry.lean \
+            Checkerboard/LP/AffineIntervalMeasure.lean \
+            Checkerboard/LP/OuterCertificateData.lean \
+            Checkerboard/LP/OuterDensityCertificate.lean \
+            Checkerboard/LP/OuterSupportCertificate.lean \
+            Checkerboard/LP/OuterGeometryBase.lean \
+            Checkerboard/LP/OuterGeometryCertificate.lean \
+            Checkerboard/LP/FiniteModel.lean \
+            Checkerboard/LP/FiniteDual.lean \
+            Checkerboard/LP/ContinuumModel.lean \
+            Checkerboard/LP/LimitTransfer.lean \
+            Checkerboard/LP/AsymptoticSqueeze.lean
+          do
+            echo "=== Compiling $source ===" | tee -a build.log
+            lake env lean "$source" 2>&1 | tee -a build.log
+          done
+          lake build 2>&1 | tee -a build.log
 
       - name: Reject sorryAx
         working-directory: proofs/lean/Checkerboard
@@ -54,3 +89,18 @@ jobs:
             echo "::error::The build depends on sorryAx."
             exit 1
           fi
+
+      - name: Upload generated certificates and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkerboard-lp-kernel-audit
+          path: |
+            math/checkerboard/lp/certificates/q_weights_exact.csv
+            proofs/lean/Checkerboard/Checkerboard/LP/OuterCertificateData.lean
+            proofs/lean/Checkerboard/Checkerboard/LP/OuterDensityCertificate.lean
+            proofs/lean/Checkerboard/Checkerboard/LP/OuterSupportCertificate.lean
+            proofs/lean/Checkerboard/Checkerboard/LP/OuterGeometryCertificate.lean
+            proofs/lean/Checkerboard/build.log
+          if-no-files-found: warn
+          retention-days: 30
