@@ -25,7 +25,29 @@ mkdir -p WOWII
 cp /path/to/crl/math/wowii/143/proof/WOWII/GraphConjecture143Proof.lean WOWII/
 cp /path/to/crl/math/wowii/314/proof/WOWII/*.lean WOWII/
 lake exe cache get
-lake env lean WOWII/ZZGraphConjecture314Final.lean
+
+files=(
+  WOWII/GraphConjecture143Proof.lean
+  WOWII/ZZGraphConjecture314Core.lean
+  WOWII/ZZGraphConjecture314DominatingEdge.lean
+  WOWII/ZZGraphConjecture314BipartiteCommon.lean
+  WOWII/ZZGraphConjecture314ChainGraph.lean
+  WOWII/ZZGraphConjecture314Cycle5.lean
+  WOWII/ZZGraphConjecture314Cycle5Blowup.lean
+  WOWII/ZZGraphConjecture314P5Bridge.lean
+  WOWII/ZZGraphConjecture314ConditionalFinal.lean
+  WOWII/ZZGraphConjecture314GeodesicP5.lean
+  WOWII/ZZGraphConjecture314BipartiteClassification.lean
+  WOWII/ZZGraphConjecture314CycleDichotomy.lean
+  WOWII/ZZGraphConjecture314C5Embedding.lean
+  WOWII/ZZGraphConjecture314C5Dominates.lean
+  WOWII/ZZGraphConjecture314C5Bags.lean
+  WOWII/ZZGraphConjecture314C5BlowupClassification.lean
+  WOWII/ZZGraphConjecture314Final.lean
+)
+for file in "${files[@]}"; do
+  lake env lean "$file"
+done
 ```
 
 For the exact type and axiom audit, create `WOWII/Audit314.lean`:
@@ -57,6 +79,6 @@ Then run:
 lake env lean WOWII/Audit314.lean
 ```
 
-The repository workflow additionally rejects explicit `sorry`, `admit`, custom `axiom`,
-`native_decide`, and `opaque` declarations, and fails if the transitive axiom printout contains
-`sorryAx`.
+The repository workflow additionally rejects explicit proof holes, custom axioms,
+generated-native decision shortcuts, and opaque declarations, and fails if the
+transitive axiom printout contains `sorryAx`.
