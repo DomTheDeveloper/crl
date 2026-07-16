@@ -32,6 +32,7 @@ jobs:
           python3 test_exhaustive_upper_bounds.py
           python3 verify_profiles.py
           python3 verify_profiles_independent.py
+          python3 verify_symmetry_invariance.py
           python3 verify_exhaustive_upper_bounds.py | tee exhaustive-proof.log
           grep -q 'VERIFIED D_mono(21,0) <= 32 nodes=13560' exhaustive-proof.log
           grep -q 'VERIFIED D_mono(21,1) <= 32 nodes=13239' exhaustive-proof.log
