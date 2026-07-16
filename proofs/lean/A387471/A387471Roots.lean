@@ -39,6 +39,19 @@ theorem canonicalRoot_pow_eq_stdAddChar {N : ℕ} [NeZero N] (x : ZMod N) :
       congr 1
       simpa [nsmul_eq_mul] using (ZMod.natCast_zmod_val x)
 
+/-- Arbitrary natural powers of the canonical root agree with the standard
+additive character after reduction modulo `N`. -/
+theorem canonicalRoot_pow_nat_eq_stdAddChar {N : ℕ} [NeZero N] (a : ℕ) :
+    canonicalRoot N ^ a = ZMod.stdAddChar (a : ZMod N) := by
+  calc
+    canonicalRoot N ^ a = (ZMod.stdAddChar (1 : ZMod N)) ^ a := by
+      congr 1
+      simpa [canonicalRoot] using (ZMod.stdAddChar_coe (N := N) (1 : ℤ)).symm
+    _ = ZMod.stdAddChar (a • (1 : ZMod N)) := by
+      symm
+      exact AddChar.map_nsmul_eq_pow _ _ _
+    _ = ZMod.stdAddChar (a : ZMod N) := by simp [nsmul_eq_mul]
+
 /-- Raising the canonical `N`-th root to a divisor `p` gives the canonical
 `(N / p)`-th root. -/
 theorem canonicalRoot_pow_divisor {N p : ℕ} (hN : N ≠ 0) (hp : p ≠ 0)
@@ -86,14 +99,8 @@ theorem canonicalRoot_conjugatingExponent {p m : ℕ} (hp : p.Prime)
       ZMod.stdAddChar (-(a * t)) := by
     calc
       canonicalRoot p ^ ((p - t.val) * a) =
-          (ZMod.stdAddChar (1 : ZMod p)) ^ ((p - t.val) * a) := by
-            congr 1
-            simpa using (canonicalRoot_pow_eq_stdAddChar (N := p) (1 : ZMod p)).symm
-      _ = ZMod.stdAddChar ((((p - t.val) * a : ℕ) : ZMod p)) := by
-            symm
-            simpa [nsmul_eq_mul] using
-              (AddChar.map_nsmul_eq_pow (ZMod.stdAddChar (N := p))
-                (((p - t.val) * a)) (1 : ZMod p))
+          ZMod.stdAddChar ((((p - t.val) * a : ℕ) : ZMod p)) :=
+            canonicalRoot_pow_nat_eq_stdAddChar _
       _ = ZMod.stdAddChar (-(a * t)) := by rw [hcast]
   calc
     canonicalRoot (p * m) ^ (conjugatingExponent p m t * a) =
@@ -110,10 +117,65 @@ theorem canonicalRoot_conjugatingExponent {p m : ℕ} (hp : p.Prime)
           rw [hfactor]
           ring
 
+/-- Equal exponent residues modulo `p` imply that the quotient of the two
+corresponding `(p*m)`-th roots is an `m`-th root of unity. -/
+theorem canonical_ratio_pow_quotient_eq_one {p m : ℕ} (hp : p.Prime)
+    (hm : m ≠ 0) (x y : Fin (p * m))
+    (hres : (x.val : ZMod p) = (y.val : ZMod p)) :
+    (canonicalRoot (p * m) ^ x.val /
+      canonicalRoot (p * m) ^ y.val) ^ m = 1 := by
+  letI : NeZero p := ⟨hp.ne_zero⟩
+  have hN : p * m ≠ 0 := mul_ne_zero hp.ne_zero hm
+  have hrootm : canonicalRoot (p * m) ^ m = canonicalRoot p := by
+    have h := canonicalRoot_pow_quotient (N := p * m) (p := p)
+      hN hp.ne_zero (dvd_mul_right p m)
+    simpa [Nat.mul_div_left _ hp.ne_zero] using h
+  have hx : (canonicalRoot (p * m) ^ x.val) ^ m =
+      ZMod.stdAddChar (x.val : ZMod p) := by
+    calc
+      (canonicalRoot (p * m) ^ x.val) ^ m =
+          (canonicalRoot (p * m) ^ m) ^ x.val := by
+            rw [← pow_mul, ← pow_mul]
+            congr 1
+            omega
+      _ = canonicalRoot p ^ x.val := by rw [hrootm]
+      _ = ZMod.stdAddChar (x.val : ZMod p) :=
+        canonicalRoot_pow_nat_eq_stdAddChar _
+  have hy : (canonicalRoot (p * m) ^ y.val) ^ m =
+      ZMod.stdAddChar (y.val : ZMod p) := by
+    calc
+      (canonicalRoot (p * m) ^ y.val) ^ m =
+          (canonicalRoot (p * m) ^ m) ^ y.val := by
+            rw [← pow_mul, ← pow_mul]
+            congr 1
+            omega
+      _ = canonicalRoot p ^ y.val := by rw [hrootm]
+      _ = ZMod.stdAddChar (y.val : ZMod p) :=
+        canonicalRoot_pow_nat_eq_stdAddChar _
+  rw [div_pow, hx, hy, hres]
+  simp
+
+/-- Every quotient in one residue class has a canonical exponent modulo the
+smaller conductor. -/
+theorem exists_canonical_ratio_exponent {p m : ℕ} (hp : p.Prime)
+    (hm : m ≠ 0) (x y : Fin (p * m))
+    (hres : (x.val : ZMod p) = (y.val : ZMod p)) :
+    ∃ d : Fin m,
+      canonicalRoot m ^ d.val =
+        canonicalRoot (p * m) ^ x.val /
+          canonicalRoot (p * m) ^ y.val := by
+  have hpow := canonical_ratio_pow_quotient_eq_one hp hm x y hres
+  obtain ⟨d, hd, heq⟩ :=
+    (canonicalRoot_isPrimitive hm).eq_pow_of_pow_eq_one hpow
+  exact ⟨⟨d, hd⟩, heq⟩
+
 #print axioms canonicalRoot_isPrimitive
 #print axioms canonicalRoot_pow_eq_stdAddChar
+#print axioms canonicalRoot_pow_nat_eq_stdAddChar
 #print axioms canonicalRoot_pow_divisor
 #print axioms canonicalRoot_pow_quotient
 #print axioms canonicalRoot_conjugatingExponent
+#print axioms canonical_ratio_pow_quotient_eq_one
+#print axioms exists_canonical_ratio_exponent
 
 end A387471
