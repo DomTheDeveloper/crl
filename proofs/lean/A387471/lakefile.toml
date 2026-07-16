@@ -1,5 +1,5 @@
 name = "a387471"
-defaultTargets = ["A387471", "A387471Trig", "A387471Families", "A387471Roots", "A387471Fourier", "A387471Arithmetic", "A387471Classification", "A387471Mann", "A387471MannFinal", "A387471Finite60", "A387471FiniteBridge"]
+defaultTargets = ["A387471", "A387471Trig", "A387471Families", "A387471Roots", "A387471IntResidue", "A387471Fourier", "A387471Arithmetic", "A387471Classification", "A387471Mann", "A387471MannFinal", "A387471SixRoots", "A387471Finite60", "A387471FiniteBridge"]
 
 [[require]]
 name = "mathlib"
@@ -19,6 +19,9 @@ name = "A387471Families"
 name = "A387471Roots"
 
 [[lean_lib]]
+name = "A387471IntResidue"
+
+[[lean_lib]]
 name = "A387471Fourier"
 
 [[lean_lib]]
@@ -32,6 +35,9 @@ name = "A387471Mann"
 
 [[lean_lib]]
 name = "A387471MannFinal"
+
+[[lean_lib]]
+name = "A387471SixRoots"
 
 [[lean_lib]]
 name = "A387471Finite60"
