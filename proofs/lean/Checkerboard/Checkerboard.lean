@@ -5,3 +5,4 @@ import Checkerboard.MasterAlgebra
 import Checkerboard.Model
 import Checkerboard.DefectMoments
 import Checkerboard.FiniteExact
+import Checkerboard.Finite21Lower
