@@ -1,0 +1,74 @@
+# Copyright 2026 The CRL Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Voronovskaja external verifier
+
+on:
+  push:
+    branches:
+      - ci/voronovskaja-external-runner
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out canonical proof branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: solve-voronovskaja-no-sorry
+
+      - name: Install elan
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | \
+            sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch precompiled dependencies
+        run: lake exe cache get
+
+      - name: Compile Voronovskaja chain
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build \
+            FormalConjecturesForMathlib.MeasureTheory.Measure.CharacteristicFunction.TaylorExpansion \
+            FormalConjecturesForMathlib.Order.Filter.ENNReal \
+            FormalConjecturesForMathlib.MeasureTheory.Measure.LevyConvergence \
+            FormalConjecturesForMathlib.Probability.CentralLimitTheorem \
+            FormalConjecturesForMathlib.Probability.Distributions.Bernoulli \
+            FormalConjecturesForMathlib.Probability.Distributions.Binomial \
+            FormalConjecturesForMathlib.Probability.Distributions.StandardizedBinomial \
+            FormalConjecturesForMathlib.Probability.Distributions.StandardizedBinomialTails \
+            FormalConjecturesForMathlib.Probability.Distributions.StandardizedBinomialMGF \
+            FormalConjecturesForMathlib.Probability.CDFConvergence \
+            FormalConjecturesForMathlib.Probability.Distributions.PoweredGaussian \
+            FormalConjecturesForMathlib.Probability.Distributions.PoweredBinomialLimit \
+            FormalConjecturesForMathlib.Probability.Distributions.PoweredBinomialTails \
+            FormalConjecturesForMathlib.Probability.Distributions.PoweredBinomialMoments \
+            FormalConjectures.Paper.VoronovskajaProof \
+            FormalConjectures.Paper.VoronovskajaDiscreteLaw \
+            2>&1 | tee /tmp/voronovskaja-lean.log
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: voronovskaja-external-lean-log
+          path: /tmp/voronovskaja-lean.log
