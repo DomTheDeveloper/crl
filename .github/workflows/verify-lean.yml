@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: verify-lean-${{ github.repository }}
+  group: verify-lean-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
