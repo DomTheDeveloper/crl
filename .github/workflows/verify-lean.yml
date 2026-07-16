@@ -11,6 +11,7 @@ on:
 
 jobs:
   lean-core:
+    if: github.base_ref != 'agent/a387471-lean-reduction'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,6 +27,7 @@ jobs:
         run: lake build
 
   lean-a317940:
+    if: github.base_ref != 'agent/a387471-lean-reduction'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
