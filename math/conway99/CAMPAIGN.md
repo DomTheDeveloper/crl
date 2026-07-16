@@ -81,7 +81,7 @@ minor tests can reject patterns incompatible with these global ranks. These
 are valid pruning lemmas; floating eigenvalues alone are not certificates.
 
 Additional exact counts available for cross-checking include 231 triangles,
-2,079 quadrilaterals, and 22,176 pentagons. Cycle-count inequalities can be
+2,079 quadrilaterals, and 33,264 pentagons. Cycle-count inequalities can be
 added only after their derivations are independently audited.
 
 ## 5. Solver portfolio
