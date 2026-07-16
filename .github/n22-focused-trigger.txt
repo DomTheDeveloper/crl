@@ -1,1 +1,1 @@
-Trigger the optimized exact audits for the 14 remaining all-double D_mono(22) families, all 11 singleton cases, and the independently checked DRAT proof smoke test; top 130 is already audited complete.
+Trigger the final optimized exact audits for the 14 remaining all-double D_mono(22) families, all 11 singleton cases, and the independently checked DRAT-to-LRAT proof pipeline; top 130 is already audited complete.
