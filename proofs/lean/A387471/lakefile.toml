@@ -1,5 +1,5 @@
 name = "a387471"
-defaultTargets = ["A387471", "A387471Trig", "A387471Families", "A387471Roots", "A387471IntResidue", "A387471Fourier", "A387471Arithmetic", "A387471Classification", "A387471Mann", "A387471MannFinal", "A387471SixRoots", "A387471Finite60", "A387471FiniteBridge"]
+defaultTargets = ["A387471", "A387471Trig", "A387471Families", "A387471Roots", "A387471IntResidue", "A387471Fourier", "A387471Arithmetic", "A387471Classification", "A387471Mann", "A387471MannFinal", "A387471SixRoots", "A387471Finite60", "A387471FiniteBridge", "A387471Ratio", "A387471GridLift", "A387471Bounds", "A387471Minimal", "A387471ThreeRoots", "A387471AngleBounds", "A387471Pairs", "A387471SineCancel", "A387471PairLabels", "A387471TripleLabels", "A387471Nonminimal", "A387471GridClassification", "A387471Converse", "A387471Parameters", "A387471CandidateCard", "A387471CandidateMembership", "A387471Exact"]
 
 [[require]]
 name = "mathlib"
@@ -8,39 +8,61 @@ version = "git#v4.27.0"
 
 [[lean_lib]]
 name = "A387471"
-
 [[lean_lib]]
 name = "A387471Trig"
-
 [[lean_lib]]
 name = "A387471Families"
-
 [[lean_lib]]
 name = "A387471Roots"
-
 [[lean_lib]]
 name = "A387471IntResidue"
-
 [[lean_lib]]
 name = "A387471Fourier"
-
 [[lean_lib]]
 name = "A387471Arithmetic"
-
 [[lean_lib]]
 name = "A387471Classification"
-
 [[lean_lib]]
 name = "A387471Mann"
-
 [[lean_lib]]
 name = "A387471MannFinal"
-
 [[lean_lib]]
 name = "A387471SixRoots"
-
 [[lean_lib]]
 name = "A387471Finite60"
-
 [[lean_lib]]
 name = "A387471FiniteBridge"
+[[lean_lib]]
+name = "A387471Ratio"
+[[lean_lib]]
+name = "A387471GridLift"
+[[lean_lib]]
+name = "A387471Bounds"
+[[lean_lib]]
+name = "A387471Minimal"
+[[lean_lib]]
+name = "A387471ThreeRoots"
+[[lean_lib]]
+name = "A387471AngleBounds"
+[[lean_lib]]
+name = "A387471Pairs"
+[[lean_lib]]
+name = "A387471SineCancel"
+[[lean_lib]]
+name = "A387471PairLabels"
+[[lean_lib]]
+name = "A387471TripleLabels"
+[[lean_lib]]
+name = "A387471Nonminimal"
+[[lean_lib]]
+name = "A387471GridClassification"
+[[lean_lib]]
+name = "A387471Converse"
+[[lean_lib]]
+name = "A387471Parameters"
+[[lean_lib]]
+name = "A387471CandidateCard"
+[[lean_lib]]
+name = "A387471CandidateMembership"
+[[lean_lib]]
+name = "A387471Exact"
