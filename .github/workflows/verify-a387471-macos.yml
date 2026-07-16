@@ -1,0 +1,44 @@
+name: Verify A387471 macOS
+
+on:
+  push:
+    branches: [ci/a387471-macos-current]
+  workflow_dispatch:
+
+concurrency:
+  group: a387471-macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lean-a387471-macos:
+    runs-on: macos-14
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Guard source
+        run: "! grep -RnE --include='*.lean' '(^|[[:space:]])(sorry|admit|native_decide)([[:space:]]|$)' proofs/lean/A387471"
+      - name: Resolve Mathlib
+        working-directory: proofs/lean/A387471
+        run: lake update
+      - name: Fetch cache
+        working-directory: proofs/lean/A387471
+        run: lake exe cache get || true
+      - name: Build and audit
+        working-directory: proofs/lean/A387471
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build 2>&1 | tee build.log
+          if grep -q sorryAx build.log; then exit 1; fi
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a387471-macos-build-log
+          path: proofs/lean/A387471/build.log
+          if-no-files-found: warn
