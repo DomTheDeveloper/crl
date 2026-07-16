@@ -37,12 +37,15 @@ theorem same_side_pair_impossible {n : ℕ} (hn : 0 < n) {A B : ℤ}
   have hqz : q = 0 := by omega
   have hAB : A = B := by nlinarith
   rw [hAB] at hpair
-  have hz : canonicalRoot (12 * n) ^ (intResidue (12 * n) B).val = 0 := by
-    linear_combination hpair / 2
-  exact (pow_ne_zero _ hroot0) hz
+  let z : ℂ := canonicalRoot (12 * n) ^ (intResidue (12 * n) B).val
+  have htwoz : (2 : ℂ) * z = 0 := by
+    dsimp [z]
+    linear_combination hpair
+  have hz : z = 0 := (mul_eq_zero.mp htwoz).resolve_left (by norm_num)
+  exact (pow_ne_zero _ hroot0) (by simpa [z] using hz)
 
 /-- A mixed positive/negative cancelling pair forces the two angle coefficients
-to sum to zero. -/
+ to sum to zero. -/
 theorem mixed_pair_sum_eq_zero {n : ℕ} (hn : 0 < n) {A B : ℤ}
     (hpairBound : -2 * (n : ℤ) < A + B ∧ A + B < 2 * (n : ℤ))
     (hpair : canonicalRoot (12 * n) ^ (intResidue (12 * n) A).val +
