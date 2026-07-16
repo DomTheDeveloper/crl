@@ -104,7 +104,7 @@ theorem exists_normalized_relation {ι : Type*} {p m : ℕ}
           ((∑ i ∈ t, canonicalRoot (p * m) ^ (a i).val) /
               canonicalRoot (p * m) ^ (a i₀).val) *
             canonicalRoot (p * m) ^ (a i₀).val := by
-              field_simp
+              field_simp [hbase]
       _ = (∑ i ∈ t,
           canonicalRoot (p * m) ^ (a i).val /
             canonicalRoot (p * m) ^ (a i₀).val) *
@@ -185,7 +185,7 @@ theorem mann_weight_six_canonical {ι : Type*} :
               canonicalRoot m ^ (b i).val /
                 canonicalRoot m ^ (b j).val := by
           rw [hb i hi, hb j hj]
-          field_simp
+          field_simp [hbase, hden]
         rw [hratio]
         exact hind
 
