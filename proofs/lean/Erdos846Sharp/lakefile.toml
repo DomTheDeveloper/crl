@@ -2,9 +2,9 @@ name = "erdos846_sharp"
 defaultTargets = ["Erdos846Sharp"]
 
 [[require]]
-name = "mathlib"
-scope = "leanprover-community"
-version = "git#v4.27.0"
+name = "alphaproof_nexus"
+git = "https://github.com/google-deepmind/alphaproof-nexus-results"
+rev = "0647711a71183c1ea492ad60860776617ce1ea88"
 
 [[lean_lib]]
 name = "Erdos846Sharp"
