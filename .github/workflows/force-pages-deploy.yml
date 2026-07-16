@@ -1,0 +1,53 @@
+name: Force and verify CRL Pages deployment
+
+on:
+  pull_request:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  deploy:
+    if: github.event.pull_request.head.ref == 'force-pages-deploy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Verify published source files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for path in \
+            math/wowii/index.html \
+            math/wowii/65/index.html \
+            math/wowii/65/proof/GraphConjecture65Proof.lean \
+            math/wowii/143/index.html \
+            math/wowii/143/proof/WOWII/GraphConjecture143ZZFinal.lean \
+            math/wowii/160/index.html \
+            math/wowii/160/statement/GraphConjecture160Corrected.lean; do
+            gh api "repos/DomTheDeveloper/crl/contents/${path}?ref=claude/gracious-hamilton-8k6xhz" --silent
+            echo "FOUND ${path}"
+          done
+
+      - name: Dispatch Pages workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          BEFORE="$(gh run list --repo DomTheDeveloper/crl --workflow pages.yml --limit 1 --json databaseId --jq '.[0].databaseId // 0')"
+          gh workflow run pages.yml --repo DomTheDeveloper/crl --ref claude/gracious-hamilton-8k6xhz
+          for i in $(seq 1 30); do
+            RUN_ID="$(gh run list --repo DomTheDeveloper/crl --workflow pages.yml --event workflow_dispatch --limit 1 --json databaseId --jq '.[0].databaseId // 0')"
+            if [ "$RUN_ID" != "0" ] && [ "$RUN_ID" != "$BEFORE" ]; then
+              echo "PAGES_RUN_ID=${RUN_ID}"
+              gh run watch "$RUN_ID" --repo DomTheDeveloper/crl --exit-status
+              gh run view "$RUN_ID" --repo DomTheDeveloper/crl --json status,conclusion,url,headSha,event
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Pages workflow run did not appear" >&2
+          exit 1
