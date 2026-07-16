@@ -42,7 +42,6 @@ jobs:
             Model
             FiberSums
             FourCertificate
-            FourCertificateBudget
             NatCertificateBudget
             PolynomialSums
             FinPolynomialSums
@@ -51,17 +50,17 @@ jobs:
             AllNUpper
             N6Base
             AllNTheorem
-            DefectMoments
             FiniteExact
             Finite21Lower
             N21Profiles
             N21Boolean
             N21Exact
+            AxiomAudit
           )
           code=0
           for module in "${modules[@]}"; do
             echo "=== Checkerboard.${module} ===" | tee -a staged-build.log
-            lake env lean "Checkerboard/${module}.lean" 2>&1 | tee -a staged-build.log
+            lake build "Checkerboard.${module}" 2>&1 | tee -a staged-build.log
             code=${PIPESTATUS[0]}
             if [[ "$code" != 0 ]]; then
               break
