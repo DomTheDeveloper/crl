@@ -1,0 +1,57 @@
+name: Verify Erdős 1150 proof
+
+on:
+  push:
+    paths:
+      - "proofs/lean/Erdos1150/**"
+      - ".github/workflows/verify-erdos1150.yml"
+  pull_request:
+    paths:
+      - "proofs/lean/Erdos1150/**"
+      - ".github/workflows/verify-erdos1150.yml"
+  workflow_dispatch:
+
+jobs:
+  lean-erdos1150:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Guard against placeholders in all proof modules
+        run: "! grep -RnE --include='*.lean' '(^|[[:space:]])(sorry|admit|native_decide)([[:space:]]|$)' proofs/lean/Erdos1150"
+      - name: Resolve dependencies
+        working-directory: proofs/lean/Erdos1150
+        run: lake update
+      - name: Fetch Mathlib cache
+        working-directory: proofs/lean/Erdos1150
+        run: lake exe cache get || echo "cache miss — building dependencies"
+      - name: Build and kernel-check
+        working-directory: proofs/lean/Erdos1150
+        shell: bash
+        run: |
+          set +e
+          lake build > build.log 2>&1
+          status=$?
+          echo "----- Lean diagnostic tail -----"
+          tail -n 160 build.log
+          exit $status
+      - name: Upload Lean diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos1150-build-log
+          path: proofs/lean/Erdos1150/build.log
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Reject sorryAx
+        if: success()
+        working-directory: proofs/lean/Erdos1150
+        run: |
+          if grep -q "sorryAx" build.log; then
+            echo "::error::Proof depends on sorryAx"; exit 1
+          fi
