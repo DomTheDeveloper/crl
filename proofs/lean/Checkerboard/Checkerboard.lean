@@ -3,3 +3,4 @@ import Checkerboard.FiniteContradictions
 import Checkerboard.CeilingAlgebra
 import Checkerboard.MasterAlgebra
 import Checkerboard.FiniteFramework
+import Checkerboard.CapacityProfiles
