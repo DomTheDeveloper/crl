@@ -5,53 +5,19 @@ on:
     branches:
       - agent/n22-exhaustive-compute
     paths:
-      - "math/checkerboard/compute/**"
-      - ".github/workflows/n22-global-canonical.yml"
-  pull_request:
-    branches:
-      - claude/gracious-hamilton-8k6xhz
-    paths:
-      - "math/checkerboard/compute/**"
       - ".github/workflows/n22-global-canonical.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: n22-global-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  solve:
-    name: ${{ matrix.regime }} with ${{ matrix.solver }}
+  parked:
+    name: Global monolith parked
     runs-on: ubuntu-latest
-    timeout-minutes: 330
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - regime: double
-            solver: cadical300
-          - regime: double
-            solver: kissat404
-          - regime: singleton
-            solver: cadical300
-          - regime: singleton
-            solver: kissat404
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Install exact SAT dependencies
-        run: pip install --disable-pip-version-check python-sat
-      - name: Run exact global canonical search
-        working-directory: math/checkerboard/compute
-        run: |
-          timeout 300m python -u n22_global_canonical.py \
-            "${{ matrix.regime }}" "${{ matrix.solver }}" \
-            | tee "global_${{ matrix.regime }}_${{ matrix.solver }}.jsonl"
-      - name: Upload solver transcript
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: global-${{ matrix.regime }}-${{ matrix.solver }}
-          path: math/checkerboard/compute/global_*.jsonl
-          retention-days: 30
+      - run: echo "Monolithic search parked; the exhaustive sharded matrix is the authoritative campaign."
