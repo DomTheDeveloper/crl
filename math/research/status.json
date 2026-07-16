@@ -1,0 +1,27 @@
+{
+  "updated": "2026-07-15",
+  "policy": {
+    "kernel_verified": "Exact stated theorem compiled in Lean without sorryAx.",
+    "proof_candidate": "A complete mathematical or formal proof candidate exists but novelty or external review is pending.",
+    "partial": "Substantial lemmas, reductions, or computations exist, but the target theorem is incomplete.",
+    "open": "No complete proof or disproof is claimed."
+  },
+  "projects": [
+    {"id":"a317940","title":"OEIS A317940 positivity","status":"kernel_verified","scope":"Exact Formal Conjectures nonnegativity theorem; stronger strict positivity internally","url":"../a317940/"},
+    {"id":"checkerboard","title":"Checkerboard four-direction asymptotics","status":"proof_candidate","scope":"Finite moment bounds and four-direction LP/integral draft; full all-slope lower bound open","url":"../checkerboard/"},
+    {"id":"wowii65","title":"WOWII Graph Conjecture 65","status":"kernel_verified","scope":"Exact Formal Conjectures theorem","url":"../wowii/#c65","pr":6},
+    {"id":"wowii143","title":"WOWII Graph Conjecture 143","status":"proof_candidate","scope":"Complete modular Lean proof; independent audit infrastructure pending merge","url":"../wowii/#c143","pr":17},
+    {"id":"wowii160","title":"WOWII Graph Conjecture 160","status":"proof_candidate","scope":"Exact repository statement disproved; historical-spec caveat","url":"../wowii/#c160"},
+    {"id":"wowii316","title":"WOWII Graph Conjecture 316","status":"proof_candidate","scope":"Exact research-open theorem compiled and axiom-audited","url":"../wowii/#c316","pr":7},
+    {"id":"wowii314","title":"WOWII Graph Conjecture 314","status":"partial","scope":"Paper classification candidate; one global Lean bridge remains","url":"../wowii/#c314"},
+    {"id":"wowii133","title":"WOWII Graph Conjecture 133","status":"open","scope":"One branch proved; residual case unresolved","url":"../wowii/#c133"},
+    {"id":"erdos602","title":"Erdős 602 countable-index variant","status":"kernel_verified","scope":"Exact Formal Conjectures variant","url":"../erdos/#e602","pr":4},
+    {"id":"erdos865","title":"Erdős 865 exact-statement bridge","status":"kernel_verified","scope":"External complete proof independently pinned and checked; not original to CRL","url":"../erdos/#e865","pr":3},
+    {"id":"erdos1150","title":"Erdős 1150 Parseval variant","status":"kernel_verified","scope":"Textbook sqrt(n+1) variant only; main conjecture open","url":"../erdos/#e1150","pr":2},
+    {"id":"erdos885","title":"Erdős 885","status":"partial","scope":"Elliptic quotient, Selmer, Mordell-Weil sieve and localization campaign; not solved","url":"../erdos/#e885","pr":16},
+    {"id":"erdos366","title":"Erdős 366","status":"partial","scope":"9,718,456 3-full candidates checked without witness; open","url":"../erdos/#e366"},
+    {"id":"a387471","title":"OEIS A387471 formula","status":"partial","scope":"Complete proof manuscript and green Lean reductions; exact final statement not formalized","url":"../a387471/","pr":1},
+    {"id":"goldbach","title":"Goldbach conjecture campaign","status":"open","scope":"Conditional bridge and parity-obstruction analysis only","url":"../open-campaigns/#goldbach"},
+    {"id":"dmono22","title":"Checkerboard Dmono(22)","status":"open","scope":"Exact value narrowed to 33 or 34","url":"../open-campaigns/#dmono22"}
+  ]
+}
