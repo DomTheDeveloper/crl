@@ -1,2 +1,2 @@
-Trigger the focused reverse-order Kissat matrix for the remaining D_mono(22) all-double families.
-Run requested: 2026-07-16.
+Trigger the focused reverse-order CaDiCaL matrix for the remaining D_mono(22) all-double families.
+Assumption-capable rerun requested after rejecting the Kissat assumption interface: 2026-07-16.
