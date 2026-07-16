@@ -1,15 +1,15 @@
-# Erdős 846 sharpness ingredient
+# Erdős 846 sharpness bridge
 
-This project kernel-checks the exact Mantel/Turán bound used to prove that the
-`1/2` guarantee in the Erdős 846 edge-to-point construction is asymptotically sharp:
+This project imports the exact AlphaProof Nexus construction and formalizes both sides of
+the sharpness mechanism:
 
-```text
-G.CliqueFree 3  →  4 * |E(G)| ≤ n²
-```
+1. For an `IsGoodMap`, a finite point image is non-trilinear iff its underlying valid
+   edge set contains no `FormsTriangle` triple.
+2. Every triangle-free graph on `n` vertices satisfies the exact Mantel bound
+   `4 * |E(G)| ≤ n²`, with equality attained by the bipartite Turán graph.
 
-It also proves that the bound is attained by the complete bipartite Turán graph.
-Combined with the upstream `IsGoodMap` equivalence between collinear triples and graph
-triangles, this supplies the exact extremal upper half of the sharpness argument.
+Together these are the formal geometry-to-extremal-graph bridge showing why the `1/2`
+guarantee in the Erdős 846 construction is asymptotically sharp within that construction.
 
 Verification:
 
