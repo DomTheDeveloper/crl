@@ -10,6 +10,8 @@ import Checkerboard.FinPolynomialSums
 import Checkerboard.QuadraticWeights
 import Checkerboard.QuadraticCosts
 import Checkerboard.AllNUpper
+import Checkerboard.N6Base
+import Checkerboard.AllNTheorem
 import Checkerboard.DefectMoments
 import Checkerboard.FiniteExact
 import Checkerboard.Finite21Lower
