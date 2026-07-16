@@ -102,11 +102,17 @@ lemma exists_second_cycle_neighbor
   have h23ne : c (i + 2) ≠ c (i + 3) := by
     intro hEq
     exact (by fin_cases i <;> decide : i + 2 ≠ i + 3) (hc.1 hEq)
+  have hc12 : G.Adj (c (i + 1)) (c (i + 2)) := by
+    convert cycle_adj_plus hc (i + 1) using 1 <;>
+      fin_cases i <;> decide
+  have hc23 : G.Adj (c (i + 2)) (c (i + 3)) := by
+    convert cycle_adj_plus hc (i + 2) using 1 <;>
+      fin_cases i <;> decide
   apply hNoP5 x (c i) (c (i + 1)) (c (i + 2)) (c (i + 3))
   unfold FormsInducedP5
   exact ⟨hxi.ne, hx_not_cycle (i + 1), hx_not_cycle (i + 2), hx_not_cycle (i + 3),
     h01ne, h02ne, h03ne, h12ne, h13ne, h23ne,
-    hxi, cycle_adj_plus hc i, cycle_adj_plus hc (i + 1), cycle_adj_plus hc (i + 2),
+    hxi, cycle_adj_plus hc i, hc12, hc23,
     hx1, hx2, hx3, hc02, hc03, hc13⟩
 
 /-- Every vertex belongs to a unique cycle bag. -/
