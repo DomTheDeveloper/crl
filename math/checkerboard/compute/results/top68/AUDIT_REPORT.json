@@ -1,0 +1,19 @@
+{
+  "target": 34,
+  "top": 68,
+  "direct_left_scopes": 33,
+  "split_left": 288,
+  "split_bottom_scopes": 38,
+  "total_unsat_records": 71,
+  "canonical_boundary_orbits": 38192,
+  "owner_count": 71,
+  "missing_owners": [],
+  "extra_owners": [],
+  "witnesses": 0,
+  "unresolved": 0,
+  "errors": [],
+  "PASS": true,
+  "direct_left_masks": [68,72,80,96,130,132,136,144,160,192,258,260,264,272,320,384,514,516,520,528,544,576,640,768,1026,1028,1032,1040,1056,1088,1152,1280,1536],
+  "split_bottom_masks": [68,72,80,96,129,130,132,136,144,160,192,257,258,260,264,272,288,320,384,513,514,516,520,528,544,576,640,768,1025,1026,1028,1032,1040,1056,1088,1152,1280,1536],
+  "trust_boundary": "Complete solver closure and independently enumerated coverage partition; proof traces are not yet complete for every scope."
+}
