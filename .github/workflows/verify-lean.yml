@@ -9,6 +9,10 @@ on:
     paths: ["proofs/lean/**", ".github/workflows/verify-lean.yml"]
   workflow_dispatch:
 
+concurrency:
+  group: verify-lean-${{ github.repository }}
+  cancel-in-progress: true
+
 jobs:
   lean-core:
     if: github.base_ref != 'agent/a387471-lean-reduction'
