@@ -1,0 +1,1 @@
+Compile after replacing all modular Fin subtraction in the indexed C5 embedding with an explicit kernel-checked ten-edge truth table.
