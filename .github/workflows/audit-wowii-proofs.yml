@@ -7,6 +7,12 @@ on:
     paths:
       - math/wowii/**
       - .github/workflows/audit-wowii-proofs.yml
+  pull_request:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
+    paths:
+      - math/wowii/**
+      - .github/workflows/audit-wowii-proofs.yml
   workflow_dispatch:
 
 permissions:
