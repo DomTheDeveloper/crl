@@ -1,17 +1,16 @@
-# Defect moments and four-direction asymptotics for checkerboard no-three-in-line sets
+# Exact proof of the checkerboard bound `D_mono(n) ≤ 2n - 4`
 
 ## Status
 
-This document records a research proof package based on Thomas Prellberg's 2026 checkerboard-restricted no-three-in-line problem. It distinguishes four different statements:
+This document gives the complete finite mathematical argument for the exact
+all-line theorem.  It does not use the four-direction LP limit, asymptotic
+rounding, floating-point optimization, or a finite list of checked values.
 
-1. a finite upper bound for actual checkerboard no-three-in-line sets;
-2. a sharper finite bound for integral four-direction packings;
-3. the limiting value of the finite four-direction linear programs;
-4. the stronger all-slope checkerboard NTIL limit, which remains open.
+The companion Lean development is intended to formalize this argument exactly.
+Until the pinned `lake build` and `#print axioms` jobs finish successfully, the
+mathematical proof below should not be described as a completed formal proof.
 
-The results have extensive exact computational corroboration and a partial sorry-free Lean formalization. They have not yet undergone external peer review.
-
-## 1. Setup
+## 1. Exact statement
 
 Let
 
@@ -21,219 +20,358 @@ G_n=\{0,1,\ldots,n-1\}^2,
 C_\varepsilon=\{(x,y)\in G_n:x+y\equiv\varepsilon\pmod2\}.
 \]
 
-A set is no-three-in-line (NTIL) when it contains no three collinear points. Write
+A finite set is **no-three-in-line** when no Euclidean line contains three of
+its points.  Define
 
 \[
-D_{\rm mono}(n,\varepsilon)
+D_{\rm mono}(n,\varepsilon)=
+\max\{|S|:S\subseteq C_\varepsilon,\ S\text{ is no-three-in-line}\}
 \]
 
-for the maximum size of an NTIL subset of `C_ε`, and maximize over the two colors to obtain `Dmono(n)`.
-
-Every NTIL set contains at most two points on every row, column, and diagonal of slopes `+1` and `-1`. The finite moment arguments therefore apply to the larger class of integral four-direction capacity-two packings.
-
-## 2. Defect moments
-
-Put
+and
 
 \[
-h=\frac{n-1}{2},\qquad X=x-h,\quad Y=y-h,
+D_{\rm mono}(n)=\max_{\varepsilon\in\{0,1\}}
+D_{\rm mono}(n,\varepsilon).
 \]
 
-and use centered diagonal coordinates
-
-\[
-U=X+Y,\qquad V=X-Y.
-\]
-
-Suppose a four-direction packing has
-
-\[
-N=2n-2-q
-\]
-
-points. The quantity `q` is its diagonal capacity deficit. Let `μ_t` and `ν_t` be the unused capacity on the `U=t` and `V=t` diagonals. Define
-
-\[
-M_j^U=\sum_t\mu_t t^j,
-\qquad
-M_j^V=\sum_t\nu_t t^j.
-\]
-
-Let `c_i` and `r_i` be the unused column and row capacities, and define their centered second moments `C₂` and `R₂`.
-
-The central identity is
-
-\[
-C_2+R_2
-=K_{n,\varepsilon}+\frac{M_2^U+M_2^V}{2}.
-\tag{1}
-\]
-
-The parity-dependent constant is
-
-\[
-K_{n,\varepsilon}=
-\begin{cases}
--\dfrac{(n-1)(n-2)(n-3)}3,&n\text{ odd, fat class},\\[6pt]
--\dfrac{n(n-1)(n-5)}3,&n\text{ odd, thin class},\\[6pt]
--\dfrac{(n-1)(n^2-5n+3)}3,&n\text{ even}.
-\end{cases}
-\tag{2}
-\]
-
-The first moments satisfy
-
-\[
-\sum_i c_i(i-h)=\frac{M_1^U+M_1^V}{2},
-\qquad
-\sum_i r_i(i-h)=\frac{M_1^U-M_1^V}{2}.
-\]
-
-Weighted Cauchy-Schwarz then yields
-
-\[
-K_{n,\varepsilon}+\frac{M_2^U+M_2^V}{2}
-\ge
-\frac{(M_1^U)^2+(M_1^V)^2}{2(q+2)}.
-\tag{3}
-\]
-
-## 3. The finite `2n-4` theorem
-
-To rule out a set of size `2n-3`, take `q=1`. Each diagonal deficit family consists of one missing unit, at centered offsets `a` and `b`. Thus
-
-\[
-M_1^U=a,\quad M_2^U=a^2,
-\qquad
-M_1^V=b,\quad M_2^V=b^2.
-\]
-
-Substituting in (3) gives
-
-\[
-a^2+b^2\ge -3K_{n,\varepsilon}.
-\tag{4}
-\]
-
-Geometry gives the opposite upper bounds:
-
-- odd fat: `a²+b² ≤ 2(n-1)²`;
-- odd thin: `a²+b² ≤ 2(n-2)²`;
-- even: `a²+b² ≤ (n-1)²+(n-2)²`.
-
-For the required ranges, each upper bound is strictly smaller than the corresponding right side of (4). Therefore
+We prove
 
 \[
 \boxed{D_{\rm mono}(n)\le 2n-4\qquad(n\ge6).}
 \]
 
-The Lean project formalizes the three final polynomial contradictions. The capacity profiles and full finite-sum derivation of (1) are still paper-level.
-
-## 4. A stronger finite moment bound
-
-At general deficit `q`, the largest possible diagonal second moment is achieved by placing missing capacity at the largest absolute offsets. A universal ordered-offset majorant is
+The Lean predicate uses integer affine lines
 
 \[
-M_2\le
-qn^2-\frac n2q(q+1)
-+\frac{q(q+1)(2q+1)}{24}.
-\tag{5}
+Ax+By=C,\qquad A,B,C\in\mathbb Z,\quad(A,B)\ne(0,0).
 \]
 
-Combining (5) with the master identity and exact cubic reductions for `c=2^(2/3)` gives the research-draft bound
+This is equivalent on `G_n` to the usual Euclidean definition.  One direction
+is immediate.  Conversely, a Euclidean line through two distinct lattice
+points `(x₁,y₁)` and `(x₂,y₂)` has the integer equation
 
 \[
-\boxed{
-D_{\rm mono}(n)
-\le
-\min\left(2n-4,\left\lceil2^{2/3}n\right\rceil\right).
-}
+(y_2-y_1)x+(x_1-x_2)y
+=(y_2-y_1)x_1+(x_1-x_2)y_1.
 \]
 
-Lean verifies the algebraic reductions and positivity estimates after the combinatorial majorization (5) is supplied.
+Thus every three collinear lattice points lie on a nonconstant integer affine
+line.
 
-## 5. The four-direction LP constant
+## 2. Reduction to the forbidden size `2n-3`
 
-Prellberg's continuum dual certificate has value
+It is enough to rule out a monochromatic no-three-in-line set of size `2n-3`.
+Indeed, if a larger set existed, any `2n-3` of its points would still be
+monochromatic and no-three-in-line.
+
+Fix `n ≥ 6`, a color `ε`, and suppose for contradiction that
 
 \[
-\alpha=1.576823396873808\ldots,
+S\subseteq C_\varepsilon,
+\qquad |S|=2n-3.
+\]
+
+Every row, column, slope-`+1` diagonal, and slope-`-1` diagonal is a Euclidean
+line, so each contains at most two selected points.
+
+## 3. Row and column deficits
+
+For `x,y∈{0,…,n-1}`, let `a_x` be the number of selected points in column `x`
+and `b_y` the number in row `y`.  Put
+
+\[
+c_x=2-a_x,
+\qquad
+r_y=2-b_y.
+\]
+
+These are nonnegative integers, and double counting gives
+
+\[
+\sum_x c_x=2n-|S|=3,
+\qquad
+\sum_y r_y=2n-|S|=3. \tag{1}
+\]
+
+Use doubled centered coordinates
+
+\[
+X_x=2x-(n-1),
+\qquad
+Y_y=2y-(n-1).
+\]
+
+They satisfy
+
+\[
+\sum_{x=0}^{n-1}X_x=0,
+\qquad
+\sum_{x=0}^{n-1}X_x^2
+=\frac{n(n^2-1)}3=:S_2. \tag{2}
+\]
+
+Define the row and column defect moments
+
+\[
+C_1=\sum_x c_xX_x,
+\quad C_2=\sum_x c_xX_x^2,
+\qquad
+R_1=\sum_y r_yY_y,
+\quad R_2=\sum_y r_yY_y^2.
+\]
+
+## 4. The two diagonal families
+
+For a board point `(x,y)`, define
+
+\[
+U=x+y-(n-1),
+\qquad
+V=x-y.
+\]
+
+Then
+
+\[
+X=U+V,
+\qquad
+Y=U-V,
+\qquad
+X^2+Y^2=2(U^2+V^2). \tag{3}
+\]
+
+Because `x+y≡ε (mod 2)`, only one parity of each diagonal coordinate can
+contain selected points.  Give each active diagonal its genuine line capacity:
+capacity `2`, except that an active corner diagonal containing only one board
+point has capacity `1`.
+
+For either diagonal family the total active capacity is exactly
+
+\[
+2n-2. \tag{4}
+\]
+
+There are two possible capacity profiles:
+
+* **endpoint profile:** `n` active diagonals, with capacities
+  `1,2,…,2,1`;
+* **all-double profile:** `n-1` active diagonals, all with capacity `2`.
+
+Let `μ_u` and `ν_v` be unused capacities on the active `U=u` and `V=v`
+diagonals.  By (4),
+
+\[
+\sum_u\mu_u=(2n-2)-|S|=1,
+\qquad
+\sum_v\nu_v=(2n-2)-|S|=1. \tag{5}
+\]
+
+The deficits are nonnegative integers.  Therefore each family has exactly one
+unit of missing capacity.  Define
+
+\[
+M_j^U=\sum_u\mu_u u^j,
+\qquad
+M_j^V=\sum_v\nu_v v^j.
+\]
+
+Equation (5) implies
+
+\[
+M_2^U=(M_1^U)^2,
+\qquad
+M_2^V=(M_1^V)^2. \tag{6}
+\]
+
+Both capacity profiles are symmetric about zero, so their first moments vanish.
+Comparing the selected-point first moments in columns, rows, and diagonals gives
+
+\[
+C_1=M_1^U+M_1^V,
+\qquad
+R_1=M_1^U-M_1^V. \tag{7}
+\]
+
+## 5. Exact second-moment identity
+
+Let `D_U` and `D_V` be the second moments of the two full diagonal capacity
+profiles.  The selected column-square total is `2S₂-C₂`, and the selected
+row-square total is `2S₂-R₂`.  The selected diagonal-square totals are
+`D_U-M₂^U` and `D_V-M₂^V`.  Summing (3) over `S` therefore gives
+
+\[
+(2S_2-C_2)+(2S_2-R_2)
+=2\bigl((D_U-M_2^U)+(D_V-M_2^V)\bigr).
+\]
+
+Equivalently,
+
+\[
+C_2+R_2=A+2(M_2^U+M_2^V), \tag{8}
 \]
 
 where
 
 \[
-401\alpha^3-1744\alpha^2+2240\alpha-768=0.
+A=4S_2-2(D_U+D_V). \tag{9}
 \]
 
-Equivalently, if `p` is the middle real root of
+The two exact profile moments are
 
 \[
-401p^3-331p^2+19p+7=0,
+D_{\rm end}
+=\frac{2(n-1)(n^2-2n+3)}3, \tag{10}
+\]
+
+and
+
+\[
+D_{\rm dbl}
+=\frac{2n(n-1)(n-2)}3. \tag{11}
+\]
+
+For completeness, (10) follows by taking twice the centered square sum (2) and
+then removing one copy of each endpoint square `(n-1)²`.  Formula (11) is twice
+the square sum of the arithmetic progression
+
+\[
+-(n-2),-(n-4),\ldots,n-4,n-2.
+\]
+
+## 6. The master lower bound
+
+Weighted Cauchy-Schwarz and (1) give
+
+\[
+C_1^2\le3C_2,
+\qquad
+R_1^2\le3R_2.
+\]
+
+Using (7),
+
+\[
+C_2+R_2
+\ge\frac{(M_1^U+M_1^V)^2+(M_1^U-M_1^V)^2}{3}
+=\frac{2}{3}\bigl((M_1^U)^2+(M_1^V)^2\bigr).
+\]
+
+By (6), if
+
+\[
+M=M_2^U+M_2^V,
 \]
 
 then
 
 \[
-\alpha=2(1-p).
+C_2+R_2\ge\frac23M. \tag{12}
 \]
 
-The upper transfer samples the continuum dual functions directly into the odd-fat and shifted odd-thin finite dual programs. The finite constraints match the continuum arguments exactly; the objectives converge by Riemann summation. Even grids embed in the appropriate odd-fat grid.
-
-For the lower direction, an exact continuum primal transport certificate of mass `α` is split into:
-
-- an outer block with 35 affine components and weights in `Q(p)`;
-- a seven-component middle block with rational weights.
-
-Exact checkers verify support, positivity, total mass, and all paired projection identities. Smoothing, trimming and Riemann sampling then produce finite primal solutions of value `(α-o(1))n`.
-
-Consequently, the research package claims
+Combining (8) and (12),
 
 \[
-\boxed{
-\lim\frac{L_m^{\rm fat}}{2m+1}
-=
-\lim\frac{L_m^{\rm thin}}{2m+1}
-=
-\lim\frac{L_m^{\rm even}}{2m}
-=\alpha.
-}
+A+2M\ge\frac23M,
 \]
 
-This is the checkerboard-specific four-direction LP conjecture, not the classical all-slope NTIL problem.
-
-## 6. Integral four-direction rounding
-
-The package further argues that the integral four-direction optimum has the same limit. A diffuse finite fractional solution is blown up into a bounded-rank hypergraph:
-
-- line-capacity clones enforce at most two selected points per principal line;
-- identity vertices prevent selecting the same board point twice;
-- bounded rank is fixed because there are only four direction families;
-- diffuseness makes pair-codegrees `o(Δ)`.
-
-Kahn's bounded-rank small-codegree edge-coloring theorem decomposes the blow-up into `(1+o(1))Δ` matchings. One color class retains asymptotically the average mass, yielding an integral four-direction packing with `(α-o(1))n` points.
-
-This argument is paper-level and depends on an external theorem not formalized here.
-
-## 7. What remains open
-
-The actual checkerboard NTIL lower bound requires controlling every Euclidean line, not just four fixed directions:
+hence
 
 \[
-\boxed{
-\liminf_{n\to\infty}\frac{D_{\rm mono}(n)}n\ge\alpha
-}
+\boxed{M\ge-\frac34A.} \tag{13}
 \]
 
-is still open.
+This is the entire defect-moment lower bound needed for the theorem.
 
-The obstacle is multiscale. The number of primitive slope directions grows with `n`; independent rounding produces conflicts on every dyadic slope scale. A final proof appears to require correlated multiscale rounding, absorption/switching, or a direct algebraic construction.
+## 7. Parity profiles and the contradiction
 
-## 8. Verification statement
+### 7.1 Odd `n`, endpoint color
 
-The repository should be cited honestly as containing:
+When `n` is odd, one color uses the endpoint profile in both diagonal
+families.  Substituting `D_U=D_V=D_end` in (9), then using (2) and (10), turns
+(13) into
 
-- paper proofs and exact computational certificates;
-- a partial sorry-free Lean formalization of the algebraic core;
-- no complete Lean proof of the continuum or hypergraph arguments;
-- no solution of the full all-slope checkerboard NTIL limit.
+\[
+M\ge(n-1)(n-2)(n-3). \tag{14}
+\]
+
+The unique missing unit in either family can occur only at an offset with
+absolute value at most `n-1`, so
+
+\[
+M\le2(n-1)^2. \tag{15}
+\]
+
+For `n=7+t`, `t≥0`, the difference between the lower and upper bounds is
+
+\[
+(n-1)(n-2)(n-3)-2(n-1)^2
+=t^3+13t^2+50t+48>0.
+\]
+
+Every odd `n≥6` has `n≥7`, so (14) and (15) contradict each other.
+
+### 7.2 Odd `n`, all-double color
+
+The other color uses the all-double profile in both families.  Equations
+(2), (9), (11), and (13) give
+
+\[
+M\ge n(n-1)(n-5). \tag{16}
+\]
+
+Every active offset has absolute value at most `n-2`, so
+
+\[
+M\le2(n-2)^2. \tag{17}
+\]
+
+For `n=7+t`,
+
+\[
+n(n-1)(n-5)-2(n-2)^2
+=t^3+13t^2+48t+34>0,
+\]
+
+again a contradiction.
+
+### 7.3 Even `n`
+
+When `n` is even, the two diagonal families have opposite active parities.
+Thus one has the endpoint profile and the other the all-double profile,
+regardless of the chosen checkerboard color.  Equations (2), (9)–(11), and
+(13) give
+
+\[
+M\ge(n-1)(n^2-5n+3). \tag{18}
+\]
+
+The two radii are `n-1` and `n-2`, so
+
+\[
+M\le(n-1)^2+(n-2)^2. \tag{19}
+\]
+
+For `n=6+t`,
+
+\[
+(n-1)(n^2-5n+3)-\bigl((n-1)^2+(n-2)^2\bigr)
+=t^3+10t^2+26t+4>0.
+\]
+
+This contradicts (18) and (19).
+
+## 8. Conclusion
+
+All parity and color cases are impossible at size `2n-3`.  By the subset
+reduction in Section 2, every monochromatic no-three-in-line subset of the
+`n×n` checkerboard has at most `2n-4` points for every `n≥6`.  Therefore
+
+\[
+\boxed{D_{\rm mono}(n)\le2n-4\qquad(n\ge6).}
+\]
+
+Only the four principal line directions were used after the initial all-line
+hypothesis.  This is logically valid because every all-line no-three-in-line
+set satisfies those four capacity constraints.  The proof does **not** claim
+that a four-direction packing is itself no-three-in-line.
