@@ -30,7 +30,7 @@ lemma ratio_cube_eq_one_of_sum_inv_sum {x y z : ℂ}
     (hinv : x⁻¹ + y⁻¹ + z⁻¹ = 0) : (x / z) ^ 3 = 1 := by
   have hpair : x * y + x * z + y * z = 0 := by
     field_simp [hx, hy, hz] at hinv
-    nlinarith
+    linear_combination hinv
   have hquad : x ^ 2 + x * z + z ^ 2 = 0 := by
     linear_combination (x + z) * hsum - hpair
   have hcubes : x ^ 3 = z ^ 3 := by
