@@ -1,10 +1,12 @@
-# Erdős 741 finite-partition strengthening
+# Erdős 741 arbitrary-partition strengthening
 
 This project imports the exact AlphaProof Nexus proof of Erdős Problem 741(ii) at commit
-`0647711a71183c1ea492ad60860776617ce1ea88` and proves the following corollary:
+`0647711a71183c1ea492ad60860776617ce1ea88` and proves the following strengthening:
 
-> There exists an additive basis `A` of order two such that every finite partition of
-> `A` into at least two pairwise-disjoint cells has a cell whose self-sumset is not syndetic.
+> There exists an additive basis `A` of order two such that every partition of `A`
+> indexed by any nontrivial type has a cell whose self-sumset is not syndetic.
+
+The index type need not be finite or countable.
 
 Verification:
 
