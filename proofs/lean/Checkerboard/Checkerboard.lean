@@ -4,5 +4,7 @@ import Checkerboard.CeilingAlgebra
 import Checkerboard.MasterAlgebra
 import Checkerboard.FiniteFramework
 import Checkerboard.CapacityProfiles
+import Checkerboard.ProfileLemmas
 import Checkerboard.DeficitAlgebra
 import Checkerboard.MomentBridge
+import Checkerboard.Geometry
