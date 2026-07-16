@@ -50,11 +50,13 @@ lemma mem_ordinarySet_of_OrdinaryIndices {n i j k : ℕ} (hn : 0 < n)
       subst j; subst k
       simp [ordinarySet]
     · by_cases hjlt : j < n
-      · have hw := ordinary_witness hj1 hjlt (2 : Fin 6)
-        simpa [permTripleNat] using (show permTripleNat (2 : Fin 6) j n (2 * n - j) ∈ ordinarySet n from hw)
+      · have hkEq : k = 2 * n - j := by omega
+        subst k
+        simpa [permTripleNat] using ordinary_witness hj1 hjlt (2 : Fin 6)
       · have hnkj : k < n := by omega
-        have hw := ordinary_witness hk1 hnkj (3 : Fin 6)
-        simpa [permTripleNat] using (show permTripleNat (3 : Fin 6) k n (2 * n - k) ∈ ordinarySet n from hw)
+        have hjEq : j = 2 * n - k := by omega
+        subst j
+        simpa [permTripleNat] using ordinary_witness hk1 hnkj (3 : Fin 6)
   · have hjN : j = n := by exact_mod_cast hjn
     subst j
     by_cases hiN : i = n
@@ -62,11 +64,13 @@ lemma mem_ordinarySet_of_OrdinaryIndices {n i j k : ℕ} (hn : 0 < n)
       subst i; subst k
       simp [ordinarySet]
     · by_cases hilt : i < n
-      · have hw := ordinary_witness hi1 hilt (0 : Fin 6)
-        simpa [permTripleNat] using (show permTripleNat (0 : Fin 6) i n (2 * n - i) ∈ ordinarySet n from hw)
+      · have hkEq : k = 2 * n - i := by omega
+        subst k
+        simpa [permTripleNat] using ordinary_witness hi1 hilt (0 : Fin 6)
       · have hnki : k < n := by omega
-        have hw := ordinary_witness hk1 hnki (5 : Fin 6)
-        simpa [permTripleNat] using (show permTripleNat (5 : Fin 6) k n (2 * n - k) ∈ ordinarySet n from hw)
+        have hiEq : i = 2 * n - k := by omega
+        subst i
+        simpa [permTripleNat] using ordinary_witness hk1 hnki (5 : Fin 6)
   · have hkN : k = n := by exact_mod_cast hkn
     subst k
     by_cases hiN : i = n
@@ -74,11 +78,13 @@ lemma mem_ordinarySet_of_OrdinaryIndices {n i j k : ℕ} (hn : 0 < n)
       subst i; subst j
       simp [ordinarySet]
     · by_cases hilt : i < n
-      · have hw := ordinary_witness hi1 hilt (1 : Fin 6)
-        simpa [permTripleNat] using (show permTripleNat (1 : Fin 6) i n (2 * n - i) ∈ ordinarySet n from hw)
+      · have hjEq : j = 2 * n - i := by omega
+        subst j
+        simpa [permTripleNat] using ordinary_witness hi1 hilt (1 : Fin 6)
       · have hnji : j < n := by omega
-        have hw := ordinary_witness hj1 hnji (4 : Fin 6)
-        simpa [permTripleNat] using (show permTripleNat (4 : Fin 6) j n (2 * n - j) ∈ ordinarySet n from hw)
+        have hiEq : i = 2 * n - j := by omega
+        subst i
+        simpa [permTripleNat] using ordinary_witness hj1 hnji (4 : Fin 6)
 
 lemma ExceptionalIndices_of_mem_exceptionalSet {q : ℕ} {t : Triple}
     (h : t ∈ exceptionalSet q) :
@@ -107,21 +113,79 @@ lemma mem_exceptionalSet_of_ExceptionalIndices {q i j k : ℕ}
   have hq' : q' = q := by omega
   subst q'
   · rcases hp with h | h | h | h | h | h
-    all_goals rcases h with ⟨hi, hj, hk⟩
-    · simpa [permTripleNat] using exceptional_witness_one q (0 : Fin 6)
-    · simpa [permTripleNat] using exceptional_witness_one q (1 : Fin 6)
-    · simpa [permTripleNat] using exceptional_witness_one q (2 : Fin 6)
-    · simpa [permTripleNat] using exceptional_witness_one q (3 : Fin 6)
-    · simpa [permTripleNat] using exceptional_witness_one q (4 : Fin 6)
-    · simpa [permTripleNat] using exceptional_witness_one q (5 : Fin 6)
+    · rcases h with ⟨hi, hj, hk⟩
+      have hi' : i = q := by omega
+      have hj' : j = 7 * q := by omega
+      have hk' : k = 8 * q := by omega
+      subst i; subst j; subst k
+      simpa [permTripleNat] using exceptional_witness_one q (0 : Fin 6)
+    · rcases h with ⟨hi, hj, hk⟩
+      have hi' : i = q := by omega
+      have hj' : j = 8 * q := by omega
+      have hk' : k = 7 * q := by omega
+      subst i; subst j; subst k
+      simpa [permTripleNat] using exceptional_witness_one q (1 : Fin 6)
+    · rcases h with ⟨hi, hj, hk⟩
+      have hi' : i = 7 * q := by omega
+      have hj' : j = q := by omega
+      have hk' : k = 8 * q := by omega
+      subst i; subst j; subst k
+      simpa [permTripleNat] using exceptional_witness_one q (2 : Fin 6)
+    · rcases h with ⟨hi, hj, hk⟩
+      have hi' : i = 7 * q := by omega
+      have hj' : j = 8 * q := by omega
+      have hk' : k = q := by omega
+      subst i; subst j; subst k
+      simpa [permTripleNat] using exceptional_witness_one q (3 : Fin 6)
+    · rcases h with ⟨hi, hj, hk⟩
+      have hi' : i = 8 * q := by omega
+      have hj' : j = q := by omega
+      have hk' : k = 7 * q := by omega
+      subst i; subst j; subst k
+      simpa [permTripleNat] using exceptional_witness_one q (4 : Fin 6)
+    · rcases h with ⟨hi, hj, hk⟩
+      have hi' : i = 8 * q := by omega
+      have hj' : j = 7 * q := by omega
+      have hk' : k = q := by omega
+      subst i; subst j; subst k
+      simpa [permTripleNat] using exceptional_witness_one q (5 : Fin 6)
   · rcases hp with h | h | h | h | h | h
-    all_goals rcases h with ⟨hi, hj, hk⟩
-    · simpa [permTripleNat] using exceptional_witness_two q (0 : Fin 6)
-    · simpa [permTripleNat] using exceptional_witness_two q (1 : Fin 6)
-    · simpa [permTripleNat] using exceptional_witness_two q (2 : Fin 6)
-    · simpa [permTripleNat] using exceptional_witness_two q (3 : Fin 6)
-    · simpa [permTripleNat] using exceptional_witness_two q (4 : Fin 6)
-    · simpa [permTripleNat] using exceptional_witness_two q (5 : Fin 6)
+    · rcases h with ⟨hi, hj, hk⟩
+      have hi' : i = 2 * q := by omega
+      have hj' : j = 3 * q := by omega
+      have hk' : k = 9 * q := by omega
+      subst i; subst j; subst k
+      simpa [permTripleNat] using exceptional_witness_two q (0 : Fin 6)
+    · rcases h with ⟨hi, hj, hk⟩
+      have hi' : i = 2 * q := by omega
+      have hj' : j = 9 * q := by omega
+      have hk' : k = 3 * q := by omega
+      subst i; subst j; subst k
+      simpa [permTripleNat] using exceptional_witness_two q (1 : Fin 6)
+    · rcases h with ⟨hi, hj, hk⟩
+      have hi' : i = 3 * q := by omega
+      have hj' : j = 2 * q := by omega
+      have hk' : k = 9 * q := by omega
+      subst i; subst j; subst k
+      simpa [permTripleNat] using exceptional_witness_two q (2 : Fin 6)
+    · rcases h with ⟨hi, hj, hk⟩
+      have hi' : i = 3 * q := by omega
+      have hj' : j = 9 * q := by omega
+      have hk' : k = 2 * q := by omega
+      subst i; subst j; subst k
+      simpa [permTripleNat] using exceptional_witness_two q (3 : Fin 6)
+    · rcases h with ⟨hi, hj, hk⟩
+      have hi' : i = 9 * q := by omega
+      have hj' : j = 2 * q := by omega
+      have hk' : k = 3 * q := by omega
+      subst i; subst j; subst k
+      simpa [permTripleNat] using exceptional_witness_two q (4 : Fin 6)
+    · rcases h with ⟨hi, hj, hk⟩
+      have hi' : i = 9 * q := by omega
+      have hj' : j = 3 * q := by omega
+      have hk' : k = 2 * q := by omega
+      subst i; subst j; subst k
+      simpa [permTripleNat] using exceptional_witness_two q (5 : Fin 6)
 
 #print axioms OrdinaryIndices_of_mem_ordinarySet
 #print axioms mem_ordinarySet_of_OrdinaryIndices
