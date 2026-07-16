@@ -1,3 +1,4 @@
+# Trigger external verifier from CRL PR #40.
 name: Temporary Voronovskaja verifier
 
 on:
