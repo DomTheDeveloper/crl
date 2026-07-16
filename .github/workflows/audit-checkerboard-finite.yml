@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - checkerboard-17-21-certificates
+  pull_request:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
   workflow_dispatch:
 
 permissions:
