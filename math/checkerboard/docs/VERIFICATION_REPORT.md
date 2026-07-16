@@ -1,80 +1,183 @@
-# Checkerboard verification report
+# Verification report: checkerboard `D_mono(n) ≤ 2n - 4`
 
 ## Executive summary
 
-This repository contains a research-draft proof and verification package for checkerboard no-three-in-line bounds and four-direction asymptotics. The evidence is intentionally divided into three levels:
+The branch `solve/checkerboard-2n4-full` contains:
 
-1. **Lean-checked algebra:** exact identities and terminal inequalities;
-2. **independently executable certificates:** Python, symbolic algebra, SAT/SMT and optimization checks;
-3. **paper-level arguments:** finite-sum derivations, continuum measure transfer and hypergraph rounding.
+- a complete human-readable finite defect-moment proof of the exact all-line
+  theorem;
+- Lean source for the full dependency chain and public theorem
+  `Checkerboard.checkerboard_Dmono_le`;
+- a deterministic exact finite target enumerator;
+- an independently generated all-line MILP corroborator whose incumbents are
+  checked with exact integer determinants;
+- CI guards for placeholders, custom axioms, compilation, and axiom output.
 
-The full all-slope checkerboard NTIL lower bound remains open.
+The decisive formal verification gate is still open: the current pinned Linux
+and macOS GitHub Actions jobs have remained queued, so there is not yet a
+successful `lake build` or current-commit axiom-audit log.  This report therefore
+does not call the Lean theorem verified.
 
 ## Claim matrix
 
-| Claim | Mathematical proof | Exact computation | Lean status |
-|---|---:|---:|---:|
-| cubic relation `α=2(1-p)` | yes | yes | complete |
-| terminal parity contradictions for `2n-4` | yes | yes | complete |
-| full master defect-moment identity | yes, draft | extensive finite checks | not complete |
-| `Dmono(n) ≤ 2n-4`, `n≥6` | yes, draft | SAT/SMT/MIP corroboration | algebraic end only |
-| `Dmono(n) ≤ ceil(2^(2/3)n)` | yes, draft | symbolic checker | algebraic end only |
-| exact continuum primal mass `α` | yes, certificate-assisted | two exact algebra implementations | not formalized |
-| finite four-direction LP limit `α` | yes, draft | exact finite checks | not formalized |
-| integral four-direction limit `α` | yes, draft using Kahn | finite sanity checks | not formalized |
-| all-slope checkerboard NTIL limit `α` | **open** | exploratory only | none |
+| Claim | Human proof | Independent computation | Lean source | Kernel-checked on current commit |
+|---|---:|---:|---:|---:|
+| integer affine lines are equivalent to Euclidean lines on lattice points | yes | direct determinant checker | predicate documented; four needed consequences formalized | pending build |
+| row/column deficit totals are `3` at size `2n-3` | yes | exact enumerator | formalized | pending build |
+| each diagonal deficit family has total mass `1` | yes | exact enumerator/MILP | formalized from finite fibers | pending build |
+| first-moment bridge identities | yes | symbolic checks | formalized | pending build |
+| second-moment bridge identity | yes | symbolic checks | formalized | pending build |
+| endpoint/all-double profile moments and radii | yes | exact arithmetic | formalized | pending build |
+| four parity contradictions | yes | exact arithmetic | formalized | pending build |
+| `D_mono(n) ≤ 2n-4` for every `n≥6` | yes | finite corroboration only | exact theorem present | **not yet established** |
 
-## Lean files
+The universal proof does not depend on SAT, MIP, floating point, or a finite
+range of checked values.
 
-The Lean project under `proofs/lean/Checkerboard` contains no `sorry`, `admit`, or custom axioms. It checks:
+## Deterministic exhaustive checker
 
-- `Checkerboard/CubicTransform.lean`;
-- `Checkerboard/MasterAlgebra.lean`;
-- `Checkerboard/FiniteContradictions.lean`;
-- `Checkerboard/CeilingAlgebra.lean`.
+`math/checkerboard/tools/verify_target_exact.py` searches exactly for a
+monochromatic no-three-in-line set of the forbidden size `2n-3`.
 
-A clean build does **not** mean that the complete checkerboard theorem has been formalized. See `FORMALIZATION_STATUS.md`.
+For each `(n,color)` it:
 
-## Independent computational checks represented by the research bundle
+1. enumerates every row-count vector in `{0,1,2}^n` with total `2n-3`;
+2. enumerates every compatible choice of checkerboard points in those rows;
+3. rejects a partial choice when a column reaches three points;
+4. rejects a partial choice when an exact integer determinant finds a
+   collinear triple;
+5. accepts `UNSAT` only after the complete finite search space is exhausted.
 
-The larger local research bundle associated with this project contains:
+No randomization, floating-point arithmetic, solver API, or unproved symmetry
+reduction is used.  The completed searches recorded during this audit were:
 
-- exact reconstruction of the three parity-dependent capacity constants;
-- randomized and exhaustive tests of the master identity;
-- Z3 and CVC5 symbolic contradiction checks;
-- SAT encodings for forbidden finite target sizes;
-- HiGHS linear and mixed-integer optimization checks;
-- exact arithmetic verification of the continuum transport weights;
-- independent SymPy quotient-ring verification;
-- exact rational all-line finite certificates for selected board sizes.
+| `n` | color | result | row-count vectors | search nodes |
+|---:|---:|---:|---:|---:|
+| 6 | 0 | UNSAT | 50 | 1,745 |
+| 6 | 1 | UNSAT | 50 | 1,745 |
+| 7 | 0 | UNSAT | 77 | 4,802 |
+| 7 | 1 | UNSAT | 77 | 2,534 |
+| 8 | 0 | UNSAT | 112 | 52,967 |
+| 8 | 1 | UNSAT | 112 | 52,967 |
+| 9 | 0 | UNSAT | 156 | 152,725 |
+| 9 | 1 | UNSAT | 156 | 104,696 |
 
-Binary reports and large certificate bundles should be attached to a tagged GitHub release rather than represented as Lean-verified source.
+Reproduction:
 
-## Reproduction
+```bash
+python math/checkerboard/tools/verify_target_exact.py --n-min 6 --n-max 9
+```
+
+These finite results are regression tests and independent corroboration, not the
+proof for arbitrary `n`.
+
+## Independent all-line MILP corroboration
+
+`math/checkerboard/tools/corroborate_milp.py` constructs all checkerboard points
+and all distinct affine lines containing at least three candidate points.  It
+then solves the binary model
+
+\[
+\max\sum_p x_p,
+\qquad
+\sum_{p\in L}x_p\le2
+\]
+
+for every such line `L`.
+
+The program accepts an optimum only when SciPy/HiGHS returns completed optimal
+status `0`.  A timeout, interrupted run, or incumbent without an optimality
+certificate raises an error and is reported as no result.  Every returned
+optimizer is then rechecked independently by enumerating all triples and using
+an exact integer determinant.
+
+Completed optimal solves recorded during this audit were:
+
+| `n` | color 0 optimum | color 1 optimum | theorem bound `2n-4` |
+|---:|---:|---:|---:|
+| 6 | 8 | 8 | 8 |
+| 7 | 10 | 10 | 10 |
+| 8 | 12 | 12 | 12 |
+| 9 | 14 | 13 | 14 |
+| 10 | 15 | 15 | 16 |
+
+Reproduction:
+
+```bash
+python -m pip install numpy scipy
+python math/checkerboard/tools/corroborate_milp.py \
+  --n-min 6 --n-max 10 --time-limit 120
+```
+
+These optimizer runs are corroboration only.  No LRAT, FRAT, VeriPB, or exact
+MIP dual certificate is claimed for them.
+
+## Mathematical cross-checks
+
+The human proof was independently reconstructed from the finite definitions.
+The following exact formulas were checked symbolically:
+
+\[
+\sum_{x=0}^{n-1}(2x-(n-1))^2=\frac{n(n^2-1)}3,
+\]
+
+\[
+D_{\rm end}=\frac{2(n-1)(n^2-2n+3)}3,
+\qquad
+D_{\rm dbl}=\frac{2n(n-1)(n-2)}3,
+\]
+
+and the three master lower bounds
+
+\[
+(n-1)(n-2)(n-3),
+\quad n(n-1)(n-5),
+\quad (n-1)(n^2-5n+3).
+\]
+
+At the minimal admissible cases the lower-minus-upper gaps expand as:
+
+- odd endpoint, `n=7+t`: `t^3+13t^2+50t+48`;
+- odd all-double, `n=7+t`: `t^3+13t^2+48t+34`;
+- even mixed, `n=6+t`: `t^3+10t^2+26t+4`.
+
+All coefficients are nonnegative and the constants are positive.
+
+## Lean verification procedure
+
+The project is pinned to Lean and Mathlib `v4.32.0`.
 
 ```bash
 cd proofs/lean/Checkerboard
 lake update
 lake build
+! grep -RnE '\bsorry\b|\badmit\b|native_decide' --include='*.lean' .
+! grep -RnE '^[[:space:]]*(axiom|constant)[[:space:]]' \
+    --include='*.lean' Checkerboard Checkerboard.lean
+lake env lean Checkerboard/FinalTheorem.lean
 ```
 
-The CI workflow also performs a source guard:
+The final file contains
 
-```bash
-! grep -RnE '\bsorry\b|\badmit\b|native_decide' .
+```lean
+#print axioms Checkerboard.checkerboard_Dmono_le
 ```
 
-## Required review before publication
+A completed verification requires:
 
-Before public claims of resolution, the following should be reviewed independently:
+1. zero build errors;
+2. no placeholder match in Lean source;
+3. no project-defined axiom or constant used as a mathematical assumption;
+4. no `sorryAx` in the printed dependency set;
+5. successful checking of the current PR head, not an earlier commit.
 
-1. the parity-capacity profile derivation;
-2. the complete finite moment identity;
-3. the capacity-majorization lemma;
-4. the support and projection interpretation of every continuum transport component;
-5. the smoothing and finite-sampling lower transfer;
-6. the exact statement of Kahn's theorem and every hypothesis in the blow-up construction.
+The CI workflow runs the build and axiom audit independently on Linux and macOS
+and uploads both logs.  At the time of this report both hosted jobs are queued,
+not failed and not passed.
 
-## Safe public wording
+## Honest public wording before CI completes
 
-> The repository contains a research-draft resolution of Prellberg's four-direction LP limit conjecture, new finite defect-moment bounds, extensive exact computational verification, and a partial sorry-free Lean formalization of the algebraic core. The full all-slope checkerboard no-three-in-line limit remains open.
+> A complete finite human proof and a full Lean source formalization of
+> `D_mono(n) ≤ 2n-4` for `n≥6` are present in draft PR #29, with exact finite
+> corroboration.  The current pinned Lean build and axiom audit are still
+> pending; the theorem should not yet be called formally verified.
