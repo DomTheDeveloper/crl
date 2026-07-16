@@ -17,12 +17,13 @@ lemma isSyndetic_mono {S T : Set ℕ} (hST : S ⊆ T) (hS : IsSyndetic S) :
 
 /--
 The Cassels-type basis constructed in the AlphaProof solution of Erdős 741(ii)
-has a stronger finite-partition obstruction: in every partition into at least
-two pairwise-disjoint cells, one cell has a non-syndetic self-sumset.
+has an arbitrary-partition obstruction: for every partition indexed by a
+nontrivial type, one cell has a non-syndetic self-sumset.  No finiteness
+assumption on the index type is needed.
 -/
-theorem cassels_set_finite_partition_obstruction
-    (m : ℕ) (hm : 2 ≤ m)
-    (parts : Fin m → Set ℕ)
+theorem cassels_set_arbitrary_partition_obstruction
+    {ι : Type*} [Nontrivial ι]
+    (parts : ι → Set ℕ)
     (hcover : ∀ x, x ∈ Erdos741.cassels_set ↔ ∃ i, x ∈ parts i)
     (hdisj : ∀ i j, i ≠ j → Disjoint (parts i) (parts j)) :
     ∃ i, ¬ IsSyndetic (parts i + parts i) := by
@@ -32,14 +33,8 @@ theorem cassels_set_finite_partition_obstruction
     by_contra hnot
     exact hnone ⟨i, hnot⟩
 
-  let i0 : Fin m := ⟨0, by omega⟩
-  let i1 : Fin m := ⟨1, by omega⟩
+  obtain ⟨i0, i1, hi10⟩ := exists_pair_ne ι
   let rest : Set ℕ := {x | ∃ i, i ≠ i0 ∧ x ∈ parts i}
-
-  have hi10 : i1 ≠ i0 := by
-    intro h
-    have hv := congrArg Fin.val h
-    simp [i0, i1] at hv
 
   have hpartition : Erdos741.cassels_set = parts i0 ∪ rest := by
     ext x
@@ -88,20 +83,21 @@ theorem cassels_set_finite_partition_obstruction
   · exact (Erdos741.not_syndetic_of_large_gaps (parts i0 + parts i0) hgap0) hsyn0
   · exact (Erdos741.not_syndetic_of_large_gaps (rest + rest) hgapRest) hsynRest
 
-/-- Closed existential form, combining the upstream construction with the new upgrade lemma. -/
-theorem exists_basis_with_finite_partition_obstruction :
+/-- Closed existential form of the arbitrary-partition strengthening. -/
+theorem exists_basis_with_arbitrary_partition_obstruction :
     ∃ A : Set ℕ,
       IsAddBasisOfOrder (A ∪ {0}) 2 ∧
-      ∀ (m : ℕ), 2 ≤ m →
-        ∀ (parts : Fin m → Set ℕ),
+      ∀ (ι : Type), Nontrivial ι →
+        ∀ (parts : ι → Set ℕ),
           (∀ x, x ∈ A ↔ ∃ i, x ∈ parts i) →
           (∀ i j, i ≠ j → Disjoint (parts i) (parts j)) →
           ∃ i, ¬ IsSyndetic (parts i + parts i) := by
   refine ⟨Erdos741.cassels_set, ?_, ?_⟩
   · exact Erdos741.cassels_set_is_good.1
-  · intro m hm parts hcover hdisj
-    exact cassels_set_finite_partition_obstruction m hm parts hcover hdisj
+  · intro ι hι parts hcover hdisj
+    letI : Nontrivial ι := hι
+    exact cassels_set_arbitrary_partition_obstruction parts hcover hdisj
 
-#print axioms Erdos741Finite.exists_basis_with_finite_partition_obstruction
+#print axioms Erdos741Finite.exists_basis_with_arbitrary_partition_obstruction
 
 end Erdos741Finite
