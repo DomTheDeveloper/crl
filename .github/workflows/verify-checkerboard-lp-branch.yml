@@ -1,0 +1,56 @@
+name: Verify checkerboard LP branch
+
+on:
+  push:
+    branches:
+      - agent/checkerboard-lp-asymptotic-lean
+    paths:
+      - "proofs/lean/Checkerboard/**"
+      - ".github/workflows/verify-checkerboard-lp-branch.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checkerboard-lp-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lean-checkerboard-lp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Guard proof sources
+        working-directory: proofs/lean/Checkerboard
+        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' --include='*.lean' ."
+
+      - name: Resolve Mathlib
+        working-directory: proofs/lean/Checkerboard
+        run: lake update
+
+      - name: Fetch Mathlib cache
+        working-directory: proofs/lean/Checkerboard
+        run: lake exe cache get || true
+
+      - name: Compile LP modules
+        working-directory: proofs/lean/Checkerboard
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean Checkerboard/LP/AlgebraicParameter.lean 2>&1 | tee lp-build.log
+          lake env lean Checkerboard/LP/FiniteModel.lean 2>&1 | tee -a lp-build.log
+          lake env lean Checkerboard/LP/LimitTransfer.lean 2>&1 | tee -a lp-build.log
+          lake build 2>&1 | tee -a lp-build.log
+
+      - name: Reject sorryAx
+        working-directory: proofs/lean/Checkerboard
+        run: "! grep -q sorryAx lp-build.log"
