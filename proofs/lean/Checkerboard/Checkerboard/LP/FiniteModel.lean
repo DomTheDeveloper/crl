@@ -69,11 +69,14 @@ lemma zero_fractionalFeasible (n ε : ℕ) :
   · intro l
     simp [lineLoad]
 
-lemma fractionalValueSet_nonempty (n ε : ℕ) :
-    (fractionalValueSet n ε).Nonempty := by
-  refine ⟨0, ?_⟩
+lemma zero_mem_fractionalValueSet (n ε : ℕ) :
+    (0 : ℝ) ∈ fractionalValueSet n ε := by
   refine ⟨fun _ => 0, zero_fractionalFeasible n ε, ?_⟩
   simp [fractionalObjective]
+
+lemma fractionalValueSet_nonempty (n ε : ℕ) :
+    (fractionalValueSet n ε).Nonempty :=
+  ⟨0, zero_mem_fractionalValueSet n ε⟩
 
 /-- Summing all row loads counts every point mass exactly once. -/
 lemma fractionalObjective_eq_sum_rowLoads {n ε : ℕ}
@@ -104,9 +107,7 @@ lemma fractionalValueSet_bddAbove (n ε : ℕ) :
   exact fractionalObjective_le_two_mul hx
 
 lemma L4_nonneg (n ε : ℕ) : 0 ≤ L4 n ε := by
-  exact csSup_least (fractionalValueSet_nonempty n ε) fun v hv => by
-    rcases hv with ⟨x, hx, rfl⟩
-    exact Finset.sum_nonneg fun p _ => hx.1 p
+  exact le_csSup (fractionalValueSet_bddAbove n ε) (zero_mem_fractionalValueSet n ε)
 
 lemma L4_le_two_mul (n ε : ℕ) : L4 n ε ≤ 2 * n := by
   exact csSup_le (fractionalValueSet_nonempty n ε) fun v hv => by
