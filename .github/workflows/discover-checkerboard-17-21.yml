@@ -79,10 +79,12 @@ jobs:
             python3 "$root/generate_cnf.py" --n "$N" --parity "$PARITY" --at-least "$k" \
               --cnf "$stem.cnf" --metadata "$stem.json" | tee "$stem.generator.log"
 
+            set +e
             timeout 45m "$RUNNER_TEMP/cadical/build/cadical" "$stem.cnf" > "$stem.cadical.log" 2>&1
             cadical_code=$?
             timeout 45m "$RUNNER_TEMP/kissat/build/kissat" "$stem.cnf" > "$stem.kissat.log" 2>&1
             kissat_code=$?
+            set -e
             cadical_status="$(classify "$cadical_code" "$stem.cadical.log")"
             kissat_status="$(classify "$kissat_code" "$stem.kissat.log")"
             hash="$(sha256sum "$stem.cnf" | awk '{print $1}')"
