@@ -1,0 +1,10 @@
+name = "erdos846_sharp"
+defaultTargets = ["Erdos846Sharp"]
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+version = "git#v4.27.0"
+
+[[lean_lib]]
+name = "Erdos846Sharp"
