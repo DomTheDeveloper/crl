@@ -1,0 +1,41 @@
+name: Dmono22 exact SAT shards
+
+on:
+  push:
+    branches: [solve-dmono22-exact]
+  workflow_dispatch:
+
+jobs:
+  exact-shard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        top: [12,18,20,24,34,36,40,48,66,68,72,80,96,130,132,136,144]
+        shard: [0,1,2,3,4,5,6,7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install exact SAT backend
+        run: pip install --disable-pip-version-check python-sat
+      - name: Run exhaustive shard
+        working-directory: math/checkerboard/n22_exact
+        env:
+          SOLVER: glucose42
+          LEFT_BUD: '2000000'
+          RB_BUD: '500000'
+          LEAF_BUD: '5000000'
+        run: |
+          set -o pipefail
+          python -u adaptive_top.py '${{ matrix.top }}' '${{ matrix.shard }}' 8 | tee 'double_${{ matrix.top }}_${{ matrix.shard }}.jsonl'
+      - name: Upload manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dmono22-${{ matrix.top }}-${{ matrix.shard }}
+          path: math/checkerboard/n22_exact/double_${{ matrix.top }}_${{ matrix.shard }}.jsonl
+          if-no-files-found: error
