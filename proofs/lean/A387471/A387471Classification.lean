@@ -20,9 +20,11 @@ namespace A387471
 def Vanishes {ι : Type*} (s : Finset ι) (z : ι → ℂ) : Prop :=
   ∑ i ∈ s, z i = 0
 
-/-- Minimality means that no nonempty proper subcollection vanishes. -/
+/-- Minimality means that the sum is nonempty and no nonempty proper
+subcollection vanishes. -/
 def MinimallyVanishes {ι : Type*} (s : Finset ι) (z : ι → ℂ) : Prop :=
-  Vanishes s z ∧ ∀ t : Finset ι, t ⊂ s → t.Nonempty → ¬ Vanishes t z
+  s.Nonempty ∧ Vanishes s z ∧
+    ∀ t : Finset ι, t ⊂ s → t.Nonempty → ¬ Vanishes t z
 
 @[simp] theorem vanishes_empty {ι : Type*} (z : ι → ℂ) : Vanishes ∅ z := by
   simp [Vanishes]
@@ -53,8 +55,29 @@ theorem vanishing_relation_coprime_power {N : ℕ} (hN : 0 < N) {ζ : ℂ}
     rw [hq, map_mul, hroot, zero_mul]
   simpa [pow_mul] using heval
 
+/-- Distinct powers below the order of a primitive root are distinct. -/
+theorem primitive_powers_injective {p : ℕ} {ρ : ℂ} (hρ : IsPrimitiveRoot ρ p) :
+    Function.Injective (fun r : Fin p ↦ ρ ^ (r : ℕ)) := by
+  intro r s hrs
+  apply Fin.ext
+  exact hρ.pow_inj r.isLt s.isLt hrs
+
+/-- The finite Fourier transform associated to a primitive root. -/
+noncomputable def Fourier {p : ℕ} (ρ : ℂ) (v : Fin p → ℂ) (t : Fin p) : ℂ :=
+  ∑ r : Fin p, (ρ ^ (t : ℕ)) ^ (r : ℕ) * v r
+
+/-- The full Fourier matrix of a primitive root is nonsingular. -/
+theorem fourier_eq_zero {p : ℕ} {ρ : ℂ} (hρ : IsPrimitiveRoot ρ p)
+    (v : Fin p → ℂ) (h : ∀ t : Fin p, Fourier ρ v t = 0) :
+    v = 0 := by
+  apply Matrix.eq_zero_of_forall_index_sum_pow_mul_eq_zero
+    (primitive_powers_injective hρ)
+  simpa [Fourier] using h
+
 #print axioms vanishes_empty
 #print axioms aeval_exponentPolynomial
 #print axioms vanishing_relation_coprime_power
+#print axioms primitive_powers_injective
+#print axioms fourier_eq_zero
 
 end A387471
