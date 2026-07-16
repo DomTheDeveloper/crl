@@ -3,10 +3,14 @@ name: Verify A387471 macOS
 on:
   push:
     branches: [ci/a387471-macos-current]
+  pull_request:
+    paths:
+      - 'proofs/lean/A387471/**'
+      - '.github/workflows/verify-a387471-macos.yml'
   workflow_dispatch:
 
 concurrency:
-  group: a387471-macos-${{ github.ref }}
+  group: a387471-macos-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
