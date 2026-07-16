@@ -1,5 +1,5 @@
 name = "a387471"
-defaultTargets = ["A387471", "A387471Trig", "A387471Families", "A387471Roots", "A387471Fourier", "A387471Classification"]
+defaultTargets = ["A387471", "A387471Trig", "A387471Families", "A387471Roots", "A387471Fourier", "A387471Arithmetic", "A387471Classification"]
 
 [[require]]
 name = "mathlib"
@@ -20,6 +20,9 @@ name = "A387471Roots"
 
 [[lean_lib]]
 name = "A387471Fourier"
+
+[[lean_lib]]
+name = "A387471Arithmetic"
 
 [[lean_lib]]
 name = "A387471Classification"
