@@ -1,4 +1,4 @@
-name: Verify Erdős 741 finite-partition theorem
+name: Verify Erdős 741 arbitrary-partition theorem
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  lean-erdos741-finite:
+  lean-erdos741-partitions:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -52,14 +52,14 @@ jobs:
             echo '::error::Proof depends on sorryAx'
             exit 1
           fi
-          grep -q 'exists_basis_with_finite_partition_obstruction' build.log
+          grep -q 'exists_basis_with_arbitrary_partition_obstruction' build.log
           grep -iE 'axioms|propext|Classical.choice|Quot.sound' build.log || true
 
       - name: Upload audit log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: erdos741-finite-kernel-audit
+          name: erdos741-partitions-kernel-audit
           path: proofs/lean/Erdos741Finite/build.log
           if-no-files-found: warn
           retention-days: 30
