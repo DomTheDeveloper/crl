@@ -5,6 +5,7 @@ import Checkerboard.MasterAlgebra
 import Checkerboard.LP.AlgebraicParameter
 import Checkerboard.LP.CubicInterval
 import Checkerboard.LP.PrimalParameters
+import Checkerboard.LP.PrimalParameterBounds
 import Checkerboard.LP.MiddleCertificate
 import Checkerboard.LP.DualDefinitions
 import Checkerboard.LP.Bernstein
