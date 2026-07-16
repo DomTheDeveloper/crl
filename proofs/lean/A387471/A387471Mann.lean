@@ -71,7 +71,75 @@ theorem residue_constant_of_minimal {ι : Type*} {N p : ℕ}
   have : i ∈ fiber := hfiber_eq.symm ▸ hi
   simpa [fiber] using this
 
+/-- If `p²` divides the conductor, every prime-residue Fourier coefficient is
+obtained from a coprime Galois conjugate of the original relation. -/
+theorem residueVector_eq_zero_squareful {ι : Type*} {p m : ℕ}
+    (hp : p.Prime) (hm : m ≠ 0) (hpm : p ∣ m)
+    (s : Finset ι) (a : ι → Fin (p * m))
+    (hvan : Vanishes s (fun i ↦ canonicalRoot (p * m) ^ (a i).val)) :
+    residueVector (N := p * m) (p := p) s a = 0 := by
+  letI : NeZero p := ⟨hp.ne_zero⟩
+  apply ZMod.dft.injective
+  funext t
+  rw [map_zero, dft_residueVector]
+  have hconj := vanishing_relation_coprime_power
+    (N := p * m) (Nat.mul_pos hp.pos (Nat.pos_of_ne_zero hm))
+    (canonicalRoot_isPrimitive (mul_ne_zero hp.ne_zero hm))
+    s (fun i ↦ (a i).val)
+    (by simpa [Vanishes] using hvan)
+    (conjugatingExponent p m t)
+    (conjugatingExponent_coprime_squareful hp hpm t)
+  simpa only [canonicalRoot_conjugatingExponent hp hm] using hconj
+
+/-- If `p > 6` occurs only once in the conductor, the at-most-six terms miss a
+residue class. All Fourier coefficients except one are Galois conjugates, and
+one-missing Fourier inversion forces every residue-class subsum to vanish. -/
+theorem residueVector_eq_zero_large_prime {ι : Type*} {p m : ℕ}
+    (hp : p.Prime) (hm : m ≠ 0) (hpm : ¬ p ∣ m) (hp6 : 6 < p)
+    (s : Finset ι) (a : ι → Fin (p * m)) (hcard : s.card ≤ 6)
+    (hvan : Vanishes s (fun i ↦ canonicalRoot (p * m) ^ (a i).val)) :
+    residueVector (N := p * m) (p := p) s a = 0 := by
+  letI : NeZero p := ⟨hp.ne_zero⟩
+  let tag : ι → ZMod p := fun i ↦ exponentResidue (p := p) (a i)
+  obtain ⟨r₀, hr₀⟩ := exists_missing_residue hp s tag hcard hp6
+  have hv₀ : residueVector (N := p * m) (p := p) s a r₀ = 0 := by
+    simp [residueVector, tag, hr₀]
+  apply dft_eq_zero_of_one_missing
+    (residueVector (N := p * m) (p := p) s a)
+    ((m : ZMod p)⁻¹) r₀ hv₀
+  intro t ht
+  rw [dft_residueVector]
+  have hconj := vanishing_relation_coprime_power
+    (N := p * m) (Nat.mul_pos hp.pos (Nat.pos_of_ne_zero hm))
+    (canonicalRoot_isPrimitive (mul_ne_zero hp.ne_zero hm))
+    s (fun i ↦ (a i).val)
+    (by simpa [Vanishes] using hvan)
+    (conjugatingExponent p m t)
+    (conjugatingExponent_coprime_squarefree hp hpm t ht)
+  simpa only [canonicalRoot_conjugatingExponent hp hm] using hconj
+
+/-- A bad prime factor of the conductor forces all exponents in a minimal
+weight-at-most-six relation into one residue class. -/
+theorem residue_constant_bad_prime {ι : Type*} {p m : ℕ}
+    (hp : p.Prime) (hm : m ≠ 0)
+    (s : Finset ι) (a : ι → Fin (p * m)) (hcard : s.card ≤ 6)
+    (hmin : MinimallyVanishes s
+      (fun i ↦ canonicalRoot (p * m) ^ (a i).val))
+    (hbad : p ∣ m ∨ 6 < p) :
+    ∃ r : ZMod p, ∀ i ∈ s, exponentResidue (p := p) (a i) = r := by
+  rcases hbad with hpm | hp6
+  · exact residue_constant_of_minimal s a hmin
+      (residueVector_eq_zero_squareful hp hm hpm s a hmin.2.1)
+  · by_cases hpm : p ∣ m
+    · exact residue_constant_of_minimal s a hmin
+        (residueVector_eq_zero_squareful hp hm hpm s a hmin.2.1)
+    · exact residue_constant_of_minimal s a hmin
+        (residueVector_eq_zero_large_prime hp hm hpm hp6 s a hcard hmin.2.1)
+
 #print axioms dft_residueVector
 #print axioms residue_constant_of_minimal
+#print axioms residueVector_eq_zero_squareful
+#print axioms residueVector_eq_zero_large_prime
+#print axioms residue_constant_bad_prime
 
 end A387471
