@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent coverage audit for downloaded GitHub Actions manifests."""
+"""Independent coverage audit for downloaded exact n=22 manifests."""
 import argparse,glob,json,sys
 from pathlib import Path
 import n22_data as c
@@ -12,6 +12,9 @@ def rows_for(pattern):
    try:rows.append((fn,n,json.loads(line)))
    except Exception as e:errors.append(f'{fn}:{n}: invalid JSON: {e}')
  return fs,rows
+def canonical_quad(top,left,rb,rr):
+ q=(top,left,rb,rr)
+ return q==min(q,(left,top,rr,rb),(rb,rr,top,left),(rr,rb,left,top))
 for top in c.DOUBLES:
  allm=[m for m in c.DOUBLES if m>=top];lefts_all=[m for m in allm if (m&1)==(top&1)];covered=[]
  for shard in range(a.shards):
@@ -30,14 +33,9 @@ for top in c.DOUBLES:
   for left in assigned:
    if left in direct_left:continue
    for rb in allm:
+    required=[rr for rr in allm if (rr&1)==(rb&1) and canonical_quad(top,left,rb,rr)]
+    if not required:continue
     if (left,rb) in direct_rb:continue
-    required=[]
-    for rr in allm:
-     if (rr&1)!=(rb&1):continue
-     if left==top and rr<rb:continue
-     if rb==top and rr<left:continue
-     if rr==top and rb<left:continue
-     required.append(rr)
     miss=[rr for rr in required if (left,rb,rr) not in leaves]
     if miss:errors.append(f'top {top} shard {shard} left {left} rb {rb}: missing {miss}')
   tot['double_lefts']+=len(assigned);tot['double_rb_direct']+=len(direct_rb);tot['double_leaves']+=len(leaves)
@@ -58,5 +56,5 @@ for bit in range(11):
    req=[rr for rr in rbs if (rr&1)==(rb&1)];miss=[rr for rr in req if (left,rb,rr) not in lv]
    if miss:errors.append(f'singleton bit {bit} left {left} rb {rb}: missing {miss}')
  tot['singleton_bits']+=1;tot['singleton_lefts']+=len(lefts);tot['singleton_rb_direct']+=len(dr);tot['singleton_leaves']+=len(lv)
-report={'target':34,'singleton_closed':tot['singleton_bits']==11,'double_top_closed':55 if not any(e.startswith('top ') for e in errors) else None,'witnesses':tot['witnesses'],'unknown_unresolved':len(errors),'totals':tot,'errors':errors,'PASS':not errors}
+report={'target':34,'symmetry':'parity-preserving Klein-four lexicographic canonicalization','singleton_closed':tot['singleton_bits']==11,'double_top_closed':55 if not any(e.startswith('top ') for e in errors) else None,'witnesses':tot['witnesses'],'unknown_unresolved':len(errors),'totals':tot,'errors':errors,'PASS':not errors}
 Path(a.out).write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2));sys.exit(1 if errors else 0)
