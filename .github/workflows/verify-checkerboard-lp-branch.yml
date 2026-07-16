@@ -58,6 +58,7 @@ jobs:
           for source in \
             Checkerboard/LP/AlgebraicParameter.lean \
             Checkerboard/LP/CubicInterval.lean \
+            Checkerboard/LP/CubicField.lean \
             Checkerboard/LP/PrimalParameterBounds.lean \
             Checkerboard/LP/MiddleCertificate.lean \
             Checkerboard/LP/MiddleGeometry.lean \
