@@ -1,0 +1,78 @@
+name: Check checkerboard certificate sources
+
+on:
+  pull_request:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
+    paths:
+      - math/checkerboard/finite_certificates/**
+      - .github/workflows/check-checkerboard-certificate-sources.yml
+  workflow_dispatch:
+
+concurrency:
+  group: checkerboard-source-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify exact theorem and committed certificates
+        working-directory: math/checkerboard/finite_certificates
+        run: |
+          set -euxo pipefail
+          python3 verify_manifest.py
+          python3 test_encoding.py
+          python3 test_exhaustive_upper_bounds.py
+          python3 test_binary_exhaustive.py
+          python3 verify_profiles.py
+          python3 verify_profiles_independent.py
+          python3 verify_symmetry_invariance.py
+
+          python3 verify_exhaustive_upper_bounds.py | tee exhaustive-proof.log
+          grep -q 'VERIFIED D_mono(21,0) <= 32 nodes=13560' exhaustive-proof.log
+          grep -q 'VERIFIED D_mono(21,1) <= 32 nodes=13239' exhaustive-proof.log
+          grep -q 'ALL N=21 EXHAUSTIVE UPPER BOUNDS VERIFIED nodes=26799' exhaustive-proof.log
+
+          python3 verify_exhaustive_upper_bounds_binary.py | tee binary-exhaustive-proof.log
+          grep -q 'BINARY VERIFIED D_mono(21,0) <= 32 nodes=13160' binary-exhaustive-proof.log
+          grep -q 'BINARY VERIFIED D_mono(21,1) <= 32 nodes=4890' binary-exhaustive-proof.log
+          grep -q 'ALL BINARY EXHAUSTIVE UPPER BOUNDS VERIFIED nodes=18050' binary-exhaustive-proof.log
+
+          python3 check_coordinates_independent.py constructions/*.json
+
+      - name: Regenerate every upper-bound instance and verify its semantics
+        working-directory: math/checkerboard/finite_certificates
+        run: |
+          set -euxo pipefail
+          out="$RUNNER_TEMP/checkerboard-certs"
+          mkdir -p "$out"
+
+          python3 generate_cnf.py --n 17 --parity 0 --at-least 27 \
+            --cnf "$out/n17-p0-k27.cnf" --metadata "$out/n17-p0-k27.json"
+          python3 generate_cnf.py --n 17 --parity 1 --at-least 27 \
+            --cnf "$out/n17-p1-k27.cnf" --metadata "$out/n17-p1-k27.json"
+          python3 generate_reduced_n21.py --parity 0 \
+            --cnf "$out/n21-p0-k33.cnf" --metadata "$out/n21-p0-k33.json"
+          python3 generate_reduced_n21.py --parity 1 \
+            --cnf "$out/n21-p1-k33.cnf" --metadata "$out/n21-p1-k33.json"
+
+          for cnf in "$out"/*.cnf; do
+            metadata="${cnf%.cnf}.json"
+            python3 verify_instance_semantics.py --cnf "$cnf" --metadata "$metadata"
+          done
+          python3 verify_manifest.py --metadata "$out"/*.json
+          sha256sum "$out"/*.cnf "$out"/*.json | tee "$out/SHA256SUMS"
+          cp exhaustive-proof.log binary-exhaustive-proof.log "$out/"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: checkerboard-deterministic-source-audit
+          path: ${{ runner.temp }}/checkerboard-certs/
+          if-no-files-found: error
