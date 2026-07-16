@@ -9,6 +9,7 @@ on:
       - "scripts/checkerboard/generate_outer_certificate.py"
       - "scripts/checkerboard/generate_outer_density_certificate.py"
       - "scripts/checkerboard/generate_outer_support_certificate.py"
+      - "scripts/checkerboard/generate_outer_geometry_certificate.py"
       - ".github/workflows/verify-checkerboard-lp-branch.yml"
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - "scripts/checkerboard/generate_outer_certificate.py"
       - "scripts/checkerboard/generate_outer_density_certificate.py"
       - "scripts/checkerboard/generate_outer_support_certificate.py"
+      - "scripts/checkerboard/generate_outer_geometry_certificate.py"
       - ".github/workflows/verify-checkerboard-lp-branch.yml"
   workflow_dispatch:
 
@@ -38,6 +40,7 @@ jobs:
           python scripts/checkerboard/generate_outer_certificate.py
           python scripts/checkerboard/generate_outer_density_certificate.py
           python scripts/checkerboard/generate_outer_support_certificate.py
+          python scripts/checkerboard/generate_outer_geometry_certificate.py
 
       - name: Install elan
         run: |
@@ -72,6 +75,8 @@ jobs:
             Checkerboard/LP/OuterCertificateData.lean \
             Checkerboard/LP/OuterDensityCertificate.lean \
             Checkerboard/LP/OuterSupportCertificate.lean \
+            Checkerboard/LP/OuterGeometryBase.lean \
+            Checkerboard/LP/OuterGeometryCertificate.lean \
             Checkerboard/LP/FiniteModel.lean \
             Checkerboard/LP/FiniteDual.lean \
             Checkerboard/LP/ContinuumModel.lean \
@@ -95,5 +100,6 @@ jobs:
             proofs/lean/Checkerboard/Checkerboard/LP/OuterCertificateData.lean
             proofs/lean/Checkerboard/Checkerboard/LP/OuterDensityCertificate.lean
             proofs/lean/Checkerboard/Checkerboard/LP/OuterSupportCertificate.lean
+            proofs/lean/Checkerboard/Checkerboard/LP/OuterGeometryCertificate.lean
             proofs/lean/Checkerboard/lp-build.log
           if-no-files-found: error
