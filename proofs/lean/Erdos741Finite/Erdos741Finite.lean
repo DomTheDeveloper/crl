@@ -122,7 +122,7 @@ large gaps in every other cell.
 theorem exists_basis_with_strong_partition_obstruction :
     ∃ A : Set ℕ,
       IsAddBasisOfOrder (A ∪ {0}) 2 ∧
-      ∀ (ι : Type) (parts : ι → Set ℕ),
+      ∀ {ι : Type*} (parts : ι → Set ℕ),
         (∀ x, x ∈ A ↔ ∃ i, x ∈ parts i) →
         (∀ i j, i ≠ j → Disjoint (parts i) (parts j)) →
         ∀ i j, i ≠ j → IsSyndetic (parts j + parts j) →
