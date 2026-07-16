@@ -1,0 +1,95 @@
+name: Prove Conway s84
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/conway99-rigorous-campaign
+    paths:
+      - math/conway99/src/s84_cover_sat.py
+      - math/conway99/src/s84_seedstar_cubes.py
+      - math/conway99/src/s84_burnside_audit.py
+      - math/conway99/src/s84_ci_shard.py
+      - math/conway99/src/s84_audit_bundle.py
+      - math/conway99/src/drup_check_extra.cpp
+      - .github/workflows/prove-conway99-s84.yml
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r math/conway99/requirements.txt
+      - run: mkdir -p /tmp/s84-inputs
+      - run: python math/conway99/src/s84_seedstar_cubes.py --out /tmp/s84-inputs/cubes.json
+      - run: python math/conway99/src/s84_burnside_audit.py > /tmp/s84-inputs/burnside.json
+      - run: python math/conway99/src/s84_cover_sat.py --no-symmetry --cnf /tmp/s84-inputs/base.cnf --emit-only | tee /tmp/s84-inputs/base-build.jsonl
+      - run: sha256sum /tmp/s84-inputs/base.cnf /tmp/s84-inputs/cubes.json /tmp/s84-inputs/burnside.json > /tmp/s84-inputs/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s84-inputs
+          path: /tmp/s84-inputs
+          retention-days: 30
+          compression-level: 0
+  prove:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r math/conway99/requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: s84-inputs
+          path: /tmp/s84-inputs
+      - run: g++ -O3 -std=c++17 math/conway99/src/drup_check_extra.cpp -o /tmp/drup_check_extra
+      - run: python math/conway99/src/s84_ci_shard.py --base /tmp/s84-inputs/base.cnf --cubes /tmp/s84-inputs/cubes.json --checker /tmp/drup_check_extra --out /tmp/s84-shard --shard-index ${{ matrix.shard }} --shard-count 16
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s84-shard-${{ matrix.shard }}
+          path: /tmp/s84-shard
+          retention-days: 7
+          compression-level: 0
+  aggregate:
+    needs: prove
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: s84-inputs
+          path: /tmp/s84-inputs
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: s84-shard-*
+          path: /tmp/s84-all
+          merge-multiple: true
+      - run: g++ -O3 -std=c++17 math/conway99/src/drup_check_extra.cpp -o /tmp/drup_check_extra
+      - run: mkdir -p /tmp/s84-final
+      - run: python math/conway99/src/s84_audit_bundle.py --base /tmp/s84-inputs/base.cnf --cubes /tmp/s84-inputs/cubes.json --results /tmp/s84-all/results --proofs /tmp/s84-all/proofs --checker /tmp/drup_check_extra --out /tmp/s84-final/manifest.json
+      - run: cp /tmp/s84-inputs/cubes.json /tmp/s84-inputs/burnside.json /tmp/s84-inputs/SHA256SUMS /tmp/s84-final/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: conway99-s84-complete-certificates
+          path: |
+            /tmp/s84-final
+            /tmp/s84-all/results
+            /tmp/s84-all/proofs
+          retention-days: 30
+          compression-level: 0
