@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Direct exact MaxSAT optimization of the n=22 monochromatic no-three problem."""
+"""Direct exact MaxSAT optimization of the n=22 monochromatic no-three problem.
+
+Observable independent rerun: 2026-07-16.
+"""
 import itertools,json,math,time
 from pysat.formula import WCNF
 from pysat.examples.rc2 import RC2
