@@ -11,6 +11,10 @@ on:
       - ".github/workflows/verify-checkerboard.yml"
   workflow_dispatch:
 
+concurrency:
+  group: verify-checkerboard-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lean-checkerboard:
     name: lean-checkerboard (${{ matrix.os }})
