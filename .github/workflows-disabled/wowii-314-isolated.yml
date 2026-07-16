@@ -1,0 +1,101 @@
+name: WOWII 314 Isolated Lean Check
+
+on:
+  pull_request:
+    paths:
+      - 'WOWII/ZZGraphConjecture314*.lean'
+      - '.github/workflows/wowii-314-isolated.yml'
+      - '.audit314/**'
+  push:
+    branches:
+      - formal-conjectures-wowii-143
+    paths:
+      - 'WOWII/ZZGraphConjecture314*.lean'
+      - '.github/workflows/wowii-314-isolated.yml'
+  workflow_dispatch:
+
+jobs:
+  lean-314:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout proof campaign
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned Formal Conjectures
+        uses: actions/checkout@v4
+        with:
+          repository: google-deepmind/formal-conjectures
+          ref: b2e608fc52d765510915a244bb69b1a2741acc3c
+          path: formal-conjectures
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Download Mathlib cache
+        working-directory: formal-conjectures
+        run: lake exe cache get
+
+      - name: Build upstream target modules
+        working-directory: formal-conjectures
+        run: |
+          lake build \
+            FormalConjectures.WrittenOnTheWallII.GraphConjecture143 \
+            FormalConjectures.WrittenOnTheWallII.GraphConjecture314
+
+      - name: Prepare campaign tree
+        run: |
+          rm -rf formal-conjectures/WOWII
+          cp -R WOWII formal-conjectures/WOWII
+
+      - name: Compile WOWII 314 stack in dependency order
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -uo pipefail
+          export LEAN_PATH="$PWD:${LEAN_PATH:-}"
+          : > wowii-314-build.log
+          files=(
+            WOWII/GraphConjecture143Proof.lean
+            WOWII/ZZGraphConjecture314Core.lean
+            WOWII/ZZGraphConjecture314DominatingEdge.lean
+            WOWII/ZZGraphConjecture314BipartiteCommon.lean
+            WOWII/ZZGraphConjecture314ChainGraph.lean
+            WOWII/ZZGraphConjecture314Cycle5.lean
+            WOWII/ZZGraphConjecture314Cycle5Blowup.lean
+            WOWII/ZZGraphConjecture314P5Bridge.lean
+            WOWII/ZZGraphConjecture314GeodesicP5.lean
+            WOWII/ZZGraphConjecture314BipartiteClassification.lean
+            WOWII/ZZGraphConjecture314CycleDichotomy.lean
+            WOWII/ZZGraphConjecture314C5Embedding.lean
+            WOWII/ZZGraphConjecture314C5Dominates.lean
+            WOWII/ZZGraphConjecture314C5Bags.lean
+            WOWII/ZZGraphConjecture314ConditionalFinal.lean
+            WOWII/ZZGraphConjecture314C5BlowupClassification.lean
+            WOWII/ZZGraphConjecture314Final.lean
+          )
+          for f in "${files[@]}"; do
+            echo "=== Checking $f ===" | tee -a wowii-314-build.log
+            lake env lean -o "${f%.lean}.olean" "$f" 2>&1 | tee -a wowii-314-build.log
+            code=${PIPESTATUS[0]}
+            if [ "$code" -ne 0 ]; then exit "$code"; fi
+          done
+
+      - name: Reject hidden sorry dependencies
+        if: always()
+        working-directory: formal-conjectures
+        run: |
+          set -euo pipefail
+          ! grep -q 'sorryAx' wowii-314-build.log
+
+      - name: Upload Lean diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wowii-314-build-log
+          path: formal-conjectures/wowii-314-build.log
+          if-no-files-found: warn
+          retention-days: 14

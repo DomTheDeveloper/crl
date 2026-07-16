@@ -1,0 +1,1 @@
+Compile after normalizing both orientations of every induced-P5 edge and nonedge in the subgraph isomorphism.
