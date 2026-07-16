@@ -1,0 +1,59 @@
+# Completed OpenMP neighborhood runs
+# Each block contains the exact instance header and final local exclusion line.
+# These are finite neighborhood results, not global UNSAT certificates.
+
+## n22_33_augment_d7.log
+instance n=22 parity=0 points=242 lines=2455 seed_size=33 target=34 mode=augment initial_conflicts=0 destroy=7 removal_subsets=4272048 threads=8
+UNSAT_NEIGHBORHOOD mode=augment destroy=7 completed_removal_subsets=4272048 eligible_removal_subsets=4272048 dfs_nodes=5547150 terminal_addition_sets=0 average_initial_candidates=9.720 elapsed_seconds=8.957
+NOTE this excludes only configurations obtainable from the supplied seed by removing exactly 7 seed points and adding exactly 8 points; it is not a global UNSAT proof.
+
+## n22_33_seed_b_augment_d7.log
+instance n=22 parity=0 points=242 lines=2455 seed_size=33 target=34 mode=augment initial_conflicts=0 destroy=7 removal_subsets=4272048 threads=8
+UNSAT_NEIGHBORHOOD mode=augment destroy=7 completed_removal_subsets=4272048 eligible_removal_subsets=4272048 dfs_nodes=6083293 terminal_addition_sets=0 average_initial_candidates=8.957 elapsed_seconds=8.776
+NOTE this excludes only configurations obtainable from the supplied seed by removing exactly 7 seed points and adding exactly 8 points; it is not a global UNSAT proof.
+
+## n22_33_seed_c_augment_d7.log
+instance n=22 parity=0 points=242 lines=2455 seed_size=33 target=34 mode=augment initial_conflicts=0 destroy=7 removal_subsets=4272048 threads=8
+UNSAT_NEIGHBORHOOD mode=augment destroy=7 completed_removal_subsets=4272048 eligible_removal_subsets=4272048 dfs_nodes=5673075 terminal_addition_sets=0 average_initial_candidates=8.594 elapsed_seconds=8.321
+NOTE this excludes only configurations obtainable from the supplied seed by removing exactly 7 seed points and adding exactly 8 points; it is not a global UNSAT proof.
+
+## n22_near34_repair_d1.log
+instance n=22 parity=0 points=242 lines=2455 seed_size=34 target=34 mode=repair initial_conflicts=1 destroy=1 removal_subsets=34 threads=56
+UNSAT_NEIGHBORHOOD mode=repair destroy=1 completed_removal_subsets=34 eligible_removal_subsets=3 dfs_nodes=0 terminal_addition_sets=0 average_initial_candidates=0.000 elapsed_seconds=0.044
+NOTE this excludes only configurations obtainable from the supplied seed by removing exactly 1 seed points and adding exactly 1 points; it is not a global UNSAT proof.
+
+## n22_near34_repair_d2.log
+instance n=22 parity=0 points=242 lines=2455 seed_size=34 target=34 mode=repair initial_conflicts=1 destroy=2 removal_subsets=561 threads=56
+UNSAT_NEIGHBORHOOD mode=repair destroy=2 completed_removal_subsets=561 eligible_removal_subsets=96 dfs_nodes=6 terminal_addition_sets=0 average_initial_candidates=0.176 elapsed_seconds=0.092
+NOTE this excludes only configurations obtainable from the supplied seed by removing exactly 2 seed points and adding exactly 2 points; it is not a global UNSAT proof.
+
+## n22_near34_repair_d3.log
+instance n=22 parity=0 points=242 lines=2455 seed_size=34 target=34 mode=repair initial_conflicts=1 destroy=3 removal_subsets=5984 threads=56
+UNSAT_NEIGHBORHOOD mode=repair destroy=3 completed_removal_subsets=5984 eligible_removal_subsets=1489 dfs_nodes=310 terminal_addition_sets=0 average_initial_candidates=0.522 elapsed_seconds=0.145
+NOTE this excludes only configurations obtainable from the supplied seed by removing exactly 3 seed points and adding exactly 3 points; it is not a global UNSAT proof.
+
+## n22_near34_repair_d4.log
+instance n=22 parity=0 points=242 lines=2455 seed_size=34 target=34 mode=repair initial_conflicts=1 destroy=4 removal_subsets=46376 threads=56
+UNSAT_NEIGHBORHOOD mode=repair destroy=4 completed_removal_subsets=46376 eligible_removal_subsets=14911 dfs_nodes=7054 terminal_addition_sets=0 average_initial_candidates=1.039 elapsed_seconds=0.163
+NOTE this excludes only configurations obtainable from the supplied seed by removing exactly 4 seed points and adding exactly 4 points; it is not a global UNSAT proof.
+
+## n22_near34_repair_d5.log
+instance n=22 parity=0 points=242 lines=2455 seed_size=34 target=34 mode=repair initial_conflicts=1 destroy=5 removal_subsets=278256 threads=56
+UNSAT_NEIGHBORHOOD mode=repair destroy=5 completed_removal_subsets=278256 eligible_removal_subsets=108345 dfs_nodes=90666 terminal_addition_sets=0 average_initial_candidates=1.741 elapsed_seconds=0.367
+NOTE this excludes only configurations obtainable from the supplied seed by removing exactly 5 seed points and adding exactly 5 points; it is not a global UNSAT proof.
+
+## n22_near34_repair_d6.log
+instance n=22 parity=0 points=242 lines=2455 seed_size=34 target=34 mode=repair initial_conflicts=1 destroy=6 removal_subsets=1344904 threads=56
+UNSAT_NEIGHBORHOOD mode=repair destroy=6 completed_removal_subsets=1344904 eligible_removal_subsets=608623 dfs_nodes=726152 terminal_addition_sets=0 average_initial_candidates=2.658 elapsed_seconds=1.179
+NOTE this excludes only configurations obtainable from the supplied seed by removing exactly 6 seed points and adding exactly 6 points; it is not a global UNSAT proof.
+
+## n22_near34_repair_d7.log
+instance n=22 parity=0 points=242 lines=2455 seed_size=34 target=34 mode=repair initial_conflicts=1 destroy=7 removal_subsets=5379616 threads=56
+UNSAT_NEIGHBORHOOD mode=repair destroy=7 completed_removal_subsets=5379616 eligible_removal_subsets=2750041 dfs_nodes=3863582 terminal_addition_sets=0 average_initial_candidates=3.839 elapsed_seconds=5.186
+NOTE this excludes only configurations obtainable from the supplied seed by removing exactly 7 seed points and adding exactly 7 points; it is not a global UNSAT proof.
+
+## n22_near34_repair_d8.log
+instance n=22 parity=0 points=242 lines=2455 seed_size=34 target=34 mode=repair initial_conflicts=1 destroy=8 removal_subsets=18156204 threads=56
+UNSAT_NEIGHBORHOOD mode=repair destroy=8 completed_removal_subsets=18156204 eligible_removal_subsets=10267479 dfs_nodes=15067716 terminal_addition_sets=0 average_initial_candidates=5.357 elapsed_seconds=23.240
+NOTE this excludes only configurations obtainable from the supplied seed by removing exactly 8 seed points and adding exactly 8 points; it is not a global UNSAT proof.
+
