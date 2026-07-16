@@ -9,6 +9,10 @@ on:
     paths: ["proofs/lean/**", ".github/workflows/verify-lean.yml"]
   workflow_dispatch:
 
+concurrency:
+  group: verify-lean-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lean-core:
     runs-on: ubuntu-latest
