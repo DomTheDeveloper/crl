@@ -1,146 +1,219 @@
 # Written on the Wall II — Graph Conjecture 314
 
-## Theorem
+## Exact theorem
 
-Let `G` be a finite connected nontrivial triangle-free graph. If `G` has no
-induced path on five vertices, then all inclusion-minimal total dominating sets
-of `G` have the same cardinality. Hence `G` is well totally dominated.
+Let `G` be a finite, connected, nontrivial, triangle-free graph. If the largest
+induced path of `G` has at most four vertices, then every inclusion-minimal total
+dominating set of `G` has the same cardinality. Equivalently, `G` is well totally
+dominated.
 
-This proves WOWII Graph Conjecture 314, because `largestInducedPathSize G ≤ 4`
-is exactly the assertion that `G` is induced-`P5`-free.
+The proof gives the sharper structural classification:
 
-## Input theorem
+1. the bipartite graphs under the hypotheses are connected chain graphs, and
+   every minimal total dominating set has cardinality `2`;
+2. the nonbipartite graphs under the hypotheses are nonempty complete blow-ups
+   of `C₅`, and every minimal total dominating set has cardinality `3`.
 
-We use the classical theorem of Bacsó and Tuza:
+Throughout, an **induced `P₅`** means an induced path on five distinct vertices.
+The hypothesis `largestInducedPathSize G ≤ 4` therefore forbids an induced `P₅`.
 
-> Every connected `P5`-free graph has a dominating clique or a dominating
-> induced `P3`.
+## 1. Odd-cycle dichotomy
 
-In a triangle-free graph, a clique has at most two vertices. A dominating
-single vertex together with any incident edge yields a dominating edge.
+Assume first that `G` is nonbipartite. Choose a shortest odd cycle `C`. A
+shortest odd cycle has no chord: a chord divides it into two cycles, exactly one
+of which is odd and shorter. Triangle-freeness gives `|C| ≥ 5`. If `|C| ≥ 7`,
+then five consecutive vertices of the chordless cycle induce a `P₅`, contrary
+to the hypothesis. Hence `C` is an induced `C₅`.
 
-## Lemma 1: the bipartite case has a dominating edge
+Consequently every graph under the hypotheses is in exactly one of two cases:
 
-Assume `G` is bipartite. If the Bacsó–Tuza set is a clique, we already have a
-dominating edge. Otherwise let `a-b-c` be a dominating induced `P3`.
+- `G` is bipartite;
+- `G` contains an induced `C₅`.
 
-If neither `ab` nor `bc` dominates, choose
+The Lean proof formalizes the same dichotomy by coloring vertices according to
+the parity of their distance from a fixed root. An edge joining equal parities
+would directly produce either a triangle, an induced `C₅`, or an induced `P₅`.
 
-- `z` not dominated by `{a,b}`; domination by the `P3` forces `z~c`, and
-- `y` not dominated by `{b,c}`; domination by the `P3` forces `y~a`.
+## 2. The bipartite case is a chain graph
+
+Fix a bipartition `A ∪ B`.
+
+### Lemma 2.1: vertices on one side have a common neighbor
+
+Let `a,b` be distinct vertices on the same side. A shortest `a`-`b` path is
+induced. It cannot have length at least four, because its first five vertices
+would induce a `P₅`. Its length is positive and even, so it is exactly two.
+Thus `a` and `b` have a common neighbor on the opposite side.
+
+### Lemma 2.2: neighborhoods on each side are nested
+
+Suppose `a,b` lie on the same side and their neighborhoods are incomparable.
+Choose
+
+- `x ∈ N(a) \ N(b)`,
+- `y ∈ N(b) \ N(a)`, and
+- a common neighbor `c ∈ N(a) ∩ N(b)` from Lemma 2.1.
 
 Then
 
-`y-a-b-c-z`
+`x-a-c-b-y`
 
-is an induced `P5`: bipartiteness removes the same-side chords, and the choices
-of `y,z` remove all remaining chords. Contradiction. Thus `G` has a dominating
-edge `uv`.
+is an induced `P₅`. The four displayed edges exist. Vertices `x,c,y` lie on one
+side and `a,b` on the other, so bipartiteness removes all same-side chords; the
+choices of `x` and `y` remove `x-b` and `a-y`. This is a contradiction.
+Therefore, for any two vertices on the same side, one open neighborhood is
+contained in the other. This is precisely the chain-graph property.
 
-Let the bipartition be `A∪B`, with `u∈A`, `v∈B`. Since `uv` dominates and no
-same-side edges exist, `v` is adjacent to every vertex of `A`, and `u` is
-adjacent to every vertex of `B`.
+### Lemma 2.3: every minimal total dominating set has size two
 
-Let `S` be an inclusion-minimal total dominating set and write
-`S_A=S∩A`, `S_B=S∩B`. Both are nonempty. Suppose `S_A` contains distinct
-`a1,a2`. Minimality supplies private neighbors `b1,b2∈B` such that
+Let `S` be an inclusion-minimal total dominating set. Total domination forces
+`S` to meet both sides of the bipartition.
 
-`N(bi)∩S={ai}`.
+We show that `S` contains at most one vertex from each side. Suppose instead
+that distinct `a₁,a₂ ∈ S` lie on the same side. By minimality, each `aᵢ` has a
+private neighbor `bᵢ`: a vertex adjacent to `aᵢ` and to no other member of `S`.
+By Lemma 2.1, `a₁,a₂` have a common neighbor `c`. Then
 
-Neither `bi` is `v`, and `b1≠b2`. Then
+`b₁-a₁-c-a₂-b₂`
 
-`b1-a1-v-a2-b2`
+is an induced `P₅`. Indeed, all five required vertices are distinct; the four
+path edges exist; bipartiteness removes edges among `b₁,c,b₂` and removes
+`a₁a₂`; and privacy removes `b₁a₂` and `a₁b₂`. Contradiction.
 
-is an induced `P5`, contradiction. Therefore `|S_A|=1`; symmetrically
-`|S_B|=1`. Every minimal total dominating set has size `2`.
+Thus `S` has exactly one vertex on each side, so `|S| = 2`. Hence every graph in
+the bipartite branch is well totally dominated.
 
-## Lemma 2: the nonbipartite case is a nonempty blow-up of C5
+## 3. The nonbipartite case is a nonempty `C₅` blow-up
 
-Assume `G` is nonbipartite. Let `C` be a shortest odd cycle. It is chordless;
-triangle-freeness gives `|C|≥5`, while induced-`P5`-freeness gives `|C|≤5`.
-Thus `C=c0c1c2c3c4c0` is an induced `C5`.
+Let
 
-### C dominates G
+`C = c₀c₁c₂c₃c₄c₀`
 
-Suppose a vertex has distance at least two from `C`, and take a shortest path
-to `C`. If the distance is at least three, the last cycle edge extends four
-vertices of the geodesic to an induced `P5`. If the distance is two, write the
-path as `x-p-c0`. Triangle-freeness forbids `p` from seeing `c1` or `c4`; at
-most one of `c2,c3` can also see `p`. One of
+be an induced five-cycle, with indices read modulo five.
 
-`x-p-c0-c1-c2`, `x-p-c0-c4-c3`
+### Lemma 3.1: the cycle dominates the graph
 
-is therefore an induced `P5`. Contradiction. Hence every vertex meets `C`.
+Suppose some vertex has distance at least two from `C`, and take a shortest path
+to `C`.
 
-### Cycle neighborhoods
+If the distance is at least three, the last four vertices of the geodesic,
+together with a suitable neighbor of its endpoint on `C`, form an induced
+`P₅`. Geodesicity excludes backward chords, and triangle-freeness excludes the
+remaining chord through the cycle edge.
 
-For `x∉C`, `N_C(x)` is independent, hence has at most two vertices. It cannot
-have size one, because if `N_C(x)={c0}`, then
+If the distance is exactly two, write the path as `x-p-c₀`. Triangle-freeness
+forbids `p` from seeing `c₁` or `c₄`, and `p` cannot see both `c₂` and `c₃`,
+since those two cycle vertices are adjacent. Therefore at least one of
 
-`x-c0-c1-c2-c3`
+`x-p-c₀-c₁-c₂`,  `x-p-c₀-c₄-c₃`
 
-is an induced `P5`. Therefore every vertex has exactly two nonconsecutive
-neighbors on `C`.
+is an induced `P₅`. This is again impossible. Hence every vertex has a neighbor
+on `C`.
 
-For indices modulo five, define
+### Lemma 3.2: every vertex belongs to a unique cycle bag
 
-`A_i={x : N_C(x)={c_{i-1},c_{i+1}}}`,
+For a vertex `x`, its neighbors on `C` form an independent set, because `G` is
+triangle-free. Since the independence number of `C₅` is two, `x` has at most
+two cycle neighbors. It cannot have exactly one: if its only cycle neighbor is
+`c₀`, then
 
-including `c_i∈A_i`. Each `A_i` is nonempty.
+`x-c₀-c₁-c₂-c₃`
 
-- `A_i` is independent, because two of its vertices share a cycle neighbor.
-- Nonconsecutive classes are anticomplete, for the same triangle-free reason.
-- Consecutive classes are complete: if `x∈A_i`, `y∈A_{i+1}` were nonadjacent,
-  then, after cyclic relabeling,
+is an induced `P₅`. By Lemma 3.1 it has at least one, so it has exactly two,
+and they are nonconsecutive.
 
-  `x-c_{i-1}-c_{i-2}-c_{i+2}-y`
+Define
 
-  would be an induced `P5`.
+`Aᵢ = {x : N(x) ∩ V(C) = {cᵢ₋₁,cᵢ₊₁}}`.
 
-Thus `G` is exactly a blow-up of `C5` into five nonempty independent classes,
-with complete joins between consecutive classes.
+Every vertex belongs to exactly one `Aᵢ`, and `cᵢ ∈ Aᵢ`; hence all five bags are
+nonempty.
 
-## Lemma 3: every minimal TDS of a nonempty C5 blow-up has size 3
+### Lemma 3.3: the bag adjacencies are exactly those of `C₅`
 
-Vertices in the same class `A_i` are false twins. A minimal total dominating
-set contains at most one vertex from each class: if it contained two, deleting
-one would leave the same class support and hence preserve total domination.
+Each `Aᵢ` is independent: two vertices in the same bag share a cycle neighbor,
+so an edge between them would create a triangle.
 
-The set of occupied class indices is therefore an inclusion-minimal total
-dominating set of the quotient `C5`, and conversely its representatives have
-the same domination behavior.
+If `i` and `j` are nonadjacent in the quotient cycle, vertices of `Aᵢ` and
+`Aⱼ` share a cycle neighbor, so the two bags are anticomplete by the same
+triangle argument.
 
-`C5` has no total dominating set of size two. Every three consecutive vertices
-form a total dominating set. Every four- or five-vertex set contains three
-consecutive vertices and is therefore not minimal. Consequently every minimal
-total dominating set of `C5`, and hence of its nonempty blow-ups, has size `3`.
+Finally, consecutive bags are completely joined. Suppose `x ∈ Aᵢ` and
+`y ∈ Aᵢ₊₁` are nonadjacent. Then
+
+`x-cᵢ₋₁-cᵢ₋₂-cᵢ₊₂-y`
+
+is an induced `P₅`: the displayed consecutive pairs are edges, and the bag
+definitions, the induced-cycle property, and the assumed missing edge exclude
+all six chords. Contradiction.
+
+Thus there is a surjection `bag : V(G) → V(C₅)` satisfying
+
+`xy ∈ E(G)  ↔  bag(x)bag(y) ∈ E(C₅)`.
+
+So `G` is exactly a blow-up of `C₅` into five nonempty independent bags, with
+complete joins between consecutive bags.
+
+## 4. Minimal total domination in a `C₅` blow-up
+
+Vertices in one bag are false twins: they have identical open neighborhoods.
+A minimal total dominating set cannot contain two false twins, because deleting
+one leaves every vertex dominated. Therefore a minimal total dominating set
+contains at most one representative from each bag.
+
+Its occupied bag indices form an inclusion-minimal total dominating set of the
+quotient `C₅`, and conversely domination of representatives is determined
+entirely by the quotient.
+
+No two vertices totally dominate `C₅`: a nonadjacent pair does not dominate
+itself, while an adjacent pair misses the vertex opposite that edge. On the
+other hand, every three consecutive vertices totally dominate `C₅`. Every set
+of four or five cycle vertices contains three consecutive vertices and hence
+cannot be inclusion-minimal. It follows that every minimal total dominating set
+of `C₅` has cardinality three.
+
+Therefore every minimal total dominating set of a nonempty `C₅` blow-up has
+cardinality `3`.
 
 ## Conclusion
 
-Every graph under the hypotheses is in exactly one of the following cases:
+Every graph satisfying the hypotheses is either
 
-1. bipartite with a dominating edge — every minimal TDS has size `2`;
-2. a nonempty blow-up of `C5` — every minimal TDS has size `3`.
+- a connected chain graph, whose minimal total dominating sets all have size
+  `2`, or
+- a nonempty complete blow-up of `C₅`, whose minimal total dominating sets all
+  have size `3`.
 
-In either case the graph is well totally dominated. ∎
+In either case all inclusion-minimal total dominating sets have equal
+cardinality. Therefore `G` is well totally dominated. ∎
 
-## Computational audit
+## Formalization map
 
-An independent exhaustive audit of connected triangle-free induced-`P5`-free
-unlabeled graphs through ten vertices found 307 graphs:
+The exact Lean theorem is
 
-| n | count |
-|---:|---:|
-| 2 | 1 |
-| 3 | 1 |
-| 4 | 3 |
-| 5 | 5 |
-| 6 | 11 |
-| 7 | 19 |
-| 8 | 41 |
-| 9 | 74 |
-| 10 | 152 |
+```lean
+theorem WrittenOnTheWallII.GraphConjecture314.conjecture314_proved
+    [Nontrivial α] (G : SimpleGraph α) [DecidableRel G.Adj]
+    (hG : G.Connected)
+    (hTriFree : ∀ a b c : α,
+      G.Adj a b → G.Adj b c → G.Adj c a → False)
+    (hPath : largestInducedPathSize G ≤ 4) :
+    IsWellTotallyDominated G
+```
 
-Every bipartite example had minimal total dominating sets uniformly of size 2;
-every nonbipartite example was a `C5` blow-up and had them uniformly of size 3.
-The computation is corroboration, not a substitute for the proof above.
+The modules are ordered as follows:
+
+1. `Core`, `DominatingEdge`, `P5Bridge`, `GeodesicP5` — definitions and the
+   exact bridge from the official induced-path invariant;
+2. `BipartiteCommon`, `ChainGraph`, `BipartiteClassification` — the chain-graph
+   branch and cardinality two;
+3. `Cycle5`, `CycleDichotomy`, `C5Embedding`, `C5Dominates`, `C5Bags`,
+   `C5BlowupClassification` — the nonbipartite classification;
+4. `Cycle5Blowup`, `ConditionalFinal`, `Final` — quotient total domination and
+   exact top-level assembly.
+
+The repository workflow checks the proof against pinned Formal Conjectures
+commit `b2e608fc52d765510915a244bb69b1a2741acc3c`, rejects explicit `sorry`,
+`admit`, `native_decide`, custom `axiom`, and `opaque` declarations, compiles
+the final module, verifies the exact upstream theorem type, runs
+`#print axioms`, and fails if `sorryAx` appears.
