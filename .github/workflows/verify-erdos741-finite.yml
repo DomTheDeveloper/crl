@@ -1,4 +1,4 @@
-name: Verify Erdős 741 arbitrary-partition theorem
+name: Verify Erdős 741 partition strengthening
 
 on:
   push:
@@ -52,7 +52,7 @@ jobs:
             echo '::error::Proof depends on sorryAx'
             exit 1
           fi
-          grep -q 'exists_basis_with_arbitrary_partition_obstruction' build.log
+          grep -q 'exists_basis_with_at_most_one_syndetic_cell' build.log
           grep -iE 'axioms|propext|Classical.choice|Quot.sound' build.log || true
 
       - name: Upload audit log
