@@ -1,14 +1,13 @@
 import Mathlib
 import A387471Families
+import A387471Fourier
 
 /-!
 # Weight-six roots-of-unity classification for OEIS A387471
 
-This module is the proof boundary that was missing from the original draft.
-It contains a self-contained specialization of Mann's theorem to minimal
-vanishing sums of at most six roots of unity, the finite order-30
-classification, and the grid-level sine classification used by the exact
-sequence theorem.
+This module contains the algebraic primitives used by the specialized Mann
+reduction and the final finite classification. No classification statement is
+introduced as an axiom or hypothesis.
 -/
 
 open scoped BigOperators
@@ -39,7 +38,7 @@ noncomputable def exponentPolynomial {ι : Type*} (s : Finset ι) (a : ι → �
   simp [exponentPolynomial]
 
 /-- An integer-coefficient relation among powers of a primitive root remains
-valid after replacing the root by any coprime power.  This is the elementary
+valid after replacing the root by any coprime power. This is the elementary
 Galois-conjugacy input in the specialized Mann argument. -/
 theorem vanishing_relation_coprime_power {N : ℕ} (hN : 0 < N) {ζ : ℂ}
     (hζ : IsPrimitiveRoot ζ N) {ι : Type*} (s : Finset ι) (a : ι → ℕ)
@@ -54,25 +53,6 @@ theorem vanishing_relation_coprime_power {N : ℕ} (hN : 0 < N) {ζ : ℂ}
   have heval : Polynomial.aeval (ζ ^ u) (exponentPolynomial s a) = 0 := by
     rw [hq, map_mul, hroot, zero_mul]
   simpa [pow_mul] using heval
-
-/-- Distinct powers below the order of a primitive root are distinct. -/
-theorem primitive_powers_injective {p : ℕ} {ρ : ℂ} (hρ : IsPrimitiveRoot ρ p) :
-    Function.Injective (fun r : Fin p ↦ ρ ^ (r : ℕ)) := by
-  intro r s hrs
-  apply Fin.ext
-  exact hρ.pow_inj r.isLt s.isLt hrs
-
-/-- The finite Fourier transform associated to a primitive root. -/
-noncomputable def Fourier {p : ℕ} (ρ : ℂ) (v : Fin p → ℂ) (t : Fin p) : ℂ :=
-  ∑ r : Fin p, (ρ ^ (t : ℕ)) ^ (r : ℕ) * v r
-
-/-- The full Fourier matrix of a primitive root is nonsingular. -/
-theorem fourier_eq_zero {p : ℕ} {ρ : ℂ} (hρ : IsPrimitiveRoot ρ p)
-    (v : Fin p → ℂ) (h : ∀ t : Fin p, Fourier ρ v t = 0) :
-    v = 0 := by
-  apply Matrix.eq_zero_of_forall_index_sum_pow_mul_eq_zero
-    (primitive_powers_injective hρ)
-  simpa [Fourier] using h
 
 /-- Regrouping a finite weighted sum by a finite-valued tag. -/
 theorem sum_weighted_fibers {ι κ R : Type*} [DecidableEq ι] [Fintype κ]
@@ -89,8 +69,6 @@ theorem sum_weighted_fibers {ι κ R : Type*} [DecidableEq ι] [Fintype κ]
 #print axioms vanishes_empty
 #print axioms aeval_exponentPolynomial
 #print axioms vanishing_relation_coprime_power
-#print axioms primitive_powers_injective
-#print axioms fourier_eq_zero
 #print axioms sum_weighted_fibers
 
 end A387471
