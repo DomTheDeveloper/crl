@@ -1,0 +1,1 @@
+Compile the latest proof stack including the repaired bipartite branch and distance/path-injectivity corrections in the C5 dichotomy.
