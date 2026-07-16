@@ -103,3 +103,42 @@ jobs:
           if grep -q "sorryAx" build.log; then
             echo "::error::Proof depends on sorryAx — not a real proof."; exit 1
           fi
+
+  lean-a387471-macos:
+    if: github.base_ref == 'agent/a387471-lean-reduction'
+    runs-on: macos-14
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan (Lean toolchain manager)
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Guard — no proof placeholders/native_decide in any A387471 module
+        run: "! grep -RnE --include='*.lean' '(^|[[:space:]])(sorry|admit|native_decide)([[:space:]]|$)' proofs/lean/A387471"
+      - name: Resolve Mathlib dependency
+        working-directory: proofs/lean/A387471
+        run: lake update
+      - name: Fetch prebuilt Mathlib cache
+        working-directory: proofs/lean/A387471
+        run: lake exe cache get || echo "cache miss — Mathlib will build from source"
+      - name: Build, kernel-check, and print axioms
+        working-directory: proofs/lean/A387471
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build 2>&1 | tee build-macos.log
+      - name: Upload macOS Lean build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a387471-macos-build-log
+          path: proofs/lean/A387471/build-macos.log
+          if-no-files-found: error
+      - name: Assert clean axiom footprint (no sorryAx)
+        working-directory: proofs/lean/A387471
+        run: |
+          if grep -q "sorryAx" build-macos.log; then
+            echo "::error::Proof depends on sorryAx — not a real proof."; exit 1
+          fi
