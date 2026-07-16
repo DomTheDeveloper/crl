@@ -12,14 +12,31 @@ recorded only as performance data.
 
 - exact reduction from 99 vertices to an 84-vertex labelled Boolean graph;
 - exact SAT and CP-SAT encodings of the reduced equations;
-- two independent witness verifiers;
+- three independent witness-verification paths: common-neighbor, integer-matrix,
+  and projector/decomposition checks;
+- exact spectrum `12^1,(-2)^6,0^7,3^40,(-4)^30` for the reduced graph;
+- exact decomposition into an 84-edge transition 2-factor and 140 edge-disjoint
+  disjoint-label triangles;
+- seven perfect matchings between the stars of the seven fixed matching pairs;
+- exact classification and multiplicities of the 11 adjacent-pair local types;
+- exact rank-30 and rank-40 integral projector identities for structural pruning;
+- exact spectrum and 13 radius-one profiles for the 231-vertex triangle graph;
+- a necessary 36,484-variable transition/triangle CP-SAT relaxation;
 - exact full-stabilizer audit reducing the seed split from six overlapping
   cases to five disjoint orbit classes of sizes `1,10,10,20,80`;
 - SAT and CP-SAT reconstruction of the known `SRG(9,4,1,2)` regression graph;
-- independent combinatorial and matrix verification of both regression
-  witnesses;
 - a small CaDiCaL UNSAT trace independently accepted by the RUP checker;
 - a strict manifest checker for exhaustive cube-and-conquer coverage.
+
+## Search results that are explicitly not proofs
+
+- all five seed classes have radius-one transition/triangle completions;
+- all 11 adjacent-pair local types survive ordinary spectral interlacing;
+- bounded transition/triangle CP-SAT runs returned `UNKNOWN`;
+- bounded complete-CNF runs returned timeout/no result.
+
+These results show that a successful proof must couple multiple local cores;
+they do not favor either existence or nonexistence.
 
 ## Not completed
 
