@@ -3,9 +3,9 @@ import Checkerboard.N21Profiles
 /-!
 # Finite Boolean closure of the 21×21 upper bounds
 
-The dual profiles leave 136 and 132 candidate points.  Lean computes the
+The dual profiles leave 136 and 132 candidate points. Lean computes the
 collinear triples among those candidates and bit-blasts the two remaining
-finite statements.  The resulting SAT proof is checked by `bv_decide`.
+finite statements. The resulting SAT proof is checked by `bv_decide`.
 -/
 
 namespace Checkerboard
@@ -17,29 +17,33 @@ structure IndexTriple (n : ℕ) where
   c : Fin n
   deriving DecidableEq, Fintype
 
-private def selectedIndices {n : ℕ} (x : Fin n → Bool) : Finset (Fin n) :=
+/-- Selected indices of a Boolean assignment. -/
+def selectedIndices {n : ℕ} (x : Fin n → Bool) : Finset (Fin n) :=
   Finset.univ.filter fun i => x i = true
 
-private def selectedPoints {n : ℕ} (point : Fin n → Point 21)
+/-- Selected board points of a Boolean assignment. -/
+def selectedPoints {n : ℕ} (point : Fin n → Point 21)
     (x : Fin n → Bool) : Finset (Point 21) :=
   (selectedIndices x).image point
 
-private def collinearTriples {n : ℕ} (point : Fin n → Point 21) :
+/-- All increasing collinear triples in an indexed candidate set. -/
+def collinearTriples {n : ℕ} (point : Fin n → Point 21) :
     Finset (IndexTriple n) :=
   Finset.univ.filter fun t =>
     t.a.1 < t.b.1 ∧ t.b.1 < t.c.1 ∧
       determinant (point t.a) (point t.b) (point t.c) = 0
 
-private def avoidsCollinearTriples {n : ℕ} (point : Fin n → Point 21)
+/-- Boolean assignment avoids every generated collinear triple. -/
+def avoidsCollinearTriples {n : ℕ} (point : Fin n → Point 21)
     (x : Fin n → Bool) : Prop :=
   ∀ t ∈ collinearTriples point,
     x t.a ≠ true ∨ x t.b ≠ true ∨ x t.c ≠ true
 
-/-- Independent fingerprints of the generated all-slope constraints. -/
+/-- Independent fingerprint of the generated fat all-slope constraints. -/
 theorem n21p0_collinearTriple_count :
     (collinearTriples n21p0Point).card = 5084 := by decide
 
-/-- Independent fingerprints of the generated all-slope constraints. -/
+/-- Independent fingerprint of the generated thin all-slope constraints. -/
 theorem n21p1_collinearTriple_count :
     (collinearTriples n21p1Point).card = 4796 := by decide
 
