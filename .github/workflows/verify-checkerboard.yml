@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   lean-checkerboard:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
