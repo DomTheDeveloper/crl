@@ -1,0 +1,43 @@
+name: Independent n22 MIP checks
+
+on:
+  push:
+    branches: [agent/n22-exhaustive-compute]
+    paths:
+      - ".github/n22_exact_mip.py"
+      - ".github/workflows/n22-independent-mip.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  solve:
+    name: ${{ matrix.solver }} exact all-double
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        solver: [highs, cpsat]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install independent solver
+        run: |
+          if [ "${{ matrix.solver }}" = highs ]; then pip install scipy; else pip install ortools; fi
+      - name: Solve exact target 34
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 320m python -u .github/n22_exact_mip.py "${{ matrix.solver }}" --limit 19000 \
+            | tee "n22_${{ matrix.solver }}.log"
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: n22-independent-${{ matrix.solver }}
+          path: n22_${{ matrix.solver }}.log
+          retention-days: 30
