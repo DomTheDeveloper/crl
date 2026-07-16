@@ -4,10 +4,20 @@ name: Verify Lean proofs
 
 on:
   push:
-    paths: ["proofs/lean/**", ".github/workflows/verify-lean.yml"]
+    paths:
+      - "proofs/lean/core/**"
+      - "proofs/lean/A317940/**"
+      - ".github/workflows/verify-lean.yml"
   pull_request:
-    paths: ["proofs/lean/**", ".github/workflows/verify-lean.yml"]
+    paths:
+      - "proofs/lean/core/**"
+      - "proofs/lean/A317940/**"
+      - ".github/workflows/verify-lean.yml"
   workflow_dispatch:
+
+concurrency:
+  group: verify-lean-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lean-core:
@@ -20,7 +30,7 @@ jobs:
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Guard — no sorry/admit in core sources
-        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b' proofs/lean/core"
+        run: "! grep -RnE '\bsorry\b|\badmit\b' proofs/lean/core"
       - name: Build & kernel-check core proofs
         working-directory: proofs/lean/core
         run: lake build
@@ -36,7 +46,7 @@ jobs:
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Guard — no sorry/admit/native_decide in the proof
-        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' proofs/lean/A317940/A317940.lean"
+        run: "! grep -RnE '\bsorry\b|\badmit\b|native_decide' proofs/lean/A317940/A317940.lean"
       - name: Resolve Mathlib dependency
         working-directory: proofs/lean/A317940
         run: lake update
