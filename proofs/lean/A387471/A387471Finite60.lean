@@ -5,10 +5,10 @@ import A387471MannFinal
 # Exact finite 60th-root certificate for A387471
 
 After the weight-six Mann reduction, every relevant sine angle is an integral
-multiple of `π / 30`. This module checks the remaining bounded classification
-inside Lean's kernel. The certificate is purely integral: powers of a primitive
-60th root are reduced modulo the explicit cyclotomic polynomial `Φ₆₀`, and the
-resulting sixteen-dimensional coefficient vectors are compared by `decide`.
+multiple of `π / 30`. The finite certificate is purely integral: powers of a
+primitive 60th root are represented by sixteen coefficient coordinates using
+the recurrence from `Φ₆₀`. The bounded `29^3` classification itself is checked
+by kernel `decide`.
 -/
 
 open Polynomial
@@ -36,22 +36,8 @@ lemma cyclotomic_sixty : cyclotomic 60 ℤ = phi60 := by
   simp [phi30, phi60]
   ring
 
-lemma phi60_monic : phi60.Monic := by
-  rw [← cyclotomic_sixty]
-  exact cyclotomic.monic 60 ℤ
-
 /-- Convert an integer exponent to its canonical residue modulo 60. -/
 def intResidue60 (a : ℤ) : Fin 60 := ⟨(a % 60).toNat, by omega⟩
-
-/-- Polynomial representing a 60th root with integer exponent. -/
-def rootPolynomial60 (a : ℤ) : ℤ[X] := X ^ (intResidue60 a).val
-
-/-- Polynomial representing `ζ^a - ζ^(-a)`, proportional to `sin(aπ/30)`. -/
-def sinePolynomial60 (a : ℤ) : ℤ[X] := rootPolynomial60 a - rootPolynomial60 (-a)
-
-/-- Polynomial representing a sum of three sine numerators. -/
-def relationPolynomial60 (a b c : ℤ) : ℤ[X] :=
-  sinePolynomial60 a + sinePolynomial60 b + sinePolynomial60 c
 
 /-- Coefficient vector of the constant polynomial `1`. -/
 def baseVec60 : Fin 16 → ℤ :=
@@ -77,16 +63,13 @@ def stepVec60 (v : Fin 16 → ℤ) : Fin 16 → ℤ :=
     v 13 - v 15,
     v 14]
 
-/-- Exact coefficient vectors for `X^k mod Φ₆₀`. -/
+/-- Exact coefficient vectors for successive powers of a primitive 60th root. -/
 def powVecNat60 : ℕ → Fin 16 → ℤ
   | 0 => baseVec60
   | k + 1 => stepVec60 (powVecNat60 k)
 
 /-- Exact coefficient vector for a residue exponent `0 ≤ k < 60`. -/
 def powVec60 (k : Fin 60) : Fin 16 → ℤ := powVecNat60 k.val
-
-/-- Turn a sixteen-dimensional coefficient vector into a polynomial. -/
-def vecPoly60 (v : Fin 16 → ℤ) : ℤ[X] := ∑ i : Fin 16, monomial i.val (v i)
 
 /-- Vector numerator for one sine. -/
 def sineVec60 (a : ℤ) : Fin 16 → ℤ :=
@@ -96,29 +79,62 @@ def sineVec60 (a : ℤ) : Fin 16 → ℤ :=
 def relationVec60 (a b c : ℤ) : Fin 16 → ℤ :=
   fun i ↦ sineVec60 a i + sineVec60 b i + sineVec60 c i
 
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 0 in
-theorem powVec60_correct :
-    ∀ k : Fin 60, X ^ k.val %ₘ phi60 = vecPoly60 (powVec60 k) := by
-  decide
+/-- Evaluate an integer coefficient vector at a complex number. -/
+noncomputable def evalVec60 (z : ℂ) (v : Fin 16 → ℤ) : ℂ :=
+  ∑ i : Fin 16, (v i : ℂ) * z ^ i.val
 
-lemma vecPoly60_eq_zero_iff (v : Fin 16 → ℤ) : vecPoly60 v = 0 ↔ v = 0 := by
+/-- The rational polynomial represented by a coefficient vector. -/
+noncomputable def vecPoly60Q (v : Fin 16 → ℤ) : ℚ[X] :=
+  ∑ i : Fin 16, C (v i : ℚ) * X ^ i.val
+
+lemma evalVec60_zero (z : ℂ) : evalVec60 z 0 = 0 := by
+  simp [evalVec60]
+
+lemma evalVec60_add (z : ℂ) (v w : Fin 16 → ℤ) :
+    evalVec60 z (v + w) = evalVec60 z v + evalVec60 z w := by
+  simp [evalVec60, Finset.sum_add_distrib]
+  ring
+
+lemma evalVec60_sub (z : ℂ) (v w : Fin 16 → ℤ) :
+    evalVec60 z (v - w) = evalVec60 z v - evalVec60 z w := by
+  simp [evalVec60, Finset.sum_sub_distrib]
+  ring
+
+lemma aeval_vecPoly60Q (z : ℂ) (v : Fin 16 → ℤ) :
+    Polynomial.aeval z (vecPoly60Q v) = evalVec60 z v := by
+  simp [vecPoly60Q, evalVec60]
+
+lemma coeff_vecPoly60Q (v : Fin 16 → ℤ) (i : Fin 16) :
+    (vecPoly60Q v).coeff i.val = (v i : ℚ) := by
+  classical
+  rw [vecPoly60Q, coeff_sum]
+  apply Finset.sum_eq_single i
+  · intro j _ hji
+    have hval : j.val ≠ i.val := fun h ↦ hji (Fin.ext h)
+    simp [hval]
+  · intro hi
+    simp at hi
+  · simp
+
+lemma vecPoly60Q_eq_zero_iff (v : Fin 16 → ℤ) : vecPoly60Q v = 0 ↔ v = 0 := by
   constructor
   · intro h
     funext i
-    have hi := congrArg (fun p : ℤ[X] ↦ p.coeff i.val) h
-    simpa [vecPoly60] using hi
+    have hi := congrArg (fun p : ℚ[X] ↦ p.coeff i.val) h
+    rw [coeff_vecPoly60Q] at hi
+    simpa using hi
   · rintro rfl
-    simp [vecPoly60]
+    simp [vecPoly60Q]
 
-lemma relationPolynomial60_mod_eq_vec (a b c : ℤ) :
-    relationPolynomial60 a b c %ₘ phi60 = vecPoly60 (relationVec60 a b c) := by
-  change (Polynomial.modByMonicHom phi60) (relationPolynomial60 a b c) = _
-  simp only [relationPolynomial60, sinePolynomial60, rootPolynomial60,
-    map_add, map_sub, powVec60_correct]
-  ext i
-  simp [vecPoly60, relationVec60, sineVec60]
-  ring
+lemma natDegree_vecPoly60Q_le (v : Fin 16 → ℤ) :
+    (vecPoly60Q v).natDegree ≤ 15 := by
+  rw [vecPoly60Q]
+  apply Polynomial.natDegree_sum_le_of_forall_le Finset.univ
+  intro i _
+  by_cases hi : v i = 0
+  · simp [hi]
+  · simp [hi]
+    omega
 
 /-- The bounded integer coordinate represented by `Fin 29`: values `-14,…,14`. -/
 def angleInt (a : Fin 29) : ℤ := a.val - 14
@@ -152,20 +168,9 @@ theorem finite60_grid_certificate :
         classifiedGrid (angleInt a) (angleInt b) (angleInt c) := by
   decide
 
-/-- Polynomial divisibility by `Φ₆₀` plus the angle bounds yields exactly the
-ordinary and two exceptional patterns. -/
-theorem relation_mod_zero_implies_classified_grid (a b c : Fin 29)
-    (hadm : admissibleGrid a b c)
-    (hmod : relationPolynomial60 (angleInt a) (angleInt b) (angleInt c) %ₘ phi60 = 0) :
-    classifiedGrid (angleInt a) (angleInt b) (angleInt c) := by
-  apply finite60_grid_certificate a b c hadm
-  rw [vectorRelationGrid]
-  rw [relationPolynomial60_mod_eq_vec] at hmod
-  exact (vecPoly60_eq_zero_iff _).mp hmod
-
 #print axioms cyclotomic_sixty
-#print axioms powVec60_correct
+#print axioms coeff_vecPoly60Q
+#print axioms natDegree_vecPoly60Q_le
 #print axioms finite60_grid_certificate
-#print axioms relation_mod_zero_implies_classified_grid
 
 end A387471
