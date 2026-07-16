@@ -56,6 +56,28 @@ theorem withDensity_finset_sum
       rw [withDensity_add_left hfa]
       rw [ih hfs]
 
+/-- Pushforward distributes over a finite sum of measures. -/
+theorem map_finset_sum
+    {α β ι : Type*} [MeasurableSpace α] [MeasurableSpace β]
+    [DecidableEq ι]
+    (s : Finset ι) (μ : ι → Measure α) (f : α → β)
+    (hf : Measurable f) :
+    Measure.map f (∑ i ∈ s, μ i) = ∑ i ∈ s, Measure.map f (μ i) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | @insert a s ha ih =>
+      rw [Finset.sum_insert ha, Finset.sum_insert ha]
+      rw [Measure.map_add _ _ hf, ih]
+
+/-- The full finite-type version of `map_finset_sum`. -/
+theorem map_fintype_sum
+    {α β ι : Type*} [MeasurableSpace α] [MeasurableSpace β]
+    [Fintype ι]
+    (μ : ι → Measure α) (f : α → β) (hf : Measurable f) :
+    Measure.map f (∑ i, μ i) = ∑ i, Measure.map f (μ i) := by
+  simpa using map_finset_sum Finset.univ μ f hf
+
 /-- Finite sums of weighted restricted intervals are represented by the sum of
 their interval densities. -/
 theorem sum_smul_restrict_eq_withDensity
@@ -85,7 +107,7 @@ theorem weighted_map_centered_interval_affine
   congr 1
   field_simp
 
-/-- The reversed affine orientation has the same weighted interval density. -/
+/-- The reversed affine orientation has the same interval pushforward. -/
 theorem weighted_map_centered_interval_affine_neg
     {w m s : ℝ} (hw : 0 ≤ w) (hs : 0 < s) :
     ENNReal.ofReal w •
