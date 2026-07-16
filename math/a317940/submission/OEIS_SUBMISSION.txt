@@ -1,7 +1,7 @@
 Suggested A317940 update
 
 PROOF:
-Let f be the rational arithmetic function in the definition and put c_e=f(p^e), independent of the prime p. Since A005187(e)=2e-s_2(e), where s_2 is the binary digit sum, the normalized local target coefficients are b_e=2^{-s_2(e}. Their generating series is
+Let f be the rational arithmetic function in the definition and put c_e=f(p^e), independent of the prime p. Since A005187(e)=2e-s_2(e), where s_2 is the binary digit sum, the normalized local target coefficients are b_e=2^{-s_2(e)}. Their generating series is
 
 B(x)=sum_{e>=0} b_e x^e = product_{r>=0} (1+x^(2^r)/2).
 
