@@ -1,0 +1,108 @@
+name: Exhaustive n22 checkerboard search
+
+on:
+  push:
+    branches:
+      - agent/n22-exhaustive-compute
+    paths:
+      - "math/checkerboard/compute/**"
+      - ".github/workflows/n22-exhaustive-compute.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: n22-exhaustive-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  double:
+    name: double t${{ matrix.top }} s${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        top: [3, 5, 6, 9, 10, 12, 17, 18, 20, 24, 33, 34, 36, 40, 48, 65, 66, 68, 72, 80, 96, 129, 130, 132, 136, 144, 160, 192, 257, 258, 260, 264, 272, 288, 320, 384, 513, 514, 516, 520, 528, 544, 576, 640, 768, 1025, 1026, 1028, 1032, 1040, 1056, 1088, 1152, 1280, 1536]
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install exact SAT dependencies
+        run: pip install --disable-pip-version-check python-sat
+      - name: Solve exact boundary shard
+        working-directory: math/checkerboard/compute
+        run: |
+          mkdir -p results
+          timeout 300m python -u n22_double_shard_reduced.py \
+            --top "${{ matrix.top }}" \
+            --shard "${{ matrix.shard }}" \
+            --shards 4 \
+            --out "results/double_${{ matrix.top }}_${{ matrix.shard }}.jsonl" \
+            | tee "results/double_${{ matrix.top }}_${{ matrix.shard }}.log"
+      - name: Upload exact shard manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: double-${{ matrix.top }}-${{ matrix.shard }}
+          path: math/checkerboard/compute/results/*
+          retention-days: 7
+
+  singleton:
+    name: singleton bit ${{ matrix.bit }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      max-parallel: 11
+      matrix:
+        bit: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install exact SAT dependencies
+        run: pip install --disable-pip-version-check python-sat
+      - name: Solve exact singleton regime
+        working-directory: math/checkerboard/compute
+        run: |
+          mkdir -p results
+          timeout 120m python -u n22_singleton_reduced.py \
+            --bit "${{ matrix.bit }}" \
+            --out "results/singleton_${{ matrix.bit }}.jsonl" \
+            | tee "results/singleton_${{ matrix.bit }}.log"
+      - name: Upload exact singleton manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: singleton-${{ matrix.bit }}
+          path: math/checkerboard/compute/results/*
+          retention-days: 7
+
+  audit:
+    name: Independent global coverage audit
+    if: always()
+    needs: [double, singleton]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Audit every canonical case
+        working-directory: math/checkerboard/compute
+        run: python audit_n22_matrix.py --root ../../../artifacts --shards 4 --out n22_global_audit.json
+      - name: Upload global audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: n22-global-audit
+          path: math/checkerboard/compute/n22_global_audit.json
+          retention-days: 30
