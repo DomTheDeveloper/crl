@@ -2,6 +2,8 @@ name: Verify Voronovskaja Lean branch
 
 on:
   pull_request:
+    paths:
+      - ".github/workflows/verify-voronovskaja.yml"
   workflow_dispatch:
 
 concurrency:
