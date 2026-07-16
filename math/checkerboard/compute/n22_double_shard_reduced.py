@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import argparse,json,sys,time,itertools
+"""Exact all-double boundary shard with deterministic boundary prechecks."""
+import argparse,json,sys,time,itertools,gc
 from pathlib import Path
 from pysat.solvers import Solver
 import n22_data as c
@@ -27,11 +28,8 @@ def rrs(left,rb):
  return [rr for rr in allm if (rr&1)==(rb&1) and not (left==a.top and rr<rb) and not (rb==a.top and rr<left) and not (rr==a.top and rb<left)]
 def limited(s,A,b):s.conf_budget(b);t=time.time();z=s.solve_limited(assumptions=A,expect_interrupt=True);return z,time.time()-t
 start=time.time();stats={'left_direct':0,'rb_direct':0,'leaves':0,'witness':0}
-print(json.dumps({'event':'built','top':a.top,'shard':a.shard,'lefts':lefts,'vars':cnf.nv,'clauses':len(cnf.clauses),'pb':info,'solver':a.solver}),flush=True)
-s=Solver(name=a.solver,bootstrap_with=cnf.clauses)
-import gc
-del cnf
-gc.collect()
+print(json.dumps({'event':'built','top':a.top,'shard':a.shard,'shards':a.shards,'lefts':lefts,'left_total_global':len(lefts_all),'rb_total':len(allm),'vars':cnf.nv,'clauses':len(cnf.clauses),'pb':info,'solver':a.solver}),flush=True)
+s=Solver(name=a.solver,bootstrap_with=cnf.clauses);del cnf;gc.collect()
 with s,out.open('w',buffering=1) as f:
  for left in lefts:
   _reason=boundary_reason(boundary_ids(('top',a.top),('left',left)))
