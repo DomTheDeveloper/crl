@@ -1,0 +1,35 @@
+name: Independent n22 MaxSAT optimization
+
+on:
+  push:
+    branches: [agent/n22-exhaustive-compute]
+    paths:
+      - ".github/n22_exact_maxsat.py"
+      - ".github/workflows/n22-independent-maxsat.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install python-sat
+      - name: Compute exact optimum
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 320m python -u .github/n22_exact_maxsat.py | tee n22_maxsat.log
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: n22-independent-maxsat
+          path: n22_maxsat.log
+          retention-days: 30
