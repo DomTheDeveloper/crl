@@ -67,8 +67,7 @@ lemma sixRoot_vanishes_of_sines {n : ℕ} {A B C : ℤ}
     (h : Real.sin (latticeAngle n A) + Real.sin (latticeAngle n B) +
       Real.sin (latticeAngle n C) = 0) :
     Vanishes Finset.univ (sixRoot n A B C) := by
-  rw [Vanishes, Finset.sum_const_zero]
-  simpa [sum_sixRoot, h]
+  simp [Vanishes, sum_sixRoot, h]
 
 /-- Positive labels are the expected powers of the canonical `12n`-th root. -/
 lemma canonical_positive_root {n : ℕ} [NeZero n] (A : ℤ) :
