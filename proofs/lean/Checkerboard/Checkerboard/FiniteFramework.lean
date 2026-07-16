@@ -36,6 +36,10 @@ def fiberCard {α β : Type*} [DecidableEq α] [DecidableEq β]
 def centered2 (n : ℕ) (i : Fin n) : ℤ :=
   2 * (i.1 : ℤ) - ((n : ℤ) - 1)
 
+/-- The doubled centered coordinate on a natural index. -/
+def centered2Nat (n i : ℕ) : ℝ :=
+  2 * (i : ℝ) - ((n : ℝ) - 1)
+
 /-- Weighted Cauchy--Schwarz in exactly the form needed for deficit moments. -/
 theorem weightedCauchy {ι : Type*} (s : Finset ι) (w z : ι → ℝ)
     (hw : ∀ i ∈ s, 0 ≤ w i) :
@@ -64,6 +68,29 @@ theorem sum_fiberCard_mul {α β : Type*} [DecidableEq α] [Fintype β] [Decidab
     ∑ b : β, (fiberCard S f b : ℝ) * g b = ∑ a ∈ S, g (f a) := by
   classical
   rw [← Finset.sum_fiberwise' S f g]
+  apply Finset.sum_congr rfl
+  intro b hb
+  simp [fiberCard, nsmul_eq_mul]
+
+/-- Sum of fiber cardinalities when all images lie in a natural range. -/
+theorem sum_fiberCard_range {α : Type*} [DecidableEq α]
+    (S : Finset α) (f : α → ℕ) (N : ℕ)
+    (hf : ∀ a ∈ S, f a < N) :
+    ∑ b in Finset.range N, fiberCard S f b = S.card := by
+  classical
+  symm
+  exact Finset.card_eq_sum_card_fiberwise
+    (t := Finset.range N) (by simpa using hf)
+
+/-- Fiberwise weighted sum over a natural range. -/
+theorem sum_fiberCard_mul_range {α : Type*} [DecidableEq α]
+    (S : Finset α) (f : α → ℕ) (N : ℕ) (g : ℕ → ℝ)
+    (hf : ∀ a ∈ S, f a < N) :
+    ∑ b in Finset.range N, (fiberCard S f b : ℝ) * g b =
+      ∑ a ∈ S, g (f a) := by
+  classical
+  rw [← Finset.sum_fiberwise_of_maps_to' (s := S) (t := Finset.range N)
+    (g := f) (by simpa using hf) g]
   apply Finset.sum_congr rfl
   intro b hb
   simp [fiberCard, nsmul_eq_mul]
