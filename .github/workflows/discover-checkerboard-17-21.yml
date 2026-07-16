@@ -18,9 +18,9 @@ permissions:
 
 jobs:
   constructions:
-    name: n=${{ matrix.n }} parity=${{ matrix.parity }} target=${{ matrix.target }}
+    name: n=${{ matrix.n }} parity=${{ matrix.parity }} size=${{ matrix.target }}
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -28,21 +28,26 @@ jobs:
           - n: 17
             parity: 0
             target: 26
+            certificate: n17_p0_26.json
           - n: 17
             parity: 1
             target: 26
+            certificate: n17_p1_26.json
           - n: 21
             parity: 0
             target: 32
+            certificate: n21_p0_32.json
           - n: 21
             parity: 1
             target: 32
+            certificate: n21_p1_32.json
     steps:
       - uses: actions/checkout@v4
 
-      - name: Test deterministic encoding and exact profiles
+      - name: Test deterministic encodings and exact profiles
         working-directory: math/checkerboard/finite_certificates
         run: |
+          set -euxo pipefail
           python3 test_encoding.py
           python3 verify_profiles.py
 
@@ -59,21 +64,41 @@ jobs:
           "$RUNNER_TEMP/cadical/build/cadical" --version
           "$RUNNER_TEMP/kissat/build/kissat" --version
 
-      - name: Generate the full all-slope SAT instance
+      - name: Regenerate geometry and check the coordinate certificate twice
         shell: bash
         env:
           N: ${{ matrix.n }}
           PARITY: ${{ matrix.parity }}
           TARGET: ${{ matrix.target }}
+          CERTIFICATE: ${{ matrix.certificate }}
         run: |
           set -euxo pipefail
           root="math/checkerboard/finite_certificates"
-          out="construction/n${N}-p${PARITY}-k${TARGET}"
-          mkdir -p "$(dirname "$out")"
-          python3 "$root/generate_cnf.py" --n "$N" --parity "$PARITY" --at-least "$TARGET" \
-            --cnf "$out.cnf" --metadata "$out.metadata.json" | tee "$out.generator.log"
+          cert="$root/constructions/$CERTIFICATE"
+          stem="construction/n${N}-p${PARITY}-k${TARGET}"
+          mkdir -p "$(dirname "$stem")"
 
-      - name: Solve independently and check both models
+          # Checker 1: enumerate every selected triple and evaluate its exact
+          # integer determinant against independently regenerated point metadata.
+          python3 "$root/generate_cnf.py" --n "$N" --parity "$PARITY" --at-least "$TARGET" \
+            --cnf "$stem.search.cnf" --metadata "$stem.search.metadata.json" \
+            | tee "$stem.search-generator.log"
+          python3 "$root/check_model.py" --metadata "$stem.search.metadata.json" \
+            --coordinates "$cert" | tee "$stem.determinant-check.log"
+
+          # Checker 2: normalize the exact integer equation of every line
+          # determined by a selected pair and reject any repeated line key.
+          python3 "$root/check_coordinates_independent.py" "$cert" \
+            | tee "$stem.line-key-check.log"
+
+          # A fixed CNF includes every all-slope collinearity clause plus one
+          # unit clause for every eligible board point. It is SAT exactly when
+          # this stored construction is valid.
+          python3 "$root/generate_fixed_construction_cnf.py" "$cert" \
+            "$stem.fixed.cnf" "$stem.fixed.metadata.json" \
+            | tee "$stem.fixed-generator.log"
+
+      - name: Check the fixed certificate with two independent SAT solvers
         shell: bash
         env:
           N: ${{ matrix.n }}
@@ -81,7 +106,6 @@ jobs:
           TARGET: ${{ matrix.target }}
         run: |
           set -u
-          root="math/checkerboard/finite_certificates"
           stem="construction/n${N}-p${PARITY}-k${TARGET}"
 
           classify() {
@@ -93,25 +117,21 @@ jobs:
           }
 
           set +e
-          timeout 30m "$RUNNER_TEMP/cadical/build/cadical" "$stem.cnf" > "$stem.cadical.log" 2>&1
+          timeout 5m "$RUNNER_TEMP/cadical/build/cadical" "$stem.fixed.cnf" > "$stem.cadical.log" 2>&1
           cadical_code=$?
-          timeout 30m "$RUNNER_TEMP/kissat/build/kissat" "$stem.cnf" > "$stem.kissat.log" 2>&1
+          timeout 5m "$RUNNER_TEMP/kissat/build/kissat" "$stem.fixed.cnf" > "$stem.kissat.log" 2>&1
           kissat_code=$?
           set -e
           cadical_status="$(classify "$cadical_code" "$stem.cadical.log")"
           kissat_status="$(classify "$kissat_code" "$stem.kissat.log")"
           printf 'solver\tstatus\texit_code\nCaDiCaL\t%s\t%s\nKissat\t%s\t%s\n' \
-            "$cadical_status" "$cadical_code" "$kissat_status" "$kissat_code" | tee "$stem.results.tsv"
+            "$cadical_status" "$cadical_code" "$kissat_status" "$kissat_code" \
+            | tee "$stem.solvers.tsv"
 
-          # A timeout, UNKNOWN output, or solver error is deliberately no result.
+          # TIMEOUT, UNKNOWN output, and solver errors are no result.
           [[ "$cadical_status" == SAT ]]
           [[ "$kissat_status" == SAT ]]
-          python3 "$root/check_model.py" --metadata "$stem.metadata.json" --solver-output "$stem.cadical.log" \
-            --write-coordinates "$stem.cadical.model.json" | tee "$stem.cadical.check.log"
-          python3 "$root/check_model.py" --metadata "$stem.metadata.json" --solver-output "$stem.kissat.log" \
-            --write-coordinates "$stem.kissat.model.json" | tee "$stem.kissat.check.log"
-          sha256sum "$stem.cnf" "$stem.metadata.json" "$stem.cadical.model.json" "$stem.kissat.model.json" \
-            | tee "$stem.sha256"
+          sha256sum "$stem".* | tee "$stem.sha256"
 
       - uses: actions/upload-artifact@v4
         if: always()
