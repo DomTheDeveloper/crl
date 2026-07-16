@@ -33,7 +33,7 @@ theorem cassels_set_arbitrary_partition_obstruction
     by_contra hnot
     exact hnone ⟨i, hnot⟩
 
-  obtain ⟨i0, i1, hi10⟩ := exists_pair_ne ι
+  obtain ⟨i0, i1, hi01⟩ := exists_pair_ne ι
   let rest : Set ℕ := {x | ∃ i, i ≠ i0 ∧ x ∈ parts i}
 
   have hpartition : Erdos741.cassels_set = parts i0 ∪ rest := by
@@ -60,7 +60,7 @@ theorem cassels_set_arbitrary_partition_obstruction
 
   have hsub_i1 : parts i1 ⊆ rest := by
     intro x hx
-    exact ⟨i1, hi10, hx⟩
+    exact ⟨i1, hi01.symm, hx⟩
 
   have hsub_sum : parts i1 + parts i1 ⊆ rest + rest := by
     intro x hx
