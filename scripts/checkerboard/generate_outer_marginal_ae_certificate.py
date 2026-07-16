@@ -36,14 +36,12 @@ def generate(rows):
          "namespace Checkerboard","","noncomputable section","",
          "open MeasureTheory Set Filter","" ]
 
-    # Positivity of all A/B densities.
     for stem in ['A','B']:
         for i in range(35):
             out += [f"theorem outer{stem}Density{i}_pos : 0 < outer{stem}Density{i}.eval := by",
                     f"  rw [← outer{stem}Density{i}_ratio]",
                     f"  exact div_pos outerWeight{i}_pos outer{stem}Length{i}_pos","" ]
 
-    # Functions.
     for stem,cap in [('A','a'),('B','b')]:
         terms=[f"intervalDensity outerEndpointRep{z[cap+'i']}.eval outerEndpointRep{z[cap+'j']}.eval outer{stem}Density{i}.eval x" for i,z in enumerate(comps)]
         out += [f"def outer{stem}DensityFunction (x : ℝ) : ℝ≥0∞ :=",f"  {plus_expr(terms)}","" ]
@@ -51,7 +49,6 @@ def generate(rows):
     out += ["def outerUnitDensity (x : ℝ) : ℝ≥0∞ :=",
             "  intervalDensity outerEndpointRep0.eval outerEndpointRep7.eval 1 x","" ]
 
-    # ENN cell sums and pointwise cell lemmas.
     for stem,cap,lower in [('A','a','a'),('B','b','b')]:
         for k in range(7):
             active=[i for i,z in enumerate(comps) if z[cap+'i']<=k<z[cap+'j']]
@@ -65,7 +62,6 @@ def generate(rows):
                     "  have h := univ_sum_ofReal_eq_of_real_sum f 1 hf hs",
                     "  simpa [f, Fin.sum_univ_succ] using h","" ]
 
-            # Pointwise cell.
             out += [f"theorem outer{stem}DensityFunction_cell{k} {{x : ℝ}}",
                     f"    (hl : outerEndpointRep{k}.eval < x)",
                     f"    (hu : x < outerEndpointRep{k+1}.eval) :",
@@ -87,7 +83,6 @@ def generate(rows):
                     f"    simp [outer{stem}DensityFunction, intervalDensity, {simp_args}]",
                     f"  rw [hd, outer_{lower}_density_cell{k}_enn]","" ]
 
-        # Outside lemmas.
         for side in ['left','right']:
             cond=("x < outerEndpointRep0.eval" if side=='left' else "outerEndpointRep7.eval < x")
             out += [f"theorem outer{stem}DensityFunction_{side} {{x : ℝ}} (hx : {cond}) :",
@@ -100,7 +95,6 @@ def generate(rows):
                         "    rintro ⟨hxlo,hxhi⟩","    nlinarith"]
             out += [f"  simp [outer{stem}DensityFunction, intervalDensity, "+", ".join(memnames)+"]",""]
 
-        # AE theorem with nested cases.
         out += [f"theorem outer{stem}DensityFunction_ae :",
                 f"    outer{stem}DensityFunction =ᵐ[volume] outerUnitDensity := by",
                 "  filter_upwards [volume.ae_ne outerEndpointRep0.eval,",
@@ -108,26 +102,28 @@ def generate(rows):
                 "    volume.ae_ne outerEndpointRep3.eval, volume.ae_ne outerEndpointRep4.eval,",
                 "    volume.ae_ne outerEndpointRep5.eval, volume.ae_ne outerEndpointRep6.eval,",
                 "    volume.ae_ne outerEndpointRep7.eval] with x hx0 hx1 hx2 hx3 hx4 hx5 hx6 hx7",
-                "  rcases outerEndpointRep_strict_order with ⟨h01,h12,h23,h34,h45,h56,h67⟩"]
-        # nested by_cases, outside and 7 cells
-        out += ["  by_cases h0 : x < outerEndpointRep0.eval",
+                "  rcases outerEndpointRep_strict_order with ⟨h01,h12,h23,h34,h45,h56,h67⟩",
+                "  by_cases h0 : x < outerEndpointRep0.eval",
                 f"  · rw [outer{stem}DensityFunction_left h0]",
-                "    simp [outerUnitDensity, intervalDensity, Set.mem_Icc, h0]",
-                "  have hx0' : outerEndpointRep0.eval < x := lt_of_le_of_ne (not_lt.mp h0) (Ne.symm hx0)"]
+                "    have hunit : x ∉ Set.Icc outerEndpointRep0.eval outerEndpointRep7.eval := by",
+                "      rintro ⟨hxlo,hxhi⟩","      nlinarith",
+                "    simp [outerUnitDensity, intervalDensity, hunit]",
+                "  have hx0' : outerEndpointRep0.eval < x :=",
+                "    lt_of_le_of_ne (not_lt.mp h0) (Ne.symm hx0)"]
         for k in range(1,8):
             out += [f"  by_cases h{k} : x < outerEndpointRep{k}.eval"]
             prev=k-1
             out += [f"  · rw [outer{stem}DensityFunction_cell{prev} hx{prev}' h{k}]",
-                    "    simp [outerUnitDensity, intervalDensity, Set.mem_Icc]",
-                    "    constructor <;> nlinarith"]
-            if k<8:
-                out += [f"  have hx{k}' : outerEndpointRep{k}.eval < x :=",
-                        f"    lt_of_le_of_ne (not_lt.mp h{k}) (Ne.symm hx{k})"]
+                    "    have hunit : x ∈ Set.Icc outerEndpointRep0.eval outerEndpointRep7.eval := by",
+                    "      constructor <;> nlinarith",
+                    "    simp [outerUnitDensity, intervalDensity, hunit]"]
+            out += [f"  have hx{k}' : outerEndpointRep{k}.eval < x :=",
+                    f"    lt_of_le_of_ne (not_lt.mp h{k}) (Ne.symm hx{k})"]
         out += [f"  rw [outer{stem}DensityFunction_right hx7']",
-                "  simp [outerUnitDensity, intervalDensity, Set.mem_Icc]",
-                "  nlinarith","" ]
+                "  have hunit : x ∉ Set.Icc outerEndpointRep0.eval outerEndpointRep7.eval := by",
+                "    rintro ⟨hxlo,hxhi⟩","    nlinarith",
+                "  simp [outerUnitDensity, intervalDensity, hunit]","" ]
 
-    # Measure equalities.
     out += ["theorem volume_withDensity_outerADensity :",
             "    volume.withDensity outerADensityFunction =",
             "      volume.restrict (Set.Icc outerEndpointRep0.eval outerEndpointRep7.eval) := by",
