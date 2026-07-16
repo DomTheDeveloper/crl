@@ -41,7 +41,7 @@ of $G$'s degree sequence (per WOWII defEntry 65). We state the inequality in
 denominator-free form to avoid the $\sigma = 0$ corner case ($n \le 1$).
 -/
 @[category research solved, AMS 5,
-  formal_proof using lean4 at "https://github.com/DomTheDeveloper/test-expo-app/blob/2823819a49d6ec5a0f3f7711213a0358e4d136b2/WOWII/GraphConjecture143ZZFinal.lean#L53-L64"]
+  formal_proof using lean4 at "https://domthedeveloper.github.io/crl/math/wowii/143/proof/WOWII/GraphConjecture143ZZFinal.lean"]
 theorem conjecture143 (G : SimpleGraph α) [DecidableRel G.Adj] (h : G.Connected)
     (hσ : 0 < secondSmallestDegree G) :
     (G.girth : ℝ) + 1 ≤ (largestInducedTreeSize G : ℝ) * (secondSmallestDegree G : ℝ) := by
