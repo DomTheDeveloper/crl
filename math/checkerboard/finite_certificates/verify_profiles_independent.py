@@ -4,12 +4,16 @@
 Unlike verify_profiles.py, this checker constructs every actual row, column,
 sum-diagonal, and difference-diagonal with its lifted integer weight. It then
 sums the expanded line weights directly and checks every eligible point cover.
+The checker shares only the machine-readable certificate data, not the lifting
+or objective code.
 """
 from __future__ import annotations
 
+import json
 from collections import Counter
 from dataclasses import dataclass
 from fractions import Fraction
+from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -22,16 +26,15 @@ class Profile:
     objective_numerator: int
 
 
-PROFILES = (
-    Profile(17, 0, 67, (0, 0, 10, 18, 24, 29, 35, 38, 39),
-            (20, 14, 9, 5, 2, 0, 0, 0, 0), 1788),
-    Profile(17, 1, 33, (0, 0, 5, 9, 12, 15, 17, 18),
-            (12, 9, 6, 4, 2, 1, 0, 0, 0), 880),
-    Profile(21, 0, 75, (0, 0, 0, 10, 18, 24, 30, 36, 41, 44, 45),
-            (28, 21, 15, 10, 6, 3, 1, 0, 0, 0, 0), 2476),
-    Profile(21, 1, 48, (0, 0, 6, 11, 15, 18, 22, 25, 27, 28),
-            (15, 12, 8, 6, 3, 2, 0, 0, 0, 0, 0), 1584),
-)
+def load_profiles() -> tuple[Profile, ...]:
+    path = Path(__file__).with_name("dual_profiles.json")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert payload["format"] == "checkerboard-four-direction-dual-profiles-v1"
+    return tuple(Profile(
+        int(item["n"]), int(item["parity"]), int(item["denominator"]),
+        tuple(map(int, item["diagonal"])), tuple(map(int, item["axis"])),
+        int(item["objective_numerator"]),
+    ) for item in payload["profiles"])
 
 
 def axis_weight(profile: Profile, coordinate: int) -> int:
@@ -86,6 +89,8 @@ def coverage(profile: Profile, point: tuple[int, int]) -> int:
 def verify(profile: Profile) -> None:
     assert profile.parity in (0, 1)
     assert profile.n % 2 == 1
+    assert len(profile.axis) == (profile.n + 1) // 2
+    assert len(profile.diagonal) == (profile.n + 1) // 2 - profile.parity
     assert all(weight >= 0 for weight in profile.axis + profile.diagonal)
 
     lines = expanded_line_weights(profile)
@@ -116,7 +121,11 @@ def verify(profile: Profile) -> None:
 
 
 def main() -> None:
-    for profile in PROFILES:
+    profiles = load_profiles()
+    assert [(profile.n, profile.parity) for profile in profiles] == [
+        (17, 0), (17, 1), (21, 0), (21, 1)
+    ]
+    for profile in profiles:
         verify(profile)
     print("ALL EXPANDED DUAL PROFILES VERIFIED INDEPENDENTLY")
 
