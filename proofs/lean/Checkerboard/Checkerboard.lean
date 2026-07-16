@@ -8,3 +8,4 @@ import Checkerboard.ProfileLemmas
 import Checkerboard.DeficitAlgebra
 import Checkerboard.MomentBridge
 import Checkerboard.Geometry
+import Checkerboard.ParityCases
