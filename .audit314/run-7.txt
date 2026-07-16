@@ -1,0 +1,1 @@
+Compile after repairing the bipartite branch and ordering the structural classification module before its dependents.
