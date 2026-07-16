@@ -3,6 +3,8 @@ name: Dmono22 exact SAT shards
 on:
   push:
     branches: [solve-dmono22-exact]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
