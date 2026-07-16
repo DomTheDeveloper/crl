@@ -100,10 +100,13 @@ theorem oddThin_offset_sq_le {m k : ℕ} (hk : k < 2 * m) :
     (2 * (k : ℝ) + 1 - 2 * (m : ℝ)) ^ 2 ≤
       (2 * (m : ℝ) - 1) ^ 2 := by
   have hk0 : 0 ≤ (k : ℝ) := by positivity
+  have hkmNat : k ≤ 2 * m - 1 := by omega
   have hkm : (k : ℝ) ≤ 2 * (m : ℝ) - 1 := by
-    have : k ≤ 2 * m - 1 := by omega
-    rw [Nat.cast_sub (by omega : 1 ≤ 2 * m)] at_mod_cast this
-    exact this
+    calc
+      (k : ℝ) ≤ ((2 * m - 1 : ℕ) : ℝ) := by exact_mod_cast hkmNat
+      _ = 2 * (m : ℝ) - 1 := by
+        rw [Nat.cast_sub (by omega : 1 ≤ 2 * m)]
+        push_cast
   nlinarith [mul_nonneg hk0 (sub_nonneg.mpr hkm)]
 
 /-- Radius of the even endpoint profile. -/
@@ -111,10 +114,13 @@ theorem evenEndpoint_offset_sq_le {m k : ℕ} (hk : k < 2 * m) :
     (2 * (k : ℝ) - (2 * (m : ℝ) - 1)) ^ 2 ≤
       (2 * (m : ℝ) - 1) ^ 2 := by
   have hk0 : 0 ≤ (k : ℝ) := by positivity
+  have hkmNat : k ≤ 2 * m - 1 := by omega
   have hkm : (k : ℝ) ≤ 2 * (m : ℝ) - 1 := by
-    have : k ≤ 2 * m - 1 := by omega
-    rw [Nat.cast_sub (by omega : 1 ≤ 2 * m)] at_mod_cast this
-    exact this
+    calc
+      (k : ℝ) ≤ ((2 * m - 1 : ℕ) : ℝ) := by exact_mod_cast hkmNat
+      _ = 2 * (m : ℝ) - 1 := by
+        rw [Nat.cast_sub (by omega : 1 ≤ 2 * m)]
+        push_cast
   nlinarith [mul_nonneg hk0 (sub_nonneg.mpr hkm)]
 
 /-- Radius of the even all-double profile. -/
@@ -122,10 +128,13 @@ theorem evenDouble_offset_sq_le {m k : ℕ} (hm : 1 ≤ m) (hk : k < 2 * m - 1) 
     (2 * (k : ℝ) + 1 - (2 * (m : ℝ) - 1)) ^ 2 ≤
       (2 * (m : ℝ) - 2) ^ 2 := by
   have hk0 : 0 ≤ (k : ℝ) := by positivity
+  have hkmNat : k ≤ 2 * m - 2 := by omega
   have hkm : (k : ℝ) ≤ 2 * (m : ℝ) - 2 := by
-    have : k ≤ 2 * m - 2 := by omega
-    rw [Nat.cast_sub (by omega : 2 ≤ 2 * m)] at_mod_cast this
-    exact this
+    calc
+      (k : ℝ) ≤ ((2 * m - 2 : ℕ) : ℝ) := by exact_mod_cast hkmNat
+      _ = 2 * (m : ℝ) - 2 := by
+        rw [Nat.cast_sub (by omega : 2 ≤ 2 * m)]
+        push_cast
   nlinarith [mul_nonneg hk0 (sub_nonneg.mpr hkm)]
 
 end Checkerboard
