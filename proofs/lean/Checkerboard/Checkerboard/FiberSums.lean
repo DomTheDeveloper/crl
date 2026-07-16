@@ -59,15 +59,6 @@ theorem card_le_sum_capacity [Fintype β]
   rw [← sum_fiberCard s f]
   exact Finset.sum_le_sum fun b _ => hcapacity b
 
-/-- The sum of natural-number deficits is total capacity minus total occupancy. -/
-theorem sum_capacity_sub_fiberCard [Fintype β]
-    (s : Finset α) (f : α → β) (capacity : β → ℕ)
-    (hcapacity : ∀ b, fiberCard s f b ≤ capacity b) :
-    ∑ b, (capacity b - fiberCard s f b) =
-      (∑ b, capacity b) - s.card := by
-  rw [← sum_fiberCard s f]
-  exact Finset.sum_sub_distrib_of_le (fun b _ => hcapacity b)
-
 /-- Real first moment of natural deficits. -/
 theorem sum_defect_mul [Fintype β]
     (s : Finset α) (f : α → β) (capacity : β → ℕ)
