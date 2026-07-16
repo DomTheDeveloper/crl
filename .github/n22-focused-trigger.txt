@@ -1,0 +1,1 @@
+Trigger only the strict assumption-capable CaDiCaL matrix for the 15 remaining D_mono(22) all-double families.
