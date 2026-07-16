@@ -5,6 +5,11 @@ import Checkerboard.MasterAlgebra
 import Checkerboard.Model
 import Checkerboard.FiberSums
 import Checkerboard.FourCertificate
+import Checkerboard.PolynomialSums
+import Checkerboard.FinPolynomialSums
+import Checkerboard.QuadraticWeights
+import Checkerboard.QuadraticCosts
+import Checkerboard.AllNUpper
 import Checkerboard.DefectMoments
 import Checkerboard.FiniteExact
 import Checkerboard.Finite21Lower
