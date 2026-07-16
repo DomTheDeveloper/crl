@@ -1,0 +1,107 @@
+name: Optimized n22 singleton exact audit
+
+on:
+  push:
+    branches: [agent/n22-exhaustive-compute]
+    paths:
+      - ".github/workflows/n22-singleton-exact.yml"
+      - "math/checkerboard/compute/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: n22-singleton-cadical-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  singleton:
+    name: cadical singleton bit ${{ matrix.bit }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 11
+      matrix:
+        bit: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install exact SAT dependency
+        run: pip install --disable-pip-version-check python-sat
+      - name: Solve exact singleton regime
+        working-directory: math/checkerboard/compute
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p results
+          timeout 150m python -u n22_singleton_reduced.py \
+            --bit "${{ matrix.bit }}" \
+            --solver cadical195 \
+            --left-conflicts 1000000 \
+            --rb-conflicts 100000 \
+            --out "results/singleton_${{ matrix.bit }}.jsonl" \
+            | tee "results/singleton_${{ matrix.bit }}.log"
+      - name: Require complete UNSAT summary
+        if: success()
+        working-directory: math/checkerboard/compute
+        run: |
+          python - "results/singleton_${{ matrix.bit }}.jsonl" <<'PY'
+          import json,sys
+          rows=[json.loads(x) for x in open(sys.argv[1]) if x.strip()]
+          assert not any(r.get('event')=='WITNESS' or r.get('status')=='SAT' for r in rows)
+          s=[r for r in rows if r.get('event')=='summary']
+          assert len(s)==1 and s[0].get('closed') and s[0].get('status')=='UNSAT'
+          print(json.dumps(s[0],indent=2))
+          PY
+      - name: Upload exact singleton manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: singleton-cadical-${{ matrix.bit }}
+          path: math/checkerboard/compute/results/*
+          retention-days: 30
+
+  audit:
+    name: Audit all eleven singleton cases
+    if: always()
+    needs: singleton
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Check exact singleton coverage
+        working-directory: math/checkerboard/compute
+        run: |
+          python - <<'PY'
+          import glob,json,sys
+          errors=[]; total=0
+          for bit in range(11):
+              fs=glob.glob(f'../../../artifacts/**/singleton_{bit}.jsonl',recursive=True)
+              if len(fs)!=1:
+                  errors.append(f'bit {bit}: expected one manifest, found {fs}')
+                  continue
+              rows=[json.loads(x) for x in open(fs[0]) if x.strip()]
+              if any(r.get('event')=='WITNESS' or r.get('status')=='SAT' for r in rows):
+                  errors.append(f'bit {bit}: witness/SAT present')
+              s=[r for r in rows if r.get('event')=='summary']
+              if len(s)!=1 or not s[0].get('closed') or s[0].get('status')!='UNSAT':
+                  errors.append(f'bit {bit}: missing closed UNSAT summary')
+              else:
+                  total += 1
+          report={'singleton_cases':total,'witnesses':0,'errors':errors,'PASS':not errors and total==11}
+          open('n22_singleton_audit.json','w').write(json.dumps(report,indent=2)+'\n')
+          print(json.dumps(report,indent=2))
+          sys.exit(0 if report['PASS'] else 1)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: n22-singleton-global-audit
+          path: math/checkerboard/compute/n22_singleton_audit.json
+          retention-days: 30
