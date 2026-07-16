@@ -13,10 +13,10 @@ The proof establishes the stronger statement that `A317940_f n > 0` for every `n
 
 ## Proof links
 
-- Complete Lean source: https://github.com/DomTheDeveloper/test-expo-app/blob/e48e2ec5e9bf036b490776650dfbe1e2127b8275/A317940/A317940.lean
-- Human-readable proof: https://github.com/DomTheDeveloper/test-expo-app/blob/e48e2ec5e9bf036b490776650dfbe1e2127b8275/A317940/HUMAN_PROOF.md
-- Proof-host draft PR and discussion: https://github.com/DomTheDeveloper/test-expo-app/pull/2
-- Official-repository verification workflow: https://github.com/DomTheDeveloper/test-expo-app/actions/runs/29366891772
+- Complete Lean source: https://github.com/DomTheDeveloper/crl/blob/30a35b51c1158a67b45437130b519d57a8c82ff9/A317940/A317940.lean
+- Human-readable proof: https://github.com/DomTheDeveloper/crl/blob/30a35b51c1158a67b45437130b519d57a8c82ff9/A317940/HUMAN_PROOF.md
+- Canonical CRL source branch: https://github.com/DomTheDeveloper/crl/tree/a317940-proof
+- Public project page: https://domthedeveloper.github.io/crl/math/a317940/
 
 ## Specification and verification
 
