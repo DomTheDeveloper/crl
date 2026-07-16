@@ -33,10 +33,17 @@ jobs:
           python3 verify_profiles.py
           python3 verify_profiles_independent.py
           python3 verify_symmetry_invariance.py
+
           python3 verify_exhaustive_upper_bounds.py | tee exhaustive-proof.log
           grep -q 'VERIFIED D_mono(21,0) <= 32 nodes=13560' exhaustive-proof.log
           grep -q 'VERIFIED D_mono(21,1) <= 32 nodes=13239' exhaustive-proof.log
           grep -q 'ALL N=21 EXHAUSTIVE UPPER BOUNDS VERIFIED nodes=26799' exhaustive-proof.log
+
+          python3 verify_exhaustive_upper_bounds_binary.py | tee binary-exhaustive-proof.log
+          grep -q 'BINARY VERIFIED D_mono(21,0) <= 32 nodes=13160' binary-exhaustive-proof.log
+          grep -q 'BINARY VERIFIED D_mono(21,1) <= 32 nodes=4890' binary-exhaustive-proof.log
+          grep -q 'ALL BINARY EXHAUSTIVE UPPER BOUNDS VERIFIED nodes=18050' binary-exhaustive-proof.log
+
           python3 check_coordinates_independent.py constructions/*.json
 
       - name: Regenerate every upper-bound instance and verify its semantics
@@ -61,7 +68,7 @@ jobs:
           done
           python3 verify_manifest.py --metadata "$out"/*.json
           sha256sum "$out"/*.cnf "$out"/*.json | tee "$out/SHA256SUMS"
-          cp exhaustive-proof.log "$out/"
+          cp exhaustive-proof.log binary-exhaustive-proof.log "$out/"
 
       - uses: actions/upload-artifact@v4
         with:
