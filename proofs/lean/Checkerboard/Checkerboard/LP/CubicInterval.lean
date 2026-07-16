@@ -94,7 +94,28 @@ theorem quadraticAt_nonneg_of_concave_endpoints
   have hscaled : 0 ≤ (u - l) * quadraticAt a b c x := by
     rw [hinterp]
     positivity
-  exact nonneg_of_mul_nonneg_left hscaled hden
+  nlinarith
+
+/-- Strict endpoint values force a concave quadratic to be strictly positive
+throughout the interval. -/
+theorem quadraticAt_pos_of_concave_endpoints
+    {a b c l u x : ℝ}
+    (hlu : l < u) (hc : c ≤ 0) (hlx : l ≤ x) (hxu : x ≤ u)
+    (hleft : 0 < quadraticAt a b c l)
+    (hright : 0 < quadraticAt a b c u) :
+    0 < quadraticAt a b c x := by
+  let m : ℝ := min (quadraticAt a b c l) (quadraticAt a b c u)
+  have hm : 0 < m := lt_min hleft hright
+  have hleft' : 0 ≤ quadraticAt (a - m) b c l := by
+    dsimp [m, quadraticAt]
+    exact sub_nonneg.mpr (min_le_left _ _)
+  have hright' : 0 ≤ quadraticAt (a - m) b c u := by
+    dsimp [m, quadraticAt]
+    exact sub_nonneg.mpr (min_le_right _ _)
+  have hx' : 0 ≤ quadraticAt (a - m) b c x :=
+    quadraticAt_nonneg_of_concave_endpoints hlu hc hlx hxu hleft' hright'
+  dsimp [quadraticAt] at hx' ⊢
+  nlinarith
 
 /-- Strict left-endpoint certificate. -/
 theorem quadraticAt_pos_of_left_certificate
@@ -152,6 +173,16 @@ theorem evalAtCheckerboardP_nonneg_of_concave
     (hright : 0 ≤ quadraticAt a b c pUpper) :
     0 ≤ evalAtCheckerboardP a b c := by
   exact quadraticAt_nonneg_of_concave_endpoints pLower_lt_pUpper hc
+    checkerboardP_mem.1 checkerboardP_mem.2 hleft hright
+
+/-- Strict concave endpoint certificate. -/
+theorem evalAtCheckerboardP_pos_of_concave
+    {a b c : ℚ}
+    (hc : (c : ℝ) ≤ 0)
+    (hleft : 0 < quadraticAt a b c pLower)
+    (hright : 0 < quadraticAt a b c pUpper) :
+    0 < evalAtCheckerboardP a b c := by
+  exact quadraticAt_pos_of_concave_endpoints pLower_lt_pUpper hc
     checkerboardP_mem.1 checkerboardP_mem.2 hleft hright
 
 end
