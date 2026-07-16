@@ -1,7 +1,7 @@
 # Exact finite certificates for the 17×17 and 21×21 checkerboards
 
-This directory contains deterministic, independently checkable certificate
-packages for the monochromatic checkerboard no-three-in-line problem.
+This directory contains a complete, deterministic certificate package for the
+monochromatic checkerboard no-three-in-line problem.
 
 For `p ∈ {0,1}`, let `D_mono(n,p)` be the largest subset of
 
@@ -9,7 +9,7 @@ For `p ∈ {0,1}`, let `D_mono(n,p)` be the largest subset of
 {(x,y) : 0 ≤ x,y < n and (x+y) mod 2 = p}
 ```
 
-that contains no three points on any Euclidean line. Let
+that contains no three points on any Euclidean line, and let
 `D_mono(n) = max(D_mono(n,0), D_mono(n,1))`.
 
 ## Exact values
@@ -19,70 +19,76 @@ that contains no three points on any Euclidean line. Let
 | `17×17` | `26` | `26` | `26` |
 | `21×21` | `32` | `32` | `32` |
 
-The lower bounds are explicit coordinate lists. The upper bounds exclude 27
-points on each 17×17 color class and 33 points on each 21×21 color class.
+The full mathematical argument is in `PROOF.md`.
 
-A timeout, interrupted run, resource limit, `UNKNOWN`, or malformed solver log
-is **not** counted as a result anywhere in this package.
+## Primary proof path
+
+The source-level proof does not depend on a SAT timeout or an unavailable large
+proof artifact.
+
+1. `dual_profiles.json` stores exact rational four-direction line covers.
+2. `verify_profiles.py` and `verify_profiles_independent.py` expand and check the
+   covers using two implementations and integer arithmetic.
+3. The 17×17 objectives are strictly below 27, proving both upper bounds
+   immediately.
+4. For 21×21, the dual covers reduce a hypothetical 33-point set to saturated
+   positive-weight lines and small symmetry cases.
+5. `verify_exhaustive_upper_bounds.py` regenerates every all-slope candidate
+   line and closes every remaining case by exhaustive exact-cardinality search.
+
+The exhaustive search fingerprints are:
+
+```text
+parity 0: 13,560 nodes
+parity 1: 13,239 nodes
+total:    26,799 nodes
+```
+
+It uses only Python's standard library, exact integers, finite propagation, and
+complete branching. It has no timeout acceptance path and raises an error if a
+completion is found.
 
 ## Lower-bound certificates
 
-The four files under `constructions/` are the complete point sets. Each is
-checked in three structurally different ways:
+The four files under `constructions/` are explicit point sets. Each is checked
+in three structurally different ways:
 
 1. `check_model.py` tests every selected triple with the exact integer
    determinant;
-2. `check_coordinates_independent.py` builds the normalized integer equation of
-   every line determined by a selected pair and rejects any line occurring on
-   three selected points;
+2. `check_coordinates_independent.py` normalizes every integer line determined
+   by a selected pair and rejects any line occurring on three selected points;
 3. `generate_fixed_construction_cnf.py` fixes every board variable and sends the
    resulting all-slope CNF to pinned CaDiCaL and Kissat builds.
 
 The committed SHA-256 digests are recorded in `manifest.json`.
 
-## Upper-bound certificates
+## Exact dual data
 
-### 17×17
-
-The exact four-direction dual profiles have objectives
+The four profile objectives are
 
 ```text
-parity 0: 1788/67 = 26.686567...
-parity 1:  880/33 = 80/3 = 26.666666...
+17 parity 0: 1788/67 < 27
+17 parity 1:  880/33 = 80/3 < 27
+21 parity 0: 2476/75 = 33 + 1/75
+21 parity 1: 1584/48 = 33
 ```
 
-Every all-line no-three-in-line set satisfies the row, column, and slope `±1`
-capacity constraints, so these exact dual covers already imply
-`D_mono(17,p) ≤ 26` for both parities. The workflow additionally generates the
-full all-slope target-27 CNFs and seeks direct UNSAT certificates.
+For 21 parity one, a hypothetical 33-set must use the 132 zero-slack candidates,
+saturate all 56 positive-weight lines, and choose exactly one point from each of
+the zero-weight sum- and difference-diagonal classes. The 64 special-point
+pairs reduce to ten `D4` orbits.
 
-### 21×21
+For 21 parity zero, the 136 candidates have 116 zero-slack and 20 one-slack
+points. The exact identity `slack + weighted line deficit = 1` leaves four
+symmetry cases: three one-slack point orbits, plus the zero-slack case with one
+of the four weight-one axis lines deficient by one.
 
-The exact dual objectives are
+The exhaustive verifier combines these reductions with all 548 parity-zero or
+508 parity-one maximal Euclidean candidate lines.
 
-```text
-parity 0: 2476/75 = 33 + 1/75
-parity 1: 1584/48 = 33
-```
+## Deterministic CNF cross-checks
 
-For a hypothetical 33-point set, summing the integer cover slacks gives:
-
-```text
-parity 0: total slack ≤ 1
-parity 1: total slack ≤ 0
-```
-
-Therefore:
-
-- parity 0 uses only the 116 zero-slack and 20 one-slack points, with at most one
-  one-slack point selected;
-- parity 1 uses only the 132 zero-slack points.
-
-`generate_reduced_n21.py` regenerates these candidate sets from the compact
-rational profiles and then adds every all-slope collinear-triple clause. The
-resulting reduced target-33 CNFs are proved UNSAT.
-
-## Deterministic instance identities
+The package also retains independently generated SAT instances:
 
 | instance | variables | clauses | SHA-256 |
 |---|---:|---:|---|
@@ -91,27 +97,27 @@ resulting reduced target-33 CNFs are proved UNSAT.
 | `n21-p0-k33` reduced | 4096 | 20946 | `6e086de861ac3dfb4e099422fc2fccab8e926322d05d2020e21e05ac2dea847c` |
 | `n21-p1-k33` reduced | 3960 | 19944 | `10bd70ac54894a10df3e814aa453a9c80f149f465a102a147de9edf082a0a38e` |
 
-`verify_instance_semantics.py` imports none of the generator modules. It
-independently rebuilds the point set, enumerates collinear triples by exact
-integer determinants, reconstructs the cardinality counter, rederives the 21×21
-slack reduction, and compares the generated CNF clause-by-clause.
+`verify_instance_semantics.py` imports none of the generators. It independently
+rebuilds the point set, enumerates collinear triples by exact determinants,
+reconstructs the cardinality counter, rederives the 21×21 slack reduction, and
+compares each generated CNF clause by clause.
 
-## Solvers and proof artifacts
+## Solver corroboration
 
-The upper-bound workflow uses pinned builds of:
+The slower proof-producing workflow uses pinned builds of:
 
 - CaDiCaL at commit `7b99c07f0bcab5824a5a3ce62c7066554017f641`;
 - Kissat at commit `8af8e56f174b778aef3aa45af9f739b2a5f492c2`;
-- `drat-trim`/`lrat-check` at commit
+- `drat-trim` and `lrat-check` at commit
   `2e3b2dc0ecf938addbd779d42877b6ed69d9a985`.
 
-CaDiCaL emits DRAT. `drat-trim` verifies it and emits LRAT; `lrat-check` then
-checks the LRAT artifact. Both compressed proofs, hashes, solver logs, generated
-CNFs, metadata, and checker logs are uploaded as GitHub Actions artifacts.
-Kissat independently solves the same deterministic CNF. The separate
-`crosscheck_upper_solvers.py` reconstructs the mathematical model for OR-Tools
-CP-SAT and SciPy/HiGHS; those runs are corroboration, not substitutes for the
-proof artifact.
+CaDiCaL emits DRAT, `drat-trim` verifies it and emits LRAT, and `lrat-check`
+checks LRAT. Kissat, OR-Tools CP-SAT, and SciPy/HiGHS independently reconstruct
+or solve the same finite models. These runs are corroboration; the small
+standard-library exhaustive verifier is now the primary upper-bound proof.
+
+A timeout, resource limit, `UNKNOWN`, missing status line, or malformed proof is
+always treated as no result.
 
 ## Reproduction
 
@@ -121,10 +127,20 @@ From this directory:
 python3 verify_manifest.py
 python3 test_encoding.py
 python3 verify_profiles.py
+python3 verify_profiles_independent.py
+python3 verify_exhaustive_upper_bounds.py
 python3 check_coordinates_independent.py constructions/*.json
 ```
 
-Generate and independently validate all four upper-bound instances:
+The exhaustive proof ends with
+
+```text
+VERIFIED D_mono(21,0) <= 32 nodes=13560
+VERIFIED D_mono(21,1) <= 32 nodes=13239
+ALL N=21 EXHAUSTIVE UPPER BOUNDS VERIFIED nodes=26799
+```
+
+Generate and independently validate all four CNFs:
 
 ```bash
 mkdir -p /tmp/checkerboard-certs
@@ -150,24 +166,10 @@ done
 python3 verify_manifest.py --metadata /tmp/checkerboard-certs/*.json
 ```
 
-Independent optimization cross-checks, after installing the pinned Python
-packages used by CI:
-
-```bash
-for npt in '17 0 27' '17 1 27' '21 0 33' '21 1 33'; do
-  set -- $npt
-  python3 crosscheck_upper_solvers.py --solver cpsat --n "$1" --parity "$2" --target "$3" --seconds 1800
-  python3 crosscheck_upper_solvers.py --solver highs --n "$1" --parity "$2" --target "$3" --seconds 1800
-done
-```
-
-The complete pinned proof-producing commands are in
-`.github/workflows/certify-checkerboard-upper-bounds.yml`.
-
 ## Audit boundary
 
-The coordinate files, compact rational profiles, deterministic generators,
-semantic checkers, and hashes are committed. Large DRAT/LRAT files are generated
-from those committed inputs and retained as workflow artifacts rather than
-silently represented as source-level proofs. The draft PR should remain draft
-until every required solver and proof-checking job has completed successfully.
+The exact constructions, rational profiles, reductions, all-slope geometry,
+symmetry decomposition, exhaustive upper-bound algorithm, deterministic node
+fingerprints, CNF generators, semantic checkers, and hashes are committed.
+Large DRAT/LRAT files remain optional reproducibility artifacts rather than the
+only evidence for the theorem.
