@@ -24,8 +24,8 @@ for top in c.DOUBLES:
   assigned=[m for i,m in enumerate(lefts_all) if i%a.shards==shard]
   if ss and ss[0].get('assigned_lefts')!=assigned:errors.append(f'top {top} shard {shard}: assigned-left mismatch')
   covered.extend(assigned);tot['double_shards']+=1
-  direct_left={r['left'] for r in R if r.get('event')=='left' and r.get('status')=='UNSAT'}
-  direct_rb={(r['left'],r['rb']) for r in R if r.get('event')=='rb' and r.get('status')=='UNSAT'}
+  direct_left={r['left'] for r in R if r.get('event') in ('left','left_refined') and r.get('status')=='UNSAT'}
+  direct_rb={(r['left'],r['rb']) for r in R if r.get('event') in ('rb','rb_refined') and r.get('status')=='UNSAT'}
   leaves={(r['left'],r['rb'],r['rr']) for r in R if r.get('event')=='leaf' and r.get('status')=='UNSAT'}
   for left in assigned:
    if left in direct_left:continue
