@@ -2,9 +2,9 @@
 """Independent MILP corroboration for checkerboard no-three-in-line instances.
 
 This is deliberately labelled corroboration rather than a proof certificate:
-SciPy/HiGHS reports an integer optimum, and every returned incumbent is checked
-again with exact integer determinants. The universal theorem does not depend
-on this program.
+SciPy/HiGHS must report a completed optimal solve, and every returned optimizer
+is checked again with exact integer determinants. A timeout or interrupted solve
+is reported as no result. The universal theorem does not depend on this program.
 """
 from __future__ import annotations
 
@@ -41,6 +41,7 @@ def collinear(a: Point, b: Point, c: Point) -> bool:
 
 
 def verify(points: Sequence[Point]) -> None:
+    """Exact, solver-independent verification of the returned configuration."""
     assert len(set(points)) == len(points)
     assert all(
         not collinear(a, b, c)
@@ -49,6 +50,10 @@ def verify(points: Sequence[Point]) -> None:
 
 
 def model(n: int, color: int) -> tuple[list[Point], list[tuple[int, ...]]]:
+    if n < 1:
+        raise ValueError("n must be positive")
+    if color not in (0, 1):
+        raise ValueError("color must be 0 or 1")
     points = [
         (x, y)
         for x in range(n)
@@ -98,8 +103,14 @@ def solve(
         ),
         options={"time_limit": time_limit, "mip_rel_gap": 0.0},
     )
+
+    # HiGHS status 0 means a completed optimal solve. In particular, a timeout
+    # with an incumbent is not accepted as an optimum or as an upper bound.
+    if not result.success or result.status != 0:
+        raise RuntimeError(f"no certified optimal result: {result.message}")
     if result.x is None or result.fun is None:
-        raise RuntimeError(f"HiGHS returned no incumbent: {result.message}")
+        raise RuntimeError(f"optimal status without an optimizer: {result.message}")
+
     chosen = [
         points[i]
         for i, value in enumerate(result.x)
