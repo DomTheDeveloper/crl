@@ -7,11 +7,13 @@ on:
     paths:
       - "proofs/lean/Checkerboard/**"
       - "scripts/checkerboard/generate_outer_certificate.py"
+      - "scripts/checkerboard/generate_outer_density_certificate.py"
       - ".github/workflows/verify-checkerboard-lp-branch.yml"
   pull_request:
     paths:
       - "proofs/lean/Checkerboard/**"
       - "scripts/checkerboard/generate_outer_certificate.py"
+      - "scripts/checkerboard/generate_outer_density_certificate.py"
       - ".github/workflows/verify-checkerboard-lp-branch.yml"
   workflow_dispatch:
 
@@ -30,7 +32,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Generate exact outer certificate sources
-        run: python scripts/checkerboard/generate_outer_certificate.py
+        run: |
+          python scripts/checkerboard/generate_outer_certificate.py
+          python scripts/checkerboard/generate_outer_density_certificate.py
 
       - name: Install elan
         run: |
@@ -63,6 +67,7 @@ jobs:
             Checkerboard/LP/MiddleCertificate.lean \
             Checkerboard/LP/MiddleGeometry.lean \
             Checkerboard/LP/OuterCertificateData.lean \
+            Checkerboard/LP/OuterDensityCertificate.lean \
             Checkerboard/LP/FiniteModel.lean \
             Checkerboard/LP/FiniteDual.lean \
             Checkerboard/LP/ContinuumModel.lean \
@@ -84,5 +89,6 @@ jobs:
           path: |
             math/checkerboard/lp/certificates/q_weights_exact.csv
             proofs/lean/Checkerboard/Checkerboard/LP/OuterCertificateData.lean
+            proofs/lean/Checkerboard/Checkerboard/LP/OuterDensityCertificate.lean
             proofs/lean/Checkerboard/lp-build.log
           if-no-files-found: error
