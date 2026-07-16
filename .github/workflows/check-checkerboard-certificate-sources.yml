@@ -30,6 +30,7 @@ jobs:
           python3 verify_manifest.py
           python3 test_encoding.py
           python3 test_exhaustive_upper_bounds.py
+          python3 test_binary_exhaustive.py
           python3 verify_profiles.py
           python3 verify_profiles_independent.py
           python3 verify_symmetry_invariance.py
