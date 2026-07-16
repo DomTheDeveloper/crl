@@ -1,0 +1,57 @@
+name: WOW PR Targeted Lean Check
+
+on:
+  pull_request:
+    branches: [wow-pr-targeted-ci-base]
+
+permissions:
+  contents: read
+
+jobs:
+  build-target:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: WOWII 65 solved metadata
+            ref: wowii-65-solved-clean
+            module: FormalConjectures.WrittenOnTheWallII.GraphConjecture65
+          - label: WOWII 143 solved metadata
+            ref: wowii-143-solved-clean
+            module: FormalConjectures.WrittenOnTheWallII.GraphConjecture143
+          - label: WOWII 160 corrected statement
+            ref: wowii-160-c4-fix-clean
+            module: FormalConjectures.WrittenOnTheWallII.GraphConjecture160
+    name: ${{ matrix.label }}
+    steps:
+      - name: Checkout validation harness
+        uses: actions/checkout@v4
+
+      - name: Checkout clean Formal Conjectures branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: ${{ matrix.ref }}
+          path: formal-conjectures
+          fetch-depth: 0
+
+      - name: Verify one-commit one-file diff
+        working-directory: formal-conjectures
+        run: |
+          git diff --name-only b2e608fc52d765510915a244bb69b1a2741acc3c...HEAD | tee /tmp/changed.txt
+          test "$(wc -l < /tmp/changed.txt)" -eq 1
+          git rev-list --count b2e608fc52d765510915a244bb69b1a2741acc3c..HEAD | grep -qx 1
+
+      - name: Install elan
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Download Mathlib cache
+        working-directory: formal-conjectures
+        run: lake exe cache get
+
+      - name: Build exact changed module
+        working-directory: formal-conjectures
+        run: lake build ${{ matrix.module }}
