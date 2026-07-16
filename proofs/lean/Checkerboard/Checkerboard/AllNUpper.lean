@@ -67,11 +67,12 @@ theorem even_upper {m parity : ℕ} (hm : 4 ≤ m)
     (hcolor : Monochromatic parity s) (hntil : NoThreeInLine s) :
     s.card ≤ 4 * m - 4 := by
   have hm1 : 1 ≤ m := by omega
+  have hpCost := hp
   obtain ⟨hr, hc, hs, hd⟩ := evenQuadratic_nonnegative m parity hm1
   apply card_le_of_fourCertificate (evenQuadraticWeights m parity)
       (q := 4 * ((2 * m : ℚ) - 1) ^ 2) (k := 4 * m - 4)
   · positivity
-  · rcases hp with rfl | rfl
+  · rcases hpCost with rfl | rfl
     · rw [evenQuadratic_cost_zero m hm1]
       have hmQ : (4 : ℚ) ≤ m := by exact_mod_cast hm
       have hcenter : (0 : ℚ) < 2 * m - 1 := by nlinarith
