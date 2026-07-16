@@ -1,0 +1,157 @@
+{
+  "cpsat_root_runs": {
+    "qualification": "bounded root relaxation only; UNKNOWN is no result",
+    "runs": [
+      {
+        "branch": "A1",
+        "branches": 49131,
+        "conflicts": 40,
+        "k": 14,
+        "mode": "root",
+        "seconds": 15.033940553665161,
+        "solver": "OR-Tools CP-SAT",
+        "status": "UNKNOWN",
+        "v": 99,
+        "wall_time": 15.03275151
+      },
+      {
+        "branch": "A2",
+        "branches": 55842,
+        "conflicts": 47,
+        "k": 14,
+        "mode": "root",
+        "seconds": 15.010400533676147,
+        "solver": "OR-Tools CP-SAT",
+        "status": "UNKNOWN",
+        "v": 99,
+        "wall_time": 15.008969848000001
+      },
+      {
+        "branch": "B2",
+        "branches": 55207,
+        "conflicts": 46,
+        "k": 14,
+        "mode": "root",
+        "seconds": 15.004859685897827,
+        "solver": "OR-Tools CP-SAT",
+        "status": "UNKNOWN",
+        "v": 99,
+        "wall_time": 15.003335339000001
+      },
+      {
+        "branch": "B3",
+        "branches": 64390,
+        "conflicts": 49,
+        "k": 14,
+        "mode": "root",
+        "seconds": 15.031695365905762,
+        "solver": "OR-Tools CP-SAT",
+        "status": "UNKNOWN",
+        "v": 99,
+        "wall_time": 15.004386064
+      },
+      {
+        "branch": "B4",
+        "branches": 63779,
+        "conflicts": 33,
+        "k": 14,
+        "mode": "root",
+        "seconds": 15.010159015655518,
+        "solver": "OR-Tools CP-SAT",
+        "status": "UNKNOWN",
+        "v": 99,
+        "wall_time": 15.008564238000002
+      }
+    ]
+  },
+  "date": "2026-07-16",
+  "full_cnf": {
+    "PASS": true,
+    "branch_cubes": {
+      "A1": [1, 12],
+      "A2": [1, 24],
+      "B2": [2, 24],
+      "B3": [2, 25],
+      "B4": [2, 26]
+    },
+    "clauses": 2822820,
+    "cnf_sha256": "01879501539fc34ed19f567b31f82a6b15e71727efcf0e9c64d86b7d091f2003",
+    "encoding": "root-reduced exact SRG equations",
+    "generator_versions": {
+      "ortools": "9.15.6755",
+      "pysat": "1.9.dev5"
+    },
+    "k": 14,
+    "orbit_count": 5,
+    "problem": "Conway99",
+    "qualification": "The base CNF plus the five positive two-literal cubes is exhaustive only together with symmetry_audit.json.",
+    "reduced_vertices": 84,
+    "seed_label": [0, 2],
+    "v": 99,
+    "vars": 1232322
+  },
+  "full_sat_bounded_run": {
+    "branch": "A1",
+    "events": [
+      {
+        "clauses": 2822820,
+        "event": "loaded",
+        "seconds": 0.8650352954864502,
+        "vars": 1232322
+      }
+    ],
+    "problem": "Conway99",
+    "qualification": "TIMEOUT/PROCESS_FAILED is no mathematical result",
+    "solver": "cadical195",
+    "status": "TIMEOUT_NO_RESULT",
+    "wall_limit_seconds": 20.0
+  },
+  "problem": "Conway99",
+  "qualification": "No SAT witness or globally exhaustive checked UNSAT proof was obtained. UNKNOWN and TIMEOUT are no result.",
+  "regression": {
+    "PASS": true,
+    "ortools_version": "9.15.6755",
+    "paley9": {
+      "k": 4,
+      "v": 9,
+      "verified_by": ["combinatorial", "integer-matrix"]
+    },
+    "pysat_version": "1.9.dev5",
+    "sha256": {
+      "paley9_cpsat.json": "29805aa8c1f651c1b24262eedae5b8ed59b1e605b4a345c8b1cda69d6eac048e",
+      "paley9_impossible_branch.cnf": "7575defd515af26d88499bf987cdf3d71ff93202e32aceb1521ea8330684a7d8",
+      "paley9_impossible_branch.drup": "da75461f1ebace829e98c8812e977c062762f566a374700e926b01e79c0d0859",
+      "paley9_sat.json": "29805aa8c1f651c1b24262eedae5b8ed59b1e605b4a345c8b1cda69d6eac048e"
+    },
+    "unsat_regression": {
+      "PASS": true,
+      "active_clauses": 48,
+      "additions": 25,
+      "deletions": 76
+    }
+  },
+  "symmetry_audit": {
+    "PASS": true,
+    "admissible_ordered_pairs": 121,
+    "canonical_representatives": [
+      [[0, 3], [1, 2]],
+      [[0, 3], [2, 4]],
+      [[0, 4], [2, 4]],
+      [[0, 4], [2, 5]],
+      [[0, 4], [2, 6]]
+    ],
+    "named_orbit_ids": {"A1": 0, "A2": 1, "B2": 2, "B3": 3, "B4": 4},
+    "named_representatives": {
+      "A1": [[0, 3], [1, 2]],
+      "A2": [[0, 3], [2, 4]],
+      "B2": [[0, 4], [2, 4]],
+      "B3": [[0, 4], [2, 5]],
+      "B4": [[0, 4], [2, 6]]
+    },
+    "old_B1_equivalent_to": "A2",
+    "orbit_count": 5,
+    "orbit_sizes": [1, 10, 10, 20, 80],
+    "stabilizer_size": 7680
+  },
+  "verdict": "INCOMPLETE_NO_SOLUTION"
+}
