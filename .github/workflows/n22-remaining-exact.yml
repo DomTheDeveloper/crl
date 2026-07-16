@@ -53,6 +53,8 @@ jobs:
             --solver cadical195 \
             --left-conflicts 1000000 \
             --rb-conflicts 100000 \
+            --left-recheck-conflicts 100000 \
+            --rb-recheck-conflicts 20000 \
             --out "results/double_${{ matrix.top }}_${{ matrix.shard }}.jsonl" \
             | tee "results/double_${{ matrix.top }}_${{ matrix.shard }}.log"
       - name: Require complete UNSAT summary
