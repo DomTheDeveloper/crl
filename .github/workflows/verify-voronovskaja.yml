@@ -1,13 +1,11 @@
 name: Verify Voronovskaja Lean branch
 
 on:
-  push:
-    paths:
-      - '.github/workflows/verify-voronovskaja.yml'
+  pull_request:
   workflow_dispatch:
 
 concurrency:
-  group: verify-voronovskaja
+  group: verify-voronovskaja-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
