@@ -1,12 +1,11 @@
 name: Audit checkerboard finite artifacts
 
 on:
-  push:
-    branches:
-      - checkerboard-17-21-certificates
   pull_request:
     branches:
       - claude/gracious-hamilton-8k6xhz
+    paths:
+      - .github/workflows/audit-checkerboard-finite.yml
   workflow_dispatch:
 
 permissions:
