@@ -1,4 +1,4 @@
-name: Verify n22 DRAT proof pipeline
+name: Verify n22 DRAT and LRAT proof pipeline
 
 on:
   push:
@@ -26,7 +26,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  drat-smoke:
+  proof-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -36,11 +36,11 @@ jobs:
           python-version: "3.11"
       - name: Install exact SAT dependency
         run: pip install --disable-pip-version-check python-sat
-      - name: Build pinned independent DRAT checker
+      - name: Build pinned independent proof checkers
         run: |
           git clone https://github.com/marijnheule/drat-trim.git /tmp/drat-trim
           git -C /tmp/drat-trim checkout 2e3b2dc0ecf938addbd779d42877b6ed69d9a985
-          make -C /tmp/drat-trim drat-trim
+          make -C /tmp/drat-trim drat-trim lrat-check
       - name: Emit exact CaDiCaL DRAT scope proof
         working-directory: math/checkerboard/compute
         run: |
@@ -48,19 +48,26 @@ jobs:
             --top 40 --left 72 --rb 1536 \
             --solver cadical195 \
             --out proof-smoke
-      - name: Independently verify DRAT
+      - name: Verify DRAT and translate to LRAT
         working-directory: math/checkerboard/compute
         run: |
-          /tmp/drat-trim/drat-trim proof-smoke.cnf proof-smoke.drat | tee proof-smoke.verify.log
-          grep -q 's VERIFIED' proof-smoke.verify.log
+          /tmp/drat-trim/drat-trim proof-smoke.cnf proof-smoke.drat -L proof-smoke.lrat | tee proof-smoke.drat-verify.log
+          grep -q 's VERIFIED' proof-smoke.drat-verify.log
+      - name: Independently verify LRAT
+        working-directory: math/checkerboard/compute
+        run: |
+          /tmp/drat-trim/lrat-check proof-smoke.cnf proof-smoke.lrat | tee proof-smoke.lrat-verify.log
+          grep -q 's VERIFIED' proof-smoke.lrat-verify.log
       - name: Upload proof smoke artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: n22-drat-proof-smoke
+          name: n22-drat-lrat-proof-smoke
           path: |
             math/checkerboard/compute/proof-smoke.cnf
             math/checkerboard/compute/proof-smoke.drat
+            math/checkerboard/compute/proof-smoke.lrat
             math/checkerboard/compute/proof-smoke.json
-            math/checkerboard/compute/proof-smoke.verify.log
+            math/checkerboard/compute/proof-smoke.drat-verify.log
+            math/checkerboard/compute/proof-smoke.lrat-verify.log
           retention-days: 30
