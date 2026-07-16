@@ -3,4 +3,5 @@ import Checkerboard.FiniteContradictions
 import Checkerboard.CeilingAlgebra
 import Checkerboard.MasterAlgebra
 import Checkerboard.Model
+import Checkerboard.DefectMoments
 import Checkerboard.FiniteExact
