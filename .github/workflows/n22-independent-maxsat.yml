@@ -2,6 +2,11 @@ name: Independent n22 MaxSAT optimization
 
 on:
   push:
+    branches: [agent/n22-exhaustive-compute, agent/n22-independent-rerun]
+    paths:
+      - ".github/n22_exact_maxsat.py"
+      - ".github/workflows/n22-independent-maxsat.yml"
+  pull_request:
     branches: [agent/n22-exhaustive-compute]
     paths:
       - ".github/n22_exact_maxsat.py"
