@@ -30,7 +30,7 @@ theorem oddFat_target_impossible (m : ℕ) (hm : 3 ≤ m)
     (endpointCap n) (endpointCap n)
     (evenOffset n) (evenOffset n)
     D D ((2 * (m : ℝ)) ^ 2) ((2 * (m : ℝ)) ^ 2)
-    hn ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+    hn ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
   · simpa [n] using hcard
   · intro p hp
     exact p.1.2
@@ -97,7 +97,7 @@ theorem oddThin_target_impossible (m : ℕ) (hm : 3 ≤ m)
     (doubleCap N) (doubleCap N)
     (oddOffset n) (oddOffset n)
     D D ((2 * (m : ℝ) - 1) ^ 2) ((2 * (m : ℝ) - 1) ^ 2)
-    hn ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+    hn ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
   · simpa [n] using hcard
   · intro p hp
     exact p.1.2
@@ -169,7 +169,7 @@ theorem evenZero_target_impossible (m : ℕ) (hm : 3 ≤ m)
     (endpointCap n) (doubleCap Nodd)
     (evenOffset n) (oddOffset n)
     DE DO ((2 * (m : ℝ) - 1) ^ 2) ((2 * (m : ℝ) - 2) ^ 2)
-    hn ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+    hn ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
   · simpa [n] using hcard
   · intro p hp
     exact p.1.2
@@ -242,7 +242,7 @@ theorem evenOne_target_impossible (m : ℕ) (hm : 3 ≤ m)
     (doubleCap Nodd) (endpointCap n)
     (oddOffset n) (evenOffset n)
     DO DE ((2 * (m : ℝ) - 2) ^ 2) ((2 * (m : ℝ) - 1) ^ 2)
-    hn ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+    hn ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
   · simpa [n] using hcard
   · intro p hp
     exact p.1.2
