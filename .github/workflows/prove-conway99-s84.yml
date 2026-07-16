@@ -12,14 +12,22 @@ on:
       - math/conway99/src/s84_audit_bundle.py
       - math/conway99/src/drup_check_extra.cpp
       - .github/workflows/prove-conway99-s84.yml
+concurrency:
+  group: conway99-s84-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
+  pull-requests: write
 jobs:
   prepare:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - name: Report run start
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr comment 35 --repo "$GITHUB_REPOSITORY" --body "Corrected Conway s=84 certificate run started: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -57,9 +65,11 @@ jobs:
       - run: g++ -O3 -std=c++17 math/conway99/src/drup_check_extra.cpp -o /tmp/drup_check_extra
       - run: python math/conway99/src/s84_ci_shard.py --base /tmp/s84-inputs/base.cnf --cubes /tmp/s84-inputs/cubes.json --checker /tmp/drup_check_extra --out /tmp/s84-shard --shard-index ${{ matrix.shard }} --shard-count 16
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: s84-shard-${{ matrix.shard }}
           path: /tmp/s84-shard
+          if-no-files-found: warn
           retention-days: 7
           compression-level: 0
   aggregate:
@@ -93,3 +103,14 @@ jobs:
             /tmp/s84-all/proofs
           retention-days: 30
           compression-level: 0
+      - name: Report certified completion
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          summary=$(python - <<'PY'
+          import json
+          d=json.load(open('/tmp/s84-final/manifest.json'))
+          print(f"Corrected s=84 certificate completed: {d['proof_count']} independently rechecked leaves, {d['total_proof_lines']} proof lines. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID")
+          PY
+          )
+          gh pr comment 35 --repo "$GITHUB_REPOSITORY" --body "$summary"
