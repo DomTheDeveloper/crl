@@ -103,11 +103,17 @@ lemma exists_second_cycle_neighbor
     intro hEq
     exact (by fin_cases i <;> decide : i + 2 ≠ i + 3) (hc.1 hEq)
   have hc12 : G.Adj (c (i + 1)) (c (i + 2)) := by
-    convert cycle_adj_plus hc (i + 1) using 1 <;>
+    have hidx : (i + 1 + 1 : Fin 5) = i + 2 := by
       fin_cases i <;> decide
+    have h := cycle_adj_plus hc (i + 1)
+    rw [hidx] at h
+    exact h
   have hc23 : G.Adj (c (i + 2)) (c (i + 3)) := by
-    convert cycle_adj_plus hc (i + 2) using 1 <;>
+    have hidx : (i + 2 + 1 : Fin 5) = i + 3 := by
       fin_cases i <;> decide
+    have h := cycle_adj_plus hc (i + 2)
+    rw [hidx] at h
+    exact h
   apply hNoP5 x (c i) (c (i + 1)) (c (i + 2)) (c (i + 3))
   unfold FormsInducedP5
   exact ⟨hxi.ne, hx_not_cycle (i + 1), hx_not_cycle (i + 2), hx_not_cycle (i + 3),
