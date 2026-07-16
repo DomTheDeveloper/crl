@@ -1,0 +1,176 @@
+name: Publish WOWII proof pages
+
+on:
+  push:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
+    paths:
+      - .github/workflows/publish-wowii-pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy verified Lean artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC_COMMIT=2823819a49d6ec5a0f3f7711213a0358e4d136b2
+          mkdir -p math/wowii/{65/{proof,statement},143/{proof/WOWII,statement},160/{statement},assets}
+
+          curl -fsSL "https://raw.githubusercontent.com/DomTheDeveloper/test-expo-app/${SRC_COMMIT}/WOWII/GraphConjecture65Proof.lean" \
+            -o math/wowii/65/proof/GraphConjecture65Proof.lean
+          curl -fsSL "https://raw.githubusercontent.com/DomTheDeveloper/formal-conjectures/ca1384ff6e95104edbcb77c9367eeee52d5e0f05/FormalConjectures/WrittenOnTheWallII/GraphConjecture65.lean" \
+            -o math/wowii/65/statement/GraphConjecture65.lean
+
+          for f in GraphConjecture143Proof GraphConjecture143Next GraphConjecture143Leaves GraphConjecture143Boundary GraphConjecture143CycleAttach GraphConjecture143ZZFinal; do
+            curl -fsSL "https://raw.githubusercontent.com/DomTheDeveloper/test-expo-app/${SRC_COMMIT}/WOWII/${f}.lean" \
+              -o "math/wowii/143/proof/WOWII/${f}.lean"
+          done
+          curl -fsSL "https://raw.githubusercontent.com/DomTheDeveloper/formal-conjectures/b5fe9ec043ddbf45ce433312aac30d39e4d24db0/FormalConjectures/WrittenOnTheWallII/GraphConjecture143.lean" \
+            -o math/wowii/143/statement/GraphConjecture143.lean
+
+          curl -fsSL "https://raw.githubusercontent.com/DomTheDeveloper/formal-conjectures/cfa4baa243eab2a49d555bce64e6784e1303a7be/FormalConjectures/WrittenOnTheWallII/GraphConjecture160.lean" \
+            -o math/wowii/160/statement/GraphConjecture160Corrected.lean
+
+      - name: Create verification metadata
+        shell: bash
+        run: |
+          cat > math/wowii/65/verification.json <<'EOF'
+          {
+            "problem": "WOWII Graph Conjecture 65",
+            "status": "proved exact current formal statement",
+            "proof_source_commit": "2823819a49d6ec5a0f3f7711213a0358e4d136b2",
+            "formal_conjectures_branch_commit": "ca1384ff6e95104edbcb77c9367eeee52d5e0f05",
+            "focused_ci_run": "29466675291",
+            "upstream_pr": 4441,
+            "sorry_free": true
+          }
+          EOF
+          cat > math/wowii/143/verification.json <<'EOF'
+          {
+            "problem": "WOWII Graph Conjecture 143",
+            "status": "proved exact current formal statement",
+            "proof_source_commit": "2823819a49d6ec5a0f3f7711213a0358e4d136b2",
+            "formal_conjectures_branch_commit": "b5fe9ec043ddbf45ce433312aac30d39e4d24db0",
+            "focused_ci_run": "29466675291",
+            "upstream_pr": 4442,
+            "sorry_free": true,
+            "modules": 6
+          }
+          EOF
+          cat > math/wowii/160/verification.json <<'EOF'
+          {
+            "problem": "WOWII Graph Conjecture 160",
+            "status": "historical statement corrected; conjecture remains open",
+            "formal_conjectures_branch_commit": "cfa4baa243eab2a49d555bce64e6784e1303a7be",
+            "focused_ci_run": "29466675291",
+            "upstream_issue": 4423,
+            "upstream_pr": 4443,
+            "solved": false
+          }
+          EOF
+
+      - name: Create GitHub Pages site
+        shell: bash
+        run: |
+          cat > math/wowii/assets/style.css <<'EOF'
+          :root{--bg:#0e1116;--panel:#161c27;--panel2:#1b2430;--border:#2a3545;--text:#e6edf3;--muted:#9aa8b8;--ok:#37d0a0;--accent:#8b73ff;--warn:#f6c35a;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.62;background-image:radial-gradient(900px 500px at 88% -10%,rgba(139,115,255,.12),transparent 60%),radial-gradient(700px 400px at -8% 3%,rgba(55,208,160,.08),transparent 55%)}a{color:var(--ok);text-decoration:none}a:hover{text-decoration:underline}.wrap{max-width:940px;margin:0 auto;padding:30px 20px 80px}.crumbs,.note{color:var(--muted);font-size:.9rem}h1{font-size:clamp(1.8rem,4.4vw,2.7rem);line-height:1.15;margin:.25em 0}.sub{font-size:1.08rem;color:var(--muted)}.badges{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.badge{font-size:.78rem;font-weight:650;padding:4px 11px;border-radius:20px;border:1px solid var(--border)}.ok{color:var(--ok);background:rgba(55,208,160,.12)}.warn{color:var(--warn);background:rgba(246,195,90,.1)}section,.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin:18px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}.card{margin:0}.card h2{margin:.1em 0}.thm,pre{font-family:var(--mono);background:var(--panel2);border:1px solid var(--border);border-left:3px solid var(--ok);border-radius:0 10px 10px 0;padding:14px 16px;overflow:auto;white-space:pre-wrap}code{font-family:var(--mono);background:rgba(127,127,127,.16);padding:.1em .35em;border-radius:5px}.files li{margin:7px 0}.foot{color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:28px;padding-top:16px}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px;border-bottom:1px solid var(--border);vertical-align:top}th{color:var(--muted)}
+          EOF
+
+          cat > math/wowii/index.html <<'EOF'
+          <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WOWII formal proofs — CRL</title><meta name="description" content="Machine-checked Lean proofs and statement corrections for Written on the Wall II graph conjectures."><link rel="stylesheet" href="./assets/style.css"></head><body><main class="wrap"><div class="crumbs"><a href="../">∑ Math Proof Playground</a> › WOWII</div><h1>Written on the Wall II: formal proof archive</h1><p class="sub">Public, reproducible Lean 4 artifacts for the CRL Formal Conjectures submissions.</p><div class="grid"><article class="card"><div class="badge ok">Lean proof · PR #4441</div><h2><a href="./65/">Conjecture 65</a></h2><p>The exact current formal statement is proved. The argument bounds both distance-minimum terms and constructs an induced two-vertex forest.</p></article><article class="card"><div class="badge ok">Modular Lean proof · PR #4442</div><h2><a href="./143/">Conjecture 143</a></h2><p>A complete six-module, sorry-free proof using the current second-smallest-degree invariant.</p></article><article class="card"><div class="badge warn">Statement correction · PR #4443</div><h2><a href="./160/">Conjecture 160</a></h2><p>Corrects χ<sub>C₄</sub> to the historical C₄-free characteristic. The corrected conjecture remains open.</p></article></div><p class="foot">All Lean files are served directly by GitHub Pages from <a href="https://github.com/DomTheDeveloper/crl">DomTheDeveloper/crl</a>.</p></main></body></html>
+          EOF
+
+          cat > math/wowii/65/index.html <<'EOF'
+          <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WOWII Graph Conjecture 65 — verified Lean proof</title><meta name="description" content="A complete Lean 4 proof of WOWII Graph Conjecture 65."><link rel="stylesheet" href="../assets/style.css"></head><body><main class="wrap"><div class="crumbs"><a href="../../">∑ Math Proof Playground</a> › <a href="../">WOWII</a> › 65</div><h1>WOWII Graph Conjecture 65</h1><p class="sub">A complete machine-checked proof of the exact current Google DeepMind Formal Conjectures statement.</p><div class="badges"><span class="badge ok">sorry-free Lean 4 proof</span><span class="badge ok">focused CI passed</span><span class="badge">upstream PR #4441</span></div><section><h2>Theorem</h2><div class="thm">distMin(G,A) + ⌈distMin(G,M)/3⌉ ≤ largestInducedForestSize(G)</div><p>A is the set of minimum-degree vertices and M is the set of maximum-degree vertices.</p></section><section><h2>Proof structure</h2><ol><li>In a connected graph, every nonempty proper vertex set has an edge crossing its boundary.</li><li>Therefore <code>distMin G S ≤ 1</code> for every nonempty S.</li><li>The minimum- and maximum-degree vertex sets are nonempty, so the left side is at most 2.</li><li>Every nontrivial connected graph contains an induced forest on two adjacent vertices.</li></ol></section><section><h2>Lean artifacts</h2><ul class="files"><li><a href="./proof/GraphConjecture65Proof.lean">Complete proof: GraphConjecture65Proof.lean</a></li><li><a href="./statement/GraphConjecture65.lean">Submitted theorem statement</a></li><li><a href="./verification.json">Verification metadata</a></li><li><a href="https://github.com/google-deepmind/formal-conjectures/pull/4441">Formal Conjectures PR #4441</a></li><li><a href="https://github.com/DomTheDeveloper/test-expo-app/actions/runs/29466675291">Focused Lean CI run</a></li></ul></section><section><h2>Verification</h2><p>The exact changed Formal Conjectures module and this proof were compiled in the pinned environment. The final theorem is <code>conjecture65_proved</code>; the source contains no <code>sorry</code> or <code>admit</code>.</p></section><p class="foot">Source archive: <a href="https://github.com/DomTheDeveloper/crl/tree/claude/gracious-hamilton-8k6xhz/math/wowii/65">CRL repository</a>.</p></main></body></html>
+          EOF
+
+          cat > math/wowii/143/index.html <<'EOF'
+          <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WOWII Graph Conjecture 143 — verified Lean proof</title><meta name="description" content="A complete modular Lean 4 proof of WOWII Graph Conjecture 143."><link rel="stylesheet" href="../assets/style.css"></head><body><main class="wrap"><div class="crumbs"><a href="../../">∑ Math Proof Playground</a> › <a href="../">WOWII</a> › 143</div><h1>WOWII Graph Conjecture 143</h1><p class="sub">A complete modular, machine-checked proof using the current WOWII definition σ(G) = second-smallest degree.</p><div class="badges"><span class="badge ok">six-module sorry-free Lean proof</span><span class="badge ok">focused CI passed</span><span class="badge">upstream PR #4442</span></div><section><h2>Theorem</h2><div class="thm">girth(G) + 1 ≤ largestInducedTreeSize(G) · secondSmallestDegree(G)</div><p>Assumptions: G is finite and connected, and its second-smallest degree is positive.</p></section><section><h2>Proof decomposition</h2><ol><li><strong>Acyclic case:</strong> girth is zero and a connected nontrivial graph contains an induced two-vertex tree.</li><li><strong>Cyclic, σ ≥ 2:</strong> combine a large induced-tree bound with the degree factor.</li><li><strong>Exceptional σ = 1 case:</strong> obtain two degree-one vertices, choose a maximum induced tree containing them, find an external vertex with two tree neighbors, and close the required girth/cardinality inequality.</li></ol></section><section><h2>Lean modules</h2><table><tr><th>File</th><th>Role</th></tr><tr><td><a href="./proof/WOWII/GraphConjecture143Proof.lean">GraphConjecture143Proof.lean</a></td><td>Geodesic and base induced-tree lemmas</td></tr><tr><td><a href="./proof/WOWII/GraphConjecture143Next.lean">GraphConjecture143Next.lean</a></td><td>Short-cycle lemmas</td></tr><tr><td><a href="./proof/WOWII/GraphConjecture143Leaves.lean">GraphConjecture143Leaves.lean</a></td><td>Degree-sequence and leaf lemmas</td></tr><tr><td><a href="./proof/WOWII/GraphConjecture143Boundary.lean">GraphConjecture143Boundary.lean</a></td><td>Maximum-tree boundary argument</td></tr><tr><td><a href="./proof/WOWII/GraphConjecture143CycleAttach.lean">GraphConjecture143CycleAttach.lean</a></td><td>Cycle/cardinality core</td></tr><tr><td><a href="./proof/WOWII/GraphConjecture143ZZFinal.lean">GraphConjecture143ZZFinal.lean</a></td><td>Final theorem assembly</td></tr></table><ul class="files"><li><a href="./statement/GraphConjecture143.lean">Submitted theorem statement</a></li><li><a href="./verification.json">Verification metadata</a></li><li><a href="https://github.com/google-deepmind/formal-conjectures/pull/4442">Formal Conjectures PR #4442</a></li><li><a href="https://github.com/DomTheDeveloper/test-expo-app/actions/runs/29466675291">Focused Lean CI run</a></li></ul></section><section><h2>Verification</h2><p>The final exported theorem is <code>conjecture143_proved</code>. All six modules were compiled together in the pinned Formal Conjectures/Mathlib environment with no <code>sorry</code>, <code>admit</code>, or custom axiom.</p></section><p class="foot">Source archive: <a href="https://github.com/DomTheDeveloper/crl/tree/claude/gracious-hamilton-8k6xhz/math/wowii/143">CRL repository</a>.</p></main></body></html>
+          EOF
+
+          cat > math/wowii/160/index.html <<'EOF'
+          <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WOWII Graph Conjecture 160 — formalization correction</title><meta name="description" content="Correction of the C4-free characteristic in WOWII Graph Conjecture 160."><link rel="stylesheet" href="../assets/style.css"></head><body><main class="wrap"><div class="crumbs"><a href="../../">∑ Math Proof Playground</a> › <a href="../">WOWII</a> › 160</div><h1>WOWII Graph Conjecture 160</h1><p class="sub">A correction to the formalized invariant. This page does not claim a proof of the corrected conjecture.</p><div class="badges"><span class="badge warn">corrected statement remains open</span><span class="badge ok">corrected module compiles</span><span class="badge">upstream PR #4443</span></div><section><h2>The correction</h2><p>The historical <code>χ_C4(G)</code> is a characteristic function: it equals 1 when G contains no C₄ subgraph and 0 otherwise. A four-cycle need not be induced. The previous formalization used <code>countInducedC4 G</code>, a different invariant.</p><div class="thm">let hasC4 := ∃ a b c d, all four vertices are distinct ∧
+  G.Adj a b ∧ G.Adj b c ∧ G.Adj c d ∧ G.Adj d a
+let χC4 : ℕ := if hasC4 then 0 else 1</div></section><section><h2>Artifacts</h2><ul class="files"><li><a href="./statement/GraphConjecture160Corrected.lean">Corrected Lean statement</a></li><li><a href="./verification.json">Verification metadata</a></li><li><a href="https://github.com/google-deepmind/formal-conjectures/issues/4423">Misformalization issue #4423</a></li><li><a href="https://github.com/google-deepmind/formal-conjectures/pull/4443">Correction PR #4443</a></li><li><a href="https://github.com/DomTheDeveloper/test-expo-app/actions/runs/29466675291">Focused Lean CI run</a></li></ul></section><section><h2>Status</h2><p>The old induced-cycle-count statement was refuted by a finite graph. That counterexample does not refute the corrected historical statement. The corrected theorem remains tagged <code>research open</code>.</p></section><p class="foot">Source archive: <a href="https://github.com/DomTheDeveloper/crl/tree/claude/gracious-hamilton-8k6xhz/math/wowii/160">CRL repository</a>.</p></main></body></html>
+          EOF
+
+      - name: Add WOWII entries to the proof catalog
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('math/assets/js/data.js')
+          s = p.read_text()
+          if 'id: "wowii-65"' not in s:
+              marker = 'window.MP_PROBLEMS = ['
+              entries = r'''
+
+            {
+              id: "wowii-65",
+              title: "WOWII Graph Conjecture 65",
+              category: "Graph Theory",
+              status: "solved",
+              year: "2026 formal proof",
+              by: "CRL / Dominic Dabish",
+              tags: ["WOWII", "graph theory", "Lean 4", "Formal Conjectures"],
+              statement: "For a finite connected graph, the two distance-minimum terms from WOWII 65 are bounded above by the size of a largest induced forest.",
+              latex: "\\operatorname{distMin}(A)+\\lceil\\operatorname{distMin}(M)/3\\rceil\\le f(G)",
+              story: "A complete sorry-free Lean proof bounds each distance-minimum term using a crossing edge and obtains a two-vertex induced forest from connectivity.",
+              source: { name: "Proof archive", url: "./wowii/65/" },
+              proofs: [{ system: "lean", verified: true, note: "Exact Formal Conjectures theorem; focused CI passed.", code: "theorem conjecture65_proved ... := by\n  -- complete proof: /math/wowii/65/proof/GraphConjecture65Proof.lean" }],
+              playground: null
+            },
+            {
+              id: "wowii-143",
+              title: "WOWII Graph Conjecture 143",
+              category: "Graph Theory",
+              status: "solved",
+              year: "2026 formal proof",
+              by: "CRL / Dominic Dabish",
+              tags: ["WOWII", "girth", "induced trees", "Lean 4", "Formal Conjectures"],
+              statement: "For a finite connected graph with positive second-smallest degree, girth plus one is at most the largest induced-tree size times the second-smallest degree.",
+              latex: "g(G)+1\\le t(G)\\,\\sigma(G)",
+              story: "A six-module sorry-free Lean proof treats acyclic graphs, the sigma-at-least-two branch, and the exceptional sigma-one branch.",
+              source: { name: "Proof archive", url: "./wowii/143/" },
+              proofs: [{ system: "lean", verified: true, note: "Complete modular proof; focused CI passed.", code: "theorem conjecture143_proved ... := by\n  -- final module: /math/wowii/143/proof/WOWII/GraphConjecture143ZZFinal.lean" }],
+              playground: null
+            },
+            {
+              id: "wowii-160",
+              title: "WOWII Graph Conjecture 160",
+              category: "Graph Theory",
+              status: "open",
+              year: "statement corrected 2026",
+              by: "Written on the Wall II",
+              tags: ["WOWII", "C4-free", "formalization correction", "Lean 4"],
+              statement: "The historical χ_C4 term is the C4-free characteristic: 1 for C4-free graphs and 0 otherwise. The corrected conjecture remains open.",
+              latex: "L_s(G)\\ge\\max_v l(v)+\\max_v T(v)\\,\\chi_{C_4}(G)",
+              story: "The previous file used the number of induced four-cycles. PR #4443 restores the historical Boolean-valued, non-induced C4-free characteristic.",
+              source: { name: "Correction archive", url: "./wowii/160/" },
+              proofs: [{ system: "lean", verified: true, note: "Corrected statement compiles; no proof of the corrected conjecture is claimed.", code: "let χC4 : ℕ := if hasC4 then 0 else 1" }],
+              playground: null
+            },
+          '''
+              s = s.replace(marker, marker + entries, 1)
+              p.write_text(s)
+
+      - name: Commit published archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add math/wowii math/assets/js/data.js
+          if git diff --cached --quiet; then
+            echo "WOWII archive already current"
+          else
+            git commit -m "Publish WOWII 65 and 143 proofs and 160 correction"
+            git push
+          fi
