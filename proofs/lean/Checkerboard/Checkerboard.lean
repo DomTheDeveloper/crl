@@ -4,4 +4,5 @@ import Checkerboard.CeilingAlgebra
 import Checkerboard.MasterAlgebra
 import Checkerboard.LP.AlgebraicParameter
 import Checkerboard.LP.FiniteModel
+import Checkerboard.LP.ContinuumModel
 import Checkerboard.LP.LimitTransfer
