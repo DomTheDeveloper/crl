@@ -1,0 +1,113 @@
+name: Audit complete WOWII 314 proof
+
+on:
+  push:
+    branches:
+      - agent/wowii314-complete
+  pull_request:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
+    paths:
+      - WOWII/ZZGraphConjecture314*.lean
+      - WOWII/GraphConjecture314Proof.md
+      - .github/workflows/audit-wowii-314-complete.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out CRL proof source
+        uses: actions/checkout@v4
+
+      - name: Check out pinned Formal Conjectures
+        uses: actions/checkout@v4
+        with:
+          repository: google-deepmind/formal-conjectures
+          ref: b2e608fc52d765510915a244bb69b1a2741acc3c
+          path: formal-conjectures
+
+      - name: Install Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Prepare isolated proof modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p formal-conjectures/WOWII
+          cp WOWII/ZZGraphConjecture314*.lean formal-conjectures/WOWII/
+          cat > formal-conjectures/WOWII/Audit314.lean <<'EOF'
+          import FormalConjectures.WrittenOnTheWallII.GraphConjecture314
+          import WOWII.ZZGraphConjecture314Final
+
+          namespace WrittenOnTheWallII.GraphConjecture314
+
+          open Classical SimpleGraph
+          variable {α : Type*} [Fintype α] [DecidableEq α]
+
+          example [Nontrivial α]
+              (G : SimpleGraph α) [DecidableRel G.Adj]
+              (hG : G.Connected)
+              (hTriFree : ∀ a b c : α,
+                G.Adj a b → G.Adj b c → G.Adj c a → False)
+              (hPath : largestInducedPathSize G ≤ 4) :
+              IsWellTotallyDominated G := by
+            exact conjecture314_proved G hG hTriFree hPath
+
+          #print axioms conjecture314_proved
+
+          end WrittenOnTheWallII.GraphConjecture314
+          EOF
+
+      - name: Reject proof holes and unsafe shortcuts
+        shell: bash
+        working-directory: formal-conjectures
+        run: |
+          set -euo pipefail
+          if grep -RInE '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|native_decide|^[[:space:]]*opaque[[:space:]]' WOWII/ZZGraphConjecture314*.lean; then
+            echo 'Explicit proof hole or disallowed shortcut found.' >&2
+            exit 1
+          fi
+
+      - name: Download Mathlib cache
+        shell: bash
+        working-directory: formal-conjectures
+        run: lake exe cache get
+
+      - name: Compile complete proof stack
+        shell: bash
+        working-directory: formal-conjectures
+        run: |
+          set -o pipefail
+          lake env lean WOWII/ZZGraphConjecture314Final.lean 2>&1 | tee wowii314-build.log
+
+      - name: Verify exact theorem type and audit axioms
+        shell: bash
+        working-directory: formal-conjectures
+        run: |
+          set -euo pipefail
+          lake env lean WOWII/Audit314.lean 2>&1 | tee wowii314-axioms.log
+          if grep -q 'sorryAx' wowii314-axioms.log; then
+            echo 'Audit failed: conjecture314_proved depends on sorryAx.' >&2
+            exit 1
+          fi
+          grep -F 'conjecture314_proved' wowii314-axioms.log
+
+      - name: Upload audit transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wowii314-complete-audit
+          path: |
+            formal-conjectures/wowii314-build.log
+            formal-conjectures/wowii314-axioms.log
+          if-no-files-found: warn
