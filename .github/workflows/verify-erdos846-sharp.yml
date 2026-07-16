@@ -1,4 +1,4 @@
-name: Verify Erdős 846 sharpness theorem
+name: Verify Erdős 846 sharpness bridge
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
 jobs:
   lean-erdos846-sharp:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
 
@@ -29,13 +29,13 @@ jobs:
           ! grep -RnE '\bsorry\b|\badmit\b|native_decide|^[[:space:]]*(axiom|opaque)[[:space:]]' \
             proofs/lean/Erdos846Sharp/Erdos846Sharp.lean
 
-      - name: Resolve Mathlib
+      - name: Resolve pinned dependencies
         working-directory: proofs/lean/Erdos846Sharp
         run: lake update
 
       - name: Fetch Mathlib cache
         working-directory: proofs/lean/Erdos846Sharp
-        run: lake exe cache get || echo "cache miss — Mathlib will build normally"
+        run: lake exe cache get || echo "cache miss — dependencies will build normally"
 
       - name: Build and kernel-check
         working-directory: proofs/lean/Erdos846Sharp
@@ -52,6 +52,7 @@ jobs:
             echo '::error::Proof depends on sorryAx'
             exit 1
           fi
+          grep -q 'image_nonTrilinear_iff_no_formsTriangle' build.log
           grep -q 'four_mul_triangleFree_card_edges_le_sq' build.log
           grep -q 'exists_triangleFree_extremizer' build.log
           grep -iE 'axioms|propext|Classical.choice|Quot.sound' build.log || true
