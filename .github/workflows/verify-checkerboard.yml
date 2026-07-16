@@ -34,6 +34,7 @@ jobs:
           python scripts/checkerboard/generate_outer_support_certificate.py
           python scripts/checkerboard/generate_outer_geometry_certificate.py
           python scripts/checkerboard/generate_outer_marginal_ae_certificate.py
+          python scripts/checkerboard/generate_outer_projection_ae_certificate.py
 
       - name: Install elan
         run: |
@@ -75,6 +76,7 @@ jobs:
             Checkerboard/LP/OuterGeometryBase.lean \
             Checkerboard/LP/OuterGeometryCertificate.lean \
             Checkerboard/LP/OuterMarginalAE.lean \
+            Checkerboard/LP/OuterProjectionAE.lean \
             Checkerboard/LP/FiniteModel.lean \
             Checkerboard/LP/FiniteDual.lean \
             Checkerboard/LP/ContinuumModel.lean \
@@ -106,6 +108,7 @@ jobs:
             proofs/lean/Checkerboard/Checkerboard/LP/OuterSupportCertificate.lean
             proofs/lean/Checkerboard/Checkerboard/LP/OuterGeometryCertificate.lean
             proofs/lean/Checkerboard/Checkerboard/LP/OuterMarginalAE.lean
+            proofs/lean/Checkerboard/Checkerboard/LP/OuterProjectionAE.lean
             proofs/lean/Checkerboard/build.log
           if-no-files-found: warn
           retention-days: 30
