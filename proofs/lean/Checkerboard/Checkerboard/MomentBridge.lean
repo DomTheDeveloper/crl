@@ -2,21 +2,14 @@ import Checkerboard.DeficitAlgebra
 
 /-!
 # Finite-fiber bridge for the checkerboard moment argument
-
-The theorem in this file derives the first moments, second moment, total
-deficits, weighted Cauchy bound, unit-deficit classification, and geometric
-contradiction from concrete finite fibers.  Parity-specific checkerboard files
-only have to supply their explicit capacity profiles and coordinate maps.
 -/
 
 namespace Checkerboard
 
 open scoped BigOperators
 
-/-- Natural unused capacity. -/
 def natDeficit (cap count : ℕ → ℕ) (k : ℕ) : ℕ := cap k - count k
 
-/-- Total unused capacity is total capacity minus total occupancy. -/
 theorem sum_natDeficit (N : ℕ) (cap count : ℕ → ℕ)
     (hle : ∀ k ∈ Finset.range N, count k ≤ cap k) :
     (∑ k in Finset.range N, natDeficit cap count k) =
@@ -24,7 +17,6 @@ theorem sum_natDeficit (N : ℕ) (cap count : ℕ → ℕ)
   simpa [natDeficit] using
     (Finset.sum_tsub_distrib (Finset.range N) hle)
 
-/-- Casted weighted unused capacity equals capacity moment minus occupancy moment. -/
 theorem sum_natDeficit_mul (N : ℕ) (cap count : ℕ → ℕ) (z : ℕ → ℝ)
     (hle : ∀ k ∈ Finset.range N, count k ≤ cap k) :
     (∑ k in Finset.range N, (natDeficit cap count k : ℝ) * z k) =
@@ -40,7 +32,6 @@ theorem sum_natDeficit_mul (N : ℕ) (cap count : ℕ → ℕ) (z : ℕ → ℝ)
             ring
     _ = _ := Finset.sum_sub_distrib
 
-/-- The general finite `q=1` contradiction in doubled centered coordinates. -/
 theorem profile_q1_impossible
     {α : Type*} [DecidableEq α]
     (n Nu Nv : ℕ) (S : Finset α)
@@ -48,7 +39,7 @@ theorem profile_q1_impossible
     (capU capV : ℕ → ℕ)
     (uoff voff : ℕ → ℝ)
     (DU DV RU RV : ℝ)
-    (hn : 1 ≤ n)
+    (hn : 2 ≤ n)
     (hcard : S.card = 2 * n - 3)
     (hfx : ∀ p ∈ S, fx p < n)
     (hfy : ∀ p ∈ S, fy p < n)
@@ -60,14 +51,10 @@ theorem profile_q1_impossible
     (hvcap : ∀ k ∈ Finset.range Nv, fiberCard S fv k ≤ capV k)
     (hcapUsum : ∑ k in Finset.range Nu, capU k = 2 * n - 2)
     (hcapVsum : ∑ k in Finset.range Nv, capV k = 2 * n - 2)
-    (hcapUfirst :
-      ∑ k in Finset.range Nu, (capU k : ℝ) * uoff k = 0)
-    (hcapVfirst :
-      ∑ k in Finset.range Nv, (capV k : ℝ) * voff k = 0)
-    (hcapUsecond :
-      ∑ k in Finset.range Nu, (capU k : ℝ) * uoff k ^ 2 = DU)
-    (hcapVsecond :
-      ∑ k in Finset.range Nv, (capV k : ℝ) * voff k ^ 2 = DV)
+    (hcapUfirst : ∑ k in Finset.range Nu, (capU k : ℝ) * uoff k = 0)
+    (hcapVfirst : ∑ k in Finset.range Nv, (capV k : ℝ) * voff k = 0)
+    (hcapUsecond : ∑ k in Finset.range Nu, (capU k : ℝ) * uoff k ^ 2 = DU)
+    (hcapVsecond : ∑ k in Finset.range Nv, (capV k : ℝ) * voff k ^ 2 = DV)
     (hcoordX : ∀ p ∈ S,
       centered2Nat n (fx p) = uoff (fu p) + voff (fv p))
     (hcoordY : ∀ p ∈ S,
@@ -97,29 +84,33 @@ theorem profile_q1_impossible
     simpa [cv] using sum_fiberCard_range S fv Nv hfv
 
   have hcsum : ∑ k in Finset.range n, c k = 3 := by
-    rw [show (∑ k in Finset.range n, c k) =
-      (∑ k in Finset.range n, (2 : ℕ)) - ∑ k in Finset.range n, cx k by
-        exact sum_natDeficit n (fun _ => 2) cx (by simpa [cx] using hxcap)]
-    simp [hxsum, hcard]
-    omega
+    calc
+      (∑ k in Finset.range n, c k) =
+          (∑ k in Finset.range n, (2 : ℕ)) - ∑ k in Finset.range n, cx k :=
+        sum_natDeficit n (fun _ => 2) cx (by simpa [cx] using hxcap)
+      _ = 2 * n - S.card := by rw [hxsum]; simp [Nat.mul_comm]
+      _ = 3 := by omega
   have hrsum : ∑ k in Finset.range n, r k = 3 := by
-    rw [show (∑ k in Finset.range n, r k) =
-      (∑ k in Finset.range n, (2 : ℕ)) - ∑ k in Finset.range n, cy k by
-        exact sum_natDeficit n (fun _ => 2) cy (by simpa [cy] using hycap)]
-    simp [hysum, hcard]
-    omega
+    calc
+      (∑ k in Finset.range n, r k) =
+          (∑ k in Finset.range n, (2 : ℕ)) - ∑ k in Finset.range n, cy k :=
+        sum_natDeficit n (fun _ => 2) cy (by simpa [cy] using hycap)
+      _ = 2 * n - S.card := by rw [hysum]; simp [Nat.mul_comm]
+      _ = 3 := by omega
   have hmusum : ∑ k in Finset.range Nu, μ k = 1 := by
-    rw [show (∑ k in Finset.range Nu, μ k) =
-      (∑ k in Finset.range Nu, capU k) - ∑ k in Finset.range Nu, cu k by
-        exact sum_natDeficit Nu capU cu (by simpa [cu] using hucap)]
-    rw [hcapUsum, husum, hcard]
-    omega
+    calc
+      (∑ k in Finset.range Nu, μ k) =
+          (∑ k in Finset.range Nu, capU k) - ∑ k in Finset.range Nu, cu k :=
+        sum_natDeficit Nu capU cu (by simpa [cu] using hucap)
+      _ = (2 * n - 2) - S.card := by rw [hcapUsum, husum]
+      _ = 1 := by omega
   have hnusum : ∑ k in Finset.range Nv, ν k = 1 := by
-    rw [show (∑ k in Finset.range Nv, ν k) =
-      (∑ k in Finset.range Nv, capV k) - ∑ k in Finset.range Nv, cv k by
-        exact sum_natDeficit Nv capV cv (by simpa [cv] using hvcap)]
-    rw [hcapVsum, hvsum, hcard]
-    omega
+    calc
+      (∑ k in Finset.range Nv, ν k) =
+          (∑ k in Finset.range Nv, capV k) - ∑ k in Finset.range Nv, cv k :=
+        sum_natDeficit Nv capV cv (by simpa [cv] using hvcap)
+      _ = (2 * n - 2) - S.card := by rw [hcapVsum, hvsum]
+      _ = 1 := by omega
 
   have hxocc1 :
       (∑ k in Finset.range n, (cx k : ℝ) * centered2Nat n k) =
@@ -247,7 +238,11 @@ theorem profile_q1_impossible
             (fun k => centered2Nat n k ^ 2) (by simpa [cx] using hxcap)]
     rw [hxocc2]
     simp_rw [← Finset.mul_sum]
-    rw [centered2_square_sum]
+    have hsq : (∑ k in Finset.range n, centered2Nat n k ^ 2) =
+        (n : ℝ) * ((n : ℝ) ^ 2 - 1) / 3 := by
+      simpa [centered2Nat] using centered2_square_sum n
+    rw [hsq]
+    norm_num
   have hrsecond :
       (∑ k in Finset.range n, (r k : ℝ) * centered2Nat n k ^ 2) =
         2 * ((n : ℝ) * ((n : ℝ) ^ 2 - 1) / 3) -
@@ -259,7 +254,11 @@ theorem profile_q1_impossible
             (fun k => centered2Nat n k ^ 2) (by simpa [cy] using hycap)]
     rw [hyocc2]
     simp_rw [← Finset.mul_sum]
-    rw [centered2_square_sum]
+    have hsq : (∑ k in Finset.range n, centered2Nat n k ^ 2) =
+        (n : ℝ) * ((n : ℝ) ^ 2 - 1) / 3 := by
+      simpa [centered2Nat] using centered2_square_sum n
+    rw [hsq]
+    norm_num
   have hmusecond :
       (∑ k in Finset.range Nu, (μ k : ℝ) * uoff k ^ 2) =
         DU - ∑ p ∈ S, uoff (fu p) ^ 2 := by

@@ -1,27 +1,24 @@
 import Checkerboard.Geometry
 import Checkerboard.FiniteContradictions
 
-/-!
-# Assembly of the three checkerboard parity cases
--/
-
 namespace Checkerboard
 
 open scoped BigOperators
 
-/-- The odd-board fat color cannot have exactly `2n-3` points. -/
 theorem oddFat_target_impossible (m : ℕ) (hm : 3 ≤ m)
     (S : Finset (Board (2 * m + 1)))
     (hmono : Monochromatic 0 S) (hntil : NoThreeInLine S)
     (hcard : S.card = 2 * (2 * m + 1) - 3) : False := by
   let n := 2 * m + 1
   have hn : 1 ≤ n := by dsimp [n]; omega
+  have hn2 : 2 ≤ n := by dsimp [n]; omega
   have huMod : ∀ p ∈ S, uRaw p % 2 = 0 := by
     intro p hp
     simpa using uRaw_mod_two hmono p hp
   have hvMod : ∀ p ∈ S, vRaw n p % 2 = 0 := by
     intro p hp
-    rw [show n = 2 * m + 1 by rfl, vRaw_mod_two_odd]
+    change vRaw (2 * m + 1) p % 2 = 0
+    rw [vRaw_mod_two_odd]
     exact huMod p hp
   let D : ℝ := 8 * (m : ℝ) * (2 * (m : ℝ) ^ 2 + 1) / 3
   refine profile_q1_impossible
@@ -30,7 +27,7 @@ theorem oddFat_target_impossible (m : ℕ) (hm : 3 ≤ m)
     (endpointCap n) (endpointCap n)
     (evenOffset n) (evenOffset n)
     D D ((2 * (m : ℝ)) ^ 2) ((2 * (m : ℝ)) ^ 2)
-    hn ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+    hn2 ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
   · simpa [n] using hcard
   · intro p hp
     exact p.1.2
@@ -39,12 +36,12 @@ theorem oddFat_target_impossible (m : ℕ) (hm : 3 ≤ m)
   · intro p hp
     have hle := uRaw_le_rawMax hn p
     have hmod := huMod p hp
-    dsimp [n, rawMax] at hle ⊢
+    dsimp [n, rawMax] at hle hmod ⊢
     omega
   · intro p hp
     have hle := vRaw_le_rawMax hn p
     have hmod := hvMod p hp
-    dsimp [n, rawMax] at hle ⊢
+    dsimp [n, rawMax] at hle hmod ⊢
     omega
   · intro k hk
     simpa using xFiber_le_two hntil k
@@ -74,7 +71,6 @@ theorem oddFat_target_impossible (m : ℕ) (hm : 3 ≤ m)
     push_cast
     convert hg using 1 <;> ring
 
-/-- The odd-board thin color cannot have exactly `2n-3` points. -/
 theorem oddThin_target_impossible (m : ℕ) (hm : 3 ≤ m)
     (S : Finset (Board (2 * m + 1)))
     (hmono : Monochromatic 1 S) (hntil : NoThreeInLine S)
@@ -82,12 +78,14 @@ theorem oddThin_target_impossible (m : ℕ) (hm : 3 ≤ m)
   let n := 2 * m + 1
   let N := 2 * m
   have hn : 1 ≤ n := by dsimp [n]; omega
+  have hn2 : 2 ≤ n := by dsimp [n]; omega
   have huMod : ∀ p ∈ S, uRaw p % 2 = 1 := by
     intro p hp
     simpa using uRaw_mod_two hmono p hp
   have hvMod : ∀ p ∈ S, vRaw n p % 2 = 1 := by
     intro p hp
-    rw [show n = 2 * m + 1 by rfl, vRaw_mod_two_odd]
+    change vRaw (2 * m + 1) p % 2 = 1
+    rw [vRaw_mod_two_odd]
     exact huMod p hp
   let D : ℝ :=
     4 * (m : ℝ) * (2 * (m : ℝ) - 1) * (2 * (m : ℝ) + 1) / 3
@@ -97,7 +95,7 @@ theorem oddThin_target_impossible (m : ℕ) (hm : 3 ≤ m)
     (doubleCap N) (doubleCap N)
     (oddOffset n) (oddOffset n)
     D D ((2 * (m : ℝ) - 1) ^ 2) ((2 * (m : ℝ) - 1) ^ 2)
-    hn ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+    hn2 ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
   · simpa [n] using hcard
   · intro p hp
     exact p.1.2
@@ -106,12 +104,12 @@ theorem oddThin_target_impossible (m : ℕ) (hm : 3 ≤ m)
   · intro p hp
     have hle := uRaw_le_rawMax hn p
     have hmod := huMod p hp
-    dsimp [n, N, rawMax] at hle ⊢
+    dsimp [n, N, rawMax] at hle hmod ⊢
     omega
   · intro p hp
     have hle := vRaw_le_rawMax hn p
     have hmod := hvMod p hp
-    dsimp [n, N, rawMax] at hle ⊢
+    dsimp [n, N, rawMax] at hle hmod ⊢
     omega
   · intro k hk
     simpa using xFiber_le_two hntil k
@@ -141,7 +139,6 @@ theorem oddThin_target_impossible (m : ℕ) (hm : 3 ≤ m)
     push_cast
     convert hg using 1 <;> ring
 
-/-- On an even board, color zero has endpoint `U` and all-double `V`. -/
 theorem evenZero_target_impossible (m : ℕ) (hm : 3 ≤ m)
     (S : Finset (Board (2 * m)))
     (hmono : Monochromatic 0 S) (hntil : NoThreeInLine S)
@@ -149,15 +146,16 @@ theorem evenZero_target_impossible (m : ℕ) (hm : 3 ≤ m)
   let n := 2 * m
   let Nodd := 2 * m - 1
   have hn : 1 ≤ n := by dsimp [n]; omega
+  have hn2 : 2 ≤ n := by dsimp [n]; omega
   have huMod : ∀ p ∈ S, uRaw p % 2 = 0 := by
     intro p hp
     simpa using uRaw_mod_two hmono p hp
   have hvMod : ∀ p ∈ S, vRaw n p % 2 = 1 := by
     intro p hp
-    rw [show n = 2 * m by rfl, vRaw_mod_two_even]
-    have hc := hmono p hp
-    simp [pointColor] at hc
-    omega
+    change vRaw (2 * m) p % 2 = 1
+    rw [vRaw_mod_two_even]
+    have hc : pointColor p = 0 := by simpa using hmono p hp
+    rw [hc]
   let DE : ℝ :=
     2 * (2 * (m : ℝ) - 1) *
       (4 * (m : ℝ) ^ 2 - 4 * (m : ℝ) + 3) / 3
@@ -169,7 +167,7 @@ theorem evenZero_target_impossible (m : ℕ) (hm : 3 ≤ m)
     (endpointCap n) (doubleCap Nodd)
     (evenOffset n) (oddOffset n)
     DE DO ((2 * (m : ℝ) - 1) ^ 2) ((2 * (m : ℝ) - 2) ^ 2)
-    hn ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+    hn2 ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
   · simpa [n] using hcard
   · intro p hp
     exact p.1.2
@@ -178,12 +176,12 @@ theorem evenZero_target_impossible (m : ℕ) (hm : 3 ≤ m)
   · intro p hp
     have hle := uRaw_le_rawMax hn p
     have hmod := huMod p hp
-    dsimp [n, rawMax] at hle ⊢
+    dsimp [n, rawMax] at hle hmod ⊢
     omega
   · intro p hp
     have hle := vRaw_le_rawMax hn p
     have hmod := hvMod p hp
-    dsimp [n, Nodd, rawMax] at hle ⊢
+    dsimp [n, Nodd, rawMax] at hle hmod ⊢
     omega
   · intro k hk
     simpa using xFiber_le_two hntil k
@@ -192,7 +190,9 @@ theorem evenZero_target_impossible (m : ℕ) (hm : 3 ≤ m)
   · exact uEvenProfile_capacity hn hntil huMod
   · exact vOddProfile_capacity hn hntil hvMod
   · simpa [n] using endpointCap_sum (N := n) (by omega)
-  · simpa [n, Nodd] using doubleCap_sum Nodd
+  · calc
+      (∑ k in Finset.range Nodd, doubleCap Nodd k) = 2 * Nodd := doubleCap_sum Nodd
+      _ = 2 * n - 2 := by dsimp [Nodd, n]; omega
   · simpa [n, evenOffset] using evenEndpoint_capacity_first m (by omega)
   · simpa [n, Nodd, oddOffset] using evenDouble_capacity_first m (by omega)
   · simpa [DE, n, evenOffset] using evenEndpoint_capacity_second m (by omega)
@@ -214,7 +214,6 @@ theorem evenZero_target_impossible (m : ℕ) (hm : 3 ≤ m)
     push_cast
     convert hg using 1 <;> ring
 
-/-- On an even board, color one has all-double `U` and endpoint `V`. -/
 theorem evenOne_target_impossible (m : ℕ) (hm : 3 ≤ m)
     (S : Finset (Board (2 * m)))
     (hmono : Monochromatic 1 S) (hntil : NoThreeInLine S)
@@ -222,15 +221,16 @@ theorem evenOne_target_impossible (m : ℕ) (hm : 3 ≤ m)
   let n := 2 * m
   let Nodd := 2 * m - 1
   have hn : 1 ≤ n := by dsimp [n]; omega
+  have hn2 : 2 ≤ n := by dsimp [n]; omega
   have huMod : ∀ p ∈ S, uRaw p % 2 = 1 := by
     intro p hp
     simpa using uRaw_mod_two hmono p hp
   have hvMod : ∀ p ∈ S, vRaw n p % 2 = 0 := by
     intro p hp
-    rw [show n = 2 * m by rfl, vRaw_mod_two_even]
-    have hc := hmono p hp
-    simp [pointColor] at hc
-    omega
+    change vRaw (2 * m) p % 2 = 0
+    rw [vRaw_mod_two_even]
+    have hc : pointColor p = 1 := by simpa using hmono p hp
+    rw [hc]
   let DE : ℝ :=
     2 * (2 * (m : ℝ) - 1) *
       (4 * (m : ℝ) ^ 2 - 4 * (m : ℝ) + 3) / 3
@@ -242,7 +242,7 @@ theorem evenOne_target_impossible (m : ℕ) (hm : 3 ≤ m)
     (doubleCap Nodd) (endpointCap n)
     (oddOffset n) (evenOffset n)
     DO DE ((2 * (m : ℝ) - 2) ^ 2) ((2 * (m : ℝ) - 1) ^ 2)
-    hn ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+    hn2 ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
   · simpa [n] using hcard
   · intro p hp
     exact p.1.2
@@ -251,12 +251,12 @@ theorem evenOne_target_impossible (m : ℕ) (hm : 3 ≤ m)
   · intro p hp
     have hle := uRaw_le_rawMax hn p
     have hmod := huMod p hp
-    dsimp [n, Nodd, rawMax] at hle ⊢
+    dsimp [n, Nodd, rawMax] at hle hmod ⊢
     omega
   · intro p hp
     have hle := vRaw_le_rawMax hn p
     have hmod := hvMod p hp
-    dsimp [n, rawMax] at hle ⊢
+    dsimp [n, rawMax] at hle hmod ⊢
     omega
   · intro k hk
     simpa using xFiber_le_two hntil k
@@ -264,7 +264,9 @@ theorem evenOne_target_impossible (m : ℕ) (hm : 3 ≤ m)
     simpa using yFiber_le_two hntil k
   · exact uOddProfile_capacity hntil huMod
   · exact vEvenProfile_capacity hn hntil hvMod
-  · simpa [n, Nodd] using doubleCap_sum Nodd
+  · calc
+      (∑ k in Finset.range Nodd, doubleCap Nodd k) = 2 * Nodd := doubleCap_sum Nodd
+      _ = 2 * n - 2 := by dsimp [Nodd, n]; omega
   · simpa [n] using endpointCap_sum (N := n) (by omega)
   · simpa [n, Nodd, oddOffset] using evenDouble_capacity_first m (by omega)
   · simpa [n, evenOffset] using evenEndpoint_capacity_first m (by omega)

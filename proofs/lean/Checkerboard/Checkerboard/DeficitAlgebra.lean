@@ -1,19 +1,14 @@
 import Checkerboard.CapacityProfiles
+import Checkerboard.MasterAlgebra
 
 /-!
 # Deficit moment algebra
-
-This file contains the general finite weighted argument after the concrete
-checkerboard incidence identities have been established.  No checkerboard
-capacity or moment identity is assumed by the final theorem: later files derive
-all inputs from fibers of the selected point set.
 -/
 
 namespace Checkerboard
 
 open scoped BigOperators
 
-/-- A natural-valued finite weight of total mass one is a single unit mass. -/
 theorem exists_unique_one_of_sum_eq_one {ι : Type*} [DecidableEq ι]
     (s : Finset ι) (w : ι → ℕ) (hsum : ∑ i in s, w i = 1) :
     ∃ a ∈ s, w a = 1 ∧ ∀ b ∈ s, b ≠ a → w b = 0 := by
@@ -27,7 +22,7 @@ theorem exists_unique_one_of_sum_eq_one {ι : Type*} [DecidableEq ι]
     Finset.single_le_sum (fun i hi => Nat.zero_le (w i)) ha
   have hwa1 : w a = 1 := by omega
   have herase : ∑ i in s.erase a, w i = 0 := by
-    have hsplit := Finset.sum_erase_add _ _ ha
+    have hsplit := Finset.sum_erase_add (s := s) (f := w) ha
     omega
   refine ⟨a, ha, hwa1, ?_⟩
   intro b hb hba
@@ -36,7 +31,6 @@ theorem exists_unique_one_of_sum_eq_one {ι : Type*} [DecidableEq ι]
     Finset.single_le_sum (fun i hi => Nat.zero_le (w i)) hbErase
   omega
 
-/-- First and second moments of a unit natural deficit. -/
 theorem unitDeficit_moments {ι : Type*} [DecidableEq ι]
     (s : Finset ι) (w : ι → ℕ) (z : ι → ℝ)
     (hsum : ∑ i in s, w i = 1) :
@@ -59,7 +53,6 @@ theorem unitDeficit_moments {ι : Type*} [DecidableEq ι]
       _ = z a ^ 2 := by simp [hwa]
   rw [hfirst, hsecond]
 
-/-- A unit deficit's second moment is bounded by every uniform squared-radius bound. -/
 theorem unitDeficit_second_le {ι : Type*} [DecidableEq ι]
     (s : Finset ι) (w : ι → ℕ) (z : ι → ℝ) (R : ℝ)
     (hsum : ∑ i in s, w i = 1)
@@ -76,11 +69,6 @@ theorem unitDeficit_second_le {ι : Type*} [DecidableEq ι]
   rw [hsecond]
   exact hradius a ha
 
-/-- The complete `q=1` weighted Cauchy algebra in doubled centered coordinates.
-
-`A` is four times the paper's constant `K`.  The checkerboard second-moment
-identity has the scaled form `C₂+R₂ = A + 2(M₂ᵁ+M₂ⱽ)`.
--/
 theorem q1_master_lower
     {ιc ιr ιu ιv : Type*}
     [DecidableEq ιc] [DecidableEq ιr] [DecidableEq ιu] [DecidableEq ιv]
@@ -106,8 +94,12 @@ theorem q1_master_lower
     -3 * A / 4 ≤
       (∑ i in su, (μ i : ℝ) * u i ^ 2) +
       (∑ i in sv, (ν i : ℝ) * v i ^ 2) := by
-  have hcauchy := weightedCauchy sc (fun i => (c i : ℝ)) xc (by positivity)
-  have rcauchy := weightedCauchy sr (fun i => (r i : ℝ)) yr (by positivity)
+  have hcauchy := weightedCauchy sc (fun i => (c i : ℝ)) xc (by
+    intro i hi
+    positivity)
+  have rcauchy := weightedCauchy sr (fun i => (r i : ℝ)) yr (by
+    intro i hi
+    positivity)
   have hccast : (∑ i in sc, (c i : ℝ)) = 3 := by exact_mod_cast hcsum
   have hrcast : (∑ i in sr, (r i : ℝ)) = 3 := by exact_mod_cast hrsum
   rw [hccast, hfirstC] at hcauchy

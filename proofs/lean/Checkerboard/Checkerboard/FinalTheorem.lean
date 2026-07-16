@@ -1,14 +1,8 @@
 import Checkerboard.ParityCases
 import Mathlib.Data.Finset.Powerset
 
-/-!
-# Exact finite checkerboard theorem
--/
-
 namespace Checkerboard
 
-/-- Every monochromatic no-three-in-line set on an `n×n` board, `n≥6`, has
-at most `2n-4` points. -/
 theorem monochromatic_noThreeInLine_card_le
     (n ε : ℕ) (hn : 6 ≤ n) (S : Finset (Board n))
     (hmono : Monochromatic ε S) (hntil : NoThreeInLine S) :
@@ -52,17 +46,14 @@ theorem monochromatic_noThreeInLine_card_le
         simpa [heps] using h
       exact oddThin_target_impossible m hm T hmono1 hntilT (by simpa using hTcard)
 
-/-- Maximum size in one specified checkerboard color. -/
 noncomputable def DmonoColor (n ε : ℕ) : ℕ := by
   classical
-  exact (Finset.univ : Finset (Finset (Board n))).sup fun S =>
+  exact ((Finset.univ : Finset (Fin n)).product (Finset.univ : Finset (Fin n))).powerset.sup fun S =>
     if Monochromatic ε S ∧ NoThreeInLine S then S.card else 0
 
-/-- Maximum over the two checkerboard colors. -/
 noncomputable def Dmono (n : ℕ) : ℕ :=
   max (DmonoColor n 0) (DmonoColor n 1)
 
-/-- Color-specific extremal bound. -/
 theorem DmonoColor_le (n ε : ℕ) (hn : 6 ≤ n) :
     DmonoColor n ε ≤ 2 * n - 4 := by
   classical
@@ -73,7 +64,6 @@ theorem DmonoColor_le (n ε : ℕ) (hn : 6 ≤ n) :
   · simp [hgood, monochromatic_noThreeInLine_card_le n ε hn S hgood.1 hgood.2]
   · simp [hgood]
 
-/-- The checkerboard no-three-in-line theorem. -/
 theorem checkerboard_Dmono_le (n : ℕ) (hn : 6 ≤ n) :
     Dmono n ≤ 2 * n - 4 := by
   rw [Dmono, max_le_iff]
