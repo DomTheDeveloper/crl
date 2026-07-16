@@ -8,13 +8,18 @@ on:
       - "proofs/lean/Checkerboard/**"
       - "scripts/checkerboard/generate_outer_certificate.py"
       - ".github/workflows/verify-checkerboard-lp-branch.yml"
+  pull_request:
+    paths:
+      - "proofs/lean/Checkerboard/**"
+      - "scripts/checkerboard/generate_outer_certificate.py"
+      - ".github/workflows/verify-checkerboard-lp-branch.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: checkerboard-lp-${{ github.ref }}
+  group: checkerboard-lp-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
