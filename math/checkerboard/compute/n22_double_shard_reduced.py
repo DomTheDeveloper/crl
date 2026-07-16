@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exact all-double boundary shard with prechecks and learned parent re-probing."""
+"""Exact all-double boundary shard with canonical symmetry and parent re-probing."""
 import argparse,json,sys,time,itertools,gc
 from pathlib import Path
 from pysat.solvers import Solver
@@ -41,8 +41,11 @@ def boundary_reason(S):
  e=sum(c.COVERAGE[v-1]-c.DEN for v in S)
  if e>c.BUD:return f'boundary_excess_{e}'
  return None
+def canonical_quad(top,left,rb,rr):
+ q=(top,left,rb,rr)
+ return q==min(q,(left,top,rr,rb),(rb,rr,top,left),(rr,rb,left,top))
 def rrs(left,rb):
- return [rr for rr in allm if (rr&1)==(rb&1) and not (left==a.top and rr<rb) and not (rb==a.top and rr<left) and not (rr==a.top and rb<left)]
+ return [rr for rr in allm if (rr&1)==(rb&1) and canonical_quad(a.top,left,rb,rr)]
 def limited(s,A,b):
  s.conf_budget(b);t=time.time();z=s.solve_limited(assumptions=A,expect_interrupt=True);return z,time.time()-t
 def witness(s,scope,left,rb=None,rr=None):
@@ -53,7 +56,7 @@ def emit(f,rec,echo=False):
  if echo:print(json.dumps(rec),flush=True)
 
 start=time.time();stats={'left_direct':0,'left_refined':0,'rb_direct':0,'rb_refined':0,'leaves':0,'witness':0}
-print(json.dumps({'event':'built','top':a.top,'shard':a.shard,'shards':a.shards,'lefts':lefts,'left_total_global':len(lefts_all),'rb_total':len(allm),'vars':cnf.nv,'clauses':len(cnf.clauses),'pb':info,'solver':a.solver,'left_conflicts':a.left_conflicts,'rb_conflicts':a.rb_conflicts,'left_recheck_conflicts':a.left_recheck_conflicts,'rb_recheck_conflicts':a.rb_recheck_conflicts,'left_recheck_every':a.left_recheck_every,'rb_recheck_every':a.rb_recheck_every}),flush=True)
+print(json.dumps({'event':'built','top':a.top,'shard':a.shard,'shards':a.shards,'lefts':lefts,'left_total_global':len(lefts_all),'rb_total':len(allm),'vars':cnf.nv,'clauses':len(cnf.clauses),'pb':info,'solver':a.solver,'left_conflicts':a.left_conflicts,'rb_conflicts':a.rb_conflicts,'left_recheck_conflicts':a.left_recheck_conflicts,'rb_recheck_conflicts':a.rb_recheck_conflicts,'left_recheck_every':a.left_recheck_every,'rb_recheck_every':a.rb_recheck_every,'symmetry':'Klein-four lexicographic minimum'}),flush=True)
 s=Solver(name=a.solver,bootstrap_with=cnf.clauses);del cnf;gc.collect()
 with s,out.open('w',buffering=1) as f:
  for left in lefts:
@@ -67,6 +70,9 @@ with s,out.open('w',buffering=1) as f:
    rec=witness(s,'left',left);emit(f,rec,True);sys.exit(2)
   closed=0;left_closed=False
   for rb in allm:
+   rr_list=rrs(left,rb)
+   if not rr_list:
+    closed+=1;continue
    reason=boundary_reason(boundary_ids(('top',a.top),('left',left),('rb',rb)))
    if reason:
     rec={'event':'rb','top':a.top,'shard':a.shard,'left':left,'rb':rb,'status':'UNSAT','reason':reason};emit(f,rec);stats['rb_direct']+=1;closed+=1
@@ -77,7 +83,7 @@ with s,out.open('w',buffering=1) as f:
     elif z is True:
      rec=witness(s,'rb',left,rb);emit(f,rec,True);sys.exit(2)
     else:
-     rr_list=rrs(left,rb);tested=0
+     tested=0
      for rr in rr_list:
       reason=boundary_reason(boundary_ids(('top',a.top),('left',left),('rb',rb),('rr',rr)))
       if reason:
