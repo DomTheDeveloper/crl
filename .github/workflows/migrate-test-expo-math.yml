@@ -1,0 +1,271 @@
+name: Migrate test-expo-app math work to CRL
+
+on:
+  pull_request:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
+    paths:
+      - .github/workflows/migrate-test-expo-math.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: github.repository == 'DomTheDeveloper/crl'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Migrate math branches and build the public archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_REPO: DomTheDeveloper/test-expo-app
+          TARGET_REPO: DomTheDeveloper/crl
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          root="$RUNNER_TEMP/test-expo-math-migration"
+          source_git="$root/source.git"
+          target="$root/target"
+          archive="$root/archive"
+          manifest="$root/branch-manifest.tsv"
+
+          rm -rf "$root"
+          mkdir -p "$root" "$archive/files"
+
+          git clone --mirror "https://github.com/${SOURCE_REPO}.git" "$source_git"
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git" "$target"
+
+          git -C "$target" config user.name "github-actions[bot]"
+          git -C "$target" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          source_default="$(git --git-dir="$source_git" symbolic-ref --short HEAD)"
+          target_default="$(git -C "$target" remote show origin | sed -n '/HEAD branch/s/.*: //p')"
+          source_default_ref="refs/heads/${source_default}"
+
+          printf 'source_branch\tsource_sha\tfile_count\tcanonical_branch\talias_branch\n' > "$manifest"
+
+          is_math_name() {
+            local value="${1,,}"
+            [[ "$value" =~ (a[0-9]{3,}|wow|formal-conjectures|proof|lean|math|oeis|erdos|checker|goldbach|collatz|kaprekar|ntil|no-three|dmono|hadwiger|conjecture|parseval|pompeiu) ]]
+          }
+
+          is_math_path() {
+            local value="$1"
+            local lower="${value,,}"
+
+            case "$lower" in
+              *.lean|*.sage|*.sage.py|*.tex|*.ipynb|*.m|*.wl)
+                return 0
+                ;;
+            esac
+
+            [[ "$lower" =~ (^|/)(a[0-9]{3,}|formalconjectures|proof|proofs|math|wowii|erdos|checkerboard|goldbach|collatz|kaprekar|ntil|no-three|dmono|hadwiger|conjecture|conjectures)(/|$) ]] && return 0
+            [[ "$lower" =~ (^|/).*(proof|conjecture|lean|theorem).* ]] && return 0
+            [[ "$lower" =~ ^\.github/workflows/.*(a[0-9]+|wow|lean|proof|math|oeis|erdos|checker|conjecture).*\.ya?ml$ ]] && return 0
+            return 1
+          }
+
+          safe_copy_from_source() {
+            local branch="$1"
+            local source_path="$2"
+            local destination_root="$3"
+            local destination_path="$source_path"
+
+            if [[ "$source_path" == .github/workflows/* ]]; then
+              destination_path=".github/workflows-disabled/${source_path#.github/workflows/}"
+            fi
+
+            mkdir -p "$destination_root/$(dirname "$destination_path")"
+            git --git-dir="$source_git" show "refs/heads/${branch}:${source_path}" > "$destination_root/$destination_path"
+          }
+
+          mapfile -t branches < <(
+            git --git-dir="$source_git" for-each-ref \
+              --sort=committerdate \
+              --format='%(refname:short)' \
+              refs/heads
+          )
+
+          migrated_count=0
+          alias_count=0
+          total_files=0
+
+          for branch in "${branches[@]}"; do
+            [[ "$branch" == "$source_default" ]] && continue
+
+            branch_ref="refs/heads/${branch}"
+            branch_sha="$(git --git-dir="$source_git" rev-parse "$branch_ref")"
+            merge_base="$(git --git-dir="$source_git" merge-base "$source_default_ref" "$branch_ref" || git --git-dir="$source_git" rev-parse "$source_default_ref")"
+
+            mapfile -t changed_files < <(
+              git --git-dir="$source_git" diff --name-only "$merge_base" "$branch_ref" | sed '/^$/d'
+            )
+
+            selected_files=()
+            if is_math_name "$branch"; then
+              selected_files=("${changed_files[@]}")
+            else
+              for path in "${changed_files[@]}"; do
+                if is_math_path "$path"; then
+                  selected_files+=("$path")
+                fi
+              done
+            fi
+
+            existing_files=()
+            for path in "${selected_files[@]}"; do
+              if git --git-dir="$source_git" cat-file -e "${branch_ref}:${path}" 2>/dev/null; then
+                existing_files+=("$path")
+              fi
+            done
+
+            ((${#existing_files[@]} > 0)) || continue
+
+            canonical_branch="migrated/test-expo-app/${branch}"
+            local_branch="migration-${migrated_count}"
+
+            git -C "$target" checkout --orphan "$local_branch"
+            git -C "$target" rm -rf . >/dev/null 2>&1 || true
+            git -C "$target" clean -fdx >/dev/null 2>&1 || true
+
+            for path in "${existing_files[@]}"; do
+              safe_copy_from_source "$branch" "$path" "$target"
+              safe_copy_from_source "$branch" "$path" "$archive/files"
+            done
+
+            cat > "$target/MIGRATED_FROM_TEST_EXPO_APP.md" <<EOF
+          # Migrated math branch
+
+          - Source repository: \`${SOURCE_REPO}\`
+          - Source branch: \`${branch}\`
+          - Source commit: \`${branch_sha}\`
+          - Source default branch used for the delta: \`${source_default}\`
+          - Canonical CRL branch: \`${canonical_branch}\`
+
+          This branch is a math-only snapshot. Files that originally lived under
+          \`.github/workflows/\` were preserved under
+          \`.github/workflows-disabled/\` so importing the branch does not
+          accidentally launch obsolete verification jobs.
+          EOF
+
+            cp "$manifest" "$target/MIGRATION_BRANCH_MANIFEST_PARTIAL.tsv"
+
+            git -C "$target" add -A
+            git -C "$target" commit -m "Migrate ${SOURCE_REPO}:${branch} math snapshot"
+            git -C "$target" push --force origin "HEAD:refs/heads/${canonical_branch}"
+
+            alias_branch=""
+            if ! git -C "$target" ls-remote --exit-code --heads origin "refs/heads/${branch}" >/dev/null 2>&1; then
+              git -C "$target" push origin "HEAD:refs/heads/${branch}"
+              alias_branch="$branch"
+              alias_count=$((alias_count + 1))
+            fi
+
+            file_count="${#existing_files[@]}"
+            printf '%s\t%s\t%s\t%s\t%s\n' \
+              "$branch" "$branch_sha" "$file_count" "$canonical_branch" "$alias_branch" \
+              >> "$manifest"
+
+            total_files=$((total_files + file_count))
+            migrated_count=$((migrated_count + 1))
+
+            git -C "$target" checkout --detach >/dev/null 2>&1
+            git -C "$target" branch -D "$local_branch" >/dev/null 2>&1 || true
+          done
+
+          cp "$manifest" "$archive/BRANCH_MANIFEST.tsv"
+
+          python3 - "$manifest" "$archive/manifest.json" <<'PY'
+          import csv
+          import json
+          import sys
+
+          source, destination = sys.argv[1:3]
+          with open(source, newline="", encoding="utf-8") as handle:
+              rows = list(csv.DictReader(handle, delimiter="\t"))
+          with open(destination, "w", encoding="utf-8") as handle:
+              json.dump(
+                  {
+                      "source_repository": "DomTheDeveloper/test-expo-app",
+                      "target_repository": "DomTheDeveloper/crl",
+                      "branch_count": len(rows),
+                      "branches": rows,
+                  },
+                  handle,
+                  indent=2,
+                  sort_keys=True,
+              )
+              handle.write("\n")
+          PY
+
+          cat > "$archive/README.md" <<EOF
+          # test-expo-app math migration archive
+
+          This directory is the canonical public archive of math-related code
+          migrated from \`${SOURCE_REPO}\` into \`${TARGET_REPO}\`.
+
+          - Migrated branch snapshots: **${migrated_count}**
+          - Original branch aliases created where available: **${alias_count}**
+          - Branch-file snapshot entries processed: **${total_files}**
+          - Source default branch: \`${source_default}\`
+
+          Every source branch also has an independent CRL branch under
+          \`migrated/test-expo-app/<source-branch>\`. Original source branch
+          names were additionally created in CRL whenever that name was not
+          already in use.
+
+          Files from source \`.github/workflows/\` are stored as
+          \`.github/workflows-disabled/\` in branch snapshots and beneath this
+          archive, preventing accidental execution while preserving the code.
+          EOF
+
+          cat > "$archive/index.html" <<EOF
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <title>test-expo-app Math Migration</title>
+            <style>
+              body{font-family:system-ui,-apple-system,sans-serif;max-width:900px;margin:48px auto;padding:0 20px;line-height:1.55}
+              code{background:#f4f4f4;padding:.15rem .35rem;border-radius:4px}
+              a{color:#1258a8}
+            </style>
+          </head>
+          <body>
+            <h1>test-expo-app math migration</h1>
+            <p>The math-related branch snapshots and code formerly developed in
+            <code>${SOURCE_REPO}</code> are now archived in <code>${TARGET_REPO}</code>.</p>
+            <ul>
+              <li>Migrated branch snapshots: ${migrated_count}</li>
+              <li>Original-name aliases created: ${alias_count}</li>
+              <li>Processed branch-file entries: ${total_files}</li>
+            </ul>
+            <p><a href="BRANCH_MANIFEST.tsv">Branch manifest</a> ·
+            <a href="manifest.json">JSON manifest</a> ·
+            <a href="files/">Archived files</a></p>
+          </body>
+          </html>
+          EOF
+
+          git -C "$target" fetch origin gh-pages
+          git -C "$target" checkout -B agent/migrate-test-expo-math-pages origin/gh-pages
+          rm -rf "$target/math/archive/test-expo-app"
+          mkdir -p "$target/math/archive"
+          cp -a "$archive" "$target/math/archive/test-expo-app"
+
+          git -C "$target" add math/archive/test-expo-app
+          if git -C "$target" diff --cached --quiet; then
+            echo "Public archive is already current."
+          else
+            git -C "$target" commit -m "Archive test-expo-app math branches in CRL"
+          fi
+          git -C "$target" push --force-with-lease origin agent/migrate-test-expo-math-pages
+
+          echo "Migrated ${migrated_count} math branches."
+          echo "Created ${alias_count} original-name aliases."
+          echo "Processed ${total_files} branch-file entries."
