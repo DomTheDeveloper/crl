@@ -91,6 +91,15 @@ jobs:
         working-directory: formal-conjectures
         run: lake exe cache get
 
+      - name: Build pinned Formal Conjectures modules
+        shell: bash
+        working-directory: formal-conjectures
+        run: |
+          set -euo pipefail
+          lake build \
+            FormalConjectures.WrittenOnTheWallII.GraphConjecture143 \
+            FormalConjectures.WrittenOnTheWallII.GraphConjecture314
+
       - name: Compile exact proof stack in dependency order
         shell: bash
         working-directory: formal-conjectures
