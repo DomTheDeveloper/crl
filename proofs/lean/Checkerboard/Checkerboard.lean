@@ -5,6 +5,7 @@ import Checkerboard.MasterAlgebra
 import Checkerboard.LP.AlgebraicParameter
 import Checkerboard.LP.CubicInterval
 import Checkerboard.LP.CubicField
+import Checkerboard.LP.BivariateQuadratic
 import Checkerboard.LP.PrimalParameters
 import Checkerboard.LP.PrimalParameterBounds
 import Checkerboard.LP.MiddleCertificate
@@ -18,7 +19,10 @@ import Checkerboard.LP.DualDefinitions
 import Checkerboard.LP.Bernstein
 import Checkerboard.LP.DualCertifiedFunctions
 import Checkerboard.LP.DualFunctionIdentities
+import Checkerboard.LP.DualPieceSelection
 import Checkerboard.LP.DualProfilePositivity
+import Checkerboard.LP.DualHandelmanData
+import Checkerboard.LP.DualObjectiveAlgebra
 import Checkerboard.LP.FiniteModel
 import Checkerboard.LP.FiniteDual
 import Checkerboard.LP.ContinuumModel
