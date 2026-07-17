@@ -87,6 +87,7 @@ jobs:
             Checkerboard/LP/FiniteModel.lean \
             Checkerboard/LP/FiniteDual.lean \
             Checkerboard/LP/ContinuumModel.lean \
+            Checkerboard/LP/ContinuumProjection.lean \
             Checkerboard/LP/LimitTransfer.lean \
             Checkerboard/LP/AsymptoticSqueeze.lean
           do
