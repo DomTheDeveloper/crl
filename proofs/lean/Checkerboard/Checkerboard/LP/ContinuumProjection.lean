@@ -1,4 +1,5 @@
 import Checkerboard.LP.ContinuumModel
+import Checkerboard.LP.MiddleTwoSegmentFacts
 import Mathlib.MeasureTheory.Integral.Lebesgue.Map
 
 /-!
