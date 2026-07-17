@@ -1,4 +1,4 @@
-import FormalConjectures.WrittenOnTheWallII.GraphConjecture314
+import WOWII.ZZGraphConjecture314Core
 
 /-!
 The finite C5 core of the nonbipartite family in WOWII Graph Conjecture 314.
