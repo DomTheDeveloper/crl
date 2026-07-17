@@ -72,6 +72,7 @@ jobs:
             Checkerboard/LP/AffineIntervalMeasure.lean \
             Checkerboard/LP/IntervalDensityMeasure.lean \
             Checkerboard/LP/DensityArithmetic.lean \
+            Checkerboard/LP/MiddleTwoSegment.lean \
             Checkerboard/LP/OuterCertificateData.lean \
             Checkerboard/LP/OuterDensityCertificate.lean \
             Checkerboard/LP/OuterSupportCertificate.lean \
