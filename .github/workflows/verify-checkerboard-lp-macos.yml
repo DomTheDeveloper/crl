@@ -4,13 +4,18 @@ on:
   push:
     branches:
       - agent/checkerboard-lp-asymptotic-lean
+  pull_request:
+    paths:
+      - "proofs/lean/Checkerboard/**"
+      - "scripts/checkerboard/**"
+      - ".github/workflows/verify-checkerboard-lp-macos.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: checkerboard-lp-macos-${{ github.ref }}
+  group: checkerboard-lp-macos-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -69,6 +74,7 @@ jobs:
             Checkerboard/LP/PrimalParameterBounds.lean \
             Checkerboard/LP/MiddleCertificate.lean \
             Checkerboard/LP/MiddleGeometry.lean \
+            Checkerboard/LP/MiddleTwoSegmentFacts.lean \
             Checkerboard/LP/AffineIntervalMeasure.lean \
             Checkerboard/LP/IntervalDensityMeasure.lean \
             Checkerboard/LP/DensityArithmetic.lean \
@@ -88,6 +94,7 @@ jobs:
             Checkerboard/LP/FiniteDual.lean \
             Checkerboard/LP/ContinuumModel.lean \
             Checkerboard/LP/ContinuumProjection.lean \
+            Checkerboard/LP/MiddleTwoSegmentFeasible.lean \
             Checkerboard/LP/LimitTransfer.lean \
             Checkerboard/LP/AsymptoticSqueeze.lean
           do
