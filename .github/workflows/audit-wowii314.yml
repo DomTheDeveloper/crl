@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   audit:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - name: Check out CRL proof archive
