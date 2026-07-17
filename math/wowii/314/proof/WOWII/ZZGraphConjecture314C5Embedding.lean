@@ -42,7 +42,13 @@ lemma exists_inducedC5Embedding_of_FormsInducedC5
       (i = 3 ∧ j = 4) ∨ (i = 4 ∧ j = 3) ∨
       (i = 4 ∧ j = 0) ∨ (i = 0 ∧ j = 4) := by
     decide
-  let c : Fin 5 → α := ![x0, x1, x2, x3, x4]
+  let c : Fin 5 → α := fun i =>
+    match i.1 with
+    | 0 => x0
+    | 1 => x1
+    | 2 => x2
+    | 3 => x3
+    | _ => x4
   refine ⟨c, ?_, ?_⟩
   · intro i j hij
     fin_cases i <;> fin_cases j <;> simp_all [c]
