@@ -9,6 +9,7 @@ import Checkerboard.LP.PrimalParameters
 import Checkerboard.LP.PrimalParameterBounds
 import Checkerboard.LP.MiddleCertificate
 import Checkerboard.LP.MiddleGeometry
+import Checkerboard.LP.MiddleTwoSegmentFacts
 import Checkerboard.LP.AffineIntervalMeasure
 import Checkerboard.LP.IntervalDensityMeasure
 import Checkerboard.LP.MiddleTwoSegment
@@ -18,5 +19,6 @@ import Checkerboard.LP.FiniteModel
 import Checkerboard.LP.FiniteDual
 import Checkerboard.LP.ContinuumModel
 import Checkerboard.LP.ContinuumProjection
+import Checkerboard.LP.MiddleTwoSegmentFeasible
 import Checkerboard.LP.LimitTransfer
 import Checkerboard.LP.AsymptoticSqueeze
