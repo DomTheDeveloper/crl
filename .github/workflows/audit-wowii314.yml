@@ -50,7 +50,6 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p formal-conjectures/WOWII
-          cp math/wowii/143/proof/WOWII/GraphConjecture143Proof.lean formal-conjectures/WOWII/
           cp math/wowii/314/proof/WOWII/*.lean formal-conjectures/WOWII/
           cat > formal-conjectures/WOWII/Audit314.lean <<'EOF'
           import FormalConjectures.WrittenOnTheWallII.GraphConjecture314
@@ -80,7 +79,7 @@ jobs:
         working-directory: formal-conjectures
         run: |
           set -euo pipefail
-          files=(WOWII/GraphConjecture143Proof.lean WOWII/ZZGraphConjecture314*.lean)
+          files=(WOWII/ZZGraphConjecture314*.lean)
           if grep -InE '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|native_decide|^[[:space:]]*opaque[[:space:]]' "${files[@]}"; then
             echo 'Explicit proof hole or disallowed shortcut found.' >&2
             exit 1
@@ -91,14 +90,10 @@ jobs:
         working-directory: formal-conjectures
         run: lake exe cache get
 
-      - name: Build pinned Formal Conjectures modules
+      - name: Build pinned Formal Conjectures module
         shell: bash
         working-directory: formal-conjectures
-        run: |
-          set -euo pipefail
-          lake build \
-            FormalConjectures.WrittenOnTheWallII.GraphConjecture143 \
-            FormalConjectures.WrittenOnTheWallII.GraphConjecture314
+        run: lake build FormalConjectures.WrittenOnTheWallII.GraphConjecture314
 
       - name: Compile exact proof stack in dependency order
         shell: bash
@@ -107,9 +102,9 @@ jobs:
           set -euo pipefail
           : > wowii314-build.log
           files=(
-            WOWII/GraphConjecture143Proof.lean
             WOWII/ZZGraphConjecture314Core.lean
             WOWII/ZZGraphConjecture314DominatingEdge.lean
+            WOWII/ZZGraphConjecture314PathTree.lean
             WOWII/ZZGraphConjecture314BipartiteCommon.lean
             WOWII/ZZGraphConjecture314ChainGraph.lean
             WOWII/ZZGraphConjecture314Cycle5.lean
