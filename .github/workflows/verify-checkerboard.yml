@@ -5,11 +5,13 @@ on:
     paths:
       - "proofs/lean/Checkerboard/**"
       - "scripts/checkerboard/**"
+      - "math/checkerboard/lp/certificates/**"
       - ".github/workflows/verify-checkerboard.yml"
   pull_request:
     paths:
       - "proofs/lean/Checkerboard/**"
       - "scripts/checkerboard/**"
+      - "math/checkerboard/lp/certificates/**"
       - ".github/workflows/verify-checkerboard.yml"
   workflow_dispatch:
 
@@ -46,6 +48,7 @@ jobs:
           python scripts/checkerboard/generate_outer_measure_certificate.py
           python scripts/checkerboard/generate_dual_bernstein_certificate.py
           python scripts/checkerboard/generate_dual_function_identities.py
+          python scripts/checkerboard/emit_dual_handelman_certificate.py
 
       - name: Install elan
         run: |
@@ -75,11 +78,14 @@ jobs:
             Checkerboard/LP/AlgebraicParameter.lean \
             Checkerboard/LP/CubicInterval.lean \
             Checkerboard/LP/CubicField.lean \
+            Checkerboard/LP/BivariateQuadratic.lean \
             Checkerboard/LP/PrimalParameterBounds.lean \
             Checkerboard/LP/MiddleCertificate.lean \
             Checkerboard/LP/MiddleGeometry.lean \
+            Checkerboard/LP/MiddleTwoSegmentFacts.lean \
             Checkerboard/LP/AffineIntervalMeasure.lean \
             Checkerboard/LP/IntervalDensityMeasure.lean \
+            Checkerboard/LP/AffineDensityPushforward.lean \
             Checkerboard/LP/DensityArithmetic.lean \
             Checkerboard/LP/MiddleTwoSegment.lean \
             Checkerboard/LP/OuterCertificateData.lean \
@@ -92,10 +98,18 @@ jobs:
             Checkerboard/LP/OuterMeasureCertificate.lean \
             Checkerboard/LP/DualCertifiedFunctions.lean \
             Checkerboard/LP/DualFunctionIdentities.lean \
+            Checkerboard/LP/DualPieceSelection.lean \
+            Checkerboard/LP/DualProfilePositivity.lean \
             Checkerboard/LP/DualBernsteinData.lean \
+            Checkerboard/LP/DualHandelmanData.lean \
+            Checkerboard/LP/DualObjectiveAlgebra.lean \
             Checkerboard/LP/FiniteModel.lean \
             Checkerboard/LP/FiniteDual.lean \
             Checkerboard/LP/ContinuumModel.lean \
+            Checkerboard/LP/ContinuumProjection.lean \
+            Checkerboard/LP/MiddleTwoSegmentFeasible.lean \
+            Checkerboard/LP/OuterPhysicalCertificate.lean \
+            Checkerboard/LP/ContinuumPrimalCertificate.lean \
             Checkerboard/LP/LimitTransfer.lean \
             Checkerboard/LP/AsymptoticSqueeze.lean
           do
@@ -130,6 +144,7 @@ jobs:
             proofs/lean/Checkerboard/Checkerboard/LP/OuterMeasureCertificate.lean
             proofs/lean/Checkerboard/Checkerboard/LP/DualFunctionIdentities.lean
             proofs/lean/Checkerboard/Checkerboard/LP/DualBernsteinData.lean
+            proofs/lean/Checkerboard/Checkerboard/LP/DualHandelmanData.lean
             proofs/lean/Checkerboard/build.log
           if-no-files-found: warn
           retention-days: 30
