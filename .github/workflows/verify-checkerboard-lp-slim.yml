@@ -1,0 +1,72 @@
+name: Verify checkerboard LP on slim runner
+
+on:
+  push:
+    branches:
+      - agent/checkerboard-lp-asymptotic-lean
+    paths:
+      - ".github/workflows/verify-checkerboard-lp-slim.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lean-checkerboard-slim:
+    runs-on: ubuntu-slim
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Resolve Mathlib and cache
+        working-directory: proofs/lean/Checkerboard
+        run: |
+          lake update
+          lake exe cache get
+
+      - name: Compile hand-written continuum modules
+        working-directory: proofs/lean/Checkerboard
+        shell: bash
+        run: |
+          set -o pipefail
+          : > slim-build.log
+          for source in \
+            Checkerboard/LP/AlgebraicParameter.lean \
+            Checkerboard/LP/CubicInterval.lean \
+            Checkerboard/LP/CubicField.lean \
+            Checkerboard/LP/PrimalParameterBounds.lean \
+            Checkerboard/LP/MiddleTwoSegmentFacts.lean \
+            Checkerboard/LP/AffineIntervalMeasure.lean \
+            Checkerboard/LP/IntervalDensityMeasure.lean \
+            Checkerboard/LP/AffineDensityPushforward.lean \
+            Checkerboard/LP/ContinuumModel.lean \
+            Checkerboard/LP/ContinuumProjection.lean \
+            Checkerboard/LP/MiddleTwoSegment.lean \
+            Checkerboard/LP/MiddleTwoSegmentFeasible.lean \
+            Checkerboard/LP/OuterPhysicalCertificate.lean \
+            Checkerboard/LP/ContinuumPrimalCertificate.lean \
+            Checkerboard/LP/DualCertifiedFunctions.lean \
+            Checkerboard/LP/DualFunctionIdentities.lean \
+            Checkerboard/LP/DualProfilePositivity.lean
+          do
+            echo "=== $source ===" | tee -a slim-build.log
+            lake env lean "$source" 2>&1 | tee -a slim-build.log
+          done
+
+      - name: Reject sorryAx
+        working-directory: proofs/lean/Checkerboard
+        run: "! grep -q sorryAx slim-build.log"
+
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkerboard-lp-slim-log
+          path: proofs/lean/Checkerboard/slim-build.log
+          if-no-files-found: warn
