@@ -24,9 +24,10 @@ theorem exists_bad_prime_of_not_dvd_thirty {N : ℕ} (hN : N ≠ 0)
         intro hsq
         exact hbad ⟨p, hp, hpd, Or.inr hsq⟩
       have hfac : N.factorization p ≤ 1 := by
-        by_contra hle
-        have htwo : 2 ≤ N.factorization p := by omega
-        exact hsq ((hp.pow_dvd_iff_le_factorization hN).2 htwo)
+        have hnot_two : ¬ 2 ≤ N.factorization p := by
+          intro htwo
+          exact hsq ((hp.pow_dvd_iff_le_factorization hN).2 htwo)
+        exact Nat.lt_succ_iff.mp (Nat.lt_of_not_ge hnot_two)
       interval_cases p <;> norm_num at hp ⊢
       all_goals simpa using hfac
     · simp [Nat.factorization_eq_zero_of_not_dvd hpd]
@@ -39,14 +40,17 @@ theorem exists_missing_residue {ι : Type*} [DecidableEq ι] {p : ℕ}
     (hcard : s.card ≤ 6) (hp6 : 6 < p) :
     ∃ r : ZMod p, ∀ i ∈ s, tag i ≠ r := by
   classical
+  letI : NeZero p := ⟨hp.ne_zero⟩
   by_contra h
   push_neg at h
-  have hsurj : Set.SurjOn tag (s : Set ι) Set.univ := by
+  have huniv : (Finset.univ : Finset (ZMod p)) ⊆ s.image tag := by
     intro r _
     obtain ⟨i, hi, hir⟩ := h r
-    exact ⟨i, hi, hir⟩
-  have hle : Fintype.card (ZMod p) ≤ s.card := by
-    simpa using Finset.card_le_card_of_surjOn hsurj
+    exact Finset.mem_image.mpr ⟨i, hi, hir⟩
+  have hle_image : Fintype.card (ZMod p) ≤ (s.image tag).card := by
+    simpa using Finset.card_le_card huniv
+  have hle : Fintype.card (ZMod p) ≤ s.card :=
+    hle_image.trans Finset.card_image_le
   have hpcard : Fintype.card (ZMod p) = p := ZMod.card p
   omega
 
@@ -68,8 +72,7 @@ theorem conjugatingExponent_coprime_squareful {p m : ℕ} (hp : p.Prime)
   let u := conjugatingExponent p m t
   have hum : u.Coprime m := conjugatingExponent_coprime_quotient p m t
   refine Nat.coprime_of_dvd ?_
-  intro q hq hqu
-  intro hqpm
+  intro q hq hqu hqpm
   have hqm : q ∣ m := by
     rcases (hq.dvd_mul.mp hqpm) with hqp | hqm
     · have hqp_eq : q = p := (Nat.prime_dvd_prime_iff_eq hq hp).mp hqp
@@ -92,15 +95,15 @@ theorem conjugatingExponent_coprime_squarefree {p m : ℕ} (hp : p.Prime)
     rw [Nat.coprime_comm, hp.coprime_iff_not_dvd]
     intro hpu
     have hu0 : (u : ZMod p) = 0 := by
-      exact ZMod.natCast_eq_zero_iff.mpr hpu
+      simpa [ZMod.natCast_eq_zero_iff] using hpu
     have hrel : (1 : ZMod p) - t * (m : ZMod p) = 0 := by
       simpa [u, conjugatingExponent, Nat.cast_add, Nat.cast_mul,
-        Nat.cast_sub (Nat.le_of_lt t.val_lt), ZMod.natCast_zmod_val] using hu0
+        Nat.cast_sub (Nat.le_of_lt t.val_lt), ZMod.natCast_zmod_val,
+        sub_eq_add_neg] using hu0
     have htm : t * (m : ZMod p) = 1 := (sub_eq_zero.mp hrel).symm
     exact ht (eq_inv_of_mul_eq_one_left htm)
   refine Nat.coprime_of_dvd ?_
-  intro q hq hqu
-  intro hqpm
+  intro q hq hqu hqpm
   rcases (hq.dvd_mul.mp hqpm) with hqp | hqm
   · exact hq.ne_one (Nat.eq_one_of_dvd_coprimes hup hqu hqp)
   · exact hq.ne_one (Nat.eq_one_of_dvd_coprimes hum hqu hqm)
