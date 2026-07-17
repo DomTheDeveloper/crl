@@ -1,3 +1,4 @@
+import Mathlib.Data.Fintype.Lattice
 import WOWII.ZZGraphConjecture314CycleDichotomy
 
 /-!
