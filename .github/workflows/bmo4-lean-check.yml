@@ -1,0 +1,54 @@
+name: BMO4 Lean verification
+
+on:
+  push:
+    branches:
+      - ci-bmo4-lean
+    paths-ignore:
+      - BMO4_LEAN_STATUS.txt
+      - BMO4_LEAN_LOG.txt
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ci-bmo4-lean
+      - name: Clone proof branch
+        run: git clone --depth 1 --branch solve-bmo4-no-sorry https://github.com/DomTheDeveloper/formal-conjectures.git formal-conjectures
+      - name: Install elan
+        run: |
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore Mathlib cache
+        working-directory: formal-conjectures
+        run: |
+          lake exe cache unpack || true
+          lake exe cache get
+      - name: Compile exact BMO4 theorem
+        id: compile
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set +e
+          lake env lean FormalConjectures/Other/BMO4Proof.lean > ../BMO4_LEAN_LOG.txt 2>&1
+          code=$?
+          if [ "$code" -eq 0 ]; then echo PASS > ../BMO4_LEAN_STATUS.txt; else echo FAIL > ../BMO4_LEAN_STATUS.txt; fi
+          cat ../BMO4_LEAN_LOG.txt
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+      - name: Persist compiler result
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add BMO4_LEAN_STATUS.txt BMO4_LEAN_LOG.txt
+          git commit -m "Record BMO4 Lean verification [skip ci]" || true
+          git push origin HEAD:ci-bmo4-lean
+      - name: Enforce verification
+        run: exit "${{ steps.compile.outputs.exit_code }}"
