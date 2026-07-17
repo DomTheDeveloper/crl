@@ -12,6 +12,7 @@ import Checkerboard.LP.MiddleGeometry
 import Checkerboard.LP.MiddleTwoSegmentFacts
 import Checkerboard.LP.AffineIntervalMeasure
 import Checkerboard.LP.IntervalDensityMeasure
+import Checkerboard.LP.AffineDensityPushforward
 import Checkerboard.LP.MiddleTwoSegment
 import Checkerboard.LP.DualDefinitions
 import Checkerboard.LP.Bernstein
