@@ -1,4 +1,5 @@
 import Checkerboard.LP.DualCertifiedFunctions
+import Checkerboard.LP.MiddleTwoSegmentFacts
 
 /-!
 # Piece-selection lemmas for the exact dual profiles
@@ -51,23 +52,19 @@ theorem certifiedDualAReal_eq_A2
 /-- The row/column profile vanishes above one. -/
 theorem certifiedDualAReal_eq_zero_of_one_lt {t : ℝ} (h1 : 1 < t) :
     certifiedDualAReal t = 0 := by
+  have hp1 : checkerboardP < 1 := by
+    have hp := checkerboardP_mem.2
+    norm_num [pUpper] at hp ⊢
+    linarith
+  have hd1 : primalD < 1 := by
+    have h := outerLength_pos
+    rw [outerLength_eq_one_sub_primalD] at h
+    linarith
+  have hcd : primalC < primalD := by simpa [middleLength] using middleLength_pos
   have h0 : ¬ t < 0 := by linarith
-  have hp : ¬ t ≤ checkerboardP := by
-    have hp1 : checkerboardP < 1 := checkerboardP_mem.2.trans_le (by norm_num [pUpper])
-    linarith
-  have hc : ¬ t ≤ primalC := by
-    have hcd : primalC < primalD := by simpa [middleLength] using middleLength_pos
-    have hd1 : primalD < 1 := by
-      have h := outerLength_pos
-      rw [outerLength_eq_one_sub_primalD] at h
-      linarith
-    linarith
-  have hd : ¬ t ≤ primalD := by
-    have hd1 : primalD < 1 := by
-      have h := outerLength_pos
-      rw [outerLength_eq_one_sub_primalD] at h
-      linarith
-    linarith
+  have hp : ¬ t ≤ checkerboardP := by linarith
+  have hc : ¬ t ≤ primalC := by linarith
+  have hd : ¬ t ≤ primalD := by linarith
   simp [certifiedDualAReal, h0, hp, hc, hd, not_le.mpr h1]
 
 /-- First diagonal quadratic piece. -/
@@ -86,9 +83,7 @@ theorem certifiedDualBReal_eq_BL
 theorem certifiedDualBReal_eq_BQ_right
     {t : ℝ} (h0 : 0 ≤ t) (hf : primalF < t) (hg : t ≤ primalG) :
     certifiedDualBReal t = certifiedDualBQ t := by
-  have hef : primalE < primalF := by
-    rw [← middleTwo_diff_lower, ← middleTwo_diff_upper]
-    nlinarith [middleLength_pos]
+  have hef : primalE < primalF := primalE_lt_primalF_twoSegment
   have het : primalE < t := hef.trans hf
   simp [certifiedDualBReal, not_lt.mpr h0, not_le.mpr het,
     not_le.mpr hf, hg]
