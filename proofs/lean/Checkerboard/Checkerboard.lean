@@ -16,6 +16,9 @@ import Checkerboard.LP.AffineDensityPushforward
 import Checkerboard.LP.MiddleTwoSegment
 import Checkerboard.LP.DualDefinitions
 import Checkerboard.LP.Bernstein
+import Checkerboard.LP.DualCertifiedFunctions
+import Checkerboard.LP.DualFunctionIdentities
+import Checkerboard.LP.DualProfilePositivity
 import Checkerboard.LP.FiniteModel
 import Checkerboard.LP.FiniteDual
 import Checkerboard.LP.ContinuumModel
