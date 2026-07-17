@@ -127,6 +127,7 @@ lemma evalVec60_sine_angleInt (a : Fin 29) :
     rw [← angleInt_negAngleFin a, canonicalRoot60_pow_angleInt']
     congr 1
     simp [angleReal]
+    ring
   rw [hneg]
   have hsin := Complex.two_sin (angleReal a : ℂ)
   rw [← Complex.ofReal_sin] at hsin
@@ -153,9 +154,12 @@ lemma evalVec60_relation_eq_zero {a b c : Fin 29}
       sineVec60 (angleInt c)) = 0
   rw [evalVec60_add, evalVec60_add, evalVec60_sine_angleInt,
     evalVec60_sine_angleInt, evalVec60_sine_angleInt]
-  push_cast at h
-  rw [h]
-  ring
+  have hc :
+      ((Real.sin (angleReal a) + Real.sin (angleReal b) +
+        Real.sin (angleReal c) : ℝ) : ℂ) = 0 := by
+    exact_mod_cast h
+  push_cast at hc
+  linear_combination (2 * Complex.I) * hc
 
 /-- Complete classification of bounded integral three-sine relations. -/
 theorem bounded_grid_sine_classification (a b c : Fin 29)
