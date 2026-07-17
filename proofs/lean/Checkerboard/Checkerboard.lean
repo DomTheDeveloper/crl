@@ -17,5 +17,6 @@ import Checkerboard.LP.Bernstein
 import Checkerboard.LP.FiniteModel
 import Checkerboard.LP.FiniteDual
 import Checkerboard.LP.ContinuumModel
+import Checkerboard.LP.ContinuumProjection
 import Checkerboard.LP.LimitTransfer
 import Checkerboard.LP.AsymptoticSqueeze
