@@ -9,6 +9,9 @@ import Checkerboard.LP.PrimalParameters
 import Checkerboard.LP.PrimalParameterBounds
 import Checkerboard.LP.MiddleCertificate
 import Checkerboard.LP.MiddleGeometry
+import Checkerboard.LP.AffineIntervalMeasure
+import Checkerboard.LP.IntervalDensityMeasure
+import Checkerboard.LP.MiddleTwoSegment
 import Checkerboard.LP.DualDefinitions
 import Checkerboard.LP.Bernstein
 import Checkerboard.LP.FiniteModel
