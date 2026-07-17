@@ -6,6 +6,9 @@ on:
       - agent/checkerboard-lp-asymptotic-lean
     paths:
       - ".github/workflows/verify-checkerboard-lp-slim.yml"
+  pull_request:
+    paths:
+      - ".github/workflows/verify-checkerboard-lp-slim.yml"
   workflow_dispatch:
 
 permissions:
