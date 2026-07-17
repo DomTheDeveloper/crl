@@ -1,0 +1,23 @@
+{
+  "cpsat": {
+    "upper-17-0": "PROVED_INFEASIBLE",
+    "upper-17-1": "PROVED_INFEASIBLE",
+    "upper-21-0": "PROVED_INFEASIBLE",
+    "upper-21-1": "PROVED_INFEASIBLE",
+    "witness-17-0": "VERIFIED_WITNESS",
+    "witness-17-1": "VERIFIED_WITNESS",
+    "witness-21-0": "VERIFIED_WITNESS",
+    "witness-21-1": "VERIFIED_WITNESS"
+  },
+  "highs": {
+    "upper-17-0": "PROVED_INFEASIBLE",
+    "upper-17-1": "PROVED_INFEASIBLE",
+    "upper-21-0": "PROVED_INFEASIBLE",
+    "upper-21-1": "PROVED_INFEASIBLE",
+    "witness-17-0": "VERIFIED_WITNESS",
+    "witness-17-1": "VERIFIED_WITNESS",
+    "witness-21-0": "VERIFIED_WITNESS",
+    "witness-21-1": "VERIFIED_WITNESS"
+  },
+  "policy": "UNKNOWN/time limit/interruption = NO_RESULT"
+}
