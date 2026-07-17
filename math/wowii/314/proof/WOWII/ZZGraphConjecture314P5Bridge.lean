@@ -1,5 +1,4 @@
-import WOWII.GraphConjecture143Proof
-import WOWII.ZZGraphConjecture314DominatingEdge
+import WOWII.ZZGraphConjecture314PathTree
 
 /-!
 An explicit induced `P₅` supplies the five-vertex witness in the official
@@ -9,7 +8,6 @@ An explicit induced `P₅` supplies the five-vertex witness in the official
 namespace WrittenOnTheWallII.GraphConjecture314
 
 open Classical SimpleGraph
-open WrittenOnTheWallII.GraphConjecture143
 
 variable {α : Type*} [Fintype α] [DecidableEq α]
 

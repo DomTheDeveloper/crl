@@ -8,7 +8,6 @@ Conjecture 314.
 namespace WrittenOnTheWallII.GraphConjecture314
 
 open Classical SimpleGraph
-open WrittenOnTheWallII.GraphConjecture143
 
 variable {α : Type*} [Fintype α] [DecidableEq α]
 
