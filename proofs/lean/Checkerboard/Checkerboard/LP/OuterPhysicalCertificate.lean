@@ -61,6 +61,10 @@ theorem checkerboardP_sub_outerLength_mul_outerR :
     checkerboardP - outerLength * outerR = 0 := by
   simp [outerR, outerLength_ne]
 
+theorem checkerboardP_add_outerLength_mul_neg_outerR :
+    checkerboardP + outerLength * (-outerR) = 0 := by
+  linarith [checkerboardP_sub_outerLength_mul_outerR]
+
 theorem checkerboardP_add_outerLength_mul_outerQ :
     checkerboardP + outerLength * outerQ = primalF := by
   simp [outerQ, outerLength_ne]
@@ -71,9 +75,19 @@ theorem checkerboardP_sub_outerLength_mul_outerQ :
     simp [outerQ, outerLength_ne]]
   linarith [p_sub_primalE_eq_primalF_sub_p]
 
+theorem checkerboardP_add_outerLength_mul_neg_outerQ :
+    checkerboardP + outerLength * (-outerQ) = primalE := by
+  linarith [checkerboardP_sub_outerLength_mul_outerQ]
+
 theorem checkerboardP_add_outerLength_mul_outerH :
     checkerboardP + outerLength * outerH = primalG := by
   simp [outerH, outerLength_ne]
+
+private theorem outerEndpointRep0_eval_zero : outerEndpointRep0.eval = 0 := by
+  norm_num [outerEndpointRep0, CubicRep.eval]
+
+private theorem outerEndpointRep7_eval_one : outerEndpointRep7.eval = 1 := by
+  norm_num [outerEndpointRep7, CubicRep.eval]
 
 /-! ## Exact row and column pushforwards -/
 
@@ -100,7 +114,7 @@ theorem outerPhysicalMeasure_coordX :
     _ = ENNReal.ofReal outerPhysicalScale •
         Measure.map (fun x : ℝ => checkerboardP + outerLength * x)
           (volume.restrict (Set.Icc (0 : ℝ) 1)) := by
-            rw [outerEndpointRep0_eval, outerEndpointRep7_eval]
+            rw [outerEndpointRep0_eval_zero, outerEndpointRep7_eval_one]
     _ = ENNReal.ofReal outerPhysicalScale •
         (ENNReal.ofReal outerLength⁻¹ •
           volume.restrict (Set.Icc checkerboardP (checkerboardP + outerLength))) := by
@@ -132,7 +146,7 @@ theorem outerPhysicalMeasure_coordOneSubY :
     _ = ENNReal.ofReal outerPhysicalScale •
         Measure.map (fun x : ℝ => 1 - outerLength * x)
           (volume.restrict (Set.Icc (0 : ℝ) 1)) := by
-            rw [outerEndpointRep0_eval, outerEndpointRep7_eval]
+            rw [outerEndpointRep0_eval_zero, outerEndpointRep7_eval_one]
     _ = ENNReal.ofReal outerPhysicalScale •
         (ENNReal.ofReal outerLength⁻¹ •
           volume.restrict (Set.Icc (1 - outerLength) 1)) := by
@@ -246,8 +260,8 @@ theorem pairedBMeasure_outerPhysicalMeasure :
             volume.restrict (Set.Icc primalF primalG)) := by
       rw [volume_withDensity_intervalDensity,
         volume_withDensity_intervalDensity]
-      rw [checkerboardP_sub_outerLength_mul_outerR,
-        checkerboardP_sub_outerLength_mul_outerQ,
+      rw [checkerboardP_add_outerLength_mul_neg_outerR,
+        checkerboardP_add_outerLength_mul_neg_outerQ,
         checkerboardP_add_outerLength_mul_outerQ,
         checkerboardP_add_outerLength_mul_outerH]
       simp [div_eq_mul_inv]
@@ -308,6 +322,7 @@ private theorem outerNormalizedCoupling_univ :
   have hmap := congrArg (fun μ : Measure ℝ => μ Set.univ)
     outerNormalizedCoupling_fst
   rw [Measure.map_apply (by fun_prop) MeasurableSet.univ] at hmap
+  rw [outerEndpointRep0_eval_zero, outerEndpointRep7_eval_one] at hmap
   simpa [Real.volume_Icc] using hmap
 
 theorem outerPhysicalMeasure_univ :
