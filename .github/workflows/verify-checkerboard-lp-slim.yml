@@ -18,6 +18,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate certificate modules
+        run: |
+          python -m pip install sympy
+          python scripts/checkerboard/generate_outer_certificate.py
+          python scripts/checkerboard/generate_outer_density_certificate.py
+          python scripts/checkerboard/generate_outer_support_certificate.py
+          python scripts/checkerboard/generate_outer_geometry_certificate.py
+          python scripts/checkerboard/generate_outer_marginal_ae_certificate.py
+          python scripts/checkerboard/generate_outer_projection_ae_certificate.py
+          python scripts/checkerboard/generate_outer_measure_certificate.py
+          python scripts/checkerboard/generate_dual_bernstein_certificate.py
+          python scripts/checkerboard/generate_dual_function_identities.py
+          python scripts/checkerboard/emit_dual_handelman_certificate.py
+
       - name: Install elan
         run: |
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
@@ -30,7 +48,7 @@ jobs:
           lake update
           lake exe cache get
 
-      - name: Compile hand-written continuum modules
+      - name: Compile continuum certificate stack
         working-directory: proofs/lean/Checkerboard
         shell: bash
         run: |
@@ -40,6 +58,7 @@ jobs:
             Checkerboard/LP/AlgebraicParameter.lean \
             Checkerboard/LP/CubicInterval.lean \
             Checkerboard/LP/CubicField.lean \
+            Checkerboard/LP/BivariateQuadratic.lean \
             Checkerboard/LP/PrimalParameterBounds.lean \
             Checkerboard/LP/MiddleTwoSegmentFacts.lean \
             Checkerboard/LP/AffineIntervalMeasure.lean \
@@ -49,19 +68,32 @@ jobs:
             Checkerboard/LP/ContinuumProjection.lean \
             Checkerboard/LP/MiddleTwoSegment.lean \
             Checkerboard/LP/MiddleTwoSegmentFeasible.lean \
+            Checkerboard/LP/OuterCertificateData.lean \
+            Checkerboard/LP/OuterDensityCertificate.lean \
+            Checkerboard/LP/OuterSupportCertificate.lean \
+            Checkerboard/LP/OuterGeometryBase.lean \
+            Checkerboard/LP/OuterGeometryCertificate.lean \
+            Checkerboard/LP/OuterMarginalAE.lean \
+            Checkerboard/LP/OuterProjectionAE.lean \
+            Checkerboard/LP/OuterMeasureCertificate.lean \
             Checkerboard/LP/OuterPhysicalCertificate.lean \
             Checkerboard/LP/ContinuumPrimalCertificate.lean \
             Checkerboard/LP/DualCertifiedFunctions.lean \
             Checkerboard/LP/DualFunctionIdentities.lean \
-            Checkerboard/LP/DualProfilePositivity.lean
+            Checkerboard/LP/DualPieceSelection.lean \
+            Checkerboard/LP/DualProfilePositivity.lean \
+            Checkerboard/LP/DualHandelmanData.lean \
+            Checkerboard/LP/DualObjectiveAlgebra.lean
           do
             echo "=== $source ===" | tee -a slim-build.log
             lake env lean "$source" 2>&1 | tee -a slim-build.log
           done
 
-      - name: Reject sorryAx
+      - name: Reject unfinished axioms
         working-directory: proofs/lean/Checkerboard
-        run: "! grep -q sorryAx slim-build.log"
+        run: |
+          ! grep -RnE '\bsorry\b|\badmit\b|native_decide' --include='*.lean' .
+          ! grep -q sorryAx slim-build.log
 
       - name: Upload log
         if: always()
