@@ -63,7 +63,7 @@ theorem certifiedDualBQ_deriv_at_g_neg :
       certifiedDualRRep, primalG_reduced, CubicRep.eval,
       evalAtCheckerboardP, quadraticAt]
     linear_combination
-      ((2360687 * checkerboardP - 1801591) / 84662328) * hp
+      (-((1907156 * checkerboardP - 828935) / 4011432)) * hp
   rw [← heq] at h
   linarith
 
