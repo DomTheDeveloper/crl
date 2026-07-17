@@ -41,7 +41,7 @@ theorem dft_eq_zero_of_one_missing (v : ZMod N → ℂ) (t₀ r₀ : ZMod N)
           ZMod.stdAddChar (r₀ * t₀) * ZMod.dft v t₀ := by
       apply Fintype.sum_eq_single t₀
       intro t ht
-      rw [hvan t ht, mul_zero]
+      simp [hvan t ht]
     rw [hsingle] at hinv
     exact (mul_eq_zero.mp hinv).resolve_left (by simp)
   apply ZMod.dft.injective
