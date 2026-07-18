@@ -1,0 +1,118 @@
+name: Local sandbox Lean bootstrap bundle
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .sandbox-bootstrap-trigger
+      - .github/workflows/local-sandbox-bootstrap.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout bootstrap branch
+        uses: actions/checkout@v4
+        with:
+          path: crl-bootstrap
+
+      - name: Checkout A387471 exact branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/crl
+          ref: agent/a387471-lean-reduction
+          path: a387471-crl
+
+      - name: Checkout Voronovskaja branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: solve-voronovskaja-no-sorry
+          path: formal-voronovskaja
+
+      - name: Checkout WOWII 314 branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: audit/wowii314-fast-only
+          path: formal-wowii314
+
+      - name: Checkout WOWII 322 branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: audit/wowii322-fast-only
+          path: formal-wowii322
+
+      - name: Install pinned Lean toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.27.0
+
+      - name: Fetch Formal Conjectures dependencies and cache
+        working-directory: formal-voronovskaja
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake exe cache get
+
+      - name: Fetch A387471 dependencies and cache
+        working-directory: a387471-crl/proofs/lean/A387471
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+
+      - name: Assemble deduplicated local bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bundle/toolchain bundle/projects
+          TOOLCHAIN=$(elan toolchain path leanprover/lean4:v4.27.0)
+          cp -a "$TOOLCHAIN/." bundle/toolchain/
+
+          rsync -a --exclude='.git' formal-voronovskaja/ bundle/projects/formal-voronovskaja/
+          rsync -a --exclude='.git' --exclude='.lake' formal-wowii314/ bundle/projects/formal-wowii314/
+          rsync -a --exclude='.git' --exclude='.lake' formal-wowii322/ bundle/projects/formal-wowii322/
+          rsync -a --exclude='.git' a387471-crl/proofs/lean/A387471/ bundle/projects/A387471/
+
+          cat > bundle/README_LOCAL.txt <<'EOF'
+This artifact is transport-only. Verification must be run locally.
+
+After extraction:
+  export PATH="$PWD/toolchain/bin:$PATH"
+  ln -s ../formal-voronovskaja/.lake projects/formal-wowii314/.lake
+  ln -s ../formal-voronovskaja/.lake projects/formal-wowii322/.lake
+
+Pinned toolchain: Lean 4.27.0
+Projects:
+  projects/A387471
+  projects/formal-voronovskaja
+  projects/formal-wowii314
+  projects/formal-wowii322
+EOF
+
+          tar --zstd -cf lean-local-sandbox-bundle.tar.zst -C bundle .
+          sha256sum lean-local-sandbox-bundle.tar.zst > lean-local-sandbox-bundle.sha256
+          du -h lean-local-sandbox-bundle.tar.zst
+
+      - name: Upload local sandbox bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: lean-local-sandbox-bundle
+          path: |
+            lean-local-sandbox-bundle.tar.zst
+            lean-local-sandbox-bundle.sha256
+          compression-level: 0
+          retention-days: 1
