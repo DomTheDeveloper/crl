@@ -27,7 +27,7 @@ The whole thing is plain HTML/CSS/JS — no build step, no framework, no server.
 - [**Comprehensive research dashboard**](./math/research/) — every substantial campaign, evidence-graded and cross-linked.
 - [**OEIS A317940**](./math/a317940/) — complete Lean-verified positivity proof and submission package.
 - [**Checkerboard no-three-in-line**](./math/checkerboard/) — defect-moment bounds, exact four-direction certificates, and a partial sorry-free Lean formalization; the all-slope lower bound remains open.
-- [**Written on the Wall II**](./math/wowii/) — audited progress on conjectures 65, 133, 143, 160, 314 and 316.
+- [**Written on the Wall II**](./math/wowii/) — audited progress on conjectures 65, 133, 143, 160, 314, 316 and the new complete proof of 322.
 - [**Erdős problems**](./math/erdos/) — exact variants 602, 865 and 1150, plus the open 885 and 366 campaigns.
 - [**OEIS A387471**](./math/a387471/) — proof manuscript and Lean formalization frontier.
 - [**Open campaign archive**](./math/open-campaigns/) — substantial investigations that did not produce a complete solution.
