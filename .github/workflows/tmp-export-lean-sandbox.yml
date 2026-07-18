@@ -1,5 +1,6 @@
 name: Temporary export Lean sandbox
 
+# Triggered after the transport workflow was registered on the default branch.
 on:
   push:
     branches: [tmp-lean-sandbox-bootstrap]
