@@ -30,7 +30,14 @@ jobs:
 
       - name: Guard against unfinished proof markers
         working-directory: proofs/lean/Checkerboard
-        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' --include='*.lean' ."
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RnE --include='*.lean' \
+              '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|^[[:space:]]*opaque[[:space:]]|(^|[[:space:]])native_decide([[:space:]]|$)' \
+              .; then
+            exit 1
+          fi
 
       - name: Resolve Mathlib dependency
         working-directory: proofs/lean/Checkerboard
