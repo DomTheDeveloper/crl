@@ -3,6 +3,8 @@ name: Temporary export Lean sandbox
 on:
   push:
     branches: [tmp-lean-sandbox-bootstrap]
+  pull_request:
+    branches: [claude/gracious-hamilton-8k6xhz]
   workflow_dispatch:
 
 permissions:
