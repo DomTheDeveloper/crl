@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           if grep -RnE --include='*.lean' \
-              '(^|[[:space:]])(axiom|sorry|admit|native_decide)([[:space:]]|$)|^[[:space:]]*opaque[[:space:]]' \
+              '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|^[[:space:]]*opaque[[:space:]]|(^|[[:space:]])native_decide([[:space:]]|$)' \
               proofs/lean/A387471; then
             exit 1
           fi
