@@ -1,15 +1,12 @@
 name: Local sandbox Lean bootstrap bundle
 
 on:
-  push:
-    branches:
-      - bootstrap/local-lean-bundle-20260718
   pull_request:
     branches:
-      - bootstrap/local-lean-bundle-20260718
+      - main
     paths:
-      - .github/workflows/local-sandbox-bootstrap.yml
       - .sandbox-bootstrap-trigger
+      - .github/workflows/local-sandbox-bootstrap.yml
   workflow_dispatch:
 
 permissions:
