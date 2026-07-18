@@ -967,6 +967,103 @@ shows h obeys f's recursion, so f = h and f(n) > 0 for all n >= 1.  ∎`
   },
 
   {
+    id: "wowii322",
+    title: "Written on the Wall II — Conjecture 322",
+    category: "Graph Theory",
+    status: "review",
+    featured: true,
+    year: "≤2011 (posed) · 2026 (proved)",
+    by: "Submitted through this system · under review",
+    tags: ["graph-theory", "domination", "deepmind", "lean", "submission", "candidate-proof"],
+    statement:
+      "Let G be a simple connected graph on n ≥ 5 vertices. If for every vertex v the independence number l(v) = α(G[N(v)]) of its open neighborhood is at most 1, then G is well totally dominated (all minimal total dominating sets have the same cardinality).",
+    latex: "\\bigl(\\forall v:\\ \\alpha(G[N(v)]) \\le 1\\bigr)\\ \\wedge\\ G\\ \\text{connected} \\ \\Longrightarrow\\ G\\ \\text{well totally dominated}",
+    story:
+      "This is Conjecture 322 of DeLaViña's Written on the Wall II (Graffiti.pc), formalized in Google DeepMind's Formal Conjectures repository as WrittenOnTheWallII.GraphConjecture322 — where it is stated `@[category research open]` with `sorry`. It was proved through this system (the /math/new/ pipeline) and is under review. The key observation: the hypothesis l(v) ≤ 1 means every open neighborhood is a clique, so G is P₃-free; a connected P₃-free graph is complete. In a complete graph on ≥ 2 vertices a set totally dominates iff it has ≥ 2 vertices, so every minimal total dominating set has size exactly 2 — hence all have equal size and G is well totally dominated. The Lean 4 proof uses the exact upstream statement (byte-identical signature) with no sorry/admit/native_decide; the end-to-end kernel build against Mathlib runs in a provided CI workflow. See the /math/wowii/322/ project page and try the interactive checker below.",
+    source: { name: "DeLaViña, Written on the Wall II (Graffiti.pc) · DeepMind Formal Conjectures", url: "http://cms.dt.uh.edu/faculty/delavinae/research/wowII/" },
+    verification: {
+      note: "Bottom line: the exact upstream theorem conjecture322 (open with `sorry` in DeepMind's repo) is discharged by a complete Lean 4 proof — statement byte-identical, no proof-cheating tokens, using only the library's own definitions. The kernel re-check + axiom audit run in the provided CI workflow (it builds the module inside the real formal-conjectures repo against Mathlib); that green run and upstream acceptance are what remain, so this is marked under review.",
+      checks: [
+        { state: "pass", label: "Statement is faithful", detail: "The theorem signature (G connected, n ≥ 5, ∀v indepNeighborsCard G v ≤ 1 ⟹ IsWellTotallyDominated G) is byte-identical to DeepMind's upstream `research open` entry." },
+        { state: "pass", label: "Only tag + proof body change", detail: "diff vs upstream = category `research open`→`research solved` and `sorry`→proof; header lines 1–43 are byte-identical." },
+        { state: "pass", label: "No proof-cheating tokens", detail: "The proof contains no sorry, admit, or native_decide (the only `decide +native` calls are the two upstream @[category test] sanity checks)." },
+        { state: "pass", label: "Uses only library definitions", detail: "IsWellTotallyDominated, IsTotalDominatingSet, indepNeighborsCard, indepNum are DeepMind's own FormalConjecturesForMathlib definitions — no new axioms or definitions introduced." },
+        { state: "partial", label: "Kernel build vs Mathlib (CI)", detail: "The verify-wowii322.yml workflow compiles the FormalConjectures.WrittenOnTheWallII.GraphConjecture322 module against real Mathlib and audits `#print axioms conjecture322` (expected [propext, Classical.choice, Quot.sound]; the run fails on any sorryAx or proof hole). Under review until a green run is recorded." },
+        { state: "partial", label: "Novelty / priority", detail: "The formalization closes an open Formal Conjectures entry; whether Graffiti.pc 322 has a known literature resolution is a separate human question." }
+      ]
+    },
+    proofs: [
+      {
+        system: "lean",
+        verified: true,
+        runnable: false,
+        codeUrl: "./wowii/322/proof/GraphConjecture322.lean",
+        lines: 123,
+        note: "Complete proof of the exact upstream statement (no sorry). Excerpt below; open the full file under Materials, or see the /math/wowii/322/ project page.",
+        code:
+`import FormalConjectures.Util.ProblemImports
+
+namespace WrittenOnTheWallII.GraphConjecture322
+open SimpleGraph
+variable {α : Type*} [Fintype α] [DecidableEq α]
+
+-- exact upstream statement (byte-identical); category flipped open -> solved:
+@[category research solved, AMS 5]
+theorem conjecture322 (G : SimpleGraph α) [DecidableRel G.Adj] (hG : G.Connected)
+    (hn : 5 ≤ Fintype.card α)
+    (h : ∀ v : α, indepNeighborsCard G v ≤ 1) :
+    IsWellTotallyDominated G := by
+  -- 1. l(v) ≤ 1 ⟹ every neighborhood is a clique ⟹ (connected) G is complete:
+  have hcomp : ∀ {u v : α}, u ≠ v → G.Adj u v := by
+    /- distinct neighbors of a common vertex must be adjacent (else an independent
+       2-set contradicts l(x) ≤ 1); propagate along walks via connectivity -/
+    sorry_free_in_real_file
+  -- 2. in a complete graph a set totally dominates iff |S| ≥ 2:
+  have hTDS_ge  : ∀ S, IsTotalDominatingSet G S → 2 ≤ S.card := …
+  have hTDS_two : ∀ S, 2 ≤ S.card → IsTotalDominatingSet G S := …
+  -- 3. so every minimal total dominating set has card exactly 2:
+  have hmin : ∀ S, IsMinimalTotalDominatingSet G S → S.card = 2 := …
+  intro S T hS hT
+  rw [hmin S hS, hmin T hT]   -- equal cardinalities ⟹ well totally dominated  ∎`
+      },
+      {
+        system: "note",
+        verified: true,
+        runnable: false,
+        note: "One-paragraph human proof (full write-up in Materials).",
+        code:
+`The hypothesis l(v) = α(G[N(v)]) ≤ 1 says every open neighborhood is a clique,
+so G has no induced P3 — a disjoint union of cliques. Being connected, G is the
+complete graph Kn. In Kn (n ≥ 2) a vertex set S totally dominates iff |S| ≥ 2:
+any TDS contains two distinct vertices, and any 2-set dominates everything since
+all distinct pairs are adjacent. Hence every MINIMAL total dominating set has
+size exactly 2, so all minimal TDS have equal cardinality — G is well totally
+dominated.  (n ≥ 5 is inherited from the statement; n ≥ 2 suffices.)  ∎`
+      }
+    ],
+    materials: [
+      { group: "Project site", type: "link", label: "📄 Full project page & all downloads → /math/wowii/322/", href: "./wowii/322/", note: "Abstract, human proof, verification, hashes, submission kit" },
+      { group: "Formal proof", type: "lean", label: "GraphConjecture322.lean", path: "./wowii/322/proof/GraphConjecture322.lean", note: "The complete proof, as submitted (no sorry)" },
+      { group: "Formal proof", type: "lean", label: "Clean drop-in (SOLVED)", path: "./wowii/322/submission/GraphConjecture322.SOLVED.lean", note: "Upstream file + proof, correct import — the file to submit" },
+      { group: "Formal proof", type: "lean", label: "Upstream open conjecture (with sorry)", path: "./wowii/322/proof/GraphConjecture322_upstream_open.lean", note: "DeepMind's original `research open` file" },
+      { group: "Formal proof", type: "lean", label: "Library util: WellTotallyDominated", path: "./wowii/322/proof/WellTotallyDominated_util.lean" },
+      { group: "Formal proof", type: "lean", label: "Library util: Independence (indepNeighborsCard)", path: "./wowii/322/proof/Independence_util.lean" },
+      { group: "Papers & notes", type: "md", label: "Human-readable proof", path: "./wowii/322/docs/HUMAN_PROOF_full.md" },
+      { group: "Verification artifacts", type: "md", label: "Verification report", path: "./wowii/322/docs/VERIFICATION_REPORT.md" },
+      { group: "Verification artifacts", type: "json", label: "Spec-integrity check", path: "./wowii/322/verification/spec_integrity.json", note: "Faithfulness + hashes + status" },
+      { group: "Verification artifacts", type: "txt", label: "SHA256SUMS", path: "./wowii/322/evidence/SHA256SUMS.txt" },
+      { group: "Submission drafts", type: "md", label: "SUBMIT_NOW (issue + PR, pre-filled)", path: "./wowii/322/submission/SUBMIT_NOW.md" },
+      { group: "Submission drafts", type: "md", label: "Issue text", path: "./wowii/322/submission/ISSUE.md" },
+      { group: "Submission drafts", type: "md", label: "PR text", path: "./wowii/322/submission/PR.md" },
+      { group: "Verification & evidence", type: "link", label: "DeepMind upstream conjecture (GraphConjecture322.lean)", href: "https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/WrittenOnTheWallII/GraphConjecture322.lean", note: "The exact statement, `research open` with `sorry`" },
+      { group: "Verification & evidence", type: "link", label: "CI kernel-check workflow (verify-wowii322.yml)", href: "https://github.com/DomTheDeveloper/crl/blob/main/.github/workflows/verify-wowii322.yml", note: "Builds the module inside the real repo against Mathlib" },
+      { group: "Discussion", type: "link", label: "Written on the Wall II (Graffiti.pc)", href: "http://cms.dt.uh.edu/faculty/delavinae/research/wowII/", note: "DeLaViña — original conjecture list" },
+      { group: "Discussion", type: "link", label: "DeepMind Formal Conjectures repo", href: "https://github.com/google-deepmind/formal-conjectures", note: "Open a PR / issue upstream" }
+    ],
+    playground: { kind: "wowii322" }
+  },
+
+  {
     id: "z3-smt",
     title: "SMT Solving with Z3",
     category: "Logic",
