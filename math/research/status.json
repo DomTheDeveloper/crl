@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-15",
+  "updated": "2026-07-17",
   "policy": {
     "kernel_verified": "Exact stated theorem compiled in Lean without sorryAx.",
     "proof_candidate": "A complete mathematical or formal proof candidate exists but novelty or external review is pending.",
@@ -12,6 +12,7 @@
     {"id":"wowii65","title":"WOWII Graph Conjecture 65","status":"kernel_verified","scope":"Exact Formal Conjectures theorem","url":"../wowii/#c65","pr":6},
     {"id":"wowii143","title":"WOWII Graph Conjecture 143","status":"proof_candidate","scope":"Complete modular Lean proof; independent audit infrastructure pending merge","url":"../wowii/#c143","pr":17},
     {"id":"wowii160","title":"WOWII Graph Conjecture 160","status":"proof_candidate","scope":"Exact repository statement disproved; historical-spec caveat","url":"../wowii/#c160"},
+    {"id":"wowii322","title":"WOWII Graph Conjecture 322","status":"proof_candidate","scope":"Complete human proof and exact Lean proof candidate; independent fork CI pending","url":"../wowii/322/","verification_pr":25},
     {"id":"wowii316","title":"WOWII Graph Conjecture 316","status":"proof_candidate","scope":"Exact research-open theorem compiled and axiom-audited","url":"../wowii/#c316","pr":7},
     {"id":"wowii314","title":"WOWII Graph Conjecture 314","status":"partial","scope":"Paper classification candidate; one global Lean bridge remains","url":"../wowii/#c314"},
     {"id":"wowii133","title":"WOWII Graph Conjecture 133","status":"open","scope":"One branch proved; residual case unresolved","url":"../wowii/#c133"},
