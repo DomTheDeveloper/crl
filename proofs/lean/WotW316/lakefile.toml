@@ -1,0 +1,31 @@
+name = "wotw316"
+defaultTargets = ["WotW316", "WotW316StructureExtra", "WotW316Count", "WotW316Partitions", "WotW316Bounds", "WotW316Clique2", "WotW316Clique3", "WotW316Final"]
+
+[[require]]
+name = "formal_conjectures"
+git = "https://github.com/google-deepmind/formal-conjectures.git"
+rev = "b2e608fc52d765510915a244bb69b1a2741acc3c"
+
+[[lean_lib]]
+name = "WotW316"
+
+[[lean_lib]]
+name = "WotW316StructureExtra"
+
+[[lean_lib]]
+name = "WotW316Count"
+
+[[lean_lib]]
+name = "WotW316Partitions"
+
+[[lean_lib]]
+name = "WotW316Bounds"
+
+[[lean_lib]]
+name = "WotW316Clique2"
+
+[[lean_lib]]
+name = "WotW316Clique3"
+
+[[lean_lib]]
+name = "WotW316Final"

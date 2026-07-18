@@ -4,10 +4,20 @@ name: Verify Lean proofs
 
 on:
   push:
-    paths: ["proofs/lean/**", ".github/workflows/verify-lean.yml"]
+    paths:
+      - "proofs/lean/core/**"
+      - "proofs/lean/A317940/**"
+      - ".github/workflows/verify-lean.yml"
   pull_request:
-    paths: ["proofs/lean/**", ".github/workflows/verify-lean.yml"]
+    paths:
+      - "proofs/lean/core/**"
+      - "proofs/lean/A317940/**"
+      - ".github/workflows/verify-lean.yml"
   workflow_dispatch:
+
+concurrency:
+  group: verify-lean-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lean-core:
