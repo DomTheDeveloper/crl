@@ -9,9 +9,9 @@ permissions:
   contents: read
 
 jobs:
-  export:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
+  export-macos:
+    runs-on: macos-15
+    timeout-minutes: 90
     steps:
       - name: Install Lean toolchain manager
         run: |
@@ -24,7 +24,7 @@ jobs:
           git clone --depth 1 --branch attack-fresh-formal-conjectures \
             https://github.com/DomTheDeveloper/formal-conjectures.git \
             "$RUNNER_TEMP/formal-conjectures"
-      - name: Fetch binary Mathlib cache
+      - name: Fetch and unpack Mathlib cache
         working-directory: ${{ runner.temp }}/formal-conjectures
         run: |
           set -euxo pipefail
@@ -32,17 +32,24 @@ jobs:
           lean --version
           lake --version
           lake env lean FormalConjectures/WrittenOnTheWallII/GraphConjecture103.lean
-      - name: Build relocatable archive
+      - name: Download official Linux Lean distribution
+        run: |
+          set -euxo pipefail
+          curl -fL --retry 5 \
+            https://github.com/leanprover/lean4/releases/download/v4.27.0/lean-4.27.0-linux.tar.zst \
+            -o "$RUNNER_TEMP/lean-linux.tar.zst"
+          echo '056e2dc8564fc064a801e69f3eb18c044b9b546bc8b0e5a2c00247f8a1cb8ce6  '"$RUNNER_TEMP/lean-linux.tar.zst" | shasum -a 256 -c -
+      - name: Build transport archive
         run: |
           set -euxo pipefail
           rm -rf "$RUNNER_TEMP/formal-conjectures/.git"
-          tar --zstd -cf "$RUNNER_TEMP/lean-sandbox.tar.zst" \
-            -C "$HOME" .elan \
-            -C "$RUNNER_TEMP" formal-conjectures
+          brew install zstd
+          tar -cf - -C "$RUNNER_TEMP" formal-conjectures lean-linux.tar.zst \
+            | zstd -T0 -9 -o "$RUNNER_TEMP/lean-sandbox.tar.zst"
           ls -lh "$RUNNER_TEMP/lean-sandbox.tar.zst"
       - uses: actions/upload-artifact@v4
         with:
-          name: lean-sandbox
+          name: lean-sandbox-macos-transport
           path: ${{ runner.temp }}/lean-sandbox.tar.zst
           compression-level: 0
           retention-days: 1
