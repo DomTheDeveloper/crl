@@ -6,9 +6,10 @@ on:
       - bootstrap/local-lean-bundle-20260718
   pull_request:
     branches:
-      - main
+      - bootstrap/local-lean-bundle-20260718
     paths:
       - .github/workflows/local-sandbox-bootstrap.yml
+      - .sandbox-bootstrap-trigger
   workflow_dispatch:
 
 permissions:
