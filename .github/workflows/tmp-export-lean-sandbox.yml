@@ -1,5 +1,6 @@
 name: Temporary export Lean sandbox
 
+# macOS transports Linux Lean and platform-neutral Mathlib oleans into the isolated sandbox.
 on:
   push:
     branches: [tmp-lean-sandbox-bootstrap]
