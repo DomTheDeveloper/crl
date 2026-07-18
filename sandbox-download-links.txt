@@ -1,0 +1,8 @@
+Official Lean 4.27.0 binary:
+https://releases.lean-lang.org/lean4/v4.27.0/lean-4.27.0-linux.tar.zst
+
+Exact source archives:
+https://codeload.github.com/DomTheDeveloper/formal-conjectures/zip/a862193a427425f6c8ff36bfd1518d0f3aea0eee
+https://codeload.github.com/DomTheDeveloper/formal-conjectures/zip/60ad70a3261463044b8d196fe56a208f974caace
+https://codeload.github.com/DomTheDeveloper/formal-conjectures/zip/9cd157e51de9ea94ff6487e7a891357965e17620
+https://codeload.github.com/DomTheDeveloper/crl/zip/f4d15cfb3fa3af3550223e266f67a569819fde82
