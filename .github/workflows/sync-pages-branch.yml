@@ -1,8 +1,15 @@
 name: Sync and deploy GitHub Pages
 
-# Temporarily manual-only during branch recovery. The main-branch trigger is restored after merge.
+# The only automatic CRL workflow: publish non-CI content changes from canonical main.
 
 on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - ".github/**"
+      - "proofs/lean/**"
+      - "ci/**"
   workflow_dispatch:
 
 permissions:
