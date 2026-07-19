@@ -8,13 +8,14 @@ D_{\mathrm{mono}}(n)\le 2n-4\qquad(n\ge6).
 
 ## Mathematical and computational files
 
-- `checkerboard-2n4.tex` - strengthened publication manuscript, including the human proof, exact finite base case, Lean map, and disclosure statements.
+- `checkerboard-2n4.tex` - publication manuscript with the human proof, expanded related work, 15 audited references, exact finite base case, Lean map, data/code statement, and generative-AI declaration.
 - `verify_small_cases.py` - exact standard-library verification of the `n=6` base cases and exceptional thin `n=7` certificate. It records the checksum of 155 feasible eight-subsets in each `6 x 6` parity class.
 - `verify_quadratic_certificates.py` - exact-arithmetic cross-check of point coverage, line sums, certificate costs, and strict threshold gaps.
 - `PROOF_MAP.md` - paper-to-Lean declaration map.
 - `REPRODUCIBILITY.md` - theorem, commit, toolchain, workflow, and axiom-audit record.
 - `HUMAN_REVIEW_CHECKLIST.md` - line-by-line mathematical review protocol.
 - `PRIOR_ART_AUDIT.md` - novelty search and claim boundary.
+- `CITATION_AUDIT.md` - source and bibliography verification record.
 
 ## Internal publication preparation
 
@@ -35,6 +36,8 @@ python3 verify_small_cases.py
 python3 verify_quadratic_certificates.py
 latexmk -pdf -interaction=nonstopmode -halt-on-error checkerboard-2n4.tex
 ```
+
+The current local publication build is nine pages. The title is **Quadratic Line-Cover Certificates and the 2n-4 Bound for Checkerboard No-Three-in-Line Sets**, and the listed affiliation is San Diego State University.
 
 ## Claim discipline
 
