@@ -1,0 +1,57 @@
+name: Emergency cancel CRL Actions
+
+on:
+  pull_request:
+    types: [synchronize]
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Cancel every other active CRL workflow run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          CURRENT_RUN: ${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="https://api.github.com"
+          auth=(-H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28")
+          cancelled=0
+          failed=0
+          page=1
+
+          while :; do
+            data="$(curl -fsSL "${auth[@]}" "${api}/repos/${REPOSITORY}/actions/runs?per_page=100&page=${page}")"
+            count="$(jq '.workflow_runs | length' <<<"${data}")"
+            [ "${count}" -gt 0 ] || break
+
+            while IFS= read -r run_id; do
+              [ -n "${run_id}" ] || continue
+              [ "${run_id}" != "${CURRENT_RUN}" ] || continue
+              echo "Cancelling ${REPOSITORY} run ${run_id}"
+              if curl -fsS -X POST "${auth[@]}" "${api}/repos/${REPOSITORY}/actions/runs/${run_id}/cancel" >/dev/null 2>&1; then
+                cancelled=$((cancelled + 1))
+              elif curl -fsS -X POST "${auth[@]}" "${api}/repos/${REPOSITORY}/actions/runs/${run_id}/force-cancel" >/dev/null 2>&1; then
+                cancelled=$((cancelled + 1))
+              else
+                failed=$((failed + 1))
+              fi
+            done < <(jq -r '.workflow_runs[] | select(.status != "completed") | .id' <<<"${data}")
+
+            [ "${count}" -eq 100 ] || break
+            page=$((page + 1))
+          done
+
+          echo "Accepted: ${cancelled}; failed: ${failed}"
+          {
+            echo "## Emergency CRL Actions cancellation"
+            echo "- Accepted: ${cancelled}"
+            echo "- Failed: ${failed}"
+          } >>"${GITHUB_STEP_SUMMARY}"
