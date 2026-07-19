@@ -30,6 +30,10 @@ jobs:
         working-directory: math/checkerboard/paper
         run: python3 verify_quadratic_certificates.py
 
+      - name: Compile Python checkers
+        working-directory: math/checkerboard/paper
+        run: python3 -m py_compile verify_small_cases.py verify_quadratic_certificates.py
+
       - name: Install LaTeX
         run: |
           sudo apt-get update
@@ -39,6 +43,14 @@ jobs:
       - name: Compile manuscript
         working-directory: math/checkerboard/paper
         run: latexmk -pdf -interaction=nonstopmode -halt-on-error checkerboard-2n4.tex
+
+      - name: Reject manuscript warnings
+        working-directory: math/checkerboard/paper
+        run: |
+          if grep -E "LaTeX Warning|Package .* Warning|Overfull|Underfull" checkerboard-2n4.log; then
+            echo "Manuscript build contains a LaTeX or box warning."
+            exit 1
+          fi
 
       - name: Check manuscript output
         working-directory: math/checkerboard/paper
