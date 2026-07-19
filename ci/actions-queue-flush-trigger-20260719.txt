@@ -1,1 +1,2 @@
 Temporary pull-request event used to flush stale GitHub Actions concurrency groups on 2026-07-19.
+Trigger revision 2: run repository-scoped cancellation workflow.
