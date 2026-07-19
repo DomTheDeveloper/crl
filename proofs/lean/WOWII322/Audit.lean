@@ -1,0 +1,4 @@
+import FormalConjectures.WrittenOnTheWallII.GraphConjecture322
+
+#check WrittenOnTheWallII.GraphConjecture322.conjecture322
+#print axioms WrittenOnTheWallII.GraphConjecture322.conjecture322
