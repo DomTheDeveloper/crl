@@ -1,16 +1,12 @@
 name: Check checkerboard certificate sources
 
+# Manual deterministic audit. Automatic PR execution is paused during Actions recovery.
+
 on:
-  pull_request:
-    branches:
-      - claude/gracious-hamilton-8k6xhz
-    paths:
-      - math/checkerboard/finite_certificates/**
-      - .github/workflows/check-checkerboard-certificate-sources.yml
   workflow_dispatch:
 
 concurrency:
-  group: checkerboard-source-audit-${{ github.ref }}
+  group: checkerboard-source-audit
   cancel-in-progress: true
 
 permissions:
