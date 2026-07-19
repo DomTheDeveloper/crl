@@ -1,16 +1,12 @@
 name: Certify checkerboard finite upper bounds
 
+# Expensive four-way UNSAT proof generation. Run manually for release candidates.
+
 on:
-  pull_request:
-    branches:
-      - claude/gracious-hamilton-8k6xhz
-    paths:
-      - math/checkerboard/finite_certificates/**
-      - .github/workflows/certify-checkerboard-upper-bounds.yml
   workflow_dispatch:
 
 concurrency:
-  group: checkerboard-upper-certificates-${{ github.ref }}
+  group: checkerboard-upper-certificates
   cancel-in-progress: true
 
 permissions:
@@ -153,7 +149,6 @@ jobs:
           printf 'solver\tstatus\texit_code\nCaDiCaL\t%s\t%s\nKissat\t%s\t%s\n' \
             "$cadical_status" "$cadical_code" "$kissat_status" "$kissat_code" | tee "$stem.solvers.tsv"
 
-          # TIMEOUT and UNKNOWN/ERROR are intentionally no result.
           [[ "$cadical_status" == UNSAT ]]
           [[ "$kissat_status" == UNSAT ]]
           test -s "$stem.cadical.drat"
@@ -185,4 +180,4 @@ jobs:
           name: checkerboard-upper-n${{ matrix.n }}-p${{ matrix.parity }}
           path: certificates/
           if-no-files-found: error
-          retention-days: 90
+          retention-days: 7
