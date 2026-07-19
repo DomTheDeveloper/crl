@@ -1,0 +1,86 @@
+name: Dmono22 top-34 DRAT certificate
+
+on:
+  push:
+    branches:
+      - solve-dmono22-exact
+    paths:
+      - 'math/checkerboard/n22_exact/emit_top_cnf.py'
+      - 'math/checkerboard/n22_exact/n22_exact_core.py'
+      - 'math/checkerboard/n22_exact/n22_data.py'
+      - '.github/workflows/dmono22-drat-top34.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dmono22-drat-top34
+  cancel-in-progress: false
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CNF generator dependencies
+        run: pip install --disable-pip-version-check python-sat
+      - name: Install proof-producing solver and checker
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y cadical build-essential git zlib1g-dev
+          git clone --depth 1 https://github.com/marijnheule/drat-trim.git /tmp/drat-trim
+          make -C /tmp/drat-trim
+          sudo install /tmp/drat-trim/drat-trim /usr/local/bin/drat-trim
+          cadical --version
+          drat-trim 2>&1 | head -n 2 || true
+      - name: Emit exact top-34 CNF
+        working-directory: math/checkerboard/n22_exact
+        run: |
+          python3 emit_top_cnf.py 34 top34.cnf --manifest top34-manifest.json
+          sha256sum top34.cnf top34-manifest.json | tee top34.sha256
+      - name: Produce DRAT proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set +e
+          /usr/bin/time -v cadical top34.cnf top34.drat 2>&1 | tee top34-cadical.log
+          code=${PIPESTATUS[0]}
+          set -e
+          if [[ "$code" != 20 ]]; then
+            echo "Expected CaDiCaL UNSAT exit code 20, got $code" >&2
+            exit 1
+          fi
+          test -s top34.drat
+          sha256sum top34.drat | tee -a top34.sha256
+      - name: Independently check DRAT proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -o pipefail
+          /usr/bin/time -v drat-trim top34.cnf top34.drat 2>&1 | tee top34-drat-check.log
+          grep -E 'VERIFIED|s VERIFIED' top34-drat-check.log
+      - name: Compress certificate
+        working-directory: math/checkerboard/n22_exact
+        run: |
+          xz -T0 -9 top34.drat
+          sha256sum top34.drat.xz | tee -a top34.sha256
+      - name: Upload exact certificate package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dmono22-top34-drat
+          path: |
+            math/checkerboard/n22_exact/top34.cnf
+            math/checkerboard/n22_exact/top34.drat.xz
+            math/checkerboard/n22_exact/top34-manifest.json
+            math/checkerboard/n22_exact/top34.sha256
+            math/checkerboard/n22_exact/top34-cadical.log
+            math/checkerboard/n22_exact/top34-drat-check.log
+          if-no-files-found: warn
