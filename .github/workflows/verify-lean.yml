@@ -1,7 +1,6 @@
 name: Verify Lean proofs
 
-# One-shot queue cleanup: this skipped run cancels older runs in the same
-# repository-wide concurrency group. Revert to manual-only immediately after.
+# One-shot queue cleanup for the stale PR #68 run.
 
 on:
   push:
@@ -9,10 +8,9 @@ on:
       - agent/checkerboard-publication-package
     paths:
       - ".github/workflows/verify-lean.yml"
-  workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}
+  group: checkerboard-lean-Verify Lean proofs-refs/pull/68/merge
   cancel-in-progress: true
 
 permissions:
@@ -23,4 +21,4 @@ jobs:
     if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Stale Lean runs cleared by concurrency."
+      - run: echo "Cleared stale general Lean PR 68 queue entry."
