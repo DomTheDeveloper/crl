@@ -5,8 +5,8 @@
 \usepackage{booktabs}
 \usepackage{microtype}
 \usepackage{enumitem}
-\usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}
+
 \hypersetup{
   pdftitle={The 2n-4 Bound for Checkerboard No-Three-in-Line Sets},
   pdfauthor={Dominic A. Dabish},
@@ -21,7 +21,7 @@
 \newtheorem{remark}[theorem]{Remark}
 
 \newcommand{\Dmono}{D_{\mathrm{mono}}}
-\newcommand{\Ceps}{C_{\varepsilon}}
+\newcommand{\Lmono}{L_{\mathrm{mono}}}
 
 \title{The $2n-4$ Bound for Checkerboard No-Three-in-Line Sets}
 \author{Dominic A. Dabish\\\small Independent researcher, San Diego, California, USA}
@@ -31,12 +31,17 @@
 \maketitle
 
 \begin{abstract}
-Let $\Dmono(n)$ be the largest number of points that can be chosen from one parity class of the $n\times n$ integer grid with no three collinear. Prellberg proved the elementary bound $\Dmono(n)\le 2n-2$ and proposed the sharper inequality $\Dmono(n)\le 2n-4$ for $n\ge 6$ as a boundary-forcing heuristic. We prove this inequality for every $n\ge 6$.
+Let $\Dmono(n)$ be the largest number of points that can be chosen from one parity class of the $n\times n$ integer grid with no three collinear. Prellberg proved the elementary bound $\Dmono(n)\le 2n-2$ and recorded the sharper inequality $\Dmono(n)\le 2n-4$ for $n\ge6$ as a conjectural consequence of a boundary-forcing mechanism. We prove this inequality for every $n\ge6$.
 
-The proof is an explicit four-direction linear-programming dual certificate. On every sufficiently large odd or even board, quadratic weights on rows, columns, and the two diagonal families give constant coverage of every point in the chosen parity class, while their exact total cost lies strictly below the threshold for $2n-3$ selected points. The thin colour of the $7\times7$ board is handled by a small integer certificate, and the two $6\times6$ colour classes by a finite kernel-checked Boolean verification. A complete Lean~4 formalization proves the exact all-$n$ theorem and audits its axioms.
+For all odd and even boards outside two finite exceptions, the proof gives explicit nonnegative quadratic weights on the rows, columns, and the two diagonal families of slopes $\pm1$. Every point in the prescribed parity class receives the same total weight, while the exact capacity-two cost is strictly below the threshold required by $2n-3$ selected points. The thin colour of the $7\times7$ board is handled by a small integer line cover. The two $6\times6$ colour classes are handled by an exact finite Boolean verification. A complete Lean~4 formalization proves the all-$n$ theorem in the genuine all-slope no-three-in-line model and includes an explicit axiom audit.
 \end{abstract}
 
+\noindent\textbf{Mathematics Subject Classifications (2020):} 52C10, 05B40, 90C05, 03B35.\\
+\textbf{Keywords:} no-three-in-line problem, checkerboard grid, line-cover certificate, linear-programming duality, formal proof, Lean.
+
 \section{Introduction}
+
+The classical no-three-in-line problem asks for the largest number of points that can be chosen from an $n\times n$ integer grid with no three collinear. It has a long history in recreational and extremal combinatorics; see, for example, Guy and Kelly~\cite{guy-kelly}, Adena, Holton, and Kelly~\cite{adena-holton-kelly}, and the recent account of Prellberg~\cite{prellberg-checkerboard}.
 
 Write
 \[
@@ -48,22 +53,23 @@ C_\varepsilon(n)=\{(x,y)\in G_n:x+y\equiv\varepsilon\pmod 2\}.
 \]
 A set is \emph{no-three-in-line} (NTIL) if it contains no three collinear points. Define
 \[
-\Dmono(n,\varepsilon)=\max\{|S|:S\subseteq C_\varepsilon(n)\text{ is NTIL}\},
+\Dmono(n,\varepsilon)
+ =\max\{|S|:S\subseteq C_\varepsilon(n)\text{ is NTIL}\},
 \qquad
 \Dmono(n)=\max_{\varepsilon\in\{0,1\}}\Dmono(n,\varepsilon).
 \]
 
-Prellberg introduced this fixed-parity variant and observed that the two monochromatic diagonal families of slopes $\pm1$ give
+Prellberg~\cite{prellberg-checkerboard} introduced this fixed-parity variant and observed that the monochromatic diagonals of either slope $+1$ or slope $-1$ give
 \[
 \Dmono(n)\le 2n-2.
 \]
-He further recorded a boundary-forcing mechanism suggesting, but not proving,
+He also recorded a boundary-forcing mechanism that suggests, but does not prove,
 \[
 \Dmono(n)\le 2n-4\qquad(n\ge6).
 \]
-The purpose of this note is to prove that inequality exactly.
+We prove exactly this finite upper bound.
 
-The proof uses only a necessary consequence of the full NTIL condition: every row, column, slope-$1$ diagonal, and slope-$(-1)$ diagonal contains at most two selected points. Thus a certificate using these four line families gives an upper bound for the original all-slope problem, not merely for a redefined four-direction problem.
+The proof uses only a necessary consequence of the full NTIL condition: every row, column, slope-$1$ diagonal, and slope-$(-1)$ diagonal contains at most two selected points. A certificate using these four line families therefore gives an upper bound for the original all-slope problem; it does not replace collinearity by a four-direction definition.
 
 \begin{theorem}[Main theorem]\label{thm:main}
 For every integer $n\ge6$ and each $\varepsilon\in\{0,1\}$,
@@ -73,15 +79,23 @@ For every integer $n\ge6$ and each $\varepsilon\in\{0,1\}$,
 Consequently $\Dmono(n)\le2n-4$ for every $n\ge6$.
 \end{theorem}
 
+The proof is elementary once the quadratic weights are found. The identity behind them is
+\begin{equation}\label{eq:master-identity}
+(2x-N)^2+(2y-N)^2
+ +2\bigl(N^2-(x+y-N)^2\bigr)
+ +2\bigl(N^2-(x-y)^2\bigr)=4N^2.
+\end{equation}
+The parity restriction selects exactly the two diagonal weights that occur at a point. Exact sums of squares then give the cost.
+
 \section{A weighted line-cover lemma}
 
-Let $\mathcal L$ consist of all rows, columns, and diagonals of slopes $\pm1$ that meet $G_n$. Assign a nonnegative weight $w_\ell$ to every $\ell\in\mathcal L$. For $p\in G_n$, let
+Let $\mathcal L$ consist of all rows, columns, and diagonals of slopes $\pm1$ that meet $G_n$. Assign a nonnegative weight $w_\ell$ to every $\ell\in\mathcal L$. For $p\in G_n$, define
 \[
 \operatorname{cov}(p)=\sum_{\ell\ni p}w_\ell,
 \qquad
 \operatorname{cost}(w)=2\sum_{\ell\in\mathcal L}w_\ell.
 \]
-The factor $2$ is the capacity of each line in an NTIL set.
+The factor $2$ is the NTIL capacity of each line.
 
 \begin{lemma}[Line-cover certificate]\label{lem:certificate}
 Suppose $S\subseteq G_n$ is NTIL and every $p\in S$ satisfies $\operatorname{cov}(p)\ge q$, where $q>0$. Then
@@ -95,20 +109,24 @@ In particular, if $\operatorname{cost}(w)<q(k+1)$, then $|S|\le k$.
 Double-count weighted incidences:
 \[
 q|S|
-\le \sum_{p\in S}\operatorname{cov}(p)
-=\sum_{\ell\in\mathcal L}w_\ell|S\cap\ell|
-\le2\sum_{\ell\in\mathcal L}w_\ell.
+ \le \sum_{p\in S}\operatorname{cov}(p)
+ =\sum_{\ell\in\mathcal L}w_\ell|S\cap\ell|
+ \le2\sum_{\ell\in\mathcal L}w_\ell.
 \]
 The last assertion follows because $|S|$ is an integer.
 \end{proof}
 
-This is the finite dual-certificate interpretation of the four-direction relaxation used by Prellberg.
+After division by $q$, this is precisely a feasible dual solution for Prellberg's four-direction linear-programming relaxation $\Lmono(n,\varepsilon)$~\cite{prellberg-checkerboard,schrijver}. For $n\ge7$, our certificates prove the stronger fractional statement
+\[
+\Lmono(n,\varepsilon)<2n-3,
+\]
+and the desired integral bound follows by rounding down. The $6\times6$ board is the sole case in which an additional integrality argument is required.
 
 \section{Odd side length}
 
-Let $n=2m+1$. The parity class containing $(0,0)$ is the \emph{fat} class and the other is the \emph{thin} class. Put $N=2m$.
+Let $n=2m+1$ and put $N=2m$. The class containing $(0,0)$ is the \emph{fat} class, and the other is the \emph{thin} class.
 
-For every row and every column with index $i\in\{0,\ldots,2m\}$, assign weight
+For every row and column with index $i\in\{0,\ldots,2m\}$, assign weight
 \[
 R_i=(2i-2m)^2.
 \]
@@ -116,50 +134,41 @@ For a diagonal indexed by $j\in\{0,\ldots,4m\}$, assign
 \[
 B_j=2\bigl((2m)^2-(j-2m)^2\bigr)
 \]
-when $j$ has the parity of the chosen colour, and weight $0$ otherwise. Here the two diagonal indices are $j=x+y$ and $j=x-y+2m$.
+when $j$ has the parity of the chosen colour, and weight $0$ otherwise. The two diagonal indices through $(x,y)$ are $j=x+y$ and $j=x-y+2m$. Since $2m$ is even, both have parity $x+y$.
 
-The weights are nonnegative. If $(x,y)$ lies in the chosen parity class, both incident diagonal indices have the permitted parity, and
-\begin{align*}
-&(2x-2m)^2+(2y-2m)^2\\
-&\quad+2\bigl((2m)^2-(x+y-2m)^2\bigr)
-+2\bigl((2m)^2-(x-y)^2\bigr)
-=16m^2.
-\end{align*}
-Thus every admissible point has constant coverage
+All weights are nonnegative. For every point $(x,y)$ in the chosen parity class, the four incident weights sum, by~\eqref{eq:master-identity}, to
 \[
 q=16m^2.
 \]
 
-The row or column sum is
-\begin{equation}\label{eq:odd-axis}
-\sum_{i=0}^{2m}(2i-2m)^2
-=\frac{4m(m+1)(2m+1)}3.
-\end{equation}
-For even diagonal indices, corresponding to the fat class,
-\begin{equation}\label{eq:odd-fat-diag}
-\sum_{\substack{0\le j\le4m\\j\equiv0\ (2)}}B_j
-=\frac{8m(2m-1)(2m+1)}3.
-\end{equation}
-For odd diagonal indices, corresponding to the thin class,
-\begin{equation}\label{eq:odd-thin-diag}
-\sum_{\substack{0\le j\le4m\\j\equiv1\ (2)}}B_j
-=\frac{4m(8m^2+1)}3.
-\end{equation}
-These are elementary sums of squares.
+The needed exact sums are
+\begin{align}
+A_m&:=\sum_{i=0}^{2m}(2i-2m)^2
+ =\frac{4m(m+1)(2m+1)}3,\label{eq:odd-axis}\\
+F_m&:=\sum_{\substack{0\le j\le4m\\j\equiv0\pmod2}}B_j
+ =\frac{8m(2m-1)(2m+1)}3,\label{eq:odd-fat-diag}\\
+T_m&:=\sum_{\substack{0\le j\le4m\\j\equiv1\pmod2}}B_j
+ =\frac{4m(8m^2+1)}3.\label{eq:odd-thin-diag}
+\end{align}
+Derivations are included in Appendix~\ref{app:sums}.
 
 \subsection{The fat class}
 
-Using two axis families and two diagonal families, the certificate cost is
+There are two axis families and two diagonal families, so the capacity-two cost is
 \[
-C_{\mathrm{fat}}
-=\frac{16m(10m^2+3m-1)}3.
+C_{\mathrm{fat}}=2(2A_m+2F_m)
+ =\frac{16m(10m^2+3m-1)}3.
 \]
-The target bound is $|S|\le4m-2$. We compute
-\begin{align*}
+The target is $|S|\le4m-2$. We compute
+\[
 q(4m-1)-C_{\mathrm{fat}}
-&=\frac{16m}{3}(2m^2-6m+1)>0
-\end{align*}
-for every $m\ge3$. Lemma~\ref{lem:certificate} therefore gives
+ =\frac{16m}{3}(2m^2-6m+1).
+\]
+For $m\ge3$,
+\[
+2m^2-6m+1=2m(m-3)+1>0.
+\]
+Lemma~\ref{lem:certificate} therefore gives
 \[
 |S|\le4m-2=2n-4
 \]
@@ -167,19 +176,25 @@ for every odd fat board with $n\ge7$.
 
 \subsection{The thin class}
 
-The certificate cost is now
+The cost is
 \[
-C_{\mathrm{thin}}
-=\frac{16m(10m^2+3m+2)}3.
+C_{\mathrm{thin}}=2(2A_m+2T_m)
+ =\frac{16m(10m^2+3m+2)}3.
 \]
 For $m\ge4$,
 \[
 q(4m-1)-C_{\mathrm{thin}}
-=\frac{16m}{3}(2m^2-6m-2)>0.
+ =\frac{16m}{3}(2m^2-6m-2)>0,
 \]
-Hence $|S|\le4m-2=2n-4$ for every odd thin board with $n\ge9$.
+because the quadratic factor is increasing for $m\ge4$ and equals $6$ at $m=4$. Hence
+\[
+|S|\le4m-2=2n-4
+\]
+for every odd thin board with $n\ge9$.
 
-The remaining thin board is $n=7$. Give weight $1$ to each boundary row or column with index $0$ or $6$. For each of the two diagonal families, indexed by $j\in\{0,\ldots,12\}$, define
+\subsection{The exceptional thin $7\times7$ board}
+
+It remains to treat $m=3$ in the thin class. Give weight $1$ to each boundary row or column with index $0$ or $6$. For each of the two diagonal families, indexed by $j\in\{0,\ldots,12\}$, define
 \[
 f(j)=
 \begin{cases}
@@ -188,7 +203,7 @@ f(j)=
 0,&\text{otherwise}.
 \end{cases}
 \]
-Only odd $j$ occur in the thin class. The total line-weight sum is $16$, so the capacity-two cost is $32$. Up to the dihedral symmetries of the square, the thin class has four point orbits; their coverages are shown below.
+Only odd $j$ occur in the thin class. The total line-weight sum is $16$, hence the capacity-two cost is $32$. Up to the dihedral symmetries of the square, the $24$ thin-colour points form four orbits:
 
 \begin{center}
 \begin{tabular}{ccc}
@@ -202,64 +217,75 @@ $(2,3)$ & $4$ & $4$\\
 \bottomrule
 \end{tabular}
 \end{center}
-Thus $q=3$ and $32<3\cdot11$, proving $|S|\le10=2\cdot7-4$.
+Thus every thin point has coverage at least $q=3$, and
+\[
+32<3\cdot11.
+\]
+Lemma~\ref{lem:certificate} gives $|S|\le10=2\cdot7-4$.
 
 \section{Even side length}
 
-Let $n=2m$ and put $N=2m-1$. For each row and column index $i\in\{0,\ldots,2m-1\}$ assign
+Let $n=2m$ and put $N=2m-1$. Assign to each row and column index $i\in\{0,\ldots,2m-1\}$ the weight
 \[
-R_i=(2i-N)^2.
+R_i=(2i-N)^2,
 \]
-For a diagonal index $j\in\{0,\ldots,2N\}$ assign
+and define, for $j\in\{0,\ldots,2N\}$,
 \[
 B_j=2\bigl(N^2-(j-N)^2\bigr).
 \]
-On the sum diagonals $j=x+y$, retain the parity of the chosen colour. On the shifted difference diagonals $j=x-y+N$, retain the opposite parity, since $N$ is odd.
+On the sum diagonals $j=x+y$, retain the parity of the chosen colour. On the shifted difference diagonals $j=x-y+N$, retain the opposite parity, because $N$ is odd.
 
-Every point of the chosen colour then has coverage
+Every point of the chosen colour receives exactly the four terms in~\eqref{eq:master-identity}, so its coverage is
+\[
+q=4N^2.
+\]
+The axis sum and total selected diagonal sum are
 \begin{align*}
-&(2x-N)^2+(2y-N)^2\\
-&\quad+2\bigl(N^2-(x+y-N)^2\bigr)
-+2\bigl(N^2-(x-y)^2\bigr)
-=4N^2.
+A'_m&=\sum_{i=0}^{2m-1}(2i-N)^2
+ =\frac{2m(4m^2-1)}3,\\
+D'_m&=\sum_{j=0}^{2N}B_j
+ =\frac{2N(4m-3)(4m-1)}3.
 \end{align*}
-Hence $q=4N^2$. The axis sum is
+The two chosen diagonal parity classes, one in each diagonal family, partition the indices $0,\ldots,2N$. Hence
 \[
-\sum_{i=0}^{2m-1}(2i-N)^2
-=\frac{2m(4m^2-1)}3.
-\]
-The two selected diagonal parity classes together partition all diagonal indices, and
-\[
-\sum_{j=0}^{2N}B_j
-=\frac{2N(4m-3)(4m-1)}3.
-\]
-The resulting cost is
-\[
-C_{\mathrm{even}}
-=\frac{4N(20m^2-14m+3)}3.
+C_{\mathrm{even}}=2(2A'_m+D'_m)
+ =\frac{4N(20m^2-14m+3)}3.
 \]
 For $m\ge4$,
 \begin{align*}
 q(4m-3)-C_{\mathrm{even}}
-&=\frac{8(2m-1)}3(2m^2-8m+3)>0.
+ &=\frac{8(2m-1)}3(2m^2-8m+3)>0,
 \end{align*}
-Therefore every even board with $n\ge8$ satisfies
+because $2m^2-8m+3=2m(m-4)+3$. Therefore
 \[
-|S|\le4m-4=2n-4.
+|S|\le4m-4=2n-4
 \]
+for every even board with $n\ge8$.
 
-\section{The \texorpdfstring{$6\times6$}{6x6} base case}
+\section{The $6\times6$ base case}\label{sec:n6}
 
-Each parity class of the $6\times6$ board contains $18$ points. The quadratic certificate above has objective exactly $9$ and therefore does not by itself exclude nine points. The remaining assertion is finite:
+Each parity class of the $6\times6$ board contains $18$ points. At $m=3$, the even quadratic certificate above has normalized cost
+\[
+\frac{C_{\mathrm{even}}}{q}=\frac{940}{100}=\frac{47}{5},
+\]
+so it does not exclude nine selected points. A finite integrality argument completes the proof.
 
 \begin{proposition}\label{prop:n6}
 Every subset of either parity class of the $6\times6$ board that meets every row, column, and slope-$\pm1$ diagonal in at most two points has size at most $8$.
 \end{proposition}
 
-The proposition is verified in two independent exact forms in the accompanying package. A standard-library Python checker enumerates the $\binom{18}{9}=48{,}620$ nine-point subsets in each colour and rejects each one by a principal-line capacity violation. The Lean development represents an arbitrary selection by $18$ Boolean variables and proves the same finite statement with the kernel-checked bit-vector decision procedure \texttt{bv\_decide}. Since every all-slope NTIL set obeys these four-direction capacities, this proves the required $n=6$ case.
+\begin{proof}[Exact finite verification]
+Fix a parity class and enumerate its $18$ points. It is enough to reject all nine-point subsets: any larger feasible set would contain a feasible nine-point subset. There are
+\[
+\binom{18}{9}=48{,}620
+\]
+such subsets. For each subset, the checker evaluates every row, column, sum diagonal, and difference diagonal and rejects the subset as soon as one line has at least three selected points. No nine-point subset survives. As a reproducibility checksum, exactly $155$ eight-point subsets survive in each parity class under these four line-capacity constraints.
+
+The accompanying standard-library Python program performs this enumeration directly. Independently, the Lean development transports an arbitrary monochromatic set to $18$ Boolean variables and proves the same statement with the kernel-checked bit-vector procedure \texttt{bv\_decide}. Since every all-slope NTIL set satisfies the four line-capacity constraints, the proposition follows.
+\end{proof}
 
 \begin{proof}[Proof of Theorem~\ref{thm:main}]
-The odd fat case holds for $n\ge7$, the odd thin case for $n\ge9$ with a separate certificate at $n=7$, and the even case for $n\ge8$. Proposition~\ref{prop:n6} handles $n=6$.
+The odd fat case holds for $n\ge7$, the odd thin case for $n\ge9$ with the separate certificate at $n=7$, and the even case for $n\ge8$. Proposition~\ref{prop:n6} handles $n=6$.
 \end{proof}
 
 \section{Formal verification and reproducibility}
@@ -273,20 +299,32 @@ theorem Checkerboard.checkerboard_upper_all_n {n parity : Nat}
     (hntil : NoThreeInLine s) :
     s.card <= 2 * n - 4
 \end{verbatim}
-Here \texttt{NoThreeInLine} quantifies over every triple of distinct selected points and uses the exact integer determinant, so the formal statement is the genuine all-slope theorem. The four-direction constraints are derived as lemmas from that hypothesis.
+The predicate \texttt{NoThreeInLine} quantifies over every triple of distinct selected points and uses the exact integer determinant. Thus the formal theorem is the genuine all-slope statement. The four principal line capacities are proved from that hypothesis.
 
-The formal dependency chain includes:
-\begin{enumerate}[leftmargin=*]
-\item the finite point model, checkerboard parity classes, and integer determinant;
-\item derivation of the four principal line capacities from full NTIL;
-\item the rational weighted line-cover theorem;
-\item exact polynomial sum identities, nonnegativity, point coverage, and objective formulas for the odd and even quadratic certificates;
-\item the exceptional $7\times7$ thin certificate;
-\item the two finite $6\times6$ Boolean base cases;
-\item the all-$n$ parity assembly and an explicit axiom audit.
-\end{enumerate}
+The principal formal declarations corresponding to the paper are:
+\begin{center}
+\begin{tabular}{p{0.42\textwidth}p{0.48\textwidth}}
+\toprule
+Mathematical component & Lean declaration\\
+\midrule
+Weighted double-counting certificate & \texttt{card\_le\_of\_fourCertificate}\\
+Odd/even quadratic weights & \texttt{oddQuadraticWeights}, \texttt{evenQuadraticWeights}\\
+Constant point coverage & \texttt{oddQuadratic\_coverage}, \texttt{evenQuadratic\_coverage}\\
+Exact certificate costs & \texttt{oddQuadratic\_cost\_zero}, \texttt{oddQuadratic\_cost\_one}, \texttt{evenQuadratic\_cost\_zero}, \texttt{evenQuadratic\_cost\_one}\\
+Odd fat and thin bounds & \texttt{odd\_zero\_upper}, \texttt{odd\_one\_upper}\\
+Even bound & \texttt{even\_upper}\\
+Thin $7\times7$ exception & \texttt{n7\_one\_upper}\\
+Two $6\times6$ base cases & \texttt{n6\_zero\_upper}, \texttt{n6\_one\_upper}\\
+All boards $n\ge6$ & \texttt{checkerboard\_upper\_all\_n}\\
+\bottomrule
+\end{tabular}
+\end{center}
 
-The project is pinned to Lean~4.32.0. The build workflow rejects \texttt{sorry}, \texttt{admit}, project-defined axioms, \texttt{native\_decide}, opaque shortcuts, and any occurrence of \texttt{sorryAx} in the compiled audit output. Exact source commit and workflow identifiers are recorded in the accompanying reproducibility document.
+The project is pinned to Lean~4.32.0. Its audit workflow rejects unfinished proof markers, project-defined axioms, \texttt{native\_decide}, opaque shortcuts, and any occurrence of \texttt{sorryAx} in the compiled output. The axiom audit explicitly runs
+\begin{verbatim}
+#print axioms Checkerboard.checkerboard_upper_all_n
+\end{verbatim}
+The repository records the exact commit, toolchain, workflow run, and independent finite checkers.
 
 \section{Scope and open questions}
 
@@ -294,17 +332,78 @@ Theorem~\ref{thm:main} proves the finite upper bound proposed in Prellberg's pap
 \[
 \lim_{n\to\infty}\frac{\Dmono(n)}n.
 \]
-In particular, proving a matching all-slope lower bound requires controlling every rational slope and is separate from the four-direction dual argument used here.
+The present line covers use only four necessary line families. Proving a matching all-slope lower bound requires controlling every rational slope and is a separate problem.
 
-\paragraph{AI assistance disclosure.}
-OpenAI's ChatGPT was used to assist with proof exploration, Lean formalization, code generation, and manuscript editing. The mathematical statement is independently represented in a kernel-checked Lean proof, and the finite base cases have separate exact checkers. Responsibility for the manuscript and its claims rests with the named author.
+To the author's knowledge, this is the first proof of the bound $\Dmono(n)\le2n-4$ for all $n\ge6$. This priority statement is intentionally qualified because unindexed or simultaneous work may exist.
+
+\section*{Data and code availability}
+
+The Lean formalization, independent Python checkers, manuscript source, and reproducibility record are contained in the public repository \url{https://github.com/DomTheDeveloper/crl}. The proof branch and exact commit identifier are recorded in the accompanying reproducibility file. An archival release should be deposited before journal submission.
+
+\section*{AI assistance disclosure}
+
+OpenAI's ChatGPT assisted with proof exploration, Lean formalization, code generation, and manuscript editing. The named author remains responsible for the mathematical claims, source verification, and submitted text. The paper includes a human-readable proof, a kernel-checked Lean proof, and independent exact checkers for the finite computations.
+
+\appendix
+\section{Derivation of the line-weight sums}\label{app:sums}
+
+We record the elementary calculations used above. First,
+\[
+\sum_{r=1}^{m}r^2=\frac{m(m+1)(2m+1)}6,
+\qquad
+\sum_{r=1}^{m}(2r-1)^2=\frac{m(4m^2-1)}3.
+\]
+For the odd axis weights,
+\[
+A_m=4\sum_{r=-m}^{m}r^2
+ =8\sum_{r=1}^{m}r^2
+ =\frac{4m(m+1)(2m+1)}3.
+\]
+For even diagonal indices $j=2r$,
+\begin{align*}
+F_m
+ &=8\sum_{r=0}^{2m}\bigl(m^2-(r-m)^2\bigr)\\
+ &=8\left((2m+1)m^2-\frac{m(m+1)(2m+1)}3\right)\\
+ &=\frac{8m(2m-1)(2m+1)}3.
+\end{align*}
+For odd diagonal indices, the centered values $j-2m$ are the odd integers from $-(2m-1)$ to $2m-1$. Therefore
+\begin{align*}
+T_m
+ &=2\left(2m\cdot4m^2-2\sum_{r=1}^{m}(2r-1)^2\right)\\
+ &=\frac{4m(8m^2+1)}3.
+\end{align*}
+
+For the even board, the axis coordinates are the odd integers from $-(2m-1)$ to $2m-1$, giving
+\[
+A'_m=2\sum_{r=1}^{m}(2r-1)^2
+ =\frac{2m(4m^2-1)}3.
+\]
+Finally, with $N=2m-1$,
+\begin{align*}
+D'_m
+ &=2\sum_{t=-N}^{N}(N^2-t^2)\\
+ &=2\left((2N+1)N^2-\frac{N(N+1)(2N+1)}3\right)\\
+ &=\frac{2N(2N-1)(2N+1)}3
+ =\frac{2N(4m-3)(4m-1)}3.
+\end{align*}
 
 \begin{thebibliography}{9}
+
+\bibitem{guy-kelly}
+R. K. Guy and P. A. Kelly,
+\newblock The no-three-in-line problem,
+\newblock \emph{Canadian Mathematical Bulletin} 11 (1968), 527--531.
+
+\bibitem{adena-holton-kelly}
+M. A. Adena, D. A. Holton, and P. A. Kelly,
+\newblock Some thoughts on the no-three-in-line problem,
+\newblock in \emph{Combinatorial Mathematics}, Lecture Notes in Mathematics 403,
+Springer, 1974, pp. 6--17.
 
 \bibitem{prellberg-checkerboard}
 T. Prellberg,
 \newblock No-three-in-line sets on the checkerboard grid,
-\newblock \emph{arXiv preprint} arXiv:2605.09215, 2026.
+\newblock arXiv:2605.09215, 2026.
 
 \bibitem{schrijver}
 A. Schrijver,
@@ -314,7 +413,8 @@ A. Schrijver,
 \bibitem{lean4}
 L. de Moura and S. Ullrich,
 \newblock The Lean 4 theorem prover and programming language,
-\newblock in \emph{Automated Deduction -- CADE 28}, Lecture Notes in Computer Science 12699, Springer, 2021, pp. 625--635.
+\newblock in \emph{Automated Deduction -- CADE 28}, Lecture Notes in Computer Science 12699,
+Springer, 2021, pp. 625--635.
 
 \bibitem{mathlib}
 The Mathlib Community,
