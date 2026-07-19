@@ -3,7 +3,7 @@ name: Sync and deploy GitHub Pages
 on:
   push:
     branches:
-      - claude/gracious-hamilton-8k6xhz
+      - main
     paths-ignore:
       - ".github/**"
       - "proofs/lean/**"
