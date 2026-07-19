@@ -1,16 +1,16 @@
 name: Local sandbox Lean bootstrap bundle
 
+# Manual transport helper only. Routine Lean checks use AXLE/local pinned Lean.
+
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - .sandbox-bootstrap-trigger
-      - .github/workflows/local-sandbox-bootstrap.yml
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: local-sandbox-bootstrap
+  cancel-in-progress: true
 
 jobs:
   package:
@@ -88,20 +88,20 @@ jobs:
           rsync -a --exclude='.git' a387471-crl/proofs/lean/A387471/ bundle/projects/A387471/
 
           cat > bundle/README_LOCAL.txt <<'EOF'
-This artifact is transport-only. Verification must be run locally.
+          This artifact is transport-only. Verification must be run locally.
 
-After extraction:
-  export PATH="$PWD/toolchain/bin:$PATH"
-  ln -s ../formal-voronovskaja/.lake projects/formal-wowii314/.lake
-  ln -s ../formal-voronovskaja/.lake projects/formal-wowii322/.lake
+          After extraction:
+            export PATH="$PWD/toolchain/bin:$PATH"
+            ln -s ../formal-voronovskaja/.lake projects/formal-wowii314/.lake
+            ln -s ../formal-voronovskaja/.lake projects/formal-wowii322/.lake
 
-Pinned toolchain: Lean 4.27.0
-Projects:
-  projects/A387471
-  projects/formal-voronovskaja
-  projects/formal-wowii314
-  projects/formal-wowii322
-EOF
+          Pinned toolchain: Lean 4.27.0
+          Projects:
+            projects/A387471
+            projects/formal-voronovskaja
+            projects/formal-wowii314
+            projects/formal-wowii322
+          EOF
 
           tar --zstd -cf lean-local-sandbox-bundle.tar.zst -C bundle .
           sha256sum lean-local-sandbox-bundle.tar.zst > lean-local-sandbox-bundle.sha256
