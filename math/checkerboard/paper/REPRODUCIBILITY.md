@@ -15,10 +15,12 @@ Checkerboard.checkerboard_upper_all_n
 - Repository: `DomTheDeveloper/crl`
 - Clean proof branch: `proof/checkerboard-all-n-clean`
 - Clean proof commit: `961e2faaf8747b4feda4b12742d6cfc8284291ba`
-- Review PR: `#63`
+- Proof PR: `#63`
+- Publication branch: `agent/checkerboard-publication-package`
+- Publication PR: `#68`
 - Lean toolchain: `leanprover/lean4:v4.32.0`
 
-The proof-critical source blobs in the clean branch are byte-identical to those in the development branch that passed the focused audit.
+The publication branch changes one proof-file comment to correct the description of the `n=6` quadratic certificate. The theorem terms and proof code are unchanged from the clean proof branch.
 
 ## Passed focused audit
 
@@ -56,7 +58,18 @@ python3 verify_small_cases.py
 It performs exact standard-library checks of:
 
 - both `6 x 6` parity classes by enumerating all `C(18,9) = 48,620` nine-point subsets and checking rows, columns, and both slope-`+-1` diagonal families;
+- the reproducibility checksum of exactly 155 feasible eight-point subsets in each `6 x 6` parity class;
 - the exceptional thin `7 x 7` integer line-cover certificate, including every point coverage and its exact cost.
+
+## Independent quadratic audit
+
+Run:
+
+```bash
+python3 verify_quadratic_certificates.py
+```
+
+It checks all point-cover identities, exact line sums, objective formulas, and strict threshold gaps for both parity classes and `m = 1..100` using exact rational arithmetic. The symbolic all-`n` argument remains the manuscript and Lean proof.
 
 ## Full Lean replay
 
@@ -68,6 +81,17 @@ lake build
 ```
 
 The package root imports `Checkerboard.AllNTheorem` and `Checkerboard.AxiomAudit`.
+
+## Manuscript replay
+
+```bash
+cd math/checkerboard/paper
+python3 verify_small_cases.py
+python3 verify_quadratic_certificates.py
+latexmk -pdf -interaction=nonstopmode -halt-on-error checkerboard-2n4.tex
+```
+
+The publication workflow also rejects LaTeX and box warnings before uploading the PDF artifact.
 
 ## Scope boundary
 
