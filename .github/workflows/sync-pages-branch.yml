@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - claude/gracious-hamilton-8k6xhz
+    paths-ignore:
+      - ".github/**"
+      - "proofs/lean/**"
+      - "ci/**"
   workflow_dispatch:
 
 permissions:
