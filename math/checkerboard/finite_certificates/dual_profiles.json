@@ -1,0 +1,123 @@
+{
+  "format": "checkerboard-four-direction-dual-profiles-v1",
+  "profiles": [
+    {
+      "axis": [
+        20,
+        14,
+        9,
+        5,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "denominator": 67,
+      "diagonal": [
+        0,
+        0,
+        10,
+        18,
+        24,
+        29,
+        35,
+        38,
+        39
+      ],
+      "n": 17,
+      "objective_numerator": 1788,
+      "parity": 0
+    },
+    {
+      "axis": [
+        12,
+        9,
+        6,
+        4,
+        2,
+        1,
+        0,
+        0,
+        0
+      ],
+      "denominator": 33,
+      "diagonal": [
+        0,
+        0,
+        5,
+        9,
+        12,
+        15,
+        17,
+        18
+      ],
+      "n": 17,
+      "objective_numerator": 880,
+      "parity": 1
+    },
+    {
+      "axis": [
+        28,
+        21,
+        15,
+        10,
+        6,
+        3,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "denominator": 75,
+      "diagonal": [
+        0,
+        0,
+        0,
+        10,
+        18,
+        24,
+        30,
+        36,
+        41,
+        44,
+        45
+      ],
+      "n": 21,
+      "objective_numerator": 2476,
+      "parity": 0
+    },
+    {
+      "axis": [
+        15,
+        12,
+        8,
+        6,
+        3,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "denominator": 48,
+      "diagonal": [
+        0,
+        0,
+        6,
+        11,
+        15,
+        18,
+        22,
+        25,
+        27,
+        28
+      ],
+      "n": 21,
+      "objective_numerator": 1584,
+      "parity": 1
+    }
+  ]
+}

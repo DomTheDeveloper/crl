@@ -1,19 +1,21 @@
 name: Verify solvers (JS)
 
-# Re-checks the pure-JS engines that power the interactive site:
-# the propositional-logic verifier, the number-theory explorers, and the
-# exact A317940 rational computation (incl. a positivity sweep to 20000).
+# Paused from automatic PR execution while the Actions queue is being recovered.
 
 on:
-  push:
-    paths: ["math/assets/js/**", "tests/**", ".github/workflows/verify-solvers.yml"]
-  pull_request:
-    paths: ["math/assets/js/**", "tests/**", ".github/workflows/verify-solvers.yml"]
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   solvers:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

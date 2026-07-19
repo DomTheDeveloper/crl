@@ -1,0 +1,21 @@
+{
+  "target": "WrittenOnTheWallII.GraphConjecture322.conjecture322",
+  "repo": "google-deepmind/formal-conjectures",
+  "path": "FormalConjectures/WrittenOnTheWallII/GraphConjecture322.lean",
+  "upstream_branch": "main",
+  "upstream_category": "research open",
+  "our_category": "research solved",
+  "statement_faithful": true,
+  "statement_signature": "theorem conjecture322 (G : SimpleGraph α) [DecidableRel G.Adj] (hG : G.Connected) (hn : 5 ≤ Fintype.card α) (h : ∀ v : α, indepNeighborsCard G v ≤ 1) : IsWellTotallyDominated G",
+  "diff_from_upstream": "category tag (open->solved) and proof body (sorry->proof); header lines 1-43 byte-identical",
+  "cheat_tokens_in_proof": { "sorry": 0, "admit": 0, "native_decide": 0 },
+  "expected_axioms": ["propext", "Classical.choice", "Quot.sound"],
+  "kernel_verified_in_ci": false,
+  "ci_workflow": ".github/workflows/verify-wowii322.yml",
+  "status": "under review — proof complete & statement faithful; kernel build reproducible via workflow",
+  "sha256": {
+    "upstream_open_file": "262e8bfa5ff6dd2c6b7e4be1ba39d3e81757e7dc1bff7c56a7864764edb9c2cc",
+    "our_solved_submission_file": "626676b69dc5ebb466f7c633c4a36cb27a1c7019c312046624ab8f38bbedf069",
+    "uploaded_proof": "17b8e0a06097c0909a2421d1b92d7533ac48b8e45325544e55cba36f7ae6c6c0"
+  }
+}

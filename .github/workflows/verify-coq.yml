@@ -1,18 +1,21 @@
 name: Verify Coq proofs
 
-# Re-checks every Coq proof in proofs/coq/ through the jsCoq (Coq-in-WASM) CLI
-# on each push. The build fails if any proof does not compile.
+# Paused from automatic PR execution while the Actions queue is being recovered.
 
 on:
-  push:
-    paths: ["proofs/coq/**", ".github/workflows/verify-coq.yml"]
-  pull_request:
-    paths: ["proofs/coq/**", ".github/workflows/verify-coq.yml"]
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   coq:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

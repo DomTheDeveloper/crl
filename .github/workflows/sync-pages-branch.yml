@@ -1,9 +1,8 @@
 name: Sync and deploy GitHub Pages
 
+# Temporarily manual-only during branch recovery. The main-branch trigger is restored after merge.
+
 on:
-  push:
-    branches:
-      - claude/gracious-hamilton-8k6xhz
   workflow_dispatch:
 
 permissions:
@@ -62,6 +61,9 @@ jobs:
             "https://domthedeveloper.github.io/crl/math/wowii/143/proof/WOWII/GraphConjecture143ZZFinal.lean"
             "https://domthedeveloper.github.io/crl/math/wowii/160/"
             "https://domthedeveloper.github.io/crl/math/wowii/160/statement/GraphConjecture160Corrected.lean"
+            "https://domthedeveloper.github.io/crl/math/wowii/322/"
+            "https://domthedeveloper.github.io/crl/math/wowii/322/HUMAN_PROOF.md"
+            "https://domthedeveloper.github.io/crl/math/wowii/322/proof/GraphConjecture322.lean"
           )
           for i in $(seq 1 30); do
             all_ok=1

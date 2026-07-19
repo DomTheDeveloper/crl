@@ -1,0 +1,130 @@
+name: Verify checkerboard 17x17 and 21x21 constructions
+
+# Four-way SAT reconstruction. Run manually when certificates change.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: checkerboard-constructions
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  constructions:
+    name: n=${{ matrix.n }} parity=${{ matrix.parity }} size=${{ matrix.target }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - n: 17
+            parity: 0
+            target: 26
+            certificate: n17_p0_26.json
+          - n: 17
+            parity: 1
+            target: 26
+            certificate: n17_p1_26.json
+          - n: 21
+            parity: 0
+            target: 32
+            certificate: n21_p0_32.json
+          - n: 21
+            parity: 1
+            target: 32
+            certificate: n21_p1_32.json
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test deterministic encodings, profiles, and committed hashes
+        working-directory: math/checkerboard/finite_certificates
+        run: |
+          set -euxo pipefail
+          python3 verify_manifest.py
+          python3 test_encoding.py
+          python3 verify_profiles.py
+
+      - name: Build pinned CaDiCaL and Kissat
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git clone https://github.com/arminbiere/cadical.git "$RUNNER_TEMP/cadical"
+          git -C "$RUNNER_TEMP/cadical" checkout 7b99c07f0bcab5824a5a3ce62c7066554017f641
+          (cd "$RUNNER_TEMP/cadical" && ./configure && make -j2)
+          git clone https://github.com/arminbiere/kissat.git "$RUNNER_TEMP/kissat"
+          git -C "$RUNNER_TEMP/kissat" checkout 8af8e56f174b778aef3aa45af9f739b2a5f492c2
+          (cd "$RUNNER_TEMP/kissat" && ./configure && make -j2)
+          "$RUNNER_TEMP/cadical/build/cadical" --version
+          "$RUNNER_TEMP/kissat/build/kissat" --version
+
+      - name: Regenerate geometry and check the coordinate certificate twice
+        shell: bash
+        env:
+          N: ${{ matrix.n }}
+          PARITY: ${{ matrix.parity }}
+          TARGET: ${{ matrix.target }}
+          CERTIFICATE: ${{ matrix.certificate }}
+        run: |
+          set -euxo pipefail
+          root="math/checkerboard/finite_certificates"
+          cert="$root/constructions/$CERTIFICATE"
+          stem="construction/n${N}-p${PARITY}-k${TARGET}"
+          mkdir -p "$(dirname "$stem")"
+
+          python3 "$root/generate_cnf.py" --n "$N" --parity "$PARITY" --at-least "$TARGET" \
+            --cnf "$stem.search.cnf" --metadata "$stem.search.metadata.json" \
+            | tee "$stem.search-generator.log"
+          python3 "$root/verify_instance_semantics.py" --cnf "$stem.search.cnf" \
+            --metadata "$stem.search.metadata.json" | tee "$stem.search-semantic-check.log"
+          python3 "$root/check_model.py" --metadata "$stem.search.metadata.json" \
+            --coordinates "$cert" | tee "$stem.determinant-check.log"
+          python3 "$root/check_coordinates_independent.py" "$cert" \
+            | tee "$stem.line-key-check.log"
+          python3 "$root/generate_fixed_construction_cnf.py" "$cert" \
+            "$stem.fixed.cnf" "$stem.fixed.metadata.json" \
+            | tee "$stem.fixed-generator.log"
+
+      - name: Check the fixed certificate with two independent SAT solvers
+        shell: bash
+        env:
+          N: ${{ matrix.n }}
+          PARITY: ${{ matrix.parity }}
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -u
+          stem="construction/n${N}-p${PARITY}-k${TARGET}"
+
+          classify() {
+            local code="$1" log="$2"
+            if [[ "$code" == 124 ]]; then echo TIMEOUT; return; fi
+            if grep -q '^s SATISFIABLE' "$log"; then echo SAT; return; fi
+            if grep -q '^s UNSATISFIABLE' "$log"; then echo UNSAT; return; fi
+            echo ERROR
+          }
+
+          set +e
+          timeout 5m "$RUNNER_TEMP/cadical/build/cadical" "$stem.fixed.cnf" > "$stem.cadical.log" 2>&1
+          cadical_code=$?
+          timeout 5m "$RUNNER_TEMP/kissat/build/kissat" "$stem.fixed.cnf" > "$stem.kissat.log" 2>&1
+          kissat_code=$?
+          set -e
+          cadical_status="$(classify "$cadical_code" "$stem.cadical.log")"
+          kissat_status="$(classify "$kissat_code" "$stem.kissat.log")"
+          printf 'solver\tstatus\texit_code\nCaDiCaL\t%s\t%s\nKissat\t%s\t%s\n' \
+            "$cadical_status" "$cadical_code" "$kissat_status" "$kissat_code" \
+            | tee "$stem.solvers.tsv"
+          [[ "$cadical_status" == SAT ]]
+          [[ "$kissat_status" == SAT ]]
+          sha256sum "$stem".* | tee "$stem.sha256"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: checkerboard-construction-n${{ matrix.n }}-p${{ matrix.parity }}
+          path: construction/
+          if-no-files-found: error
+          retention-days: 7

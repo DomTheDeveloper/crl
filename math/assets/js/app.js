@@ -461,6 +461,7 @@
       case "z3": pgZ3(host); break;
       case "a317940": pgA317940(host); break;
       case "a300997": pgA300997(host); break;
+      case "wowii322": pgWowii322(host); break;
       case "coq": pgCoq(host, p.playground); break;
       default: host.appendChild(el("p", { class: "muted" }, "Explorer coming soon."));
     }
@@ -786,6 +787,101 @@
       el("button", { class: "btn primary", onclick: single }, "▶ Compute f(n)"),
       el("button", { class: "btn ghost", onclick: sweep }, "⤳ Sweep 1…n for positivity")));
     host.appendChild(out); single();
+  }
+
+  function pgWowii322(host) {
+    host.appendChild(el("p", { class: "muted" },
+      "Explore the proof of WOWII Conjecture 322 live. Enter a small graph; the checker brute-forces ",
+      "everything: connectivity, the local bound l(v) = α(G[N(v)]) at every vertex, and — by enumerating ",
+      "all minimal total dominating sets — whether the graph is well totally dominated. Watch how the ",
+      "hypothesis l(v) ≤ 1 forces the graph to be complete."));
+    const presets = {
+      "K₅ (complete)":            { n: 5, e: "0-1,0-2,0-3,0-4,1-2,1-3,1-4,2-3,2-4,3-4" },
+      "C₅ (5-cycle)":            { n: 5, e: "0-1,1-2,2-3,3-4,4-0" },
+      "P₅ (path)":               { n: 5, e: "0-1,1-2,2-3,3-4" },
+      "two triangles + bridge":  { n: 6, e: "0-1,1-2,2-0,3-4,4-5,5-3,2-3" },
+      "star K₁,₄":               { n: 5, e: "0-1,0-2,0-3,0-4" }
+    };
+    const nInp = el("input", { class: "search mono", type: "text", value: "5", style: "max-width:90px" });
+    const ta = el("textarea", { class: "coq-area", spellcheck: "false", rows: "3" });
+    ta.value = presets["K₅ (complete)"].e;
+    const out = el("div", { class: "live-out" });
+
+    function parse() {
+      const n = parseInt(nInp.value.trim(), 10);
+      if (!Number.isFinite(n) || n < 1 || n > 12) throw new Error("Use 1 ≤ n ≤ 12 (brute force is exponential).");
+      const adj = Array.from({ length: n }, () => new Array(n).fill(false));
+      ta.value.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean).forEach((pair) => {
+        const m = pair.split(/[-\s]+/).map(Number);
+        if (m.length !== 2 || m.some((x) => !Number.isInteger(x) || x < 0 || x >= n)) throw new Error("Bad edge '" + pair + "' (use u-v with 0 ≤ u,v < n).");
+        if (m[0] !== m[1]) { adj[m[0]][m[1]] = true; adj[m[1]][m[0]] = true; }
+      });
+      return { n, adj };
+    }
+    const nb = (adj, v, n) => { const r = []; for (let u = 0; u < n; u++) if (adj[v][u]) r.push(u); return r; };
+    function indepNumOfNeighborhood(adj, v, n) {
+      const N = nb(adj, v, n); let best = 0;
+      for (let mask = 0; mask < (1 << N.length); mask++) {
+        const set = []; for (let i = 0; i < N.length; i++) if (mask & (1 << i)) set.push(N[i]);
+        let ok = true;
+        for (let i = 0; i < set.length && ok; i++) for (let j = i + 1; j < set.length && ok; j++) if (adj[set[i]][set[j]]) ok = false;
+        if (ok) best = Math.max(best, set.length);
+      }
+      return best;
+    }
+    function isConnected(adj, n) {
+      if (n === 0) return false;
+      const seen = new Array(n).fill(false); const st = [0]; seen[0] = true; let c = 1;
+      while (st.length) { const v = st.pop(); for (let u = 0; u < n; u++) if (adj[v][u] && !seen[u]) { seen[u] = true; c++; st.push(u); } }
+      return c === n;
+    }
+    const isTDS = (adj, n, S) => { for (let v = 0; v < n; v++) { let ok = false; for (const w of S) if (adj[v][w]) { ok = true; break; } if (!ok) return false; } return true; };
+    function minimalTDSSizes(adj, n) {
+      const sizes = new Set(); let count = 0; const examples = [];
+      for (let mask = 1; mask < (1 << n); mask++) {
+        const S = []; for (let i = 0; i < n; i++) if (mask & (1 << i)) S.push(i);
+        if (!isTDS(adj, n, S)) continue;
+        let minimal = true;
+        for (const x of S) { if (isTDS(adj, n, S.filter((y) => y !== x))) { minimal = false; break; } }
+        if (minimal) { sizes.add(S.length); count++; if (examples.length < 4) examples.push("{" + S.join(",") + "}"); }
+      }
+      return { sizes: [...sizes].sort((a, b) => a - b), count, examples };
+    }
+    const go = () => {
+      out.innerHTML = "";
+      let g; try { g = parse(); } catch (e) { out.appendChild(bad(e.message)); return; }
+      const { n, adj } = g;
+      const conn = isConnected(adj, n);
+      let maxL = 0; for (let v = 0; v < n; v++) maxL = Math.max(maxL, indepNumOfNeighborhood(adj, v, n));
+      const hyp = maxL <= 1;
+      const r = minimalTDSSizes(adj, n);
+      const wtd = r.sizes.length <= 1;
+      out.appendChild(el("div", { class: "verdict " + (wtd ? "good" : "bad") },
+        wtd ? ("✓ Well totally dominated — every minimal total dominating set has size "
+               + (r.sizes[0] ?? "—") + " (" + r.count + " of them)")
+            : ("✗ NOT well totally dominated — minimal TDS sizes: {" + r.sizes.join(", ") + "}")));
+      const rows = [
+        ["connected", conn ? "yes" : "no"],
+        ["max over v of l(v) = α(G[N(v)])", String(maxL)],
+        ["hypothesis l(v) ≤ 1 for all v", hyp ? "holds ✓" : "fails ✗"],
+        ["n ≥ 5", n >= 5 ? "yes" : "no (conjecture assumes n ≥ 5)"],
+        ["minimal TDS examples", r.examples.join("  ") || "—"]
+      ];
+      const tbl = el("table", { class: "mini" });
+      rows.forEach(([k, v]) => tbl.appendChild(el("tr", {}, el("td", { class: "muted" }, k), el("td", { class: "mono" }, v))));
+      out.appendChild(tbl);
+      if (conn && hyp) out.appendChild(el("p", { class: "muted small" },
+        "Hypothesis holds and G is connected ⟹ by the theorem G is complete (Kₙ) and well totally dominated with total domination number 2 — matching the brute-force result above."));
+      else if (!hyp) out.appendChild(el("p", { class: "muted small" },
+        "Here l(v) ≤ 1 fails, so this graph is outside the conjecture's hypothesis — the checker still reports the true answer for it."));
+    };
+    host.appendChild(el("div", { class: "examples" }, el("span", { class: "muted" }, "Presets: "),
+      ...Object.keys(presets).map((k) => el("button", { class: "chip-btn", onclick: () => { nInp.value = presets[k].n; ta.value = presets[k].e; go(); } }, k))));
+    host.appendChild(el("div", { class: "row" }, el("span", { class: "muted small" }, "vertices n ="), nInp));
+    host.appendChild(el("p", { class: "muted small", style: "margin:.3em 0" }, "edges (u-v, comma/newline separated):"));
+    host.appendChild(ta);
+    host.appendChild(el("div", { class: "row" }, el("button", { class: "btn primary", onclick: go }, "▶ Check well total domination")));
+    host.appendChild(out); go();
   }
 
   function pgCoq(host, pg) {
