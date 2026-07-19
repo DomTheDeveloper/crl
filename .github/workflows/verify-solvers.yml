@@ -1,17 +1,12 @@
 name: Verify solvers (JS)
 
-# Re-checks the pure-JS engines that power the interactive site.
+# Paused from automatic PR execution while the Actions queue is being recovered.
 
 on:
-  pull_request:
-    paths:
-      - "math/assets/js/**"
-      - "tests/**"
-      - ".github/workflows/verify-solvers.yml"
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}
   cancel-in-progress: true
 
 permissions:
