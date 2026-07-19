@@ -1,24 +1,10 @@
 name: Exact A387471 kernel audit
 
 on:
-  push:
-    branches:
-      - audit/a387471-exact
-    paths:
-      - proofs/lean/A387471/**
-      - .github/workflows/a387471-exact-audit.yml
-  pull_request:
-    paths:
-      - proofs/lean/A387471/**
-      - .github/workflows/a387471-exact-audit.yml
   workflow_dispatch:
 
 permissions:
   contents: read
-
-concurrency:
-  group: exact-a387471-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   audit:
@@ -26,11 +12,9 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-
       - name: Independently cross-check the finite 60th-root certificate
         working-directory: proofs/lean/A387471
         run: python3 check_finite60.py
-
       - name: Install pinned Lean
         shell: bash
         run: |
@@ -38,7 +22,6 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-
       - name: Reject proof holes and unsafe shortcuts
         shell: bash
         run: |
@@ -48,22 +31,17 @@ jobs:
               proofs/lean/A387471; then
             exit 1
           fi
-
       - name: Resolve dependencies and fetch cache
         working-directory: proofs/lean/A387471
-        shell: bash
         run: |
-          set -euo pipefail
           lake update
           lake exe cache get
-
       - name: Build the complete proof stack
         working-directory: proofs/lean/A387471
         shell: bash
         run: |
           set -o pipefail
           lake build 2>&1 | tee build.log
-
       - name: Audit exact theorem axioms
         working-directory: proofs/lean/A387471
         shell: bash
@@ -78,10 +56,8 @@ jobs:
           EOF
           lake env lean AuditExact.lean 2>&1 | tee -a build.log
           if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' build.log; then
-            echo 'Disallowed axiom detected.' >&2
             exit 1
           fi
-
       - name: Upload exact transcript
         if: always()
         uses: actions/upload-artifact@v4
