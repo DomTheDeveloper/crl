@@ -1,0 +1,50 @@
+name: Isolated WOWII 322 slim audit
+
+on:
+  pull_request:
+    paths:
+      - 'ci/lean/WOWII322/**'
+      - '.github/workflows/wowii322-isolated-slim.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: isolated-wowii322-slim-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-slim
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependency and fetch cache
+        working-directory: ci/lean/WOWII322
+        run: |
+          lake update
+          lake exe cache get
+      - name: Compile and audit exact theorem
+        working-directory: ci/lean/WOWII322
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean Audit.lean 2>&1 | tee audit-slim.log
+          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' audit-slim.log; then
+            exit 1
+          fi
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wowii322-isolated-slim
+          path: ci/lean/WOWII322/audit-slim.log
+          if-no-files-found: warn
