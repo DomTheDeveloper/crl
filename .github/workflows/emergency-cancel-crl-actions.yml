@@ -2,7 +2,7 @@ name: Emergency cancel CRL Actions
 
 on:
   pull_request:
-    types: [synchronize]
+    types: [opened, reopened, synchronize]
 
 permissions:
   actions: write
