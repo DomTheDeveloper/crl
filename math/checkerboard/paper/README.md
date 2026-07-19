@@ -26,7 +26,7 @@ D_{\mathrm{mono}}(n)\le 2n-4\qquad(n\ge6).
 - `EMAIL_TO_PRELLBERG.md` - technical-review outreach draft; keep internal until explicit author approval.
 - `RELEASE_CHECKLIST.md` - gates for proof merge, archival release, outreach, and submission.
 
-The paper workflow runs both independent checkers, compiles `checkerboard-2n4.pdf`, and uploads it as a GitHub Actions artifact.
+The paper workflow runs both independent checkers, syntax-checks the Python, compiles `checkerboard-2n4.pdf`, rejects LaTeX and box warnings, and uploads the PDF as a GitHub Actions artifact.
 
 ## Build
 
