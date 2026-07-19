@@ -1,6 +1,6 @@
 name: Verify Lean proofs
 
-# One-shot queue cleanup for the stale PR #68 run.
+# One-shot queue cleanup for the stale PR #63 run.
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - ".github/workflows/verify-lean.yml"
 
 concurrency:
-  group: checkerboard-lean-Verify Lean proofs-refs/pull/68/merge
+  group: checkerboard-lean-Verify Lean proofs-refs/pull/63/merge
   cancel-in-progress: true
 
 permissions:
@@ -21,4 +21,4 @@ jobs:
     if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Cleared stale general Lean PR 68 queue entry."
+      - run: echo "Attempted stale general Lean PR 63 queue cleanup."
