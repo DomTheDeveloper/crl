@@ -1,20 +1,24 @@
 name: Verify checkerboard Lean proofs
 
 on:
-  push:
-    paths:
-      - "proofs/lean/Checkerboard/**"
-      - ".github/workflows/verify-checkerboard.yml"
   pull_request:
+    branches: [main]
     paths:
       - "proofs/lean/Checkerboard/**"
       - ".github/workflows/verify-checkerboard.yml"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   lean-checkerboard:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
