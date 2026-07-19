@@ -1,24 +1,10 @@
 name: Exact A387471 Windows audit
 
 on:
-  push:
-    branches:
-      - audit/a387471-exact
-    paths:
-      - proofs/lean/A387471/**
-      - .github/workflows/a387471-windows-audit.yml
-  pull_request:
-    paths:
-      - proofs/lean/A387471/**
-      - .github/workflows/a387471-windows-audit.yml
   workflow_dispatch:
 
 permissions:
   contents: read
-
-concurrency:
-  group: exact-a387471-windows-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   audit-windows:
@@ -26,18 +12,15 @@ jobs:
     timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
-
       - name: Cross-check finite certificate
         working-directory: proofs/lean/A387471
         run: python check_finite60.py
-
       - name: Install pinned Lean
         shell: pwsh
         run: |
           Invoke-WebRequest -Uri https://raw.githubusercontent.com/leanprover/elan/master/elan-init.ps1 -OutFile elan-init.ps1
           & powershell -ExecutionPolicy Bypass -File .\elan-init.ps1 -y --default-toolchain none
           "$env:USERPROFILE\.elan\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
       - name: Resolve dependencies and fetch cache
         working-directory: proofs/lean/A387471
         shell: pwsh
@@ -46,14 +29,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           lake exe cache get
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
       - name: Build complete proof stack
         working-directory: proofs/lean/A387471
         shell: pwsh
         run: |
           lake build 2>&1 | Tee-Object -FilePath build-windows.log
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
       - name: Audit exact theorem axioms
         working-directory: proofs/lean/A387471
         shell: pwsh
@@ -68,7 +49,6 @@ jobs:
           lake env lean AuditExactWindows.lean 2>&1 | Tee-Object -FilePath axioms-windows.log
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (Select-String -Path axioms-windows.log -Pattern 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce') { exit 1 }
-
       - name: Upload exact transcript
         if: always()
         uses: actions/upload-artifact@v4
