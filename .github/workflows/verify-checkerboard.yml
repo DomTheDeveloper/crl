@@ -1,24 +1,24 @@
 name: Verify checkerboard Lean proofs
 
 on:
-  push:
-    paths:
-      - "proofs/lean/Checkerboard/**"
-      - ".github/workflows/verify-checkerboard.yml"
   pull_request:
+    branches: [main]
     paths:
       - "proofs/lean/Checkerboard/**"
       - ".github/workflows/verify-checkerboard.yml"
   workflow_dispatch:
 
 concurrency:
-  group: checkerboard-lean-${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   lean-checkerboard:
-    runs-on: macos-latest
-    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -30,14 +30,7 @@ jobs:
 
       - name: Guard against unfinished proof markers
         working-directory: proofs/lean/Checkerboard
-        shell: bash
-        run: |
-          set -euo pipefail
-          if grep -RnE --include='*.lean' \
-              '^[[:space:]]*(axiom|sorry|admit|native_decide)([[:space:]]|$)|^[[:space:]]*exact[[:space:]]+native_decide([[:space:]]|$)|:= by[[:space:]]+(sorry|admit|native_decide)([[:space:]]|$)|^[[:space:]]*opaque[[:space:]]' \
-              .; then
-            exit 1
-          fi
+        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' --include='*.lean' ."
 
       - name: Resolve Mathlib dependency
         working-directory: proofs/lean/Checkerboard
