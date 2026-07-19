@@ -4,7 +4,7 @@ Status: internal draft only. Do not submit or request endorsement without explic
 
 ## Title
 
-The 2n-4 Bound for Checkerboard No-Three-in-Line Sets
+Quadratic Line-Cover Certificates and the 2n-4 Bound for Checkerboard No-Three-in-Line Sets
 
 ## Author
 
@@ -12,9 +12,9 @@ Dominic A. Dabish
 
 ## Affiliation
 
-Pending author choice. Current manuscript wording: `Independent researcher, San Diego, California, USA`.
+San Diego State University
 
-Potential institutional wording should be used only after the author confirms that the institution permits or desires attribution for this independent work.
+Confirm the final author email, department wording, ORCID, and institutional attribution requirements before submission.
 
 ## Primary category
 
@@ -33,7 +33,7 @@ Let D_mono(n) be the largest number of points that can be chosen from one parity
 
 ## Comments
 
-8 pages. Lean 4 formalization and two independent exact Python audits included in the associated repository. This paper proves the finite upper bound only; it does not determine exact values for all n or settle the conjectured all-slope asymptotic equality.
+9 pages, 15 references. Lean 4 formalization and two independent exact Python audits are included in the associated repository. This paper proves the finite upper bound only; it does not determine exact values for all n or settle the conjectured all-slope asymptotic equality.
 
 ## Journal reference
 
