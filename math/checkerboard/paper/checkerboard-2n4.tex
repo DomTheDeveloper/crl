@@ -4,11 +4,12 @@
 \usepackage{amsmath,amssymb,amsthm,mathtools}
 \usepackage{booktabs,array}
 \usepackage{microtype}
+\setlength{\emergencystretch}{1em}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
 
 \hypersetup{
-  pdftitle={The 2n-4 Bound for Checkerboard No-Three-in-Line Sets},
+  pdftitle={Quadratic Line-Cover Certificates and the 2n-4 Bound for Checkerboard No-Three-in-Line Sets},
   pdfauthor={Dominic A. Dabish},
   pdfsubject={Checkerboard no-three-in-line sets; quadratic line-cover certificates; Lean 4 formalization}
 }
@@ -23,8 +24,8 @@
 \newcommand{\Dmono}{D_{\mathrm{mono}}}
 \newcommand{\Lmono}{L_{\mathrm{mono}}}
 
-\title{The $2n-4$ Bound for Checkerboard No-Three-in-Line Sets}
-\author{Dominic A. Dabish\\\small Independent researcher, San Diego, California, USA}
+\title{Quadratic Line-Cover Certificates and the $2n-4$ Bound\\for Checkerboard No-Three-in-Line Sets}
+\author{Dominic A. Dabish\\\small San Diego State University}
 \date{July 2026}
 
 \begin{document}
@@ -41,7 +42,9 @@ For all odd and even boards outside two finite exceptions, the proof gives expli
 
 \section{Introduction}
 
-The classical no-three-in-line problem asks for the largest number of points that can be chosen from an $n\times n$ integer grid with no three collinear. It has a long history in recreational and extremal combinatorics; see, for example, Guy and Kelly~\cite{guy-kelly}, Adena, Holton, and Kelly~\cite{adena-holton-kelly}, and the recent account of Prellberg~\cite{prellberg-checkerboard}.
+The classical no-three-in-line problem asks for the largest number of points that can be chosen from an $n\times n$ integer grid with no three collinear. The problem goes back at least to Dudeney's 1917 chessboard puzzle~\cite{dudeney}. Its systematic study includes the foundational work of Guy and Kelly~\cite{guy-kelly}, Adena, Holton, and Kelly~\cite{adena-holton-kelly}, and Hall, Jackson, Sudbery, and Wild~\cite{hall-jackson-sudbery-wild}.
+
+The ordinary problem has developed along both structural and computational lines. Flammenkamp's searches produced extensive families of $2n$-point configurations and complete enumerations for small boards~\cite{flammenkamp-1992,flammenkamp-1998}; more recently, constraint-satisfaction methods extended the known equality $D(n)=2n$ through $n=60$~\cite{prellberg-csp}. Related directions include dense extensible subsets of the infinite grid~\cite{nagy-nagy-woodroofe} and the no-$(k+1)$-in-line problem, which has now been resolved for every fixed $k\ge3$ and all sufficiently large $n$~\cite{ghosal-et-al}. These developments emphasize the exceptional difficulty of the original capacity-two case.
 
 Write
 \[
@@ -67,7 +70,7 @@ He also recorded a boundary-forcing mechanism that suggests, but does not prove,
 \[
 \Dmono(n)\le 2n-4\qquad(n\ge6).
 \]
-We prove exactly this finite upper bound.
+His main framework is a four-direction linear-programming relaxation, together with symmetry reductions and a continuum dual problem. We prove the stated finite upper bound by constructing closed-form discrete dual certificates and treating the two residual board sizes exactly.
 
 The proof uses only a necessary consequence of the full NTIL condition: every row, column, slope-$1$ diagonal, and slope-$(-1)$ diagonal contains at most two selected points. A certificate using these four line families therefore gives an upper bound for the original all-slope problem; it does not replace collinearity by a four-direction definition.
 
@@ -78,6 +81,8 @@ For every integer $n\ge6$ and each $\varepsilon\in\{0,1\}$,
 \]
 Consequently $\Dmono(n)\le2n-4$ for every $n\ge6$.
 \end{theorem}
+
+The result is complementary to the continuum analysis in~\cite{prellberg-checkerboard}. Rather than passing to a scaling limit, we exhibit finite-board weights whose coverage and cost can be evaluated exactly. For $n\ge7$ these weights certify a strict fractional inequality; only the $6\times6$ board requires an additional integrality argument.
 
 The proof is elementary once the quadratic weights are found. The identity behind them is
 \begin{equation}\label{eq:master-identity}
@@ -290,7 +295,7 @@ The odd fat case holds for $n\ge7$, the odd thin case for $n\ge9$ with the separ
 
 \section{Formal verification and reproducibility}
 
-The complete theorem is formalized in Lean~4 with Mathlib. The public declaration is
+The complete theorem is formalized in Lean~4 with Mathlib~\cite{lean4,mathlib}. This use of a small trusted proof kernel follows the broader tradition of machine-checked discrete mathematics exemplified by the formal proofs of the Four Color Theorem and the Kepler conjecture~\cite{gonthier-four-color,hales-flyspeck}. The public declaration is
 \begin{verbatim}
 theorem Checkerboard.checkerboard_upper_all_n {n parity : Nat}
     (hn : 6 <= n) (hp : Or (parity = 0) (parity = 1))
@@ -340,10 +345,6 @@ To the author's knowledge, this is the first proof of the bound $\Dmono(n)\le2n-
 
 The Lean formalization, independent Python checkers, manuscript source, and reproducibility record are contained in the public repository \url{https://github.com/DomTheDeveloper/crl}. The proof branch and exact commit identifier are recorded in the accompanying reproducibility file. An archival release should be deposited before journal submission.
 
-\section*{AI assistance disclosure}
-
-OpenAI's ChatGPT assisted with proof exploration, Lean formalization, code generation, and manuscript editing. The named author remains responsible for the mathematical claims, source verification, and submitted text. The paper includes a human-readable proof, a kernel-checked Lean proof, and independent exact checkers for the finite computations.
-
 \appendix
 \section{Derivation of the line-weight sums}\label{app:sums}
 
@@ -387,12 +388,20 @@ D'_m
  =\frac{2N(4m-3)(4m-1)}3.
 \end{align*}
 
-\begin{thebibliography}{9}
+\begingroup
+\raggedright
+\begin{thebibliography}{99}
+
+\bibitem{dudeney}
+H. E. Dudeney,
+\newblock \emph{Amusements in Mathematics},
+\newblock Thomas Nelson and Sons, London, 1917, Puzzle 317.
 
 \bibitem{guy-kelly}
 R. K. Guy and P. A. Kelly,
 \newblock The no-three-in-line problem,
-\newblock \emph{Canadian Mathematical Bulletin} 11 (1968), 527--531.
+\newblock \emph{Canadian Mathematical Bulletin} 11 (1968), 527--531,
+\newblock \href{https://doi.org/10.4153/CMB-1968-062-3}{doi:10.4153/CMB-1968-062-3}.
 
 \bibitem{adena-holton-kelly}
 M. A. Adena, D. A. Holton, and P. A. Kelly,
@@ -400,10 +409,47 @@ M. A. Adena, D. A. Holton, and P. A. Kelly,
 \newblock in \emph{Combinatorial Mathematics}, Lecture Notes in Mathematics 403,
 Springer, 1974, pp. 6--17.
 
+\bibitem{hall-jackson-sudbery-wild}
+R. R. Hall, T. H. Jackson, A. Sudbery, and K. Wild,
+\newblock Some advances in the no-three-in-line problem,
+\newblock \emph{Journal of Combinatorial Theory, Series A} 18 (1975), 336--341,
+\newblock \href{https://doi.org/10.1016/0097-3165(75)90043-6}{doi:10.1016/0097-3165(75)90043-6}.
+
+\bibitem{flammenkamp-1992}
+A. Flammenkamp,
+\newblock Progress in the no-three-in-line problem,
+\newblock \emph{Journal of Combinatorial Theory, Series A} 60 (1992), 305--311,
+\newblock \href{https://doi.org/10.1016/0097-3165(92)90012-J}{doi:10.1016/0097-3165(92)90012-J}.
+
+\bibitem{flammenkamp-1998}
+A. Flammenkamp,
+\newblock Progress in the no-three-in-line problem, II,
+\newblock \emph{Journal of Combinatorial Theory, Series A} 81 (1998), 108--113,
+\newblock \href{https://doi.org/10.1006/jcta.1997.2829}{doi:10.1006/jcta.1997.2829}.
+
+\bibitem{prellberg-csp}
+T. Prellberg,
+\newblock Constraint satisfaction programming for the no-three-in-line problem,
+\newblock arXiv:2602.07751, 2026,
+\newblock \href{https://doi.org/10.48550/arXiv.2602.07751}{doi:10.48550/arXiv.2602.07751}.
+
+\bibitem{nagy-nagy-woodroofe}
+D. T. Nagy, Z. L. Nagy, and R. Woodroofe,
+\newblock The extensible no-three-in-line problem,
+\newblock \emph{European Journal of Combinatorics} 114 (2023), Paper 103796,
+\newblock \href{https://doi.org/10.1016/j.ejc.2023.103796}{doi:10.1016/j.ejc.2023.103796}.
+
+\bibitem{ghosal-et-al}
+A. Ghosal, R. Goenka, A. Grebennikov, P. Keevash, M. Kwan, and H. T. Pham,
+\newblock No-$(k+1)$-in-line problem for $k\ge3$,
+\newblock arXiv:2607.05255, 2026,
+\newblock \href{https://doi.org/10.48550/arXiv.2607.05255}{doi:10.48550/arXiv.2607.05255}.
+
 \bibitem{prellberg-checkerboard}
 T. Prellberg,
 \newblock No-three-in-line sets on the checkerboard grid,
-\newblock arXiv:2605.09215, 2026.
+\newblock arXiv:2605.09215, 2026,
+\newblock \href{https://doi.org/10.48550/arXiv.2605.09215}{doi:10.48550/arXiv.2605.09215}.
 
 \bibitem{schrijver}
 A. Schrijver,
@@ -414,13 +460,34 @@ A. Schrijver,
 L. de Moura and S. Ullrich,
 \newblock The Lean 4 theorem prover and programming language,
 \newblock in \emph{Automated Deduction -- CADE 28}, Lecture Notes in Computer Science 12699,
-Springer, 2021, pp. 625--635.
+Springer, 2021, pp. 625--635,
+\newblock \href{https://doi.org/10.1007/978-3-030-79876-5_37}{doi:10.1007/978-3-030-79876-5\_37}.
 
 \bibitem{mathlib}
 The Mathlib Community,
 \newblock The Lean mathematical library,
-\newblock in \emph{Proceedings of the 9th ACM SIGPLAN International Conference on Certified Programs and Proofs}, 2020, pp. 367--381.
+\newblock in \emph{Proceedings of the 9th ACM SIGPLAN International Conference on Certified Programs and Proofs}, 2020, pp. 367--381,
+\newblock \href{https://doi.org/10.1145/3372885.3373824}{doi:10.1145/3372885.3373824}.
+
+\bibitem{gonthier-four-color}
+G. Gonthier,
+\newblock Formal proof---the Four Color Theorem,
+\newblock \emph{Notices of the American Mathematical Society} 55 (2008), no. 11, 1382--1393.
+
+\bibitem{hales-flyspeck}
+T. Hales, M. Adams, G. Bauer, T. D. Dang, J. Harrison, L. T. Hoang,
+C. Kaliszyk, V. Magron, S. McLaughlin, T. T. Nguyen, Q. T. Nguyen,
+T. Nipkow, S. Obua, J. Pleso, J. Rute, A. Solovyev, T. H. A. Ta,
+N. T. Tran, T. D. Trieu, J. Urban, K. Vu, and R. Zumkeller,
+\newblock A formal proof of the Kepler conjecture,
+\newblock \emph{Forum of Mathematics, Pi} 5 (2017), e2,
+\newblock \href{https://doi.org/10.1017/fmp.2017.1}{doi:10.1017/fmp.2017.1}.
 
 \end{thebibliography}
+\endgroup
+
+\section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
+
+During the preparation of this work, the author used OpenAI ChatGPT to assist with proof exploration, development and review of Lean and Python code, literature organization, and improvements to the clarity and structure of the manuscript. After using this tool, the author reviewed and edited all material incorporated into the work, checked the cited sources, and takes full responsibility for the mathematical content and the final text. The system used was OpenAI ChatGPT with the GPT-5.6 Thinking model (accessed July 2026).
 
 \end{document}
