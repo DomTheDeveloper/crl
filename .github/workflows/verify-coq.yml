@@ -1,14 +1,12 @@
 name: Verify Coq proofs
 
+# Paused from automatic PR execution while the Actions queue is being recovered.
+
 on:
-  pull_request:
-    paths:
-      - "proofs/coq/**"
-      - ".github/workflows/verify-coq.yml"
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}
   cancel-in-progress: true
 
 permissions:
