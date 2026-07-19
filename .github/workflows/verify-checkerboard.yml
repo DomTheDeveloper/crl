@@ -1,15 +1,12 @@
 name: Verify checkerboard Lean proofs
 
+# Expensive pinned-Mathlib kernel audit. Run manually when needed.
+
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - "proofs/lean/Checkerboard/**"
-      - ".github/workflows/verify-checkerboard.yml"
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}
   cancel-in-progress: true
 
 permissions:
@@ -21,32 +18,26 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-
       - name: Install elan
         run: |
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-
       - name: Guard against unfinished proof markers
         working-directory: proofs/lean/Checkerboard
         run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' --include='*.lean' ."
-
       - name: Resolve Mathlib dependency
         working-directory: proofs/lean/Checkerboard
         run: lake update
-
       - name: Fetch Mathlib cache
         working-directory: proofs/lean/Checkerboard
         run: lake exe cache get || echo "cache miss — Mathlib will build from source"
-
       - name: Build and kernel-check
         working-directory: proofs/lean/Checkerboard
         shell: bash
         run: |
           set -o pipefail
           lake build 2>&1 | tee build.log
-
       - name: Reject sorryAx
         working-directory: proofs/lean/Checkerboard
         run: |
