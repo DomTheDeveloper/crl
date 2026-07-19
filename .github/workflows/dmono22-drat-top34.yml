@@ -51,12 +51,12 @@ jobs:
         run: |
           python3 emit_top_cnf.py 34 top34.cnf --manifest top34-manifest.json
           sha256sum top34.cnf top34-manifest.json | tee top34.sha256
-      - name: Produce DRAT proof
+      - name: Produce textual DRAT proof
         working-directory: math/checkerboard/n22_exact
         shell: bash
         run: |
           set +e
-          /usr/bin/time -v cadical top34.cnf top34.drat 2>&1 | tee top34-cadical.log
+          /usr/bin/time -v cadical --no-binary top34.cnf top34.drat 2>&1 | tee top34-cadical.log
           code=${PIPESTATUS[0]}
           set -e
           if [[ "$code" != 20 ]]; then
