@@ -1,19 +1,20 @@
 name: Verify checkerboard publication package
 
 on:
-  push:
-    paths:
-      - "math/checkerboard/paper/**"
-      - ".github/workflows/verify-checkerboard-paper.yml"
   pull_request:
+    branches:
+      - proof/checkerboard-all-n-clean
     paths:
       - "math/checkerboard/paper/**"
       - ".github/workflows/verify-checkerboard-paper.yml"
   workflow_dispatch:
 
 concurrency:
-  group: checkerboard-paper-${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   paper:
@@ -62,3 +63,4 @@ jobs:
           name: checkerboard-2n4-paper
           path: math/checkerboard/paper/checkerboard-2n4.pdf
           if-no-files-found: error
+          retention-days: 7
