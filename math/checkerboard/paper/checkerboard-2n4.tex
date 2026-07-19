@@ -2,7 +2,7 @@
 
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm,mathtools}
-\usepackage{booktabs}
+\usepackage{booktabs,array}
 \usepackage{microtype}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
@@ -116,7 +116,7 @@ q|S|
 The last assertion follows because $|S|$ is an integer.
 \end{proof}
 
-After division by $q$, this is precisely a feasible dual solution for Prellberg's four-direction linear-programming relaxation $\Lmono(n,\varepsilon)$~\cite{prellberg-checkerboard,schrijver}. For $n\ge7$, our certificates prove the stronger fractional statement
+Let $\Lmono(n,\varepsilon)$ denote the optimum of Prellberg's four-direction linear-programming relaxation. After division by $q$, the weights in Lemma~\ref{lem:certificate} are precisely a feasible solution of its dual~\cite{prellberg-checkerboard,schrijver}. For $n\ge7$, our certificates prove the stronger fractional statement
 \[
 \Lmono(n,\varepsilon)<2n-3,
 \]
@@ -192,7 +192,7 @@ because the quadratic factor is increasing for $m\ge4$ and equals $6$ at $m=4$. 
 \]
 for every odd thin board with $n\ge9$.
 
-\subsection{The exceptional thin $7\times7$ board}
+\subsection{The exceptional thin \texorpdfstring{$7\times7$}{7 x 7} board}
 
 It remains to treat $m=3$ in the thin class. Give weight $1$ to each boundary row or column with index $0$ or $6$. For each of the two diagonal families, indexed by $j\in\{0,\ldots,12\}$, define
 \[
@@ -262,7 +262,7 @@ because $2m^2-8m+3=2m(m-4)+3$. Therefore
 \]
 for every even board with $n\ge8$.
 
-\section{The $6\times6$ base case}\label{sec:n6}
+\section{The \texorpdfstring{$6\times6$}{6 x 6} base case}\label{sec:n6}
 
 Each parity class of the $6\times6$ board contains $18$ points. At $m=3$, the even quadratic certificate above has normalized cost
 \[
@@ -303,7 +303,7 @@ The predicate \texttt{NoThreeInLine} quantifies over every triple of distinct se
 
 The principal formal declarations corresponding to the paper are:
 \begin{center}
-\begin{tabular}{p{0.42\textwidth}p{0.48\textwidth}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.42\textwidth}>{\raggedright\arraybackslash}p{0.48\textwidth}}
 \toprule
 Mathematical component & Lean declaration\\
 \midrule
