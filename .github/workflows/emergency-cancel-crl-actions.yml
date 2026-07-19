@@ -1,9 +1,11 @@
 name: Emergency cancel CRL Actions
 
 on:
-  push:
-    branches:
-      - claude/gracious-hamilton-8k6xhz
+  workflow_run:
+    workflows:
+      - Emergency PR flush checkerboard queue
+    types:
+      - completed
 
 permissions:
   actions: write
