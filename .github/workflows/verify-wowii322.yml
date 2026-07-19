@@ -1,17 +1,15 @@
 name: Verify WOWII 322 Lean proof
 
+# Final audit only. Routine Lean iteration uses AXLE/local pinned Lean.
+
 on:
-  pull_request:
-    paths:
-      - math/wowii/322/**
-      - .github/workflows/verify-wowii322.yml
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: verify-wowii322-${{ github.ref }}
+  group: verify-wowii322
   cancel-in-progress: true
 
 jobs:
