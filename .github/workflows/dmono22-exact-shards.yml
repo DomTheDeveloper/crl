@@ -1,11 +1,12 @@
 name: Dmono22 exact SAT shards
 
+# This 136-job campaign is intentionally manual-only. Ordinary proof,
+# documentation, and certificate commits must not relaunch the full matrix.
 on:
-  push:
-    branches: [solve-dmono22-exact]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   exact-shard:
