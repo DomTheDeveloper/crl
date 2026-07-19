@@ -1,0 +1,19 @@
+name: Emergency Z3 queue flush
+
+on:
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: Verify Z3 (SMT)
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  flush-only:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Scheduler-only concurrency flush"
