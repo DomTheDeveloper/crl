@@ -12,18 +12,21 @@ Nothing in this checklist authorizes external contact or submission.
 ## Publication branch
 
 - [x] Main manuscript compiles locally without LaTeX or box warnings.
-- [x] Rendered PDF inspected at 180 DPI.
+- [x] All nine PDF pages rendered and visually inspected at 200 DPI.
 - [x] Exact quadratic formulas checked for `m = 1..100`.
 - [x] `6 x 6` enumeration checksum recorded.
 - [x] Exceptional thin `7 x 7` certificate independently checked.
+- [x] Title and San Diego State University affiliation applied consistently.
+- [x] Related-work discussion expanded and all 15 references audited.
+- [x] Standard generative-AI declaration added at the end of the paper, with GPT-5.6 Thinking identified in the final sentence.
 - [x] E-JC and arXiv internal checklists prepared.
 - [x] Technical-review email remains a repository draft only.
 - [ ] Publication PR CI completes and its PDF artifact is inspected.
 - [ ] A second person or the author completes `HUMAN_REVIEW_CHECKLIST.md`.
-- [ ] Author approves final name, affiliation, email, ORCID, and licensing.
+- [ ] Author approves final email, department wording, ORCID, and licensing.
 - [ ] Create a versioned GitHub release from the exact proof and paper commits.
 - [ ] Archive the release on Zenodo or another long-term repository and insert the DOI.
-- [ ] Repeat the prior-art search on the release date.
+- [ ] Repeat the prior-art and citation search on the release date.
 
 ## External actions requiring explicit author approval
 
