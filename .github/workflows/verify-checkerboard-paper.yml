@@ -26,6 +26,10 @@ jobs:
         working-directory: math/checkerboard/paper
         run: python3 verify_small_cases.py
 
+      - name: Audit quadratic certificates
+        working-directory: math/checkerboard/paper
+        run: python3 verify_quadratic_certificates.py
+
       - name: Install LaTeX
         run: |
           sudo apt-get update
