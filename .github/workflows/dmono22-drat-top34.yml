@@ -9,13 +9,19 @@ on:
       - 'math/checkerboard/n22_exact/n22_exact_core.py'
       - 'math/checkerboard/n22_exact/n22_data.py'
       - '.github/workflows/dmono22-drat-top34.yml'
+  pull_request:
+    paths:
+      - 'math/checkerboard/n22_exact/emit_top_cnf.py'
+      - 'math/checkerboard/n22_exact/n22_exact_core.py'
+      - 'math/checkerboard/n22_exact/n22_data.py'
+      - '.github/workflows/dmono22-drat-top34.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: dmono22-drat-top34
+  group: dmono22-drat-top34-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
