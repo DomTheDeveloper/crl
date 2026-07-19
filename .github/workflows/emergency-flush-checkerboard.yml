@@ -1,0 +1,18 @@
+name: Verify checkerboard Lean proofs
+
+on:
+  create:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  flush-only:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Scheduler-only concurrency flush"
