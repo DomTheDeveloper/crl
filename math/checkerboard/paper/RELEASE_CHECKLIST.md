@@ -6,13 +6,13 @@ Nothing in this checklist authorizes external contact or submission.
 
 - [ ] Clean PR #63 CI completes successfully on the exact head commit.
 - [ ] Review the axiom-audit output and archive it.
-- [ ] Correct the explanatory comment in `N6Base.lean` that describes the quadratic cover as having value nine; the displayed quadratic family has normalized value `47/5` at `n=6`. The theorem code is unaffected.
+- [x] Correct the explanatory comment in `N6Base.lean`: the displayed quadratic family has normalized value `47/5` at `n=6` and therefore does not exclude nine points. The theorem code is unchanged.
 - [ ] Merge PR #63 only after the author approves.
 
 ## Publication branch
 
-- [x] Main manuscript compiles locally.
-- [x] Rendered PDF inspected at 160 DPI.
+- [x] Main manuscript compiles locally without LaTeX or box warnings.
+- [x] Rendered PDF inspected at 180 DPI.
 - [x] Exact quadratic formulas checked for `m = 1..100`.
 - [x] `6 x 6` enumeration checksum recorded.
 - [x] Exceptional thin `7 x 7` certificate independently checked.
