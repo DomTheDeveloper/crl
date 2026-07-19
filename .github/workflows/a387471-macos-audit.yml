@@ -1,15 +1,9 @@
 name: Exact A387471 macOS audit
 
 on:
-  push:
-    branches:
-      - audit/a387471-exact
-    paths:
-      - proofs/lean/A387471/**
-      - .github/workflows/a387471-macos-audit.yml
   pull_request:
     paths:
-      - proofs/lean/A387471/**
+      - ci/lean/A387471/**
       - .github/workflows/a387471-macos-audit.yml
   workflow_dispatch:
 
@@ -26,11 +20,8 @@ jobs:
     timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
-
       - name: Cross-check finite certificate
-        working-directory: proofs/lean/A387471
-        run: python3 check_finite60.py
-
+        run: python3 ci/lean/A387471/check_finite60.py
       - name: Install pinned Lean
         shell: bash
         run: |
@@ -38,20 +29,17 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-
       - name: Resolve dependencies and cache
         working-directory: proofs/lean/A387471
         run: |
           lake update
           lake exe cache get
-
       - name: Build exact proof stack
         working-directory: proofs/lean/A387471
         shell: bash
         run: |
           set -o pipefail
           lake build 2>&1 | tee build-macos.log
-
       - name: Audit exact theorem axioms
         working-directory: proofs/lean/A387471
         shell: bash
@@ -68,7 +56,6 @@ jobs:
           if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' axioms-macos.log; then
             exit 1
           fi
-
       - name: Upload transcript
         if: always()
         uses: actions/upload-artifact@v4
