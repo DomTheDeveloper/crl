@@ -1,14 +1,12 @@
 name: Verify Z3 (SMT)
 
+# Paused from automatic PR execution while the Actions queue is being recovered.
+
 on:
-  pull_request:
-    paths:
-      - "tests/z3.mjs"
-      - ".github/workflows/verify-z3.yml"
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}
   cancel-in-progress: true
 
 permissions:
