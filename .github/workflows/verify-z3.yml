@@ -1,18 +1,23 @@
 name: Verify Z3 (SMT)
 
-# Runs the Z3 SMT solver (WebAssembly build) on a set of decisions and checks
-# the answers (sat/unsat), gating on any wrong result.
-
 on:
-  push:
-    paths: ["tests/z3.mjs", ".github/workflows/verify-z3.yml"]
   pull_request:
-    paths: ["tests/z3.mjs", ".github/workflows/verify-z3.yml"]
+    paths:
+      - "tests/z3.mjs"
+      - ".github/workflows/verify-z3.yml"
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   z3:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
