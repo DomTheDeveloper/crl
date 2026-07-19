@@ -24,7 +24,7 @@ The audit searched the exact theorem, its notation, the phrase `2n-4`, checkerbo
 - references and terminology in Prellberg's paper;
 - recent no-three-in-line literature through July 2026.
 
-No earlier public proof of the all-`n` inequality was located. The new proof is structurally different from the boundary-deficit sketch: it uses an explicit quadratic dual line cover with constant point coverage, plus exact finite exceptions at `n=6` and the thin `n=7` colour.
+The search was repeated after completion of the publication manuscript on 18 July 2026. No earlier public proof of the all-`n` inequality was located. The new proof is structurally different from the boundary-deficit sketch: it uses an explicit quadratic dual line cover with constant point coverage, plus exact finite exceptions at `n=6` and the thin `n=7` colour.
 
 ## Qualification
 
@@ -32,7 +32,7 @@ This establishes a strong, good-faith novelty basis, not an absolute priority gu
 
 > To the author's knowledge, this is the first proof of the bound proposed in Prellberg's paper.
 
-Before arXiv submission, the manuscript should be sent to Prellberg with a request for technical and priority review.
+Before public submission, repeat the search and obtain independent human review. Any technical-review outreach remains optional and requires explicit author approval.
 
 ## Scope boundary
 
