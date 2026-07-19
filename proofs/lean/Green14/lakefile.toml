@@ -1,7 +1,0 @@
-name = "green14_audit"
-defaultTargets = []
-
-[[require]]
-name = "formal_conjectures"
-git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
-rev = "598c479ea913db4878f83ae58cc8605696364278"
