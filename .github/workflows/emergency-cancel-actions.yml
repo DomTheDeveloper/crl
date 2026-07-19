@@ -1,0 +1,53 @@
+name: Emergency cancel Actions
+
+on:
+  create:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: emergency-cancel-actions
+  cancel-in-progress: true
+
+jobs:
+  cancel:
+    if: github.ref_type == 'branch' && startsWith(github.ref, 'actions-circuit-breaker-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Cancel every other active workflow run in this repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          CURRENT_RUN_ID: ${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t run_ids < <(
+            gh api --paginate "repos/${GH_REPO}/actions/runs?per_page=100" \
+              --jq '.workflow_runs[] | select(.status != "completed") | .id'
+          )
+
+          for run_id in "${run_ids[@]}"; do
+            [[ "$run_id" == "$CURRENT_RUN_ID" ]] && continue
+            echo "Requesting cancellation of run $run_id"
+            gh api --method POST "repos/${GH_REPO}/actions/runs/${run_id}/cancel" >/dev/null 2>&1 || true
+          done
+
+          sleep 15
+
+          mapfile -t stubborn_ids < <(
+            gh api --paginate "repos/${GH_REPO}/actions/runs?per_page=100" \
+              --jq '.workflow_runs[] | select(.status != "completed") | .id'
+          )
+
+          for run_id in "${stubborn_ids[@]}"; do
+            [[ "$run_id" == "$CURRENT_RUN_ID" ]] && continue
+            echo "Force-canceling stubborn run $run_id"
+            gh api --method POST "repos/${GH_REPO}/actions/runs/${run_id}/force-cancel" >/dev/null 2>&1 || true
+          done
+
+          echo "Cancellation sweep complete for ${GH_REPO}."
