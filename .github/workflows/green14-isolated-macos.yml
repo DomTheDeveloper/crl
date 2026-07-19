@@ -1,0 +1,51 @@
+name: Isolated Green14 macOS audit
+
+on:
+  pull_request:
+    paths:
+      - 'proofs/lean/Green14/**'
+      - '.github/workflows/green14-isolated-macos.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: isolated-green14-macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: macos-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve exact proof dependency
+        working-directory: proofs/lean/Green14
+        run: lake update
+      - name: Fetch Mathlib cache
+        working-directory: proofs/lean/Green14
+        run: lake exe cache get
+      - name: Compile exact catalog theorems and print axioms
+        working-directory: proofs/lean/Green14
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean Audit.lean 2>&1 | tee audit.log
+          if grep -q 'sorryAx' audit.log; then
+            exit 1
+          fi
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: green14-isolated-macos
+          path: proofs/lean/Green14/audit.log
+          if-no-files-found: warn
