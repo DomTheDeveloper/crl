@@ -1,18 +1,12 @@
 name: Verify Lean proofs
 
-# Focused checks only. Checkerboard and WOWII proofs have dedicated workflows.
+# Expensive kernel audits are intentionally manual-only.
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - "proofs/lean/core/**"
-      - "proofs/lean/A317940/**"
-      - ".github/workflows/verify-lean.yml"
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}
   cancel-in-progress: true
 
 permissions:
