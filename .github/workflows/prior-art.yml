@@ -1,16 +1,13 @@
 name: Prior-art check (A317940)
 
-# Deep prior-art crawl for the A317940 nonnegativity proof. Runs on demand and
-# weekly. Uses the default GITHUB_TOKEN for the code/issue search API and has
-# full network for OEIS + arXiv (unlike a sandbox). Fails loudly if any source
-# turns up a candidate prior proof, and uploads the JSON report as an artifact.
+# Network-heavy literature crawl. Run manually when preparing a release.
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 6 * * 1"   # Mondays 06:00 UTC
-  push:
-    paths: ["tools/prior-art/**", ".github/workflows/prior-art.yml"]
+
+concurrency:
+  group: prior-art-a317940
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -18,6 +15,7 @@ permissions:
 jobs:
   prior-art:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -40,3 +38,4 @@ jobs:
         with:
           name: prior-art-report
           path: math/a317940/prior-art-report.json
+          retention-days: 7
