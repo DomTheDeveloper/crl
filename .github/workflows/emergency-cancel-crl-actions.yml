@@ -1,8 +1,9 @@
 name: Emergency cancel CRL Actions
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
+  push:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
 
 permissions:
   actions: write
