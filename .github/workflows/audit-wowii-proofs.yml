@@ -1,19 +1,13 @@
 name: Audit WOWII Lean proofs
 
+# Full cross-repository kernel audit. Run manually for release candidates.
+
 on:
-  push:
-    branches:
-      - claude/gracious-hamilton-8k6xhz
-    paths:
-      - math/wowii/**
-      - .github/workflows/audit-wowii-proofs.yml
-  pull_request:
-    branches:
-      - claude/gracious-hamilton-8k6xhz
-    paths:
-      - math/wowii/**
-      - .github/workflows/audit-wowii-proofs.yml
   workflow_dispatch:
+
+concurrency:
+  group: wowii-full-audit
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -94,9 +88,7 @@ jobs:
       - name: Download Mathlib cache
         shell: bash
         working-directory: formal-conjectures
-        run: |
-          set -euo pipefail
-          lake exe cache get
+        run: lake exe cache get
 
       - name: Compile CRL-hosted WOWII 65 proof
         shell: bash
@@ -128,3 +120,4 @@ jobs:
           name: wowii-lean-audit
           path: formal-conjectures/wowii-audit.log
           if-no-files-found: warn
+          retention-days: 7
