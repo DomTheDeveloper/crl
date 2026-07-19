@@ -1,13 +1,8 @@
 name: Sync and deploy GitHub Pages
 
+# Temporarily manual-only during branch recovery. The main-branch trigger is restored after merge.
+
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - ".github/**"
-      - "proofs/lean/**"
-      - "ci/**"
   workflow_dispatch:
 
 permissions:
