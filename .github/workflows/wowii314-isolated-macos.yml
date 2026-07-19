@@ -3,7 +3,7 @@ name: Isolated WOWII 314 macOS audit
 on:
   pull_request:
     paths:
-      - 'proofs/lean/WOWII314/**'
+      - 'ci/lean/WOWII314/**'
       - '.github/workflows/wowii314-isolated-macos.yml'
   workflow_dispatch:
 
@@ -28,13 +28,13 @@ jobs:
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Resolve exact proof dependency
-        working-directory: proofs/lean/WOWII314
+        working-directory: ci/lean/WOWII314
         run: lake update
       - name: Fetch Mathlib cache
-        working-directory: proofs/lean/WOWII314
+        working-directory: ci/lean/WOWII314
         run: lake exe cache get
       - name: Compile and audit exact catalog theorem
-        working-directory: proofs/lean/WOWII314
+        working-directory: ci/lean/WOWII314
         shell: bash
         run: |
           set -o pipefail
@@ -47,5 +47,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wowii314-isolated-macos
-          path: proofs/lean/WOWII314/audit.log
+          path: ci/lean/WOWII314/audit.log
           if-no-files-found: warn
