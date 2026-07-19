@@ -1,20 +1,30 @@
 name: Dmono22 exact SAT shards
 
-# This 136-job campaign is intentionally manual-only. Ordinary proof,
-# documentation, and certificate commits must not relaunch the full matrix.
+# Extremely expensive 136-job campaign. Manual confirmation is mandatory.
+
 on:
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type RUN_136_SHARDS to authorize the full campaign"
+        required: true
+        type: string
+
+concurrency:
+  group: dmono22-exact-shards
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
   exact-shard:
+    if: ${{ inputs.confirm == 'RUN_136_SHARDS' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 330
+    timeout-minutes: 180
     strategy:
       fail-fast: false
-      max-parallel: 20
+      max-parallel: 4
       matrix:
         top: [12,18,20,24,34,36,40,48,66,68,72,80,96,130,132,136,144]
         shard: [0,1,2,3,4,5,6,7]
@@ -42,3 +52,4 @@ jobs:
           name: dmono22-${{ matrix.top }}-${{ matrix.shard }}
           path: math/checkerboard/n22_exact/double_${{ matrix.top }}_${{ matrix.shard }}.jsonl
           if-no-files-found: error
+          retention-days: 3
