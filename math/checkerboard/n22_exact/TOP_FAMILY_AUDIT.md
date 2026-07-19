@@ -15,6 +15,29 @@ VeriPB replay.  The dedicated top-34 CaDiCaL/DRAT workflow is intended to
 replace the 82 branch-level UNSAT claims by one independently checked proof of
 the unsplit top-34 CNF.
 
+## Top mask 12
+
+- shards: 8/8 closed;
+- expected left masks: 43/43 covered exactly once;
+- direct left-level UNSAT results: 40;
+- right-boundary UNSAT results: 150;
+- terminal leaf UNSAT results: 0;
+- unknown branches: 0;
+- total recorded solver time: 5,522.086 seconds.
+
+Artifact ZIP SHA-256 values:
+
+```text
+fa4e1d8bd4d600b8a92e38f0ff7f4613d4ed399195c7ed005c07ffc31737e1f5  dmono22-12-0.zip
+8f1be14c03b74fdd3e9ae00418f7fc35c4e867ba581a17c0d76010f639f1feef  dmono22-12-1.zip
+c7f44d8290c6d78c992746a2bfb23f86c652e17028a807f9238577cb52f7b36f  dmono22-12-2.zip
+795a996a3286bf3a4c1e8ddbe49750197776edbfb818d624fd9a166986505607  dmono22-12-3.zip
+f7edb4254473e206c639e367cfa705e416971adb849c7e1f1ed9caec78267045  dmono22-12-4.zip
+b6c2e055f50fcf08678e6fb12d09f7176f2eb996d822ef1e11f7faa1680ebc7a  dmono22-12-5.zip
+bac9eb6d5865406881db3b28f47e350c6baf0e8eab9fa1bedc79ebc66e824435  dmono22-12-6.zip
+f0a343edc7d752457ba675134b0327e73e6edf7e1abcd7b415c1c44c32339b33  dmono22-12-7.zip
+```
+
 ## Top mask 34
 
 - shards: 8/8 closed;
@@ -67,6 +90,7 @@ bb8fa947a8708172a5e1926e97809d4beaa7814b61a0f51fe8b5bfeb80c68187  dmono22-24-7.z
 After downloading and extracting the eight artifacts for a top mask:
 
 ```bash
+python3 audit_shard_manifests.py 12 'double_12_*.jsonl'
 python3 audit_shard_manifests.py 34 'double_34_*.jsonl'
 python3 audit_shard_manifests.py 24 'double_24_*.jsonl'
 ```
