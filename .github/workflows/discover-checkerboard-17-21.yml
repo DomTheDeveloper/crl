@@ -1,16 +1,12 @@
 name: Verify checkerboard 17x17 and 21x21 constructions
 
+# Four-way SAT reconstruction. Run manually when certificates change.
+
 on:
-  pull_request:
-    branches:
-      - claude/gracious-hamilton-8k6xhz
-    paths:
-      - math/checkerboard/finite_certificates/**
-      - .github/workflows/discover-checkerboard-17-21.yml
   workflow_dispatch:
 
 concurrency:
-  group: checkerboard-constructions-${{ github.ref }}
+  group: checkerboard-constructions
   cancel-in-progress: true
 
 permissions:
@@ -79,8 +75,6 @@ jobs:
           stem="construction/n${N}-p${PARITY}-k${TARGET}"
           mkdir -p "$(dirname "$stem")"
 
-          # Checker 1: enumerate every selected triple and evaluate its exact
-          # integer determinant against independently regenerated point metadata.
           python3 "$root/generate_cnf.py" --n "$N" --parity "$PARITY" --at-least "$TARGET" \
             --cnf "$stem.search.cnf" --metadata "$stem.search.metadata.json" \
             | tee "$stem.search-generator.log"
@@ -88,15 +82,8 @@ jobs:
             --metadata "$stem.search.metadata.json" | tee "$stem.search-semantic-check.log"
           python3 "$root/check_model.py" --metadata "$stem.search.metadata.json" \
             --coordinates "$cert" | tee "$stem.determinant-check.log"
-
-          # Checker 2: normalize the exact integer equation of every line
-          # determined by a selected pair and reject any repeated line key.
           python3 "$root/check_coordinates_independent.py" "$cert" \
             | tee "$stem.line-key-check.log"
-
-          # A fixed CNF includes every all-slope collinearity clause plus one
-          # unit clause for every eligible board point. It is SAT exactly when
-          # this stored construction is valid.
           python3 "$root/generate_fixed_construction_cnf.py" "$cert" \
             "$stem.fixed.cnf" "$stem.fixed.metadata.json" \
             | tee "$stem.fixed-generator.log"
@@ -130,8 +117,6 @@ jobs:
           printf 'solver\tstatus\texit_code\nCaDiCaL\t%s\t%s\nKissat\t%s\t%s\n' \
             "$cadical_status" "$cadical_code" "$kissat_status" "$kissat_code" \
             | tee "$stem.solvers.tsv"
-
-          # TIMEOUT, UNKNOWN output, and solver errors are no result.
           [[ "$cadical_status" == SAT ]]
           [[ "$kissat_status" == SAT ]]
           sha256sum "$stem".* | tee "$stem.sha256"
@@ -142,3 +127,4 @@ jobs:
           name: checkerboard-construction-n${{ matrix.n }}-p${{ matrix.parity }}
           path: construction/
           if-no-files-found: error
+          retention-days: 7
