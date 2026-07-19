@@ -9,11 +9,12 @@ D_{\mathrm{mono}}(n)\le 2n-4\qquad(n\ge6).
 ## Files
 
 - `checkerboard-2n4.tex` - publication manuscript.
-- `checkerboard-2n4.pdf` - rendered manuscript.
 - `verify_small_cases.py` - exact standard-library verification of the `n=6` base cases and the exceptional thin `n=7` certificate.
 - `REPRODUCIBILITY.md` - theorem, commit, toolchain, workflow, and axiom-audit record.
 - `EMAIL_TO_PRELLBERG.md` - technical-review outreach draft.
 - `ARXIV_METADATA.md` - proposed submission metadata and scope language.
+
+The paper workflow compiles `checkerboard-2n4.pdf` and uploads it as a GitHub Actions artifact.
 
 ## Build
 
