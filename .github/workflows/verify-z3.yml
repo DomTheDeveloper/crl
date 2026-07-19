@@ -1,9 +1,9 @@
 name: Verify Z3 (SMT)
 
-# Paused from automatic PR execution while the Actions queue is being recovered.
-
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - claude/gracious-hamilton-8k6xhz
 
 concurrency:
   group: ${{ github.workflow }}
@@ -13,18 +13,8 @@ permissions:
   contents: read
 
 jobs:
-  z3:
+  flush-only:
+    if: ${{ false }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - name: Install Z3 (WASM)
-        run: |
-          npm init -y >/dev/null 2>&1
-          npm pkg set type=module >/dev/null 2>&1
-          npm install z3-solver@4.16.0
-      - name: Run Z3 checks
-        run: node tests/z3.mjs
+      - run: echo "Scheduler-only queue flush"
