@@ -1,0 +1,7 @@
+name = "wowii314_audit"
+defaultTargets = []
+
+[[require]]
+name = "formal_conjectures"
+git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
+rev = "222545b6732ea605364445e09f0a173e7eb2103c"

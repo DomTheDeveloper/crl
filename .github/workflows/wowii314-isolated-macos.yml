@@ -1,0 +1,51 @@
+name: Isolated WOWII 314 macOS audit
+
+on:
+  pull_request:
+    paths:
+      - 'proofs/lean/WOWII314/**'
+      - '.github/workflows/wowii314-isolated-macos.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: isolated-wowii314-macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: macos-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve exact proof dependency
+        working-directory: proofs/lean/WOWII314
+        run: lake update
+      - name: Fetch Mathlib cache
+        working-directory: proofs/lean/WOWII314
+        run: lake exe cache get
+      - name: Compile and audit exact catalog theorem
+        working-directory: proofs/lean/WOWII314
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean Audit.lean 2>&1 | tee audit.log
+          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' audit.log; then
+            exit 1
+          fi
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wowii314-isolated-macos
+          path: proofs/lean/WOWII314/audit.log
+          if-no-files-found: warn
