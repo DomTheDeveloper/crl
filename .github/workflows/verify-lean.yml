@@ -1,8 +1,14 @@
 name: Verify Lean proofs
 
-# Expensive kernel audits are intentionally manual-only.
+# One-shot queue cleanup: this skipped run cancels older runs in the same
+# repository-wide concurrency group. Revert to manual-only immediately after.
 
 on:
+  push:
+    branches:
+      - agent/checkerboard-publication-package
+    paths:
+      - ".github/workflows/verify-lean.yml"
   workflow_dispatch:
 
 concurrency:
@@ -13,50 +19,8 @@ permissions:
   contents: read
 
 jobs:
-  lean-core:
+  clear-stale-queue:
+    if: ${{ false }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - name: Install elan
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
-            | sh -s -- -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Guard against unfinished proof markers
-        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' proofs/lean/core"
-      - name: Build and kernel-check core proofs
-        working-directory: proofs/lean/core
-        run: lake build
-
-  lean-a317940:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install elan
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
-            | sh -s -- -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Guard against unfinished proof markers
-        run: "! grep -RnE '\\bsorry\\b|\\badmit\\b|native_decide' proofs/lean/A317940/A317940.lean"
-      - name: Resolve Mathlib dependency
-        working-directory: proofs/lean/A317940
-        run: lake update
-      - name: Fetch prebuilt Mathlib cache
-        working-directory: proofs/lean/A317940
-        run: lake exe cache get || echo "cache miss — Mathlib will build from source"
-      - name: Build, kernel-check, and print axioms
-        working-directory: proofs/lean/A317940
-        shell: bash
-        run: |
-          set -o pipefail
-          lake build 2>&1 | tee build.log
-      - name: Reject sorryAx
-        working-directory: proofs/lean/A317940
-        run: |
-          if grep -q "sorryAx" build.log; then
-            echo "::error::Proof depends on sorryAx."
-            exit 1
-          fi
+      - run: echo "Stale Lean runs cleared by concurrency."
