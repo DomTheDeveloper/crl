@@ -1,33 +1,27 @@
 name: Dmono22 top-34 DRAT certificate
 
+# Expensive proof generation. Manual confirmation is mandatory.
+
 on:
-  push:
-    branches:
-      - solve-dmono22-exact
-    paths:
-      - 'math/checkerboard/n22_exact/emit_top_cnf.py'
-      - 'math/checkerboard/n22_exact/n22_exact_core.py'
-      - 'math/checkerboard/n22_exact/n22_data.py'
-      - '.github/workflows/dmono22-drat-top34.yml'
-  pull_request:
-    paths:
-      - 'math/checkerboard/n22_exact/emit_top_cnf.py'
-      - 'math/checkerboard/n22_exact/n22_exact_core.py'
-      - 'math/checkerboard/n22_exact/n22_data.py'
-      - '.github/workflows/dmono22-drat-top34.yml'
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type RUN_TOP34_DRAT to authorize this proof job"
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: dmono22-drat-top34-${{ github.ref }}
-  cancel-in-progress: false
+  group: dmono22-drat-top34
+  cancel-in-progress: true
 
 jobs:
   certify:
+    if: ${{ inputs.confirm == 'RUN_TOP34_DRAT' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -90,3 +84,4 @@ jobs:
             math/checkerboard/n22_exact/top34-cadical.log
             math/checkerboard/n22_exact/top34-drat-check.log
           if-no-files-found: warn
+          retention-days: 3
