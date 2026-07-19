@@ -1,0 +1,7 @@
+name = "voronovskaja_audit"
+defaultTargets = []
+
+[[require]]
+name = "formal_conjectures"
+git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
+rev = "a862193a427425f6c8ff36bfd1518d0f3aea0eee"

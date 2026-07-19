@@ -1,0 +1,4 @@
+import FormalConjectures.Paper.VoronovskajaTypeFormula
+
+#check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
+#print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
