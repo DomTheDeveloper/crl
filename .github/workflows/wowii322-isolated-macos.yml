@@ -7,13 +7,17 @@ on:
     paths:
       - 'proofs/lean/WOWII322/**'
       - '.github/workflows/wowii322-isolated-macos.yml'
+  pull_request:
+    paths:
+      - 'proofs/lean/WOWII322/**'
+      - '.github/workflows/wowii322-isolated-macos.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: isolated-wowii322-macos
+  group: isolated-wowii322-macos-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
