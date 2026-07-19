@@ -1,16 +1,12 @@
 name: Verify checkerboard publication package
 
+# Full paper build and artifact upload. Run manually for release candidates.
+
 on:
-  pull_request:
-    branches:
-      - proof/checkerboard-all-n-clean
-    paths:
-      - "math/checkerboard/paper/**"
-      - ".github/workflows/verify-checkerboard-paper.yml"
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}
   cancel-in-progress: true
 
 permissions:
@@ -22,29 +18,23 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-
       - name: Run exact finite checker
         working-directory: math/checkerboard/paper
         run: python3 verify_small_cases.py
-
       - name: Audit quadratic certificates
         working-directory: math/checkerboard/paper
         run: python3 verify_quadratic_certificates.py
-
       - name: Compile Python checkers
         working-directory: math/checkerboard/paper
         run: python3 -m py_compile verify_small_cases.py verify_quadratic_certificates.py
-
       - name: Install LaTeX
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             latexmk texlive-latex-base texlive-latex-extra texlive-fonts-recommended
-
       - name: Compile manuscript
         working-directory: math/checkerboard/paper
         run: latexmk -pdf -interaction=nonstopmode -halt-on-error checkerboard-2n4.tex
-
       - name: Reject manuscript warnings
         working-directory: math/checkerboard/paper
         run: |
@@ -52,11 +42,9 @@ jobs:
             echo "Manuscript build contains a LaTeX or box warning."
             exit 1
           fi
-
       - name: Check manuscript output
         working-directory: math/checkerboard/paper
         run: test -s checkerboard-2n4.pdf
-
       - name: Upload manuscript PDF
         uses: actions/upload-artifact@v4
         with:
