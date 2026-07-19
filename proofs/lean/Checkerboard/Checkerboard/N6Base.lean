@@ -3,9 +3,9 @@ import Checkerboard.FourCertificate
 /-!
 # The final 6×6 base cases
 
-The uniform quadratic cover is sharp at value nine on the 6-board, so an
-integrality argument is required. Each color class has eighteen points. We
-transport an arbitrary monochromatic set to eighteen Boolean variables, and
+The uniform quadratic cover does not exclude nine points on the 6-board, so a
+finite integrality argument is required. Each color class has eighteen points.
+We transport an arbitrary monochromatic set to eighteen Boolean variables, and
 `bv_decide` checks the finite statement that row, column, and slope `±1`
 capacities already force at most eight selected points.
 -/

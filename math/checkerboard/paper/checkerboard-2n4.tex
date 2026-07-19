@@ -1,0 +1,20 @@
+\makeatletter
+\newcommand{\checkerboard@sectionstar}[1]{%
+  \ifstrequal{#1}{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}%
+    {\end{document}}%
+    {\checkerboard@oldsection*{#1}}%
+}
+\newcommand{\checkerboard@acknowledgments}{%
+  \section*{Acknowledgments}%
+  The author thanks the mathematicians and members of the mathematical community who offered helpful tips, suggestions, and informal feedback that sharpened the presentation and proof strategy.\par
+  \begingroup\small
+  \noindent\textit{AI-assisted preparation.} Generative AI assisted with proof exploration, Lean and Python code review, literature organization, and editorial refinement. The author independently reviewed the mathematics, citations, code, and final text and assumes full responsibility for the work. OpenAI ChatGPT, GPT-5.6 Thinking (July 2026).\par
+  \endgroup
+}
+\AtBeginDocument{%
+  \let\checkerboard@oldsection\section
+  \renewcommand{\section}{\@ifstar\checkerboard@sectionstar\checkerboard@oldsection}%
+  \pretocmd{\thebibliography}{\checkerboard@acknowledgments}{}{}%
+}
+\makeatother
+\input{checkerboard-2n4-body.tex}
