@@ -33,13 +33,15 @@ For smooth `w ≥ 0`, define
 \[
 \mathcal B_T^rw=\sum_{|\alpha|=r}w(x_{T,\alpha})B_{T,\alpha}.
 \]
-The sampled face data agree from both adjacent elements, so the operator is conforming; compact support gives zero boundary traces on sufficiently fine meshes. Fixed-degree affine reproduction and scaling give strong `H^1` approximation for each smooth `w`.
+The sampled face data agree from both adjacent elements, so the operator is conforming; compact support gives zero boundary traces. Fixed-degree affine reproduction and scaling give strong `H^1` approximation for each smooth `w` through a dimension-safe `W^{2,∞}` estimate.
 
-Nonnegative `C_c^∞(Ω)` functions are dense in the positive cone of `H_0^1`: approximate, take positive parts, then mollify with a nonnegative kernel inside the domain. A diagonal sequence proves Mosco recovery. The weak-limit condition follows from closed convexity of `K`. Hence
+Nonnegative `C_c^∞(Ω)` functions are dense in the positive cone of `H_0^1`: approximate, take positive parts, then mollify with a nonnegative kernel inside the domain. A monotone diagonal sequence proves Mosco recovery. The weak-limit condition follows from closed convexity of `K`. Hence
 \[
 K_h^B\xrightarrow{M}K.
 \]
-For a symmetric continuous coercive quadratic energy, recovery, weak lower semicontinuity, uniqueness, and convergence of the energy norm imply strong convergence of minimizers.
+For a symmetric continuous coercive quadratic energy, recovery, weak lower semicontinuity, uniqueness, energy convergence, and coercivity imply strong convergence of minimizers.
+
+The complete moving-space proof is in `GENERAL_MOSCO_PUBLICATION_PROOF.md`. The general theorem is valid in every fixed finite dimension because point sampling is used only on smooth recovery functions.
 
 ---
 
@@ -55,7 +57,7 @@ Affine reproduction gives
 \qquad
 \sum_j(A_r)_{\alpha j}x_j=x_\alpha.
 \]
-Taylor expansion therefore cancels the constant and linear terms and yields
+Taylor expansion therefore cancels the constant and linear terms and yields, on elements where `v` has a uniform `C^{1,1}` bound,
 \[
 |b_{T,\alpha}(I_T^rv)-v(x_{T,\alpha})|
 \le C_{r,\mathrm{shape}}h_T^2\operatorname{Lip}(\nabla v).
@@ -65,6 +67,8 @@ The general barycentric-lattice unisolvence theorem is proved separately; finite
 ---
 
 ## 3. Corrected regular-free-boundary theorem
+
+The intended mechanics statement is for `d = 2` or `d = 3` and fixed degree `r ≥ 1`. More generally, it applies whenever the pointwise barycentric interpolation is well defined, for example under `r + 1 > d/2`, together with the local `C^{1,1}` hypotheses below.
 
 Assume:
 
@@ -89,15 +93,17 @@ Assume:
   c_mh_\Gamma\le h_T\le C_mh_\Gamma,
   \qquad |\omega_h|\le C_\Gamma h_\Gamma;
   \]
-- either a contact collar separates the physical boundary, or positive boundary elements satisfy a uniform inward linear lower bound.
+- either a contact collar separates the physical boundary, or positive boundary elements lie in a collar with a uniform `C^{1,1}` bound and a uniform inward linear lower bound.
 
 The local-distance definition is essential. A strip defined only with a single `h_Γ` does not control larger transition elements under shape regularity alone.
 
 ### Localization
 
-For a positive element outside `R_h`, every barycentric node is at distance at least `cκh_T` from `Γ`. Quadratic nondegeneracy gives a positive value of order `h_T^2`, while the coefficient discrepancy is at most `Ch_T^2`; choosing `κ` large gives nonnegative coefficients. Contact-interior elements interpolate zero.
+For a positive element outside `R_h` and still inside the quadratic-growth neighborhood, every barycentric node is at distance at least `κh_T` from `Γ`. Quadratic nondegeneracy gives a positive value of order `h_T^2`, while the coefficient discrepancy is at most `Ch_T^2`; choosing `κ` large gives nonnegative coefficients. Contact-interior elements interpolate zero.
 
-For a positive boundary element, coefficients on the boundary face are exactly zero. Off-face lattice points are a distance comparable to `h_T` inside the domain, so the inward linear lower bound is `O(h_T)` and dominates the `O(h_T^2)` discrepancy.
+Positive interior elements outside the tubular neighborhood are handled separately: after removing fixed neighborhoods of `Γ` and the physical boundary, `u` has a positive minimum, and the fixed inverse-collocation map approaches the locally constant value vector as `h → 0`.
+
+For a positive boundary element, coefficients on the boundary face are exactly zero. Off-face lattice points are a distance comparable to `h_T` inside the domain, so the inward linear lower bound is `O(h_T)` and, by the uniform boundary-collar `C^{1,1}` bound, dominates the `O(h_T^2)` coefficient discrepancy.
 
 Thus all negative coefficients occur in `R_h`. On its one-ring patch, quadratic upper growth and fixed-degree collocation stability give
 \[
@@ -124,6 +130,8 @@ The uniform broken regularity bound gives the bulk `O(h^r)` term; `C^{1,1}` inte
 \le C\bigl(h^r+h_\Gamma^{3/2}\bigr).
 \]
 A positive piecewise-linear cutoff lift provides a second repair with the same rate.
+
+The complete scoped proof is in `SHARP_RATE_PUBLICATION_PROOF.md`.
 
 ---
 
@@ -164,6 +172,6 @@ That second implementation is not described as an external clean-room replicatio
 
 ## 6. Deliberate exclusions and trust boundary
 
-The sharp theorem excludes singular or degenerate free-boundary points, free boundaries meeting the physical boundary, anisotropic meshes without a separate audit, inexact arbitrary obstacles, measure-valued multipliers, nonsymmetric operators, and optimal adaptive-complexity claims.
+The sharp theorem excludes singular or degenerate free-boundary points, free boundaries meeting the physical boundary, nodal interpolation outside the stated dimension/regularity regime, physical-boundary positivity without the stated collar regularity, anisotropic meshes without a separate audit, inexact arbitrary obstacles, measure-valued multipliers, nonsymmetric operators, and optimal adaptive-complexity claims.
 
 The finite coefficient, simplex, clipping, projection/KKT, assembly, energy, Mosco-infrastructure, and Hilbert-space VI layers are machine checked under pinned Lean/mathlib toolchains. The moving Sobolev finite-element recovery, local free-boundary geometry, coefficient localization, and complete sharp rate remain analytical and require independent expert review.
