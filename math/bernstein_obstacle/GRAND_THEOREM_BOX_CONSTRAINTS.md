@@ -1,16 +1,19 @@
 # Grand theorem extension: exact Bernstein box constraints
 
-## 1. Double obstacles become coefficient boxes
+## 1. Exact double-obstacle certification
 
-Let `psi < phi` be lower and upper obstacles and set
+Let `psi` and `phi` be lower and upper obstacles after essential-boundary
+lifting.  Set
 
 \[
-w=\phi-\psi.
+w=\phi-\psi
 \]
 
-Assume
+and assume
 
 \[
+w\in W^{1,\infty}(\Omega),
+\qquad
 w\ge w_0>0.
 \]
 
@@ -28,145 +31,149 @@ Then
 0\le\theta\le1.
 \]
 
-For a conforming Bernstein finite-element function `theta_h`, impose
+For a conforming fixed-degree Bernstein field `theta_h`, impose
 
 \[
 0\le b_{T,\alpha}(\theta_h)\le1
 \quad\text{for every }T,\alpha.
 \]
 
-The Bernstein convex-hull property gives
+The Bernstein convex-hull property yields
 
 \[
 0\le\theta_h(x)\le1
 \]
 
-at every point of every element. Therefore
+throughout every complete element.  Therefore
 
 \[
 u_h=\psi+w\theta_h
 \]
 
-satisfies
+satisfies the exact physical box constraint
 
 \[
 \boxed{\psi\le u_h\le\phi}
 \]
 
-pointwise over the complete mesh, even when `psi` and `phi` are not
-finite-element polynomials.
+pointwise, even when neither obstacle is a finite-element polynomial.
 
-The trial set
+The set
 
 \[
 K_h^{\rm box}
 =
-\{\psi+w\theta_h:\theta_h\in V_h^r,
+\{\psi+w\theta_h:
+ \theta_h\in V_h^r,
 \ 0\le b_{T,\alpha}(\theta_h)\le1\}
 \]
 
-is a finite-dimensional affine convex set.
+is the image of a finite-dimensional closed convex coefficient box under an
+affine continuous map.  Hence it is a finite-dimensional closed convex trial
+set in `H^1`.
 
-For the clean homogeneous statement below, assume that the boundary data agree
-with the lower obstacle, so `theta` and `theta_h` have homogeneous trace. More
-general boundary data require an exactly represented normalized boundary lift.
+For the clean homogeneous theorem, assume the lifted boundary data equal the
+lower obstacle, so `theta,theta_h in H_0^1(Omega)`.  General boundary values
+require a normalized conforming boundary lift whose trace is represented
+exactly.
 
 ---
 
-## 2. Multiplier decomposition
+## 2. Interior contact measures
 
-Let
+Define the interior lower and upper active sets
 
 \[
-C_-=\{u=\psi\}=\{\theta=0\},
-\qquad
-C_+=\{u=\phi\}=\{\theta=1\}.
+C_- =\{x\in\Omega:u(x)=\psi(x)\}=\{\theta=0\},
 \]
 
-Assume the variational residual decomposes as
+\[
+C_+ =\{x\in\Omega:u(x)=\phi(x)\}=\{\theta=1\}.
+\]
+
+Their closures may meet the physical boundary.  The theorem does not include
+boundary multipliers.
+
+Assume the residual decomposes as
 
 \[
 \Lambda=a(u,\cdot)-\ell
 =\lambda_- - \lambda_+,
 \]
 
-where `lambda_-` and `lambda_+` are finite nonnegative Radon measures supported
-on `C_-` and `C_+`, respectively.
+where `lambda_-` and `lambda_+` lie in the variational dual, extend to finite
+nonnegative Radon measures on the open domain `Omega`, and are supported on
+`C_-` and `C_+`, respectively.
 
-For any feasible `v`,
+For every feasible `v`,
 
 \[
 \Lambda(v-u)\ge0,
 \]
 
-because `v-u>=0` on the lower contact set and `v-u<=0` on the upper contact
-set.
+because `v-u>=0` on `C_-` and `v-u<=0` on `C_+`.
 
 ---
 
-## 3. Positive box recovery
+## 3. Positive coefficient-box recovery
 
-Use the positive Bernstein sampling operator
+Use the sampling operator
 
 \[
 \theta_h^+=\mathcal B_h^r\theta.
 \]
 
-Every coefficient is a sample of a number in `[0,1]`. Hence
+Each coefficient is a value of `theta` and therefore lies in `[0,1]`.  Thus
+`theta_h^+` satisfies the full coefficient box and
 
 \[
-0\le b_{T,\alpha}(\theta_h^+)\le1,
+v_h=\psi+w\theta_h^+\in K_h^{\rm box}.
 \]
 
-and
+Linearity and constant reproduction give
 
 \[
-v_h=\psi+w\theta_h^+
+1-\theta_h^+
+=
+\mathcal B_h^r(1-\theta),
 \]
 
-belongs to `K_h^{box}`.
-
-The identity
-
-\[
-\mathcal B_h^r(1-\theta)=1-\mathcal B_h^r\theta
-\]
-
-follows from linearity and reproduction of constants. It gives symmetric
-control at the two contact sets.
+which provides symmetric control at lower and upper contact.
 
 ---
 
-## 4. Universal box theorem
+## 4. Universal bilateral theorem
 
-Let `a` be continuous and coercive, not necessarily symmetric. Assume:
+Let `a` be continuous and coercive, not necessarily symmetric.  Assume:
 
-1. `theta in C^1(closure Omega) cap H_0^1(Omega)` and `0<=theta<=1`;
+1. `theta in C^1(bar Omega) cap H_0^1(Omega)` and `0<=theta<=1`;
 2. `grad theta` is uniformly continuous;
 3. `w in W^{1,infinity}(Omega)` and `w>=w_0>0`;
-4. `lambda_-` and `lambda_+` belong to the variational dual, extend to finite
-   nonnegative Radon measures, and have the stated contact supports;
+4. `lambda_-` and `lambda_+` satisfy the dual/measure/support conditions above;
 5. the meshes are conforming and uniformly shape regular, with fixed degree
    `r>=1`.
 
-Define
+For each closed simplex define
 
 \[
 \omega_T(\rho)
 =
-\sup\{|\nabla\theta(x)-\nabla\theta(y)|:
- x,y\in T,\ |x-y|\le\rho\},
+\sup\left\{
+|\nabla\theta(x)-\nabla\theta(y)|:
+ x,y\in\overline T,
+\ |x-y|\le\rho
+\right\}.
 \]
+
+Set
 
 \[
 \eta_h^2=\sum_T |T|\omega_T(h_T)^2,
 \]
 
 \[
-q_h(x)=\max_{T\ni x}h_T\omega_T(h_T),
+q_h(x)=\max_{x\in\overline T}h_T\omega_T(h_T),
 \]
-
-and
 
 \[
 \mu_h^- =\int_{C_-}q_h\,d\lambda_-,
@@ -174,7 +181,8 @@ and
 \mu_h^+ =\int_{C_+}q_h\,d\lambda_+.
 \]
 
-Then the coefficient-box discrete solution satisfies
+Then the coefficient-box discrete variational inequality has a unique solution
+and
 
 \[
 \boxed{
@@ -186,10 +194,7 @@ C_w\left(
 }
 \]
 
-where `C_w` depends additionally on `w_0`, `||w||_{W^{1,infinity}}`, and the
-operator constants.
-
-Consequently,
+hence
 
 \[
 \boxed{
@@ -201,7 +206,9 @@ C_w\left(
 }
 \]
 
-No regularity of either active-set boundary is required.
+The constant depends on the operator constants, shape regularity, fixed degree,
+Poincare's constant, `w_0`, and `||w||_{W^{1,infinity}}`.  It does not require
+regularity of either active-set boundary.
 
 ---
 
@@ -209,18 +216,16 @@ No regularity of either active-set boundary is required.
 
 ### B1. Approximation
 
-Multiplication by `w` is bounded in `H^1`, so
+Multiplication by `w` is bounded on `H^1`, so
 
 \[
 \|u-v_h\|_{H^1}
 =
 \|w(\theta-\theta_h^+)\|_{H^1}
-\le
-C_w\|\theta-\theta_h^+\|_{H^1}.
+\le C_w\|\theta-\theta_h^+\|_{H^1}.
 \]
 
-The gradient-modulus Bernstein estimate from the universal unilateral theorem
-gives
+The universal gradient-modulus estimate gives
 
 \[
 \|u-v_h\|_{H^1}^2\le C_w\eta_h^2.
@@ -228,7 +233,14 @@ gives
 
 ### B2. Lower contact
 
-At `x in C_-`, `theta(x)=0` and `grad theta(x)=0`. Therefore
+For `x in C_- subset Omega`, `theta>=0`, `theta(x)=0`, and differentiability
+imply
+
+\[
+\nabla\theta(x)=0.
+\]
+
+The segment argument and Bernstein partition of unity give
 
 \[
 0\le\theta_h^+(x)\le Cq_h(x).
@@ -238,42 +250,32 @@ Since `v_h-u=w\theta_h^+` on `C_-`,
 
 \[
 \int_{C_-}(v_h-u)\,d\lambda_-
-\le
-C\|w\|_{L^\infty}\mu_h^-.
+\le C\|w\|_{L^\infty}\mu_h^-.
 \]
 
 ### B3. Upper contact
 
-At `x in C_+`, the nonnegative function `1-theta` vanishes and has zero
-gradient. Since
+For `x in C_+ subset Omega`, the nonnegative function `1-theta` vanishes and
+has zero gradient.  Since
 
 \[
 1-\theta_h^+=\mathcal B_h^r(1-\theta),
 \]
 
-we have
+we obtain
 
 \[
 0\le1-\theta_h^+(x)\le Cq_h(x).
 \]
 
-On `C_+`,
-
-\[
-v_h-u=w(\theta_h^+-1),
-\]
-
-so the upper multiplier contribution is
+On `C_+`, `v_h-u=w(\theta_h^+-1)`, so
 
 \[
 -\int_{C_+}(v_h-u)\,d\lambda_+
-=
-\int_{C_+}w(1-\theta_h^+)\,d\lambda_+
-\le
-C\|w\|_{L^\infty}\mu_h^+.
+\le C\|w\|_{L^\infty}\mu_h^+.
 \]
 
-Thus
+Consequently,
 
 \[
 0\le\Lambda(v_h-u)
@@ -281,9 +283,9 @@ Thus
 C\|w\|_{L^\infty}(\mu_h^-+\mu_h^+).
 \]
 
-### B4. Nonsymmetric Falk transfer
+### B4. Nonsymmetric transfer
 
-The same coercive nonsymmetric argument as in the unilateral theorem yields
+The same coercive Falk argument as in the unilateral theorem gives
 
 \[
 \|u-u_h\|_{H^1}^2
@@ -297,7 +299,7 @@ Insert B1--B3.
 
 ---
 
-## 6. Holder corollary
+## 6. Holder-gradient corollary
 
 If
 
@@ -306,7 +308,7 @@ If
 \qquad 0<\beta\le1,
 \]
 
-then
+then the same exponent comparison as in the unilateral theorem gives
 
 \[
 \boxed{
@@ -314,25 +316,33 @@ then
 }
 \]
 
-For `beta=1`, this is the universal first-order estimate for exact two-sided
+For `beta=1`, this is a universal first-order estimate for exact two-sided
 obstacle enforcement.
 
 ---
 
-## 7. Why this matters
+## 7. Formal certificate status
 
-The same Bernstein formal layer already proves coefficient interval bounds,
-convexity, clipping, and projection properties. The double-obstacle extension
-therefore uses the existing certificate machinery rather than requiring a new
-constraint technology.
+The Lean library proves:
 
-Potential applications include:
+- one-dimensional coefficient interval certification;
+- arbitrary-dimensional complete simplicial coefficient interval
+  certification;
+- affine mapping of `[0,1]` into `[psi(x),phi(x)]`;
+- exact one-dimensional and simplicial box certificates for possibly
+  nonpolynomial obstacle functions.
 
-- double-obstacle variational inequalities;
-- box-constrained membrane and contact models;
-- phase-fraction constraints;
-- bounded-state formulations after an affine normalization;
-- unilateral problems as the limit `phi -> +infinity`.
+The moving Sobolev approximation, multiplier decomposition, and bilateral rate
+remain analytical review targets.
 
-This extension remains an internal theorem candidate pending independent
-validity and prior-art audits.
+---
+
+## 8. Applications and trust boundary
+
+Potential applications include double-obstacle variational inequalities,
+box-constrained membranes, bounded phase fractions, normalized bounded-state
+models, and unilateral problems as a one-sided limit.
+
+This is a complete internal theorem candidate, not yet an independently
+validated or novel theorem.  Audit panel E, issue #122, explicitly tests both
+the unilateral and bilateral statements, including prior-art collision.
