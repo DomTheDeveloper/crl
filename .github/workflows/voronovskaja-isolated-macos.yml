@@ -38,7 +38,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake build Audit 2>&1 | tee audit.log
+          lake build '@formal_conjectures/+FormalConjectures.Paper.VoronovskajaTypeFormula' \
+            2>&1 | tee audit.log
       - name: Compile and audit exact catalog theorem
         working-directory: ci/lean/Voronovskaja
         shell: bash
