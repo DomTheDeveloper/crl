@@ -50,10 +50,11 @@ theorem nonminimal_six_root_classification {n : ℕ} (hn : 0 < n)
   obtain ⟨t, htproper, htne, htvan⟩ := hex
   have htpos : 0 < t.card := Finset.card_pos.mpr htne
   have htlt : t.card < 6 := by
-    have := Finset.card_lt_card htproper
-    simpa using this
-  interval_cases htc : t.card
-  · omega
+    have hcard := Finset.card_lt_card htproper
+    simpa using hcard
+  have htcases : t.card = 1 ∨ t.card = 2 ∨ t.card = 3 ∨
+      t.card = 4 ∨ t.card = 5 := by omega
+  rcases htcases with htc | htc | htc | htc | htc
   · obtain ⟨r, rfl⟩ := Finset.card_eq_one.mp htc
     exact (singleton_not_vanishes r htvan).elim
   · obtain ⟨r, s, hrs, rfl⟩ := Finset.card_eq_two.mp htc
@@ -71,9 +72,9 @@ theorem nonminimal_six_root_classification {n : ℕ} (hn : 0 < n)
     have huvan : Vanishes u (sixRoot n A B C) :=
       vanishes_sdiff Finset.univ t (sixRoot n A B C) htproper.1 hfull htvan
     have hucard : u.card = 2 := by
-      rw [u, Finset.card_sdiff_of_subset htproper.1]
-      simp
-      omega
+      change (Finset.univ \ t).card = 2
+      rw [Finset.card_sdiff_of_subset htproper.1]
+      simp [htc]
     obtain ⟨r, s, hrs, hu⟩ := Finset.card_eq_two.mp hucard
     have hpair : sixRoot n A B C r + sixRoot n A B C s = 0 := by
       rw [hu] at huvan
@@ -84,13 +85,12 @@ theorem nonminimal_six_root_classification {n : ℕ} (hn : 0 < n)
     have huvan : Vanishes u (sixRoot n A B C) :=
       vanishes_sdiff Finset.univ t (sixRoot n A B C) htproper.1 hfull htvan
     have hucard : u.card = 1 := by
-      rw [u, Finset.card_sdiff_of_subset htproper.1]
-      simp
-      omega
+      change (Finset.univ \ t).card = 1
+      rw [Finset.card_sdiff_of_subset htproper.1]
+      simp [htc]
     obtain ⟨r, hu⟩ := Finset.card_eq_one.mp hucard
     rw [hu] at huvan
     exact (singleton_not_vanishes r huvan).elim
-  all_goals omega
 
 /-- Specialization of the nonminimal branch to reduced cevian coefficients. -/
 theorem nonminimal_reduced_classification {n i j k : ℕ} (hn : 0 < n)
