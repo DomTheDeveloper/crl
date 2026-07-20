@@ -10,7 +10,7 @@ noncomputable section
 
 /-- The simplicial Bernstein basis written with a natural-valued multi-index.
 Only multi-indices in `Finset.piAntidiag Finset.univ n` are used in the field. -/
-def simplexBasisNat (d n : ℕ) (α : Fin (d + 1) → ℕ)
+def simplexBasisNat (d _n : ℕ) (α : Fin (d + 1) → ℕ)
     (x : BarycentricPoint d) : ℝ :=
   (Nat.multinomial Finset.univ α : ℝ) *
     ∏ i : Fin (d + 1), (x.1 i) ^ α i
@@ -41,7 +41,7 @@ theorem simplexBasisNat_sum_eq_one (d n : ℕ) (x : BarycentricPoint d) :
           intro α hα
           simp [simplexBasisNat]
     _ = 1 := by
-      rw [Finset.sum_univ, x.2.2, one_pow]
+      rw [x.2.2, one_pow]
 
 /-- A simplicial Bernstein field indexed by the complete degree-`n` antidiagonal. -/
 def simplexFieldNat (d n : ℕ) (c : (Fin (d + 1) → ℕ) → ℝ)
