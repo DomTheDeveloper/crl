@@ -10,4 +10,5 @@ import BernsteinObstacle.Energy
 import BernsteinObstacle.FiniteObstacle
 import BernsteinObstacle.Mosco
 import BernsteinObstacle.MoscoTools
+import BernsteinObstacle.CoefficientMosco
 import BernsteinObstacle.MinimizerConvergence
