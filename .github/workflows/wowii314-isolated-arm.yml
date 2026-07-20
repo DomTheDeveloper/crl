@@ -37,17 +37,6 @@ jobs:
           [[lean_lib]]
           name = "WOWII"
           EOF
-          python3 - <<'PY'
-          from pathlib import Path
-          path = Path('.lake/packages/formal_conjectures/WOWII/ZZGraphConjecture314C5Bags.lean')
-          text = path.read_text()
-          marker = 'lemma fin5_existsUnique_neighbor_pattern\n'
-          replacement = 'set_option maxHeartbeats 0 in\nlemma fin5_existsUnique_neighbor_pattern\n'
-          if replacement not in text:
-              if marker not in text:
-                  raise SystemExit('finite lemma marker not found')
-              path.write_text(text.replace(marker, replacement, 1))
-          PY
       - name: Fetch Mathlib cache
         working-directory: ci/lean/WOWII314
         run: lake exe cache get
