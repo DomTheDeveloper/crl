@@ -5,6 +5,7 @@ import A387471Ratio
 -/
 
 open Complex
+open scoped ComplexConjugate
 
 namespace A387471
 
@@ -57,7 +58,7 @@ theorem canonical_three_ratio_cube {N : ℕ} (hN : N ≠ 0)
 
 /-- A cube-root quotient between a positive `A` label and a negative `B` label
 contradicts the strict pair-sum bounds. -/
-theorem mixed_cube_ratio_impossible {n : ℕ} (hn : 0 < n) {A B : ℤ}
+theorem mixed_cube_ratio_impossible {n : ℕ} [NeZero (12 * n)] (hn : 0 < n) {A B : ℤ}
     (hlo : -2 * (n : ℤ) < A + B) (hhi : A + B < 2 * (n : ℤ))
     (hcube : (canonicalRoot (12 * n) ^ (intResidue (12 * n) A).val /
       canonicalRoot (12 * n) ^
@@ -66,6 +67,7 @@ theorem mixed_cube_ratio_impossible {n : ℕ} (hn : 0 < n) {A B : ℤ}
   have hd := order_dvd_of_canonical_ratio_pow_eq_one
     (N := 12 * n) A (6 * (n : ℤ) - B) 3 hcube
   rcases hd with ⟨q, hq⟩
+  push_cast at hq
   have hnz : (0 : ℤ) < n := by exact_mod_cast hn
   have hqlo : -2 < 4 * q + 6 := by nlinarith
   have hqhi : 4 * q + 6 < 2 := by nlinarith
