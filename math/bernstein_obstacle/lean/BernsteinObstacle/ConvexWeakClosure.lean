@@ -32,8 +32,10 @@ theorem weaklySequentiallyClosed_of_convex_isClosed
     isOpen_Ioi.mem_nhds hxa
   have hevent : ∀ᶠ n in atTop, a < φ (u n) :=
     (hweak φ) hIoi
-  filter_upwards [hevent] with n hn
-  exact (not_lt_of_ge (le_of_lt (hK (u n) (hu n)))) hn
+  have hfalse : ∀ᶠ _n in atTop, False :=
+    hevent.mono fun n hn =>
+      (not_lt_of_ge (le_of_lt (hK (u n) (hu n)))) hn
+  exact eventually_const.mp hfalse
 
 /-- Inner approximations of a norm-closed convex set Mosco-converge once a
 strong feasible recovery sequence is available. -/
