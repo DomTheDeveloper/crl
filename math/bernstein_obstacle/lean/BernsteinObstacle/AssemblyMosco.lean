@@ -1,6 +1,6 @@
 import BernsteinObstacle.AssemblyConvex
 import BernsteinObstacle.MoscoTools
-import Mathlib.Analysis.Normed.Module.Pi
+import Mathlib.Topology.Algebra.Module.ContinuousLinearMap.PiProd
 import Mathlib.Topology.Order.OrderClosed
 
 open Filter
