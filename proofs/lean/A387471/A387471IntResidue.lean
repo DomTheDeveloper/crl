@@ -23,20 +23,15 @@ def intResidue (N : ℕ) [NeZero N] (a : ℤ) : Fin N :=
 /-- The canonical representative has the expected class in `ZMod N`. -/
 theorem intResidue_cast (N : ℕ) [NeZero N] (a : ℤ) :
     ((intResidue N a).val : ZMod N) = (a : ZMod N) := by
-  cases N with
-  | zero => exact (NeZero.ne 0 rfl).elim
-  | succ N =>
-      apply Fin.ext
-      change (a % (N + 1 : ℕ)).toNat = (a : ZMod (N + 1)).val
-      apply Int.ofNat_inj.mp
-      rw [Int.toNat_of_nonneg (Int.emod_nonneg _ (by omega))]
-      exact (ZMod.val_intCast a).symm
+  apply ZMod.val_injective
+  rw [ZMod.val_natCast, ZMod.val_intCast]
+  exact Nat.mod_eq_of_lt (intResidue N a).isLt
 
 /-- A canonical-root power with signed exponent is the standard exponential. -/
 theorem canonicalRoot_pow_intResidue (N : ℕ) [NeZero N] (a : ℤ) :
     canonicalRoot N ^ (intResidue N a).val =
       Complex.exp (2 * Real.pi * Complex.I * a / N) := by
-  rw [canonicalRoot_pow_eq_stdAddChar, intResidue_cast]
+  rw [canonicalRoot_pow_nat_eq_stdAddChar, intResidue_cast]
   exact ZMod.stdAddChar_coe a
 
 #print axioms intResidue_cast
