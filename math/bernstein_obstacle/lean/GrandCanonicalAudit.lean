@@ -51,6 +51,16 @@ import BernsteinObstacle
 #check BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_quadraticContact
 #check BernsteinObstacle.threeHalvesContactLaw
 #check BernsteinObstacle.balancedContactOrder_equalizes
+#check BernsteinObstacle.realRiskThickness_of_q_le_m
+#check BernsteinObstacle.realRiskThickness_of_m_le_q
+#check BernsteinObstacle.realVIExponent_eq_classification
+#check BernsteinObstacle.realVIExponent_of_effectiveOrder_ge_two
+#check BernsteinObstacle.realVIExponent_of_q_le_m
+#check BernsteinObstacle.realVIExponent_of_m_le_q
+#check BernsteinObstacle.realVIRateScale_of_q_le_m
+#check BernsteinObstacle.realVIRateScale_of_m_le_q
+#check BernsteinObstacle.realVIExponent_quadratic_codimOne
+#check BernsteinObstacle.realVIRateScale_quadratic_codimOne
 
 #print axioms BernsteinObstacle.affineBox_mem_Icc
 #print axioms BernsteinObstacle.boxApprox_mem_Icc
@@ -101,3 +111,13 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_quadraticContact
 #print axioms BernsteinObstacle.threeHalvesContactLaw
 #print axioms BernsteinObstacle.balancedContactOrder_equalizes
+#print axioms BernsteinObstacle.realRiskThickness_of_q_le_m
+#print axioms BernsteinObstacle.realRiskThickness_of_m_le_q
+#print axioms BernsteinObstacle.realVIExponent_eq_classification
+#print axioms BernsteinObstacle.realVIExponent_of_effectiveOrder_ge_two
+#print axioms BernsteinObstacle.realVIExponent_of_q_le_m
+#print axioms BernsteinObstacle.realVIExponent_of_m_le_q
+#print axioms BernsteinObstacle.realVIRateScale_of_q_le_m
+#print axioms BernsteinObstacle.realVIRateScale_of_m_le_q
+#print axioms BernsteinObstacle.realVIExponent_quadratic_codimOne
+#print axioms BernsteinObstacle.realVIRateScale_quadratic_codimOne
