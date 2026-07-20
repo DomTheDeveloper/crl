@@ -58,7 +58,7 @@ jobs:
               lines.extend([
                   f"  · refine ⟨({k} : Fin 5), by decide, ?_⟩",
                   "    intro y hy",
-                  "    fin_cases y <;> simp_all at hy ⊢",
+                  "    fin_cases y <;> simp_all",
               ])
           text, count = pattern.subn("\n".join(lines), text, count=1)
           print(f'C5 finite-pattern replacements: {count}')
