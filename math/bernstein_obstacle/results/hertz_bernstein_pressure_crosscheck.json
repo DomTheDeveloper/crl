@@ -1,0 +1,12 @@
+{
+  "degree": 24,
+  "optimizer_coefficient_linf_difference": 0.004598400831826388,
+  "optimizer_pressure_linf_difference": 3.130790080235757e-05,
+  "optimizer_objective_difference": 1.533528304342724e-10,
+  "active_set_kkt_residual": 3.552713678800501e-15,
+  "minimum_dense_pressure": 0.0,
+  "endpoint_pressure_left": 0.0,
+  "endpoint_pressure_right": 0.0,
+  "force_absolute_error": 0.0,
+  "sample_count": 40001
+}
