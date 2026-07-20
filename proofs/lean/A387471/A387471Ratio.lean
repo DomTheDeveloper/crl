@@ -39,7 +39,6 @@ theorem order_dvd_of_canonical_ratio_pow_eq_one {N : ℕ} [NeZero N]
   exact (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp hcast
 
 /-- The paired positive/negative labels in the A387471 relation force `n ∣ 5A`. -/
-set_option maxHeartbeats 0 in
 theorem n_dvd_five_mul_of_paired_ratio {n : ℕ} (hn : 0 < n) (A : ℤ)
     (h : (canonicalRoot (12 * n) ^ (intResidue (12 * n) A).val /
       canonicalRoot (12 * n) ^
@@ -51,8 +50,7 @@ theorem n_dvd_five_mul_of_paired_ratio {n : ℕ} (hn : 0 < n) (A : ℤ)
     (N := 12 * n) A (6 * (n : ℤ) - A) 30 h
   rcases hd with ⟨q, hq⟩
   refine ⟨q + 15, ?_⟩
-  ring_nf at hq ⊢
-  omega
+  nlinarith [hq]
 
 #print axioms order_dvd_of_canonical_ratio_pow_eq_one
 #print axioms n_dvd_five_mul_of_paired_ratio
