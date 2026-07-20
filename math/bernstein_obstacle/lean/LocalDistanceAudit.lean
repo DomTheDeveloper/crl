@@ -1,5 +1,6 @@
 import BernsteinObstacle.LocalDistanceLocalization
 
+-- Terminal audit for the AI-corrected local-size localization theorem.
 #check BernsteinObstacle.coefficient_nonneg_of_quadratic_growth_and_local_distance
 #check BernsteinObstacle.local_distance_lt_of_coefficient_neg
 #check BernsteinObstacle.abs_coefficient_le_quadratic_on_local_strip
