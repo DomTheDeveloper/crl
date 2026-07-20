@@ -91,8 +91,6 @@ theorem map_centered_interval_affine
           (Measure.map (fun t : ℝ => s * t) centeredUnitIntervalMeasure) := by
       rw [Measure.map_map hadd hmul]
       congr 1
-      funext t
-      rfl
     _ = Measure.map (fun u : ℝ => m + u)
         (ENNReal.ofReal s⁻¹ • volume.restrict (Set.Icc (-s / 2) (s / 2))) := by
       rw [map_centered_interval_mul hs]
@@ -139,7 +137,8 @@ theorem map_centered_interval_affine_neg
       rw [Measure.map_map haff hneg]
       congr 1
       funext t
-      ring_nf
+      simp only [Function.comp_apply]
+      ring
     _ = Measure.map (fun u : ℝ => m + s * u) centeredUnitIntervalMeasure := by
       rw [hreflect]
     _ = ENNReal.ofReal s⁻¹ •
