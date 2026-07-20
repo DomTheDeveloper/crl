@@ -61,3 +61,4 @@ import BernsteinObstacle.BarrierEnvelopeMosco
 import BernsteinObstacle.GrandRateExponents
 import BernsteinObstacle.MonotoneInnerConeAlgebra
 import BernsteinObstacle.GrandBarrier
+import BernsteinObstacle.SobolevGrandBarrier
