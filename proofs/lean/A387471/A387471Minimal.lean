@@ -19,11 +19,13 @@ theorem minimal_six_root_classification {n : ℕ} (hn : 0 < n)
     (hAC : -2 * (n : ℤ) < A + C ∧ A + C < 2 * (n : ℤ))
     (hBC : -2 * (n : ℤ) < B + C ∧ B + C < 2 * (n : ℤ))
     (hsin : Real.sin (latticeAngle n A) + Real.sin (latticeAngle n B) +
-      Real.sin (latticeAngle n C) = 0)
-    (hmin : MinimallyVanishes Finset.univ
-      (fun r : Fin 6 ↦ canonicalRoot (12 * n) ^ (sixExponent n A B C r).val)) :
-    ABCClassified (n : ℤ) A B C := by
+      Real.sin (latticeAngle n C) = 0) :
+    letI : NeZero n := ⟨hn.ne'⟩
+    MinimallyVanishes Finset.univ
+      (fun r : Fin 6 ↦ canonicalRoot (12 * n) ^ (sixExponent n A B C r).val) →
+      ABCClassified (n : ℤ) A B C := by
   letI : NeZero n := ⟨hn.ne'⟩
+  intro hmin
   have hcard : (Finset.univ : Finset (Fin 6)).card ≤ 6 := by simp
   have hratioA := mann_weight_six_canonical (N := 12 * n)
     (mul_ne_zero (by norm_num) hn.ne') Finset.univ (sixExponent n A B C)
@@ -68,18 +70,22 @@ theorem minimal_six_root_classification {n : ℕ} (hn : 0 < n)
     rwa [← hangleA, ← hangleB, ← hangleC]
   have hclass := bounded_grid_sine_classification a b c hadm hgridSine
   rw [ha, hb, hc] at hclass
-  exact classifiedGrid_to_ABC hn.ne' hA hB hC hclass
+  have hnZ : (n : ℤ) ≠ 0 := by exact_mod_cast hn.ne'
+  exact classifiedGrid_to_ABC hnZ hA hB hC hclass
 
 /-- Specialization to the reduced coefficients of an admissible cevian triple. -/
 theorem minimal_reduced_classification {n i j k : ℕ} (hn : 0 < n)
     (hi : i ∈ indices n) (hj : j ∈ indices n) (hk : k ∈ indices n)
-    (hsin : ReducedSineEquation n i j k)
-    (hmin : MinimallyVanishes Finset.univ
+    (hsin : ReducedSineEquation n i j k) :
+    letI : NeZero n := ⟨hn.ne'⟩
+    MinimallyVanishes Finset.univ
       (fun r : Fin 6 ↦ canonicalRoot (12 * n) ^
         (sixExponent n (reducedA n i j k) (reducedB n i j k)
-          (reducedC n i j k) r).val)) :
-    ABCClassified (n : ℤ) (reducedA n i j k) (reducedB n i j k)
-      (reducedC n i j k) := by
+          (reducedC n i j k) r).val) →
+      ABCClassified (n : ℤ) (reducedA n i j k) (reducedB n i j k)
+        (reducedC n i j k) := by
+  letI : NeZero n := ⟨hn.ne'⟩
+  intro hmin
   apply minimal_six_root_classification hn
     (reducedA_bounds hn hi hj hk)
     (reducedB_bounds hn hi hj hk)
