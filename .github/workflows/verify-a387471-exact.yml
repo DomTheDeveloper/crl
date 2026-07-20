@@ -1,0 +1,82 @@
+name: Verify OEIS A387471 exact Lean theorem
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/verify-a387471-exact.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-a387471-exact
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out archived A387471 proof commit
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/crl
+          ref: 17ffe1b3834dce1b8d66c25b1814a10a91288365
+          path: campaign
+
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Reject proof holes and unsafe shortcuts
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: |
+          set -euo pipefail
+          if grep -RnE '^[[:space:]]*(axiom|opaque|sorry|admit)([[:space:]]|$)|:= by[[:space:]]*(sorry|admit)([[:space:]]|$)|native_decide' --include='*.lean' .; then
+            exit 1
+          fi
+
+      - name: Download Mathlib cache
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: lake exe cache get
+
+      - name: Build exact theorem and dependencies
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: |
+          set -euo pipefail
+          lake build A387471Exact 2>&1 | tee ../../../../a387471-build.log
+
+      - name: Audit terminal theorem axioms
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: |
+          set -euo pipefail
+          cat > AuditA387471.lean <<'EOF'
+          import A387471Exact
+          #check A387471.exactStatement_proved
+          #print axioms A387471.solutionTriples_eq_candidateSet
+          #print axioms A387471.exactStatement_proved
+          EOF
+          lake env lean AuditA387471.lean 2>&1 | tee ../../../../a387471-axioms.log
+          if grep -q sorryAx ../../../../a387471-axioms.log; then
+            echo 'A387471 exact theorem depends on sorryAx' >&2
+            exit 1
+          fi
+          grep -F 'A387471.exactStatement_proved' ../../../../a387471-axioms.log
+
+      - name: Upload verification transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a387471-exact-audit
+          path: |
+            a387471-build.log
+            a387471-axioms.log
+          if-no-files-found: warn
