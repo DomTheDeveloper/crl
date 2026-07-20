@@ -60,8 +60,7 @@ theorem affineToMultiIndex_multiIndexToAffine (d n : ℕ)
   funext i
   refine Fin.lastCases ?_ (fun j => ?_) i
   · apply Fin.ext
-    change n - (∑ j : Fin d, (α.1 j.castSucc : ℕ)) =
-      (α.1 (Fin.last d) : ℕ)
+    simp only [affineToMultiIndex, multiIndexToAffine, Fin.snoc_last]
     have hsum := α.2
     rw [Fin.sum_univ_castSucc] at hsum
     omega
