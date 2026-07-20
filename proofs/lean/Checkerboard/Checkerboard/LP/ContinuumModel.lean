@@ -17,6 +17,7 @@ namespace Checkerboard
 noncomputable section
 
 open MeasureTheory Set Filter
+open scoped ENNReal
 
 /-- Ambient continuum plane. -/
 abbrev ContinuumPoint := ℝ × ℝ
