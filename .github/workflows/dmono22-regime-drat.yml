@@ -1,0 +1,102 @@
+name: Dmono22 complete boundary-regime DRAT certificates
+
+on:
+  push:
+    branches:
+      - audit/dmono22-regime-drat
+    paths:
+      - '.github/workflows/dmono22-regime-drat.yml'
+      - 'math/checkerboard/n22_exact/emit_regime_cnf.py'
+  pull_request:
+    paths:
+      - '.github/workflows/dmono22-regime-drat.yml'
+      - 'math/checkerboard/n22_exact/emit_regime_cnf.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dmono22-regime-drat-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certify:
+    strategy:
+      fail-fast: false
+      matrix:
+        regime: [all-double, top-low]
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CNF and proof tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          pip install --disable-pip-version-check python-sat
+          sudo apt-get update
+          sudo apt-get install -y build-essential git zlib1g-dev
+          git clone --depth 1 --branch rel-4.0.4 https://github.com/arminbiere/kissat.git /tmp/kissat
+          (cd /tmp/kissat && ./configure && make -j2)
+          sudo install /tmp/kissat/build/kissat /usr/local/bin/kissat
+          git clone --depth 1 https://github.com/marijnheule/drat-trim.git /tmp/drat-trim
+          make -C /tmp/drat-trim
+          sudo install /tmp/drat-trim/drat-trim /usr/local/bin/drat-trim
+      - name: Emit exact regime CNF
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 emit_regime_cnf.py '${{ matrix.regime }}' \
+            '${{ matrix.regime }}.cnf' --manifest '${{ matrix.regime }}-manifest.json'
+          grep -q '"target_points": 34' '${{ matrix.regime }}-manifest.json'
+          sha256sum '${{ matrix.regime }}.cnf' '${{ matrix.regime }}-manifest.json' \
+            | tee '${{ matrix.regime }}.sha256'
+      - name: Produce textual DRAT proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set +e
+          /usr/bin/time -v kissat --unsat --no-binary '${{ matrix.regime }}.cnf' \
+            '${{ matrix.regime }}.drat' 2>&1 | tee '${{ matrix.regime }}-kissat.log'
+          code=${PIPESTATUS[0]}
+          set -e
+          if [[ "$code" != 20 ]]; then
+            echo "Expected UNSAT exit code 20, got $code" >&2
+            exit 1
+          fi
+          test -s '${{ matrix.regime }}.drat'
+          sha256sum '${{ matrix.regime }}.drat' | tee -a '${{ matrix.regime }}.sha256'
+      - name: Independently replay proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v drat-trim '${{ matrix.regime }}.cnf' '${{ matrix.regime }}.drat' \
+            2>&1 | tee '${{ matrix.regime }}-drat-check.log'
+          grep -E 'VERIFIED|s VERIFIED' '${{ matrix.regime }}-drat-check.log'
+      - name: Compress proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          xz -T0 -3 '${{ matrix.regime }}.drat'
+          sha256sum '${{ matrix.regime }}.drat.xz' | tee -a '${{ matrix.regime }}.sha256'
+      - name: Upload certificate package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dmono22-${{ matrix.regime }}-drat
+          path: |
+            math/checkerboard/n22_exact/${{ matrix.regime }}.cnf
+            math/checkerboard/n22_exact/${{ matrix.regime }}.drat.xz
+            math/checkerboard/n22_exact/${{ matrix.regime }}-manifest.json
+            math/checkerboard/n22_exact/${{ matrix.regime }}.sha256
+            math/checkerboard/n22_exact/${{ matrix.regime }}-kissat.log
+            math/checkerboard/n22_exact/${{ matrix.regime }}-drat-check.log
+          if-no-files-found: warn
+          retention-days: 30
