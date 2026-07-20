@@ -6,7 +6,7 @@ on:
       - ".github/workflows/verify-a387471-exact.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: verify-a387471-exact
@@ -17,12 +17,48 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
-      - name: Check out repaired A387471 proof commit
+      - name: Check out repaired A387471 proof branch
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/crl
-          ref: 6e5fa5c983fa7d2b6b367ccf6a77897e23d313b6
+          ref: repair/a387471-final
           path: campaign
+
+      - name: Publish explicit global bridge repair
+        shell: bash
+        working-directory: campaign
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('proofs/lean/A387471/A387471GridClassification.lean')
+          text = path.read_text()
+          old = """    have hminCanonical : MinimallyVanishes Finset.univ
+                (fun r : Fin 6 ↦ canonicalRoot (12 * n) ^ (sixExponent n A B C r).val) := by
+              simpa only [sixRoot_eq_canonical] using hmin
+          """
+          new = """    have hrootEq : sixRoot n A B C =
+                (fun r : Fin 6 ↦ canonicalRoot (12 * n) ^ (sixExponent n A B C r).val) := by
+              funext r
+              exact sixRoot_eq_canonical A B C r
+            have hminCanonical : MinimallyVanishes Finset.univ
+                (fun r : Fin 6 ↦ canonicalRoot (12 * n) ^ (sixExponent n A B C r).val) := by
+              rw [← hrootEq]
+              exact hmin
+          """
+          if old in text:
+              path.write_text(text.replace(old, new, 1))
+          elif 'have hrootEq : sixRoot n A B C =' not in text:
+              raise SystemExit('expected GridClassification compatibility site not found')
+          PY
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add proofs/lean/A387471/A387471GridClassification.lean
+          if ! git diff --cached --quiet; then
+            git commit -m "Rewrite minimality through explicit root-function equality"
+            git push origin HEAD:repair/a387471-final
+          fi
+          git rev-parse HEAD
 
       - name: Install pinned Lean
         shell: bash
