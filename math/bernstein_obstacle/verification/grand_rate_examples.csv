@@ -1,0 +1,6 @@
+case,m,q,s,a=min(m,q),beta=a/q,repair_exponent,multiplier_exponent,generic_VI_exponent
+Classical regular free boundary,2,2,1,2,1.0,1.5,1.5,1.5
+Higher coefficient accuracy quadratic contact,4,2,1,2,1.0,1.5,1.5,1.5
+Cubic vanishing and cubic consistency,3,3,1,3,1.0,2.5,2.0,2.0
+Degenerate quartic vanishing second-order consistency,2,4,1,2,0.5,1.25,1.25,1.25
+Quadratic contact around codimension-two defect,2,2,2,2,1.0,2.0,2.0,2.0
