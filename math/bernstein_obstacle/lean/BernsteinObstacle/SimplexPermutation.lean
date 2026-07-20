@@ -23,14 +23,19 @@ def permuteBarycentricPoint (d : ℕ)
   refine ⟨fun i => x.1 (e i), ?_, ?_⟩
   · intro i
     exact x.2.1 (e i)
-  · simpa using e.sum_comp x.1
+  · calc
+      (∑ i, x.1 (e i)) = ∑ i, x.1 i := e.sum_comp x.1
+      _ = 1 := x.2.2
 
 /-- Renumber the components of a degree-`n` simplex multi-index. -/
 def permuteMultiIndex (d n : ℕ)
     (e : Fin (d + 1) ≃ Fin (d + 1))
     (α : MultiIndex d n) : MultiIndex d n := by
   refine ⟨fun i => α.1 (e i), ?_⟩
-  simpa using e.sum_comp (fun i => (α.1 i : ℕ))
+  calc
+    (∑ i, (α.1 (e i) : ℕ)) = ∑ i, (α.1 i : ℕ) :=
+      e.sum_comp (fun i => (α.1 i : ℕ))
+    _ = n := α.2
 
 @[simp]
 theorem permuteBarycentricPoint_apply (d : ℕ)
@@ -84,6 +89,27 @@ theorem permuteMultiIndex_trans (d n : ℕ)
   funext i
   rfl
 
+/-- Coordinate renumbering is an equivalence on degree-`n` multi-indices. -/
+def permuteMultiIndexEquiv (d n : ℕ)
+    (e : Fin (d + 1) ≃ Fin (d + 1)) :
+    MultiIndex d n ≃ MultiIndex d n where
+  toFun := permuteMultiIndex d n e
+  invFun := permuteMultiIndex d n e.symm
+  left_inv α := by
+    apply Subtype.ext
+    funext i
+    simp
+  right_inv α := by
+    apply Subtype.ext
+    funext i
+    simp
+
+@[simp]
+theorem permuteMultiIndex_symm_apply (d n : ℕ)
+    (e : Fin (d + 1) ≃ Fin (d + 1)) (α : MultiIndex d n) :
+    permuteMultiIndex d n e.symm (permuteMultiIndex d n e α) = α :=
+  (permuteMultiIndexEquiv d n e).left_inv α
+
 /-- The simplicial Bernstein basis is invariant under simultaneous
 renumbering of its barycentric point and multi-index. -/
 theorem simplexBasis_permute (d n : ℕ)
@@ -118,22 +144,15 @@ theorem simplexField_permute (d n : ℕ)
         (permuteBarycentricPoint d e x) =
       simplexField d n c x := by
   unfold simplexField
-  rw [← Equiv.sum_comp
-    (Equiv.ofBijective (permuteMultiIndex d n e)
-      ⟨by
-        intro α β h
-        have h' := congrArg
-          (permuteMultiIndex d n e.symm) h
-        simpa [permuteMultiIndex_trans] using h',
-       by
-        intro β
-        refine ⟨permuteMultiIndex d n e.symm β, ?_⟩
-        simpa [permuteMultiIndex_trans]⟩)]
+  rw [← (permuteMultiIndexEquiv d n e).sum_comp]
   apply Finset.sum_congr rfl
   intro α hα
-  rw [simplexBasis_permute]
-  congr 1
-  simpa [permuteMultiIndex_trans]
+  change
+    c (permuteMultiIndex d n e.symm (permuteMultiIndex d n e α)) *
+        simplexBasis d n (permuteMultiIndex d n e α)
+          (permuteBarycentricPoint d e x) =
+      c α * simplexBasis d n α x
+  rw [simplexBasis_permute, permuteMultiIndex_symm_apply]
 
 end
 
