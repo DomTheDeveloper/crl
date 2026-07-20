@@ -60,13 +60,16 @@ lemma sum_sixRoot (n : ℕ) (A B C : ℤ) :
   have hC := exp_sub_exp_neg_eq_two_sin_mul_I (latticeAngle n C)
   calc
     (∑ r : Fin 6, sixRoot n A B C r) =
-        (Complex.exp ((latticeAngle n A : ℂ) * Complex.I) -
+        sixRoot n A B C 0 + sixRoot n A B C 1 + sixRoot n A B C 2 +
+          sixRoot n A B C 3 + sixRoot n A B C 4 + sixRoot n A B C 5 := by
+            simp [Fin.sum_univ_succ]
+    _ = (Complex.exp ((latticeAngle n A : ℂ) * Complex.I) -
           Complex.exp (-(latticeAngle n A : ℂ) * Complex.I)) +
         (Complex.exp ((latticeAngle n B : ℂ) * Complex.I) -
           Complex.exp (-(latticeAngle n B : ℂ) * Complex.I)) +
         (Complex.exp ((latticeAngle n C : ℂ) * Complex.I) -
           Complex.exp (-(latticeAngle n C : ℂ) * Complex.I)) := by
-            norm_num [Fin.sum_univ_succ, sixRoot]
+            simp only [sixRoot]
             ring
     _ = 2 * ((Real.sin (latticeAngle n A) + Real.sin (latticeAngle n B) +
           Real.sin (latticeAngle n C) : ℝ) : ℂ) * Complex.I := by
