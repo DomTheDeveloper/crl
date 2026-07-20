@@ -85,6 +85,8 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.diagonalRecovery_minimizers_strongConvergence' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.mosco_of_scheduledRecovery_of_subset_closedConvex' \
+            bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.SobolevFEMRecoveryData.moscoConverges' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.SobolevFEMRecoveryData.minimizers_strongConvergence' \
