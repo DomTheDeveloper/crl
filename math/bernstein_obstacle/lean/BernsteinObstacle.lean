@@ -51,3 +51,4 @@ import BernsteinObstacle.SharpRateAlgebra
 import BernsteinObstacle.StripScaling
 import BernsteinObstacle.RecoveryRate
 import BernsteinObstacle.CorrectedSharpRate
+import BernsteinObstacle.BulkMultiplierRate
