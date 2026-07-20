@@ -15,5 +15,13 @@ and cross-framework tolerances pass.
 The final machine-readable verdict is
 `reproduction-output/REPRODUCTION_PASS.json`.
 
+## GitHub Actions
+
+`.github/workflows/bernstein-obstacle-reproduction.yml` reconstructs the pinned
+source archive from `source/part_*.b64`, checks SHA-256
+`958a0ed22a9a6e2ad838b42345a2a2ce2573268032733f35d5d6343cf28aa00c`, installs
+the pinned dependencies, runs both FEM implementations, and uploads the raw
+reproduction outputs.
+
 This reproduces computational evidence. It does not independently certify the
-multidimensional analytical proof.
+multidimensional analytical proof or count as an external third-party report.
