@@ -30,7 +30,7 @@ def affineBarycentric (d : ℕ) :
 theorem eval_affineBarycentric (d : ℕ) (x : Fin d → ℝ)
     (i : Fin (d + 1)) :
     MvPolynomial.eval x (affineBarycentric d i) =
-      Fin.snoc x (1 - ∑ j : Fin d, x j) i := by
+      ((Fin.snoc x (1 - ∑ j : Fin d, x j) : Fin (d + 1) → ℝ) i) := by
   refine Fin.lastCases ?_ (fun j => ?_) i
   · simp [affineBarycentric]
   · simp [affineBarycentric]
@@ -120,10 +120,17 @@ theorem eval_affineBernsteinPolynomial (d n : ℕ)
     MvPolynomial.eval x (affineBernsteinPolynomial d n α) =
       affineBernsteinCoefficient d n α *
         ∏ i : Fin (d + 1),
-          (Fin.snoc x (1 - ∑ j : Fin d, x j) i) ^ (α.1 i : ℕ) := by
+          (((Fin.snoc x (1 - ∑ j : Fin d, x j) : Fin (d + 1) → ℝ) i) ^
+            (α.1 i : ℕ)) := by
   unfold affineBernsteinPolynomial
   rw [map_mul, map_prod]
-  simp [eval_affineBarycentric]
+  change affineBernsteinCoefficient d n α *
+      ∏ i : Fin (d + 1),
+        MvPolynomial.eval x ((affineBarycentric d i) ^ (α.1 i : ℕ)) = _
+  refine congrArg (fun z : ℝ => affineBernsteinCoefficient d n α * z) ?_
+  apply Finset.prod_congr rfl
+  intro i hi
+  rw [map_pow, eval_affineBarycentric]
 
 /-- Convert affine coordinates satisfying the standard-simplex inequalities
 into a barycentric point. -/
