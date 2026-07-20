@@ -66,7 +66,8 @@ lemma sum_sixRoot (n : ℕ) (A B C : ℤ) :
           Complex.exp (-(latticeAngle n B : ℂ) * Complex.I)) +
         (Complex.exp ((latticeAngle n C : ℂ) * Complex.I) -
           Complex.exp (-(latticeAngle n C : ℂ) * Complex.I)) := by
-            norm_num [Fin.sum_univ_succ, sixRoot]
+            rw [Fin.sum_univ_six]
+            norm_num [sixRoot]
             ring
     _ = 2 * ((Real.sin (latticeAngle n A) : ℂ) +
           (Real.sin (latticeAngle n B) : ℂ) +
