@@ -36,13 +36,31 @@ jobs:
       - name: Build finite prerequisites
         working-directory: campaign/proofs/lean/A387471
         run: lake build A387471SixRoots A387471Finite60 A387471FiniteBridge
-      - name: Emit proof objects only
+      - name: Emit all remaining proof objects
         working-directory: campaign/proofs/lean/A387471
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p .lake/build/lib/lean
-          modules=(A387471Ratio A387471GridLift A387471Bounds A387471Minimal)
+          modules=(
+            A387471Ratio
+            A387471GridLift
+            A387471Bounds
+            A387471Minimal
+            A387471ThreeRoots
+            A387471AngleBounds
+            A387471Pairs
+            A387471SineCancel
+            A387471PairLabels
+            A387471TripleLabels
+            A387471Nonminimal
+            A387471GridClassification
+            A387471Converse
+            A387471Parameters
+            A387471CandidateCard
+            A387471CandidateMembership
+            A387471Exact
+          )
           : > ../../../../a387471-olean.log
           for module in "${modules[@]}"; do
             echo "=== $module ===" | tee -a ../../../../a387471-olean.log
@@ -51,18 +69,20 @@ jobs:
               -i ".lake/build/lib/lean/${module}.ilean" \
               "${module}.lean" 2>&1 | tee -a ../../../../a387471-olean.log
           done
-      - name: Audit minimal theorem axioms
+      - name: Audit terminal theorem axioms
         working-directory: campaign/proofs/lean/A387471
         shell: bash
         run: |
           set -euo pipefail
-          cat > AuditMinimal.lean <<'EOF'
-          import A387471Minimal
-          #check A387471.minimal_six_root_classification
-          #print axioms A387471.minimal_six_root_classification
+          cat > AuditExact.lean <<'EOF'
+          import A387471Exact
+          #check A387471.exactStatement_proved
+          #print axioms A387471.solutionTriples_eq_candidateSet
+          #print axioms A387471.exactStatement_proved
           EOF
-          lake env lean AuditMinimal.lean 2>&1 | tee ../../../../a387471-minimal-axioms.log
-          if grep -q sorryAx ../../../../a387471-minimal-axioms.log; then exit 1; fi
+          lake env lean AuditExact.lean 2>&1 | tee ../../../../a387471-exact-axioms.log
+          if grep -q sorryAx ../../../../a387471-exact-axioms.log; then exit 1; fi
+          grep -F 'A387471.exactStatement_proved' ../../../../a387471-exact-axioms.log
       - name: Upload transcripts
         if: always()
         uses: actions/upload-artifact@v4
@@ -70,5 +90,5 @@ jobs:
           name: a387471-olean-only
           path: |
             a387471-olean.log
-            a387471-minimal-axioms.log
+            a387471-exact-axioms.log
           if-no-files-found: warn
