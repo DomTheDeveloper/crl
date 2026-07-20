@@ -1,0 +1,105 @@
+name: Dmono22 all-double top-mask DRAT matrix
+
+on:
+  push:
+    branches:
+      - audit/dmono22-top-matrix
+    paths:
+      - '.github/workflows/dmono22-top-matrix-drat.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/dmono22-top-matrix-drat.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dmono22-top-matrix-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certify-top:
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        top: [3,5,6,9,10,12,17,18,20,24,33,34,36,40,48,65,66,68,72,80,96,129,130,132,136,144,160,192,257,258,260,264,272,288,320,384,513,514,516,520,528,544,576,640,768,1025,1026,1028,1032,1040,1056,1088,1152,1280,1536]
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install exact CNF and proof tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          pip install --disable-pip-version-check python-sat
+          sudo apt-get update
+          sudo apt-get install -y build-essential git zlib1g-dev
+          git clone --depth 1 --branch rel-4.0.4 https://github.com/arminbiere/kissat.git /tmp/kissat
+          (cd /tmp/kissat && ./configure && make -j2)
+          sudo install /tmp/kissat/build/kissat /usr/local/bin/kissat
+          git clone --depth 1 https://github.com/marijnheule/drat-trim.git /tmp/drat-trim
+          make -C /tmp/drat-trim
+          sudo install /tmp/drat-trim/drat-trim /usr/local/bin/drat-trim
+      - name: Emit exact symmetry-reduced top family
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          top='${{ matrix.top }}'
+          python3 emit_top_cnf.py "$top" "top-$top.cnf" --manifest "top-$top-manifest.json"
+          grep -q '"top_mask": '"$top" "top-$top-manifest.json"
+          sha256sum "top-$top.cnf" "top-$top-manifest.json" | tee "top-$top.sha256"
+      - name: Produce textual DRAT proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set +e
+          top='${{ matrix.top }}'
+          /usr/bin/time -v kissat --unsat --no-binary "top-$top.cnf" "top-$top.drat" \
+            > "top-$top-kissat.log" 2>&1
+          code=$?
+          tail -n 80 "top-$top-kissat.log"
+          set -e
+          if [[ "$code" != 20 ]]; then
+            echo "Expected Kissat UNSAT exit code 20, got $code" >&2
+            exit 1
+          fi
+          test -s "top-$top.drat"
+          sha256sum "top-$top.drat" | tee -a "top-$top.sha256"
+      - name: Independently replay proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          top='${{ matrix.top }}'
+          /usr/bin/time -v drat-trim "top-$top.cnf" "top-$top.drat" \
+            > "top-$top-drat-check.log" 2>&1
+          tail -n 80 "top-$top-drat-check.log"
+          grep -E 'VERIFIED|s VERIFIED' "top-$top-drat-check.log"
+      - name: Compress proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          top='${{ matrix.top }}'
+          xz -T0 -1 "top-$top.drat"
+          sha256sum "top-$top.drat.xz" | tee -a "top-$top.sha256"
+      - name: Upload certificate package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dmono22-top-${{ matrix.top }}-drat
+          path: |
+            math/checkerboard/n22_exact/top-${{ matrix.top }}.cnf
+            math/checkerboard/n22_exact/top-${{ matrix.top }}.drat.xz
+            math/checkerboard/n22_exact/top-${{ matrix.top }}-manifest.json
+            math/checkerboard/n22_exact/top-${{ matrix.top }}.sha256
+            math/checkerboard/n22_exact/top-${{ matrix.top }}-kissat.log
+            math/checkerboard/n22_exact/top-${{ matrix.top }}-drat-check.log
+          if-no-files-found: warn
+          retention-days: 30
