@@ -1,19 +1,46 @@
 Pinned toolchain: leanprover/lean4:v4.33.0-rc1
-Workflow run: 29756366830
-Head SHA: 1e3447857970115cdf72bea9099a20ff8fe014fa
+Pinned mathlib: 4608056c77c52468b80773e8dcd585ef821c7c5e
+Workflow run: 29758902996
+Head SHA: f1170dc567bcd53fa79c4d6610d0a30e089ca174
 
-BernsteinObstacle.basis_nonneg (n k : ℕ) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : 0 ≤ BernsteinObstacle.basis n k x
-BernsteinObstacle.basis_sum_eq_one (n : ℕ) (x : ℝ) : ∑ k ∈ Finset.range (n + 1), BernsteinObstacle.basis n k x = 1
-BernsteinObstacle.curve_nonneg (n : ℕ) (c : ℕ → ℝ) (hc : ∀ k ∈ Finset.range (n + 1), 0 ≤ c k) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : 0 ≤ BernsteinObstacle.curve n c x
-BernsteinObstacle.curve_mem_Icc (n : ℕ) (c : ℕ → ℝ) (m M : ℝ) (hc : ∀ k ∈ Finset.range (n + 1), c k ∈ Set.Icc m M) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : BernsteinObstacle.curve n c x ∈ Set.Icc m M
-BernsteinObstacle.curve_le_clipped_curve (n : ℕ) (c : ℕ → ℝ) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : BernsteinObstacle.curve n c x ≤ BernsteinObstacle.curve n (fun k => BernsteinObstacle.clip (c k)) x
-BernsteinObstacle.noPenetration_of_nonnegative_coefficients (ψ : ℝ → ℝ) (n : ℕ) (c : ℕ → ℝ) (hc : ∀ k ∈ Finset.range (n + 1), 0 ≤ c k) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : ψ x ≤ BernsteinObstacle.obstacleApprox ψ n c x
-BernsteinObstacle.noPenetration_after_clipping (ψ : ℝ → ℝ) (n : ℕ) (c : ℕ → ℝ) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : ψ x ≤ BernsteinObstacle.obstacleApprox ψ n (fun k => BernsteinObstacle.clip (c k)) x
-BernsteinObstacle.basis3_nonneg (n i j k : ℕ) {x y z : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) (hy0 : 0 ≤ y) (hy1 : y ≤ 1) (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : 0 ≤ BernsteinObstacle.basis3 n i j k x y z
-BernsteinObstacle.field3_nonneg (n : ℕ) (c : ℕ → ℕ → ℕ → ℝ) (hc : ∀ i ∈ Finset.range (n + 1), ∀ j ∈ Finset.range (n + 1), ∀ k ∈ Finset.range (n + 1), 0 ≤ c i j k) {x y z : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) (hy0 : 0 ≤ y) (hy1 : y ≤ 1) (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : 0 ≤ BernsteinObstacle.field3 n c x y z
-BernsteinObstacle.clipped_field3_nonneg (n : ℕ) (c : ℕ → ℕ → ℕ → ℝ) {x y z : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) (hy0 : 0 ≤ y) (hy1 : y ≤ 1) (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : 0 ≤ BernsteinObstacle.field3 n (BernsteinObstacle.clip3 c) x y z
-BernsteinObstacle.noPenetration3_of_nonnegative_coefficients (ψ : ℝ → ℝ → ℝ → ℝ) (n : ℕ) (c : ℕ → ℕ → ℕ → ℝ) (hc : ∀ i ∈ Finset.range (n + 1), ∀ j ∈ Finset.range (n + 1), ∀ k ∈ Finset.range (n + 1), 0 ≤ c i j k) {x y z : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) (hy0 : 0 ≤ y) (hy1 : y ≤ 1) (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : ψ x y z ≤ BernsteinObstacle.obstacleApprox3 ψ n c x y z
-BernsteinObstacle.noPenetration3_after_clipping (ψ : ℝ → ℝ → ℝ → ℝ) (n : ℕ) (c : ℕ → ℕ → ℕ → ℝ) {x y z : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) (hy0 : 0 ≤ y) (hy1 : y ≤ 1) (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : ψ x y z ≤ BernsteinObstacle.obstacleApprox3 ψ n (BernsteinObstacle.clip3 c) x y z
+Audited declarations:
 
-All audited declarations depend only on: [propext, Classical.choice, Quot.sound]
+1D bridge
+- BernsteinObstacle.basis_nonneg
+- BernsteinObstacle.basis_sum_eq_one
+- BernsteinObstacle.curve_nonneg
+- BernsteinObstacle.curve_mem_Icc
+- BernsteinObstacle.curve_le_clipped_curve
+- BernsteinObstacle.noPenetration_of_nonnegative_coefficients
+- BernsteinObstacle.noPenetration_after_clipping
+
+Coefficient cone
+- BernsteinObstacle.coefficientCone_convex
+- BernsteinObstacle.clipCoefficients_mem
+- BernsteinObstacle.clipCoefficients_idem
+- BernsteinObstacle.clipCoefficients_minimal
+
+Tensor-product 3D bridge
+- BernsteinObstacle.basis3_nonneg
+- BernsteinObstacle.field3_nonneg
+- BernsteinObstacle.clipped_field3_nonneg
+- BernsteinObstacle.noPenetration3_of_nonnegative_coefficients
+- BernsteinObstacle.noPenetration3_after_clipping
+
+Arbitrary-simplex bridge
+- BernsteinObstacle.simplexBasis_nonneg
+- BernsteinObstacle.simplexField_nonneg
+- BernsteinObstacle.clipped_simplexField_nonneg
+- BernsteinObstacle.simplex_noPenetration_of_nonnegative_coefficients
+- BernsteinObstacle.simplex_noPenetration_after_clipping
+
+Arbitrary-simplex partition and range certificate
+- BernsteinObstacle.simplexBasisNat_nonneg
+- BernsteinObstacle.simplexBasisNat_sum_eq_one
+- BernsteinObstacle.simplexFieldNat_nonneg
+- BernsteinObstacle.simplexFieldNat_mem_Icc
+
+Every printed declaration depends only on:
+[propext, Classical.choice, Quot.sound]
+
 No sorryAx was reported.
