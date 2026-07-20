@@ -37,7 +37,7 @@ theorem abs_coefficient_le_valueBound_add_error
     |b| ≤ valueBound + err := by
   calc
     |b| = |(b - v) + v| := by ring_nf
-    _ ≤ |b - v| + |v| := abs_add _ _
+    _ ≤ |b - v| + |v| := abs_add_le _ _
     _ ≤ err + valueBound := add_le_add herror hvalue
     _ = valueBound + err := by ring
 
