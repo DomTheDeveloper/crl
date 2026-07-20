@@ -42,23 +42,23 @@ def lastFaceMultiIndex (d n : ℕ) (β : MultiIndex d n) :
 theorem lastFacePoint_castSucc (d : ℕ) (x : BarycentricPoint d)
     (i : Fin (d + 1)) :
     (lastFacePoint d x).1 i.castSucc = x.1 i := by
-  rfl
+  simp [lastFacePoint]
 
 @[simp]
 theorem lastFacePoint_last (d : ℕ) (x : BarycentricPoint d) :
     (lastFacePoint d x).1 (Fin.last (d + 1)) = 0 := by
-  rfl
+  simp [lastFacePoint]
 
 @[simp]
 theorem lastFaceMultiIndex_castSucc (d n : ℕ) (β : MultiIndex d n)
     (i : Fin (d + 1)) :
     (lastFaceMultiIndex d n β).1 i.castSucc = β.1 i := by
-  rfl
+  simp [lastFaceMultiIndex]
 
 @[simp]
 theorem lastFaceMultiIndex_last (d n : ℕ) (β : MultiIndex d n) :
     (lastFaceMultiIndex d n β).1 (Fin.last (d + 1)) = 0 := by
-  rfl
+  simp [lastFaceMultiIndex]
 
 /-- The ambient Bernstein basis associated with an embedded face multi-index
 restricts exactly to the lower-dimensional Bernstein basis. -/
@@ -77,8 +77,8 @@ theorem simplexBasis_lastFace_eq_zero_of_last_pos (d n : ℕ)
     (hpos : 0 < (α.1 (Fin.last (d + 1)) : ℕ)) :
     simplexBasis (d + 1) n α (lastFacePoint d x) = 0 := by
   unfold simplexBasis
-  rw [Fin.prod_univ_castSucc]
-  simp [zero_pow hpos]
+  rw [Fin.prod_univ_castSucc, Fin.prod_univ_castSucc]
+  simp [zero_pow hpos.ne']
 
 end
 
