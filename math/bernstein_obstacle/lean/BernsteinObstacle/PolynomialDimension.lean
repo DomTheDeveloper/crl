@@ -77,7 +77,11 @@ def affineMultiIndexMonomialEquiv (d n : ℕ) :
 index of the affine polynomial space. -/
 def multiIndexMonomialEquiv (d n : ℕ) :
     MultiIndex d n ≃ RestrictedMonomialIndex d n :=
-  multiIndexAffineEquiv d n ≪≫ affineMultiIndexMonomialEquiv d n
+  (multiIndexAffineEquiv d n).trans (affineMultiIndexMonomialEquiv d n)
+
+noncomputable instance restrictedMonomialIndexFintype (d n : ℕ) :
+    Fintype (RestrictedMonomialIndex d n) :=
+  Fintype.ofEquiv (MultiIndex d n) (multiIndexMonomialEquiv d n)
 
 /-- The finite dimension of the total-degree polynomial space equals the
 cardinality of its canonical bounded monomial index set. -/
@@ -86,7 +90,7 @@ theorem finrank_restrictTotalDegree_eq_card_restrictedMonomialIndex
     Module.finrank ℝ (MvPolynomial.restrictTotalDegree (Fin d) ℝ n) =
       Fintype.card (RestrictedMonomialIndex d n) := by
   simpa [MvPolynomial.restrictTotalDegree] using
-    (FiniteDimensional.finrank_eq_card_basis
+    (finrank_eq_card_basis
       (MvPolynomial.basisRestrictSupport ℝ
         {s : Fin d →₀ ℕ | s.sum (fun _ e => e) ≤ n}))
 
