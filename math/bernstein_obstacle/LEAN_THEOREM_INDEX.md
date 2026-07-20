@@ -5,10 +5,10 @@ files. “Verified” means compiled under the pinned toolchain and included in 
 terminal `#print axioms` audit. “Represented” means a related theorem exists,
 but the full paper statement is not formalized.
 
-Latest complete audit: workflow run `29764936819`, commit
-`d6eb3287f5e9251247872363c42caa4ef7500bd9`.
+Latest complete audit: workflow run `29767290521`, commit
+`2d580a14ef1a86d5696c81979fb765c3a2dcdbc6`.
 
-The audit completed all 3,074 `BernsteinObstacle` build jobs, ran both terminal
+The audit completed all 3,080 `BernsteinObstacle` build jobs, ran both terminal
 audit entry points, rejected `sorryAx`, and reported only `propext`,
 `Classical.choice`, and `Quot.sound`.
 
@@ -35,6 +35,7 @@ audit entry points, rejected `sorryAx`, and reported only `propext`,
 | Globally shared clipping preserves boundary zeros and gives elementwise nonpenetration | `boundary_zero_after_clipping`, `global_noPenetration_after_clipping` | Verified | Physical mesh and coordinate maps must instantiate the abstract assembly |
 | Complete common-face trace equality from shared DOFs | `localFaceTrace_eq_sharedFaceTrace`, `localFaceTrace_eq_of_commonFace` in `FaceTrace.lean` | Verified | Prove the concrete simplex face embedding satisfies `FaceDofCompatible` |
 | Global clipping preserves complete common-face traces | `clipped_localFaceTrace_eq_of_commonFace` | Verified | Same geometric compatibility instantiation remains |
+| Orientation-reindexed common-face trace equality | `finiteTrace_eq_of_reindex`, `localFaceTrace_eq_of_orientation`, `clipped_localFaceTrace_eq_of_orientation` in `FaceOrientation.lean` | Verified | Instantiate the orientation equivalence for a concrete simplicial mesh |
 | Homogeneous boundary-face traces vanish, including clipped recoveries | `sharedBoundaryFaceTrace_eq_zero`, `localBoundaryFaceTrace_eq_zero`, `clippedRecovery_localBoundaryFaceTrace_eq_zero` | Verified | Identify the physical boundary-face DOFs in a concrete mesh |
 | Assembled coefficient constraints are nonempty and convex | `zero_mem_assemblyFeasibleSet`, `assemblyFeasibleSet_convex` in `AssemblyConvex.lean` | Verified | None for the finite abstract assembly |
 | Clipping is the assembled feasible projection for boundary-compatible data | `clipCoefficients_sqDist_minimal_assembly`, `clipCoefficients_projection_inequality_assembly` | Verified | None for the finite abstract assembly |
@@ -42,18 +43,26 @@ audit entry points, rejected `sorryAx`, and reported only `propext`,
 | An assembled VI solution is feasible, nonpenetrating, and boundary-zero | `assembledSolution_mem_feasibleSet`, `assembledSolution_noPenetration`, `assembledSolution_boundary_zero` | Verified | Existence and identification with the PDE discretization remain |
 | An assembled VI solution minimizes the symmetric PSD energy | `assembledSolution_is_energyMinimizer` | Verified | Show the assembled FEM stiffness matrix satisfies the hypotheses |
 | Assembled feasible recovery controls the minimizer error | `assembledSolution_half_error_le_energyGap`, `assembledSolution_coercive_error_le_energyGap`, `assembledSolution_coercive_error_le_clippedRecoveryGap` | Verified | Establish FEM coercivity and a vanishing recovery energy gap |
-| General barycentric-lattice unisolvence | Natural-language proof in `UNISOLVENCE_PROOF.md` | Not in Lean | Formal cardinal basis, evaluation matrix, and dimension count |
+| Coefficient squared norm controls the finite product norm | `norm_sq_le_coefficientNormSq`, `norm_le_sqrt_coefficientNormSq` in `CoefficientNorm.lean` | Verified | Relate this finite coefficient norm uniformly to the physical `H^1` norm on changing meshes |
+| Vanishing coefficient squared error gives strong convergence | `stronglyConverges_zero_of_coefficientNormSq_tendsto_zero`, `stronglyConverges_of_recovery_coefficientNormSq`, `stronglyConverges_of_recovery_coefficientNormSq_bound` | Verified | Produce the coefficient error from the moving FEM recovery estimate |
+| Uniform coercivity plus a vanishing recovery energy gap gives strong convergence | `coefficientNormSq_tendsto_zero_of_scaled_le`, `stronglyConverges_of_recovery_scaledEnergyGap`, `assembledVISolutions_strongConvergence_of_energyGap` in `EnergyGapConvergence.lean` | Verified | Prove uniform assembled FEM coercivity and the recovery energy-gap limit |
+| Boundary-compatible clipped recovery plus vanishing energy gap gives strong convergence | `assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap` | Verified | Construct the physical Bernstein recovery sequence and prove the energy-gap limit |
+| Positive coercivity gives uniqueness of the finite obstacle VI solution | `coefficientNormSq_eq_zero_iff`, `discreteVISolution_unique_of_coercive`, `assembledObstacleSolution_unique_of_coercive` in `Uniqueness.lean` | Verified | Existence and physical FEM identification remain |
+| Falling-factorial cardinal values satisfy the all-degree lattice delta formula | `latticeFactor_self`, `latticeFactor_eq_zero_of_lt`, `latticeCardinalValue_eq_ite` in `LatticeCardinal.lean` | Verified | Package the expressions as multivariate polynomials of total degree at most `n` |
+| Cardinal collocation matrix is the identity with determinant one | `latticeCardinalMatrix_apply`, `latticeCardinalMatrix_eq_one`, `latticeCardinalMatrix_det` in `LatticeInterpolation.lean` | Verified | Connect the cardinal polynomial family to the full polynomial space `P_n` |
+| Exact cardinal nodal interpolation and injectivity | `latticeCardinalInterpolantValue_eq`, `latticeCardinalEvaluation_eq_id`, `latticeCardinalEvaluation_injective` | Verified | Formal polynomial-space dimension and Bernstein-basis change-of-basis remain |
+| General barycentric-lattice unisolvence for `P_n` and invertibility of the Bernstein collocation matrix | Cardinal delta and identity collocation matrix verified | Partially represented | Formalize the cardinal expressions in `MvPolynomial`, prove total degree `≤ n`, prove `#A_n = dim P_n`, and connect the Bernstein basis to `P_n` |
 | Sequential Mosco convergence definition and strong/weak obligations | `MoscoConverges`, `mosco_recovery`, `mosco_weak_limit` in `Mosco.lean` | Verified infrastructure | Must prove the moving Sobolev Bernstein cones satisfy these obligations |
 | Mosco reduction for inner approximations and recovery operators | `mosco_of_recovery_of_subset_of_weaklyClosed`, `mosco_of_recovery_operators_of_subset_of_weaklyClosed` in `MoscoTools.lean` | Verified | Sobolev weak closedness, discrete-set inclusion, and positive recovery remain |
 | Finite nonnegative coefficient cone is weakly sequentially closed and Mosco constant | `coefficientCone_weaklySequentiallyClosed`, `coefficientCone_mosco_const` in `CoefficientMosco.lean` | Verified | This is finite-dimensional, not the moving-mesh PDE theorem |
 | Assembled feasible set is weakly sequentially closed and Mosco constant | `assemblyFeasibleSet_weaklySequentiallyClosed`, `assemblyFeasibleSet_mosco_const` in `AssemblyMosco.lean` | Verified | Moving DOF spaces and Sobolev embeddings remain |
 | Exact symmetric quadratic-energy identity | `discreteEnergy_difference_identity`, `half_error_energy_le`, `coercive_error_le_energy` in `Energy.lean` | Verified | Connect the matrix form to assembled FEM bilinear forms and the `H^1` norm |
-| A finite discrete VI solution minimizes the quadratic energy | `vi_solution_is_energy_minimizer` in `FiniteObstacle.lean` | Verified | Existence/uniqueness and assembly from the PDE discretization remain |
+| A finite discrete VI solution minimizes the quadratic energy | `vi_solution_is_energy_minimizer` in `FiniteObstacle.lean` | Verified | Existence and assembly from the PDE discretization remain |
 | Feasible recovery competitor controls discrete minimizer error | `vi_solution_half_error_le_energy_gap`, `vi_solution_coercive_error_le_energy_gap` | Verified | Prove the recovery energy gap tends to zero in the FEM setting |
 | Recovery closeness transfers strong convergence to discrete minimizers | `stronglyConverges_of_recovery_closeness`, `mosco_recovery_closeness_implies_strong_convergence`, `recoveryOperator_closeness_implies_strong_convergence` | Verified | Derive the vanishing norm majorant from FEM estimates |
 | Boundary-compatible clipped recovery is assembled-feasible and yields strong convergence | `assembledClippedRecovery_implies_strongConvergence` in `AssemblyConvergence.lean` | Verified | Construct the actual Bernstein recovery and prove its convergence/error majorant |
 | Assembled Mosco/operator convergence interfaces | `assemblyMosco_recovery_closeness_implies_strongConvergence`, `assemblyRecoveryOperator_closeness_implies_strongConvergence` | Verified | Instantiate with moving finite-element spaces and the physical `H_0^1` target |
-| Full strong convergence of Bernstein obstacle minimizers | Above assembly, Mosco, energy, VI, face-trace, and convergence layers | Partially represented | Sobolev/FEM recovery, moving spaces, assembled coercivity, and vanishing energy gap |
+| Full strong convergence of Bernstein obstacle minimizers | Above assembly, Mosco, energy, VI, uniqueness, face-trace, and convergence layers | Partially represented | Sobolev/FEM recovery, changing spaces, physical coercivity/consistency, and the vanishing energy gap |
 | Coefficient-to-grid-value `O(h_T^2)` estimate | No project declaration | Not formalized | Simplicial interpolation, Taylor/Bramble–Hilbert, affine scaling |
 | Localization of negative coefficients near regular free boundary | No project declaration | Not formalized | Free-boundary geometry, quadratic growth, mesh strips |
 | Recovery rate `h^r + h_Gamma^(3/2)` | No project declaration | Not formalized | FEM interpolation, coefficient localization, clipping repair, and strip scaling |
@@ -66,13 +75,16 @@ The paper must not state that the multidimensional PDE theorem is Lean-verified
 until every row needed for that theorem is green and the exact hypotheses are
 linked to corresponding declarations. The verified layer now covers finite
 coefficient certificates, projection/KKT theory, abstract global assembly,
-complete shared-face trace conformity, boundary traces, finite assembled
-convexity and weak closure, finite Mosco convergence, assembled obstacle VI and
-energy estimates, and the clipped-recovery-to-strong-convergence endgame.
+orientation-independent complete shared-face trace conformity, boundary traces,
+finite assembled convexity and weak closure, finite Mosco convergence, assembled
+obstacle VI minimization and uniqueness, coercive energy-gap convergence,
+clipped recovery, and the finite collocation-matrix half of all-degree lattice
+unisolvence.
 
 The remaining core is the infinite-dimensional and geometric realization:
 construct concrete shape-regular simplicial meshes and their face maps, embed
 the changing coefficient spaces into `H_0^1`, formalize positive Sobolev
-recovery and weak closedness, prove assembled coercivity and consistency, and
-then formalize interpolation, free-boundary localization, strip scaling, and
-the sharp `h^r + h_Gamma^(3/2)` rate.
+recovery and weak closedness, prove physical assembled coercivity and
+consistency, finish the polynomial-space half of unisolvence, and then formalize
+interpolation, free-boundary localization, strip scaling, and the sharp
+`h^r + h_Gamma^(3/2)` rate.
