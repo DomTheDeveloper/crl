@@ -1,0 +1,38 @@
+name: Verify checkerboard axiom audit
+
+on:
+  pull_request:
+    paths:
+      - "proofs/lean/Checkerboard/**"
+      - ".github/workflows/verify-checkerboard-axiom-audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-axioms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Reject unfinished shortcuts across Checkerboard sources
+        working-directory: proofs/lean/Checkerboard
+        run: |
+          ! grep -RnE '^[[:space:]]*(sorry|admit|native_decide|axiom|opaque)([[:space:]]|$)' --include='*.lean' Checkerboard Checkerboard.lean
+      - name: Resolve pinned Mathlib
+        working-directory: proofs/lean/Checkerboard
+        run: lake update
+      - name: Fetch Mathlib cache
+        working-directory: proofs/lean/Checkerboard
+        run: lake exe cache get
+      - name: Compile package axiom audit
+        working-directory: proofs/lean/Checkerboard
+        run: lake env lean Checkerboard/AxiomAudit.lean 2>&1 | tee axiom-audit.log
+      - name: Reject sorryAx
+        working-directory: proofs/lean/Checkerboard
+        run: |
+          ! grep -q 'sorryAx' axiom-audit.log
