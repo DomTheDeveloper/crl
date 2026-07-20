@@ -1,7 +1,7 @@
 import BernsteinObstacle
 
 -- Regression target: finite certificate, projection/KKT, energy, Mosco tools,
--- and recovery-to-minimizer strong convergence.
+-- finite coefficient-cone Mosco convergence, and recovery-to-minimizer transfer.
 
 #check BernsteinObstacle.basis_nonneg
 #check BernsteinObstacle.basis_sum_eq_one
@@ -54,6 +54,9 @@ import BernsteinObstacle
 #check BernsteinObstacle.mosco_of_recovery_of_subset_of_weaklyClosed
 #check BernsteinObstacle.mosco_of_recovery_operators_of_subset_of_weaklyClosed
 #check BernsteinObstacle.mosco_const_of_weaklyClosed
+#check BernsteinObstacle.coefficientCone_weaklySequentiallyClosed
+#check BernsteinObstacle.coefficientCone_mosco_const
+#check BernsteinObstacle.coefficientCone_identity_recovery
 #check BernsteinObstacle.stronglyConverges_of_recovery_closeness
 #check BernsteinObstacle.mosco_recovery_closeness_implies_strong_convergence
 #check BernsteinObstacle.recoveryOperator_closeness_implies_strong_convergence
@@ -109,6 +112,9 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.mosco_of_recovery_of_subset_of_weaklyClosed
 #print axioms BernsteinObstacle.mosco_of_recovery_operators_of_subset_of_weaklyClosed
 #print axioms BernsteinObstacle.mosco_const_of_weaklyClosed
+#print axioms BernsteinObstacle.coefficientCone_weaklySequentiallyClosed
+#print axioms BernsteinObstacle.coefficientCone_mosco_const
+#print axioms BernsteinObstacle.coefficientCone_identity_recovery
 #print axioms BernsteinObstacle.stronglyConverges_of_recovery_closeness
 #print axioms BernsteinObstacle.mosco_recovery_closeness_implies_strong_convergence
 #print axioms BernsteinObstacle.recoveryOperator_closeness_implies_strong_convergence
