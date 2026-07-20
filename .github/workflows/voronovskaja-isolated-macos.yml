@@ -30,6 +30,29 @@ jobs:
       - name: Resolve exact proof dependency
         working-directory: ci/lean/Voronovskaja
         run: lake update
+      - name: Apply final product-normalization patch
+        working-directory: ci/lean/Voronovskaja/.lake/packages/formal_conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("FormalConjecturesForMathlib/Probability/Distributions/Binomial.lean")
+          text = path.read_text()
+          old = """  rw [hexp]
+  push_cast
+  ring
+"""
+          new = """  rw [hexp]
+  push_cast
+  rw [mul_pow]
+  ac_rfl
+"""
+          if text.count(old) != 1:
+              raise SystemExit("expected exactly one Voronovskaja normalization site")
+          path.write_text(text.replace(old, new))
+          PY
       - name: Fetch Mathlib cache
         working-directory: ci/lean/Voronovskaja
         run: lake exe cache get
