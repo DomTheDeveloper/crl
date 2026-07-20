@@ -63,6 +63,7 @@ lemma sum_sixRoot (n : ℕ) (A B C : ℤ) :
         sixRoot n A B C 0 + sixRoot n A B C 1 + sixRoot n A B C 2 +
           sixRoot n A B C 3 + sixRoot n A B C 4 + sixRoot n A B C 5 := by
             simp [Fin.sum_univ_succ]
+            ring
     _ = (Complex.exp ((latticeAngle n A : ℂ) * Complex.I) -
           Complex.exp (-(latticeAngle n A : ℂ) * Complex.I)) +
         (Complex.exp ((latticeAngle n B : ℂ) * Complex.I) -
