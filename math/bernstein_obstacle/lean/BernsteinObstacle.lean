@@ -2,3 +2,4 @@ import BernsteinObstacle.Core
 import BernsteinObstacle.CoefficientCone
 import BernsteinObstacle.Tensor
 import BernsteinObstacle.Simplex
+import BernsteinObstacle.SimplexPartition
