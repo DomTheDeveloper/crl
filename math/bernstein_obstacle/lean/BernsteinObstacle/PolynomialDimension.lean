@@ -103,9 +103,11 @@ theorem finrank_restrictTotalDegree_eq_card_restrictedMonomialIndex
       Module.finrank_eq_nat_card_basis
         (MvPolynomial.basisRestrictSupport ℝ
           {s : Fin d →₀ ℕ | s.sum (fun _ e => e) ≤ n})
-    _ = Fintype.card {s : Fin d →₀ ℕ // s.sum (fun _ e => e) ≤ n} :=
-      (Set.fintypeCard_eq_ncard
+    _ = Nat.card {s : Fin d →₀ ℕ // s.sum (fun _ e => e) ≤ n} :=
+      (Nat.card_coe_set_eq
         ({s : Fin d →₀ ℕ | s.sum (fun _ e => e) ≤ n} : Set _)).symm
+    _ = Fintype.card {s : Fin d →₀ ℕ // s.sum (fun _ e => e) ≤ n} :=
+      Nat.card_eq_fintype_card
 
 /-- Therefore the dimension of `P_n` in `d` affine coordinates is exactly the
 number of degree-`n` simplex lattice points. -/
