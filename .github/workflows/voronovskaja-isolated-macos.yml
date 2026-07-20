@@ -33,11 +33,17 @@ jobs:
       - name: Fetch Mathlib cache
         working-directory: ci/lean/Voronovskaja
         run: lake exe cache get
+      - name: Build exact proof module
+        working-directory: ci/lean/Voronovskaja
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build formal_conjectures:FormalConjectures.Paper.VoronovskajaTypeFormula
       - name: Compile and audit exact catalog theorem
         working-directory: ci/lean/Voronovskaja
         shell: bash
         run: |
-          set -o pipefail
+          set -euo pipefail
           lake env lean Audit.lean 2>&1 | tee audit.log
           if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' audit.log; then
             exit 1
