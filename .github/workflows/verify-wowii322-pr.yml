@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 271895775d9833dd8a1480126cbe112779d953ef
+          ref: 2618754b0889f9e80cdff09d617d8017e1b4c8e5
           path: formal-conjectures
 
       - name: Install pinned Lean
