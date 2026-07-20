@@ -59,6 +59,7 @@ jobs:
           lake env lean FaceTraceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SimplexFaceFieldAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean GeometryRecoveryAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean SimplexAffineReproductionAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean AffineBernsteinAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean ConvergenceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean MovingAnalysisAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
@@ -75,6 +76,8 @@ jobs:
           grep -F 'BernsteinObstacle.simplexField_orientedLastFace_extension' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.simplexSamplingRecovery_nonneg' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexMultinomialPolynomialExpansion' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.clipped_orientedSimplexFaceTrace_eq_of_sharedDofs' \
             bernstein-obstacle-axioms.log
