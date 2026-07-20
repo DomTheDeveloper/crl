@@ -1,0 +1,35 @@
+import BernsteinObstacle
+
+-- Canonical grand-theorem regression targets.
+
+#check BernsteinObstacle.affineBox_mem_Icc
+#check BernsteinObstacle.boxApprox_mem_Icc
+#check BernsteinObstacle.simplexBoxApproxNat_mem_Icc
+#check BernsteinObstacle.BilateralBarrierEnvelopeData.moscoConverges
+#check BernsteinObstacle.BilateralBarrierEnvelopeData.inner_and_mosco
+#check BernsteinObstacle.hilbert_vi_pythagorean
+#check BernsteinObstacle.hilbert_vi_unique
+#check BernsteinObstacle.nested_hilbert_vi_recovery_error_sq
+#check BernsteinObstacle.nested_hilbert_vi_strongConvergence_of_recovery
+#check BernsteinObstacle.BilateralBarrierEnvelopeData.grandBarrier_mosco_and_hilbertConvergence
+#check BernsteinObstacle.twoScaleRate_of_energy_components
+#check BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure
+#check BernsteinObstacle.monotoneInnerCone_falk_sq
+#check BernsteinObstacle.threeHalvesContactLaw
+#check BernsteinObstacle.balancedContactOrder_equalizes
+
+#print axioms BernsteinObstacle.affineBox_mem_Icc
+#print axioms BernsteinObstacle.boxApprox_mem_Icc
+#print axioms BernsteinObstacle.simplexBoxApproxNat_mem_Icc
+#print axioms BernsteinObstacle.BilateralBarrierEnvelopeData.moscoConverges
+#print axioms BernsteinObstacle.BilateralBarrierEnvelopeData.inner_and_mosco
+#print axioms BernsteinObstacle.hilbert_vi_pythagorean
+#print axioms BernsteinObstacle.hilbert_vi_unique
+#print axioms BernsteinObstacle.nested_hilbert_vi_recovery_error_sq
+#print axioms BernsteinObstacle.nested_hilbert_vi_strongConvergence_of_recovery
+#print axioms BernsteinObstacle.BilateralBarrierEnvelopeData.grandBarrier_mosco_and_hilbertConvergence
+#print axioms BernsteinObstacle.twoScaleRate_of_energy_components
+#print axioms BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure
+#print axioms BernsteinObstacle.monotoneInnerCone_falk_sq
+#print axioms BernsteinObstacle.threeHalvesContactLaw
+#print axioms BernsteinObstacle.balancedContactOrder_equalizes
