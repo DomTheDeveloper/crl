@@ -40,6 +40,18 @@ jobs:
           [[lean_lib]]
           name = "WOWII"
           EOF
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('.lake/packages/formal_conjectures/WOWII/ZZGraphConjecture314C5Bags.lean')
+          text = path.read_text()
+          old = '    fin_cases y <;> simp_all [Fin.neg_def] <;> omega'
+          new = '    fin_cases y <;> norm_num [Fin.neg_def] at hy ⊢'
+          count = text.count(old)
+          print(f'closed Fin 5 normalization replacements: {count}')
+          if count != 10:
+              raise SystemExit(f'expected 10 finite normalization sites, found {count}')
+          path.write_text(text.replace(old, new))
+          PY
       - name: Fetch Mathlib cache
         working-directory: ci/lean/WOWII314
         run: lake exe cache get
