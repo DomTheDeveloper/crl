@@ -99,6 +99,8 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.twoScaleRate_of_energy_components' \
+            bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.universalFirstOrderRate_of_energy' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure' \
