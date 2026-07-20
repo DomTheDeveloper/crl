@@ -56,12 +56,15 @@ jobs:
           set -euo pipefail
           lake env lean Audit.lean 2>&1 | tee bernstein-obstacle-axioms.log
           lake env lean FaceTraceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean AffineBernsteinAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           if grep -q 'sorryAx' bernstein-obstacle-axioms.log; then
             echo 'Unexpected sorryAx found' >&2
             exit 1
           fi
           grep -F 'BernsteinObstacle.noPenetration_after_clipping' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.clippedRecovery_localBoundaryFaceTrace_eq_zero' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis' \
             bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript
