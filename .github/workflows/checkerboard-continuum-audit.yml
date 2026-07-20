@@ -6,6 +6,11 @@ on:
       - agent/checkerboard-lp-asymptotic-lean
     paths:
       - '.github/workflows/checkerboard-continuum-audit.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/checkerboard-continuum-audit.yml'
+      - 'proofs/lean/Checkerboard/**'
+      - 'scripts/checkerboard/**'
   workflow_dispatch:
 
 permissions:
