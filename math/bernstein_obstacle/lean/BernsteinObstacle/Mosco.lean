@@ -21,12 +21,12 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
 
 /-- Strong convergence of a sequence in the norm topology. -/
 def StronglyConverges (u : ℕ → E) (x : E) : Prop :=
-  Tendsto u atTop (𝓝 x)
+  Tendsto u atTop (nhds x)
 
 /-- Weak sequential convergence, tested against every continuous linear
 functional. -/
 def WeaklyConverges (u : ℕ → E) (x : E) : Prop :=
-  ∀ φ : E →L[ℝ] ℝ, Tendsto (fun n => φ (u n)) atTop (𝓝 (φ x))
+  ∀ φ : E →L[ℝ] ℝ, Tendsto (fun n => φ (u n)) atTop (nhds (φ x))
 
 /-- Sequential Mosco convergence of moving sets `K n` to `K`.  The first field
 is the strong recovery condition.  The second is the weak limit condition along
@@ -36,7 +36,7 @@ structure MoscoConverges (K : ℕ → Set E) (Klim : Set E) : Prop where
     ∀ x ∈ Klim, ∃ u : ℕ → E,
       (∀ n, u n ∈ K n) ∧ StronglyConverges u x
   weak_limit :
-    ∀ (φ : ℕ → ℕ), StrictMono φ,
+    ∀ (φ : ℕ → ℕ), StrictMono φ →
       ∀ (u : ℕ → E) (x : E),
         (∀ n, u n ∈ K (φ n)) → WeaklyConverges u x → x ∈ Klim
 
@@ -59,7 +59,7 @@ theorem moscoConverges_const_self (K : Set E)
   · intro φ hφ u x hu hweak
     exact hK u x (fun n => hu n) hweak
 
-/-- The two defining conditions can be extracted without unfolding the
+/-- The strong recovery condition can be extracted without unfolding the
 structure at use sites. -/
 theorem mosco_recovery {K : ℕ → Set E} {Klim : Set E}
     (hM : MoscoConverges K Klim) {x : E} (hx : x ∈ Klim) :
