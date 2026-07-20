@@ -40,7 +40,7 @@ theorem clip_variational_inequality (a b : ℝ) (hb : 0 ≤ b) :
   · have hclip : clip a = a := by
       simp [clip, max_eq_left ha]
     rw [hclip]
-    ring_nf
+    norm_num
   · have ha0 : a ≤ 0 := le_of_not_ge ha
     have hclip : clip a = 0 := by
       simp [clip, max_eq_right ha0]
@@ -83,7 +83,7 @@ theorem clip_sqDist_nonexpansive (a b : ℝ) :
       have hcb : clip b = 0 := by
         simp [clip, max_eq_right hb0]
       rw [hca, hcb]
-      positivity
+      nlinarith [sq_nonneg (b - a)]
 
 /-- Euclidean pairing between two finite coefficient vectors. -/
 def coefficientDot {ι : Type*} [Fintype ι]
