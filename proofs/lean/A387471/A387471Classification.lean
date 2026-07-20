@@ -50,8 +50,9 @@ theorem vanishing_relation_coprime_power {N : ℕ} (hN : 0 < N) {ζ : ℂ}
   have hroot : Polynomial.aeval (ζ ^ u) (minpoly ℚ ζ) = 0 := by
     rw [← Polynomial.cyclotomic_eq_minpoly_rat hζ hN]
     have hrootC := (hζ.pow_of_coprime u hu).isRoot_cyclotomic hN
-    rw [← Polynomial.map_cyclotomic N (algebraMap ℚ ℂ)] at hrootC
-    simpa [Polynomial.IsRoot, Polynomial.aeval_def] using hrootC
+    rw [Polynomial.aeval_def, ← Polynomial.eval_map,
+      Polynomial.map_cyclotomic]
+    exact hrootC
   have heval : Polynomial.aeval (ζ ^ u) (exponentPolynomial s a) = 0 := by
     rw [hq, map_mul, hroot, zero_mul]
   simpa [pow_mul] using heval
