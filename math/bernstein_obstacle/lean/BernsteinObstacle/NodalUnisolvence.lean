@@ -33,9 +33,12 @@ theorem affineNodeFunctional_eq_cardinalBasis_coord (d n : ℕ)
     affineNodeFunctional d n β = (affineLatticeCardinalBasis d n).coord β := by
   apply (affineLatticeCardinalBasis d n).ext
   intro α
-  simp [affineNodeFunctional, affineLatticeCardinalBasis_apply,
-    affineLatticeCardinalVector,
-    eval_affineLatticeCardinalPolynomial_eq_ite]
+  rw [affineLatticeCardinalBasis_apply]
+  change MvPolynomial.eval (fun j : Fin d => (β.1 j.castSucc : ℝ))
+      (affineLatticeCardinalPolynomial d n α) =
+    (affineLatticeCardinalBasis d n).repr
+      (affineLatticeCardinalVector d n α) β
+  rw [eval_affineLatticeCardinalPolynomial_eq_ite]
   rw [← affineLatticeCardinalBasis_apply d n α]
   exact ((affineLatticeCardinalBasis d n).repr_self_apply α β).symm
 
@@ -87,7 +90,7 @@ theorem existsUnique_polynomial_with_simplex_lattice_values (d n : ℕ)
       ((affineNodalEvaluationEquiv d n).apply_symm_apply values) β
     rw [affineNodalEvaluationEquiv_apply, affineNodalEvaluationEquiv_apply]
     rw [hq β]
-    exact hp.symm
+    simpa [p, affineNodalEvaluationEquiv_apply] using hp.symm
 
 end
 
