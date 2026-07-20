@@ -1,0 +1,11 @@
+import BernsteinObstacle
+
+#check BernsteinObstacle.fullSimplexExponent_apply
+#check BernsteinObstacle.prod_X_pow_eq_fullSimplexMonomial
+#check BernsteinObstacle.simplexMultinomialPolynomialExpansion
+#check BernsteinObstacle.pderiv_sum_X_eq_one
+
+#print axioms BernsteinObstacle.fullSimplexExponent_apply
+#print axioms BernsteinObstacle.prod_X_pow_eq_fullSimplexMonomial
+#print axioms BernsteinObstacle.simplexMultinomialPolynomialExpansion
+#print axioms BernsteinObstacle.pderiv_sum_X_eq_one
