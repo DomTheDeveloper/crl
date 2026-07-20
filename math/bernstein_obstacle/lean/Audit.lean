@@ -11,6 +11,9 @@ import BernsteinObstacle
 #check BernsteinObstacle.clipCoefficients_mem
 #check BernsteinObstacle.clipCoefficients_idem
 #check BernsteinObstacle.clipCoefficients_minimal
+#check BernsteinObstacle.clipCoefficients_sqDist_minimal
+#check BernsteinObstacle.clipCoefficients_eq_self_iff
+#check BernsteinObstacle.coefficientSqDist_clip_eq_zero_iff
 #check BernsteinObstacle.basis3_nonneg
 #check BernsteinObstacle.field3_nonneg
 #check BernsteinObstacle.clipped_field3_nonneg
@@ -25,6 +28,16 @@ import BernsteinObstacle
 #check BernsteinObstacle.simplexBasisNat_sum_eq_one
 #check BernsteinObstacle.simplexFieldNat_nonneg
 #check BernsteinObstacle.simplexFieldNat_mem_Icc
+#check BernsteinObstacle.clipped_local_coeff_eq_of_shared
+#check BernsteinObstacle.clipped_globalSimplexField_nonneg
+#check BernsteinObstacle.global_noPenetration_after_clipping
+#check BernsteinObstacle.boundary_zero_after_clipping
+#check BernsteinObstacle.discreteEnergy_difference_identity
+#check BernsteinObstacle.half_error_energy_le
+#check BernsteinObstacle.coercive_error_le_energy
+#check BernsteinObstacle.moscoConverges_const_self
+#check BernsteinObstacle.mosco_recovery
+#check BernsteinObstacle.mosco_weak_limit
 
 #print axioms BernsteinObstacle.basis_nonneg
 #print axioms BernsteinObstacle.basis_sum_eq_one
@@ -37,6 +50,9 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.clipCoefficients_mem
 #print axioms BernsteinObstacle.clipCoefficients_idem
 #print axioms BernsteinObstacle.clipCoefficients_minimal
+#print axioms BernsteinObstacle.clipCoefficients_sqDist_minimal
+#print axioms BernsteinObstacle.clipCoefficients_eq_self_iff
+#print axioms BernsteinObstacle.coefficientSqDist_clip_eq_zero_iff
 #print axioms BernsteinObstacle.basis3_nonneg
 #print axioms BernsteinObstacle.field3_nonneg
 #print axioms BernsteinObstacle.clipped_field3_nonneg
@@ -51,3 +67,13 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.simplexBasisNat_sum_eq_one
 #print axioms BernsteinObstacle.simplexFieldNat_nonneg
 #print axioms BernsteinObstacle.simplexFieldNat_mem_Icc
+#print axioms BernsteinObstacle.clipped_local_coeff_eq_of_shared
+#print axioms BernsteinObstacle.clipped_globalSimplexField_nonneg
+#print axioms BernsteinObstacle.global_noPenetration_after_clipping
+#print axioms BernsteinObstacle.boundary_zero_after_clipping
+#print axioms BernsteinObstacle.discreteEnergy_difference_identity
+#print axioms BernsteinObstacle.half_error_energy_le
+#print axioms BernsteinObstacle.coercive_error_le_energy
+#print axioms BernsteinObstacle.moscoConverges_const_self
+#print axioms BernsteinObstacle.mosco_recovery
+#print axioms BernsteinObstacle.mosco_weak_limit
