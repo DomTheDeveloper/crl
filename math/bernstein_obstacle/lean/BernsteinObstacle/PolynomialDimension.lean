@@ -102,7 +102,9 @@ theorem finrank_restrictTotalDegree_eq_card_restrictedMonomialIndex
         (MvPolynomial.basisRestrictSupport ℝ
           {s : Fin d →₀ ℕ | s.sum (fun _ e => e) ≤ n})
     _ = Nat.card (RestrictedMonomialIndex d n) := by
-      rw [Nat.card_coe_set_eq]
+      simpa [RestrictedMonomialIndex] using
+        (Nat.card_coe_set_eq
+          ({s : Fin d →₀ ℕ | s.sum (fun _ e => e) ≤ n} : Set _)).symm
     _ = Fintype.card (RestrictedMonomialIndex d n) := by
       exact Nat.card_eq_fintype_card
 
