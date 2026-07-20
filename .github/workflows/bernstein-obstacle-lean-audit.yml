@@ -96,6 +96,8 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.local_distance_lt_of_coefficient_neg' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.corrected_localization_and_sharp_rate' \
+            bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript
         if: always()
