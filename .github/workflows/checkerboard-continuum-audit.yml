@@ -32,22 +32,72 @@ jobs:
         with:
           python-version: '3.12'
       - name: Recover exact Handelman source from Git history
+        id: recover
         shell: bash
         run: |
-          set -euo pipefail
-          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune
-          python3 - <<'PY'
+          set +e
+          mkdir -p proofs/lean/Checkerboard
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune \
+            > proofs/lean/Checkerboard/handelman-recovery.log 2>&1
+          fetch_code=$?
+          if [[ "$fetch_code" != 0 ]]; then
+            echo "git fetch failed: $fetch_code" >> proofs/lean/Checkerboard/handelman-recovery.log
+            echo "exit_code=$fetch_code" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 - <<'PY' >> proofs/lean/Checkerboard/handelman-recovery.log 2>&1
           from __future__ import annotations
           import base64, gzip, hashlib, itertools, subprocess
           from pathlib import Path
+
+          output_path = 'proofs/lean/Checkerboard/Checkerboard/LP/DualHandelmanData.lean'
+          expected_sha = '258056bf2cded9ea19b5419f4f3a837e6476373d7594b4158b7d54accba0febf'
+          expected_lines = 10589
+
+          def accept(source: bytes, label: str) -> bool:
+              try:
+                  text = source.decode('utf-8')
+              except UnicodeDecodeError:
+                  return False
+              digest = hashlib.sha256(source).hexdigest()
+              line_count = len(text.splitlines())
+              print(f'candidate {label}: sha256={digest} lines={line_count}')
+              if digest != expected_sha or line_count != expected_lines:
+                  return False
+              output = Path(output_path)
+              output.parent.mkdir(parents=True, exist_ok=True)
+              output.write_bytes(source)
+              Path('proofs/lean/Checkerboard/handelman-recovery.txt').write_text(
+                  f'source={label}\nsha256={digest}\nlines={line_count}\n'
+              )
+              return True
+
+          # Prefer an exact historical generated Lean module when one exists.
+          commits = subprocess.check_output(
+              ['git', 'log', '--all', '--format=%H', '--', output_path], text=True
+          ).split()
+          print('historical generated-module commits:', len(commits))
+          seen_blobs = set()
+          for commit in commits:
+              try:
+                  source = subprocess.check_output(
+                      ['git', 'show', f'{commit}:{output_path}'],
+                      stderr=subprocess.DEVNULL,
+                  )
+              except subprocess.CalledProcessError:
+                  continue
+              key = hashlib.sha256(source).hexdigest()
+              if key in seen_blobs:
+                  continue
+              seen_blobs.add(key)
+              if accept(source, f'git:{commit}:{output_path}'):
+                  raise SystemExit(0)
 
           paths = [
               'math/checkerboard/lp/certificates/dual_handelman_payload_0.txt',
               'math/checkerboard/lp/certificates/dual_handelman_payload_1.txt',
               'math/checkerboard/lp/certificates/dual_handelman_payload_2.txt',
           ]
-          expected_sha = '258056bf2cded9ea19b5419f4f3a837e6476373d7594b4158b7d54accba0febf'
-          expected_lines = 10589
           versions = []
           for path in paths:
               commits = subprocess.check_output(
@@ -67,42 +117,45 @@ jobs:
                   if key not in seen:
                       seen.add(key)
                       entries.append((commit, key, data))
+              print(path, 'unique versions:', len(entries))
               if not entries:
                   raise SystemExit(f'no historical versions found for {path}')
-              print(path, 'unique versions:', len(entries))
               versions.append(entries)
 
-          found = None
           attempts = 0
           for combo in itertools.product(*versions):
               attempts += 1
               encoded = ''.join(entry[2] for entry in combo)
               try:
-                  source = gzip.decompress(base64.b64decode(encoded))
-              except Exception:
+                  source = gzip.decompress(base64.b64decode(encoded, validate=False))
+              except Exception as exc:
+                  if attempts <= 10:
+                      print(f'payload attempt {attempts} failed: {type(exc).__name__}: {exc}')
                   continue
-              digest = hashlib.sha256(source).hexdigest()
-              line_count = len(source.decode('utf-8').splitlines())
-              if digest == expected_sha and line_count == expected_lines:
-                  found = (combo, source)
-                  break
-          if found is None:
-              raise SystemExit(f'no exact historical payload combination found after {attempts} attempts')
-
-          combo, source = found
-          output = Path('proofs/lean/Checkerboard/Checkerboard/LP/DualHandelmanData.lean')
-          output.parent.mkdir(parents=True, exist_ok=True)
-          output.write_bytes(source)
-          manifest = Path('proofs/lean/Checkerboard/handelman-recovery.txt')
-          manifest.write_text(
-              '\n'.join(
-                  [f'sha256={expected_sha}', f'lines={expected_lines}', f'attempts={attempts}'] +
-                  [f'{paths[i]} commit={entry[0]} blob_sha256={entry[1]}'
-                   for i, entry in enumerate(combo)]
-              ) + '\n'
-          )
-          print(manifest.read_text(), end='')
+              label = 'payloads:' + ','.join(entry[0] for entry in combo)
+              if accept(source, label):
+                  Path('proofs/lean/Checkerboard/handelman-recovery.txt').write_text(
+                      Path('proofs/lean/Checkerboard/handelman-recovery.txt').read_text() +
+                      f'attempts={attempts}\n' +
+                      '\n'.join(
+                          f'{paths[i]} commit={entry[0]} blob_sha256={entry[1]}'
+                          for i, entry in enumerate(combo)
+                      ) + '\n'
+                  )
+                  raise SystemExit(0)
+          raise SystemExit(f'no exact historical source found after {attempts} payload combinations')
           PY
+          code=$?
+          tail -n 200 proofs/lean/Checkerboard/handelman-recovery.log
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Enforce exact Handelman recovery
+        shell: bash
+        run: |
+          test '${{ steps.recover.outputs.exit_code }}' = '0'
+          test -s proofs/lean/Checkerboard/Checkerboard/LP/DualHandelmanData.lean
+          grep -q 'sha256=258056bf2cded9ea19b5419f4f3a837e6476373d7594b4158b7d54accba0febf' \
+            proofs/lean/Checkerboard/handelman-recovery.txt
       - name: Generate remaining exact certificate modules
         shell: bash
         run: |
@@ -176,6 +229,7 @@ jobs:
           name: checkerboard-continuum-audit
           path: |
             proofs/lean/Checkerboard/handelman-recovery.txt
+            proofs/lean/Checkerboard/handelman-recovery.log
             proofs/lean/Checkerboard/generation.log
             proofs/lean/Checkerboard/continuum-audit.log
           if-no-files-found: warn
