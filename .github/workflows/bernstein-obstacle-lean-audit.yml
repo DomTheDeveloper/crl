@@ -117,6 +117,12 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_quadraticContact' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity_eq_scale_sq' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.phaseLockedQuadraticSlopeEnergy_lowerBound' \
+            bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier' \
