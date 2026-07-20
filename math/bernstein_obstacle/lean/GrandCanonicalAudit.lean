@@ -10,6 +10,10 @@ import BernsteinObstacle
 #check BernsteinObstacle.mosco_of_scheduledRecovery_of_subset_closedConvex
 #check BernsteinObstacle.ThresholdSobolevFEMRecoveryData.scheduledRecovery
 #check BernsteinObstacle.ThresholdSobolevFEMRecoveryData.moscoConverges
+#check BernsteinObstacle.exists_threshold_of_eventually
+#check BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.exists_threshold
+#check BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.moscoConverges
+#check BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.minimizers_strongConvergence
 #check BernsteinObstacle.translatedSet
 #check BernsteinObstacle.moscoConverges_translated
 #check BernsteinObstacle.movingObstacleCone
@@ -56,6 +60,10 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.mosco_of_scheduledRecovery_of_subset_closedConvex
 #print axioms BernsteinObstacle.ThresholdSobolevFEMRecoveryData.scheduledRecovery
 #print axioms BernsteinObstacle.ThresholdSobolevFEMRecoveryData.moscoConverges
+#print axioms BernsteinObstacle.exists_threshold_of_eventually
+#print axioms BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.exists_threshold
+#print axioms BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.moscoConverges
+#print axioms BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.minimizers_strongConvergence
 #print axioms BernsteinObstacle.translatedSet
 #print axioms BernsteinObstacle.moscoConverges_translated
 #print axioms BernsteinObstacle.movingObstacleCone
