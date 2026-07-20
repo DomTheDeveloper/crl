@@ -1,0 +1,74 @@
+name: A387471 olean-only audit
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/a387471-olean-audit.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: a387471-olean-only
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - name: Check out repaired proof
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/crl
+          ref: 66881d9c719c281ad00436e8c8481bc9f454e811
+          path: campaign
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Download Mathlib cache
+        working-directory: campaign/proofs/lean/A387471
+        run: lake exe cache get
+      - name: Build finite prerequisites
+        working-directory: campaign/proofs/lean/A387471
+        run: lake build A387471SixRoots A387471Finite60 A387471FiniteBridge
+      - name: Emit proof objects only
+        working-directory: campaign/proofs/lean/A387471
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/build/lib/lean
+          modules=(A387471Ratio A387471GridLift A387471Bounds A387471Minimal)
+          : > ../../../../a387471-olean.log
+          for module in "${modules[@]}"; do
+            echo "=== $module ===" | tee -a ../../../../a387471-olean.log
+            lake env lean \
+              -o ".lake/build/lib/lean/${module}.olean" \
+              -i ".lake/build/lib/lean/${module}.ilean" \
+              "${module}.lean" 2>&1 | tee -a ../../../../a387471-olean.log
+          done
+      - name: Audit minimal theorem axioms
+        working-directory: campaign/proofs/lean/A387471
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > AuditMinimal.lean <<'EOF'
+          import A387471Minimal
+          #check A387471.minimal_six_root_classification
+          #print axioms A387471.minimal_six_root_classification
+          EOF
+          lake env lean AuditMinimal.lean 2>&1 | tee ../../../../a387471-minimal-axioms.log
+          if grep -q sorryAx ../../../../a387471-minimal-axioms.log; then exit 1; fi
+      - name: Upload transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a387471-olean-only
+          path: |
+            a387471-olean.log
+            a387471-minimal-axioms.log
+          if-no-files-found: warn
