@@ -24,8 +24,8 @@ def intResidue (N : ℕ) [NeZero N] (a : ℤ) : Fin N :=
 theorem intResidue_cast (N : ℕ) [NeZero N] (a : ℤ) :
     ((intResidue N a).val : ZMod N) = (a : ZMod N) := by
   apply ZMod.val_injective
-  rw [ZMod.val_natCast, ZMod.val_intCast]
-  exact Nat.mod_eq_of_lt (intResidue N a).isLt
+  rw [ZMod.val_natCast, Nat.mod_eq_of_lt (intResidue N a).isLt]
+  simpa [intResidue] using (ZMod.val_intCast a).symm
 
 /-- A canonical-root power with signed exponent is the standard exponential. -/
 theorem canonicalRoot_pow_intResidue (N : ℕ) [NeZero N] (a : ℤ) :
