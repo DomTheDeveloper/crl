@@ -37,7 +37,14 @@ K=H_0^1(\Omega)\cap\{v\ge0\}.
 \]
 
 Consequently, minimizers of symmetric continuous coercive obstacle energies
-converge strongly in `H^1`. This theorem needs no free-boundary regularity, but
+converge strongly in `H^1`. The complete moving-space analytical argument is in
+`GENERAL_MOSCO_PUBLICATION_PROOF.md`; it includes nonnegative smooth density,
+the conforming positive Bernstein recovery operator, a dimension-safe
+`W^{2,infinity}` estimate, the diagonal sequence, weak closure, and the direct
+energy proof of strong minimizer convergence.
+
+The theorem needs no free-boundary regularity. The abstract finite/Hilbert
+reductions are machine checked, but the concrete moving Sobolev/FEM realization
 has not yet been formalized in Lean or independently endorsed.
 
 ### Scoped sharp theorem
@@ -52,10 +59,15 @@ stated physical-boundary compatibility condition,
 \le C(h^r+h_\Gamma^{3/2}).
 \]
 
-The proof uses an exact coefficient-to-grid-value estimate and either shared
-coefficient clipping or a positive cutoff repair. Independent energy-identity
-and Falk arguments give the minimizer estimate. This analytical theorem has
-passed an internal adversarial audit but still awaits external expert review.
+The full scoped argument is in `SHARP_RATE_PUBLICATION_PROOF.md`. It writes out
+the coefficient-to-grid-value estimate, local-size localization, the separate
+far-interior and physical-boundary cases, the two-sided risky coefficient
+bound, shared-global-coefficient clipping, codimension-one repair scaling,
+strip interpolation, multiplier consistency, and the exact energy transfer.
+
+Independent energy-identity and Falk routes give the minimizer estimate. This
+analytical theorem has passed an internal adversarial audit but still awaits
+external expert review.
 
 ## Mechanics validation
 
@@ -125,4 +137,4 @@ boundary-touching free boundaries, arbitrary inexact obstacles,
 measure-valued multipliers without further hypotheses, nonsymmetric operators,
 or optimal adaptive complexity without a specified refinement-closure theorem.
 The general Mosco and strong-minimizer convergence theorems are broader but
-remain analytical rather than Lean-formalized.
+remain analytical rather than fully Lean-formalized.
