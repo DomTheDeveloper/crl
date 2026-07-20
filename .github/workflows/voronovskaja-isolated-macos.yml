@@ -33,13 +33,12 @@ jobs:
       - name: Fetch Mathlib cache
         working-directory: ci/lean/Voronovskaja
         run: lake exe cache get
-      - name: Build exact proof module
+      - name: Build exact proof dependency graph
         working-directory: ci/lean/Voronovskaja
         shell: bash
         run: |
           set -euo pipefail
-          lake build formal_conjectures:FormalConjectures.Paper.VoronovskajaTypeFormula \
-            2>&1 | tee audit.log
+          lake build Audit 2>&1 | tee audit.log
       - name: Compile and audit exact catalog theorem
         working-directory: ci/lean/Voronovskaja
         shell: bash
