@@ -14,6 +14,13 @@ import BernsteinObstacle
 #check BernsteinObstacle.clipCoefficients_sqDist_minimal
 #check BernsteinObstacle.clipCoefficients_eq_self_iff
 #check BernsteinObstacle.coefficientSqDist_clip_eq_zero_iff
+#check BernsteinObstacle.clip_variational_inequality
+#check BernsteinObstacle.clip_pythagorean
+#check BernsteinObstacle.clipCoefficients_variational_inequality
+#check BernsteinObstacle.clipCoefficients_complementarity
+#check BernsteinObstacle.clipCoefficients_projection_inequality
+#check BernsteinObstacle.clipCoefficients_nonexpansive
+#check BernsteinObstacle.clipCoefficients_energy_bound
 #check BernsteinObstacle.basis3_nonneg
 #check BernsteinObstacle.field3_nonneg
 #check BernsteinObstacle.clipped_field3_nonneg
@@ -41,6 +48,9 @@ import BernsteinObstacle
 #check BernsteinObstacle.moscoConverges_const_self
 #check BernsteinObstacle.mosco_recovery
 #check BernsteinObstacle.mosco_weak_limit
+#check BernsteinObstacle.mosco_of_recovery_of_subset_of_weaklyClosed
+#check BernsteinObstacle.mosco_of_recovery_operators_of_subset_of_weaklyClosed
+#check BernsteinObstacle.mosco_const_of_weaklyClosed
 
 #print axioms BernsteinObstacle.basis_nonneg
 #print axioms BernsteinObstacle.basis_sum_eq_one
@@ -56,6 +66,13 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.clipCoefficients_sqDist_minimal
 #print axioms BernsteinObstacle.clipCoefficients_eq_self_iff
 #print axioms BernsteinObstacle.coefficientSqDist_clip_eq_zero_iff
+#print axioms BernsteinObstacle.clip_variational_inequality
+#print axioms BernsteinObstacle.clip_pythagorean
+#print axioms BernsteinObstacle.clipCoefficients_variational_inequality
+#print axioms BernsteinObstacle.clipCoefficients_complementarity
+#print axioms BernsteinObstacle.clipCoefficients_projection_inequality
+#print axioms BernsteinObstacle.clipCoefficients_nonexpansive
+#print axioms BernsteinObstacle.clipCoefficients_energy_bound
 #print axioms BernsteinObstacle.basis3_nonneg
 #print axioms BernsteinObstacle.field3_nonneg
 #print axioms BernsteinObstacle.clipped_field3_nonneg
@@ -83,3 +100,6 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.moscoConverges_const_self
 #print axioms BernsteinObstacle.mosco_recovery
 #print axioms BernsteinObstacle.mosco_weak_limit
+#print axioms BernsteinObstacle.mosco_of_recovery_of_subset_of_weaklyClosed
+#print axioms BernsteinObstacle.mosco_of_recovery_operators_of_subset_of_weaklyClosed
+#print axioms BernsteinObstacle.mosco_const_of_weaklyClosed
