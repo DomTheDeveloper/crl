@@ -7,6 +7,11 @@ import BernsteinObstacle
 #check BernsteinObstacle.curve_le_clipped_curve
 #check BernsteinObstacle.noPenetration_of_nonnegative_coefficients
 #check BernsteinObstacle.noPenetration_after_clipping
+#check BernsteinObstacle.basis3_nonneg
+#check BernsteinObstacle.field3_nonneg
+#check BernsteinObstacle.clipped_field3_nonneg
+#check BernsteinObstacle.noPenetration3_of_nonnegative_coefficients
+#check BernsteinObstacle.noPenetration3_after_clipping
 
 #print axioms BernsteinObstacle.basis_nonneg
 #print axioms BernsteinObstacle.basis_sum_eq_one
@@ -15,3 +20,8 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.curve_le_clipped_curve
 #print axioms BernsteinObstacle.noPenetration_of_nonnegative_coefficients
 #print axioms BernsteinObstacle.noPenetration_after_clipping
+#print axioms BernsteinObstacle.basis3_nonneg
+#print axioms BernsteinObstacle.field3_nonneg
+#print axioms BernsteinObstacle.clipped_field3_nonneg
+#print axioms BernsteinObstacle.noPenetration3_of_nonnegative_coefficients
+#print axioms BernsteinObstacle.noPenetration3_after_clipping
