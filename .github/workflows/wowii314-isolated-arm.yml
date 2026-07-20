@@ -1,5 +1,5 @@
 name: Isolated WOWII 314 ARM64 audit
-# Exact audit of the committed WOWII 314 proof source.
+# Final exact audit of the committed WOWII 314 proof source.
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: isolated-wowii314-arm-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   audit:
