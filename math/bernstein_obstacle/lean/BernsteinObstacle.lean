@@ -10,6 +10,7 @@ import BernsteinObstacle.LatticeCardinal
 import BernsteinObstacle.LatticeInterpolation
 import BernsteinObstacle.LatticePolynomial
 import BernsteinObstacle.AffineLatticePolynomial
+import BernsteinObstacle.PolynomialDimension
 import BernsteinObstacle.GlobalMesh
 import BernsteinObstacle.Energy
 import BernsteinObstacle.FiniteObstacle
