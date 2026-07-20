@@ -1,0 +1,55 @@
+name: Bernstein obstacle full reproduction
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/reproduction/**'
+      - '.github/workflows/bernstein-obstacle-reproduction.yml'
+
+concurrency:
+  group: bernstein-obstacle-reproduction-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: math/bernstein_obstacle/reproduction/requirements.txt
+
+      - name: Reconstruct pinned source archive
+        working-directory: math/bernstein_obstacle/reproduction
+        run: |
+          cat source/part_*.b64 > source.tar.gz.b64
+          base64 --decode source.tar.gz.b64 > source.tar.gz
+          echo '958a0ed22a9a6e2ad838b42345a2a2ce2573268032733f35d5d6343cf28aa00c  source.tar.gz' | sha256sum --check
+          tar -xzf source.tar.gz
+          python -m py_compile *.py
+
+      - name: Install pinned numerical dependencies
+        working-directory: math/bernstein_obstacle/reproduction
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+
+      - name: Run theorem stress tests and both FEM implementations
+        working-directory: math/bernstein_obstacle/reproduction
+        run: python reproduce_all.py --output-dir reproduction-output
+
+      - name: Show machine-readable verdict
+        if: always()
+        working-directory: math/bernstein_obstacle/reproduction
+        run: test -f reproduction-output/REPRODUCTION_PASS.json && cat reproduction-output/REPRODUCTION_PASS.json || true
+
+      - name: Upload reproduction evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-obstacle-reproduction
+          path: math/bernstein_obstacle/reproduction/reproduction-output
+          if-no-files-found: warn
