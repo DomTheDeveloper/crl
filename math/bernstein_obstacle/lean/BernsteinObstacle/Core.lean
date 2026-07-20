@@ -28,6 +28,7 @@ theorem basis_nonneg (n k : ℕ) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) :
 theorem basis_sum_eq_one (n : ℕ) (x : ℝ) :
     (∑ k ∈ Finset.range (n + 1), basis n k x) = 1 := by
   have h := congrArg (fun p : ℝ[X] => p.eval x) (bernsteinPolynomial.sum ℝ n)
+  rw [Polynomial.eval_finset_sum] at h
   simpa [basis, bernsteinPolynomial, mul_assoc] using h
 
 /-- A polynomial curve written in the degree-`n` Bernstein basis. -/
