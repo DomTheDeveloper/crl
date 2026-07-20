@@ -146,7 +146,7 @@ theorem grandSharpRate_of_movingObstacle_components
   · simpa [hs, hr, hdefect] using henergy
 
 /-- Exact obstacle and a quadratic codimension-one contact interface recover the
-original two-term Bernstein obstacle rate. -/
+original two-term Bernstein obstacle rate exactly. -/
 theorem grandSharpRate_exactObstacle_quadratic_codimOne
     (e alpha A B h g : ℝ) (r : ℕ)
     (he : 0 ≤ e) (halpha : 0 < alpha)
@@ -154,17 +154,16 @@ theorem grandSharpRate_exactObstacle_quadratic_codimOne
     (hh : 0 ≤ h) (hg : 0 ≤ g)
     (henergy :
       alpha * e ^ 2 ≤ A * h ^ (2 * r) + B * g ^ 3) :
-    e ≤ Real.sqrt (max 0 (max A B) / alpha) *
-      (1 + h ^ r + g * Real.sqrt g) := by
+    e ≤ Real.sqrt (max A B / alpha) *
+      (h ^ r + g * Real.sqrt g) := by
   have henergy' :
       alpha * e ^ 2 ≤
-        0 * h ^ (2 * 0) + A * h ^ (2 * r) +
-          B * g ^ (2 * (2 - 1) + 1) := by
+        A * h ^ (2 * r) + B * g ^ (2 * (2 - 1) + 1) := by
     simpa using henergy
   simpa [vanishingCodimensionScale_quadratic_codimOne] using
-    grandSharpRate_of_movingObstacle_components
-      e alpha 0 A B h g 0 r 2 1
-      he halpha (le_refl 0) hA hB hh hg henergy'
+    sharpRate_of_vanishingCodimension_components
+      e alpha A B h g r 2 1
+      he halpha hA hB hh hg henergy'
 
 end MovingObstacleRate
 
