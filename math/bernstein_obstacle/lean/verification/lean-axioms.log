@@ -1,5 +1,6 @@
 Pinned toolchain: leanprover/lean4:v4.33.0-rc1
-Workflow run: 29755232591
+Workflow run: 29756366830
+Head SHA: 1e3447857970115cdf72bea9099a20ff8fe014fa
 
 BernsteinObstacle.basis_nonneg (n k : ℕ) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : 0 ≤ BernsteinObstacle.basis n k x
 BernsteinObstacle.basis_sum_eq_one (n : ℕ) (x : ℝ) : ∑ k ∈ Finset.range (n + 1), BernsteinObstacle.basis n k x = 1
@@ -8,13 +9,11 @@ BernsteinObstacle.curve_mem_Icc (n : ℕ) (c : ℕ → ℝ) (m M : ℝ) (hc : �
 BernsteinObstacle.curve_le_clipped_curve (n : ℕ) (c : ℕ → ℝ) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : BernsteinObstacle.curve n c x ≤ BernsteinObstacle.curve n (fun k => BernsteinObstacle.clip (c k)) x
 BernsteinObstacle.noPenetration_of_nonnegative_coefficients (ψ : ℝ → ℝ) (n : ℕ) (c : ℕ → ℝ) (hc : ∀ k ∈ Finset.range (n + 1), 0 ≤ c k) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : ψ x ≤ BernsteinObstacle.obstacleApprox ψ n c x
 BernsteinObstacle.noPenetration_after_clipping (ψ : ℝ → ℝ) (n : ℕ) (c : ℕ → ℝ) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : ψ x ≤ BernsteinObstacle.obstacleApprox ψ n (fun k => BernsteinObstacle.clip (c k)) x
+BernsteinObstacle.basis3_nonneg (n i j k : ℕ) {x y z : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) (hy0 : 0 ≤ y) (hy1 : y ≤ 1) (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : 0 ≤ BernsteinObstacle.basis3 n i j k x y z
+BernsteinObstacle.field3_nonneg (n : ℕ) (c : ℕ → ℕ → ℕ → ℝ) (hc : ∀ i ∈ Finset.range (n + 1), ∀ j ∈ Finset.range (n + 1), ∀ k ∈ Finset.range (n + 1), 0 ≤ c i j k) {x y z : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) (hy0 : 0 ≤ y) (hy1 : y ≤ 1) (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : 0 ≤ BernsteinObstacle.field3 n c x y z
+BernsteinObstacle.clipped_field3_nonneg (n : ℕ) (c : ℕ → ℕ → ℕ → ℝ) {x y z : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) (hy0 : 0 ≤ y) (hy1 : y ≤ 1) (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : 0 ≤ BernsteinObstacle.field3 n (BernsteinObstacle.clip3 c) x y z
+BernsteinObstacle.noPenetration3_of_nonnegative_coefficients (ψ : ℝ → ℝ → ℝ → ℝ) (n : ℕ) (c : ℕ → ℕ → ℕ → ℝ) (hc : ∀ i ∈ Finset.range (n + 1), ∀ j ∈ Finset.range (n + 1), ∀ k ∈ Finset.range (n + 1), 0 ≤ c i j k) {x y z : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) (hy0 : 0 ≤ y) (hy1 : y ≤ 1) (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : ψ x y z ≤ BernsteinObstacle.obstacleApprox3 ψ n c x y z
+BernsteinObstacle.noPenetration3_after_clipping (ψ : ℝ → ℝ → ℝ → ℝ) (n : ℕ) (c : ℕ → ℕ → ℕ → ℝ) {x y z : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) (hy0 : 0 ≤ y) (hy1 : y ≤ 1) (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : ψ x y z ≤ BernsteinObstacle.obstacleApprox3 ψ n (BernsteinObstacle.clip3 c) x y z
 
-'BernsteinObstacle.basis_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
-'BernsteinObstacle.basis_sum_eq_one' depends on axioms: [propext, Classical.choice, Quot.sound]
-'BernsteinObstacle.curve_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
-'BernsteinObstacle.curve_mem_Icc' depends on axioms: [propext, Classical.choice, Quot.sound]
-'BernsteinObstacle.curve_le_clipped_curve' depends on axioms: [propext, Classical.choice, Quot.sound]
-'BernsteinObstacle.noPenetration_of_nonnegative_coefficients' depends on axioms: [propext, Classical.choice, Quot.sound]
-'BernsteinObstacle.noPenetration_after_clipping' depends on axioms: [propext, Classical.choice, Quot.sound]
-
+All audited declarations depend only on: [propext, Classical.choice, Quot.sound]
 No sorryAx was reported.
