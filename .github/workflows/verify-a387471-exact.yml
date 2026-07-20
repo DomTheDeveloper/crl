@@ -15,7 +15,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 360
     steps:
       - name: Check out repaired A387471 proof commit
         uses: actions/checkout@v4
@@ -53,7 +53,42 @@ jobs:
           set -euo pipefail
           lake build A387471SixRoots A387471Finite60 2>&1 | tee ../../../../a387471-bottlenecks.log
 
-      - name: Build exact theorem and dependencies
+      - name: Build finite analytic bridge
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: |
+          set -euo pipefail
+          lake build A387471FiniteBridge 2>&1 | tee ../../../../a387471-finite-bridge.log
+
+      - name: Build minimal branch
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: |
+          set -euo pipefail
+          lake build A387471Ratio A387471GridLift A387471Bounds A387471Minimal 2>&1 | tee ../../../../a387471-minimal.log
+
+      - name: Build nonminimal branch
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: |
+          set -euo pipefail
+          lake build A387471ThreeRoots A387471AngleBounds A387471Pairs A387471SineCancel A387471PairLabels A387471TripleLabels A387471Nonminimal 2>&1 | tee ../../../../a387471-nonminimal.log
+
+      - name: Build global classification and converse
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: |
+          set -euo pipefail
+          lake build A387471GridClassification A387471Converse 2>&1 | tee ../../../../a387471-classification.log
+
+      - name: Build finite candidate set chain
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: |
+          set -euo pipefail
+          lake build A387471Parameters A387471CandidateCard A387471CandidateMembership 2>&1 | tee ../../../../a387471-candidates.log
+
+      - name: Build exact theorem
         shell: bash
         working-directory: campaign/proofs/lean/A387471
         run: |
@@ -85,6 +120,11 @@ jobs:
           name: a387471-exact-audit
           path: |
             a387471-bottlenecks.log
+            a387471-finite-bridge.log
+            a387471-minimal.log
+            a387471-nonminimal.log
+            a387471-classification.log
+            a387471-candidates.log
             a387471-build.log
             a387471-axioms.log
           if-no-files-found: warn
