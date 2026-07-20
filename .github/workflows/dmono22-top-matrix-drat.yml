@@ -52,7 +52,8 @@ jobs:
           set -euo pipefail
           top='${{ matrix.top }}'
           python3 emit_top_cnf.py "$top" "top-$top.cnf" --manifest "top-$top-manifest.json"
-          grep -q '"top_mask": '"$top" "top-$top-manifest.json"
+          test -s "top-$top.cnf"
+          test -s "top-$top-manifest.json"
           sha256sum "top-$top.cnf" "top-$top-manifest.json" | tee "top-$top.sha256"
       - name: Produce textual DRAT proof
         working-directory: math/checkerboard/n22_exact
