@@ -12,6 +12,12 @@ import BernsteinObstacle
 #check BernsteinObstacle.repair_norm_le_threeHalves_of_element_bounds
 #check BernsteinObstacle.feasibleRecoveryRate_of_interpolation_and_repair
 #check BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier
+#check BernsteinObstacle.affineBox_mem_Icc
+#check BernsteinObstacle.boxApprox_mem_Icc
+#check BernsteinObstacle.simplexBoxApproxNat_mem_Icc
+#check BernsteinObstacle.twoScaleRate_of_energy_components
+#check BernsteinObstacle.universalFirstOrderRate_of_energy
+#check BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure
 
 #print axioms BernsteinObstacle.coefficient_nonneg_of_abs_sub_le
 #print axioms BernsteinObstacle.value_lt_error_of_coefficient_neg
@@ -25,3 +31,9 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.repair_norm_le_threeHalves_of_element_bounds
 #print axioms BernsteinObstacle.feasibleRecoveryRate_of_interpolation_and_repair
 #print axioms BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier
+#print axioms BernsteinObstacle.affineBox_mem_Icc
+#print axioms BernsteinObstacle.boxApprox_mem_Icc
+#print axioms BernsteinObstacle.simplexBoxApproxNat_mem_Icc
+#print axioms BernsteinObstacle.twoScaleRate_of_energy_components
+#print axioms BernsteinObstacle.universalFirstOrderRate_of_energy
+#print axioms BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure
