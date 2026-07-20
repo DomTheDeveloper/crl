@@ -11,6 +11,7 @@ import BernsteinObstacle.FiniteObstacle
 import BernsteinObstacle.AssembledObstacle
 import BernsteinObstacle.AssemblyConvex
 import BernsteinObstacle.FaceTrace
+import BernsteinObstacle.FaceOrientation
 import BernsteinObstacle.Mosco
 import BernsteinObstacle.MoscoTools
 import BernsteinObstacle.CoefficientMosco
