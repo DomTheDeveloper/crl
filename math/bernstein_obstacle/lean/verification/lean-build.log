@@ -1,0 +1,8 @@
+Pinned toolchain: leanprover/lean4:v4.33.0-rc1
+Workflow: Bernstein obstacle Lean audit
+Workflow run: 29755232591
+Head SHA: 51e98a9f09d6aa60fa235cda4b30d2d7d509427d
+
+✔ [3002/3004] Built BernsteinObstacle.Core (2.6s)
+✔ [3003/3004] Built BernsteinObstacle (1.9s)
+Build completed successfully (3004 jobs).
