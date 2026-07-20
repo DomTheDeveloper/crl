@@ -33,19 +33,42 @@ jobs:
       - name: Fetch Mathlib cache
         working-directory: ci/lean/WOWII314
         run: lake exe cache get
-      - name: Compile and audit exact catalog theorem
+      - name: Reject proof holes and unsafe shortcuts
+        working-directory: ci/lean/WOWII314/.lake/packages/formal_conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            FormalConjectures/WrittenOnTheWallII/GraphConjecture314.lean
+            FormalConjectures/WrittenOnTheWallII/GraphConjecture314Core.lean
+            FormalConjectures/WrittenOnTheWallII/GraphConjecture314Proof.lean
+            WOWII/ZZGraphConjecture314*.lean
+          )
+          if grep -nE '^[[:space:]]*(axiom|opaque|sorry|admit)([[:space:]]|$)|:= by[[:space:]]*(sorry|admit)([[:space:]]|$)|native_decide' "${files[@]}"; then
+            exit 1
+          fi
+      - name: Build exact catalog theorem
         working-directory: ci/lean/WOWII314
         shell: bash
         run: |
-          set -o pipefail
+          set -euo pipefail
+          lake build FormalConjectures.WrittenOnTheWallII.GraphConjecture314 2>&1 | tee build-arm.log
+      - name: Audit exact catalog theorem axioms
+        working-directory: ci/lean/WOWII314
+        shell: bash
+        run: |
+          set -euo pipefail
           lake env lean Audit.lean 2>&1 | tee audit-arm.log
           if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' audit-arm.log; then
             exit 1
           fi
+          grep -F 'WrittenOnTheWallII.GraphConjecture314.conjecture314' audit-arm.log
       - name: Upload transcript
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: wowii314-isolated-arm
-          path: ci/lean/WOWII314/audit-arm.log
+          path: |
+            ci/lean/WOWII314/build-arm.log
+            ci/lean/WOWII314/audit-arm.log
           if-no-files-found: warn
