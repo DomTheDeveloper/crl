@@ -27,7 +27,7 @@ theorem exists_bad_prime_of_not_dvd_thirty {N : ℕ} (hN : N ≠ 0)
         by_contra hle
         have htwo : 2 ≤ N.factorization p := by omega
         exact hsq ((hp.pow_dvd_iff_le_factorization hN).2 htwo)
-      interval_cases p <;> norm_num at hp ⊢
+      interval_cases p <;> norm_num at hp
       all_goals simpa using hfac
     · simp [Nat.factorization_eq_zero_of_not_dvd hpd]
   · simp [Nat.factorization_eq_zero_of_not_prime N hp]
@@ -39,15 +39,17 @@ theorem exists_missing_residue {ι : Type*} [DecidableEq ι] {p : ℕ}
     (hcard : s.card ≤ 6) (hp6 : 6 < p) :
     ∃ r : ZMod p, ∀ i ∈ s, tag i ≠ r := by
   classical
+  letI : NeZero p := ⟨hp.ne_zero⟩
   by_contra h
   push_neg at h
   have hsurj : Set.SurjOn tag (s : Set ι) Set.univ := by
     intro r _
     obtain ⟨i, hi, hir⟩ := h r
     exact ⟨i, hi, hir⟩
-  have hle : Fintype.card (ZMod p) ≤ s.card := by
-    simpa using Finset.card_le_card_of_surjOn hsurj
-  have hpcard : Fintype.card (ZMod p) = p := ZMod.card p
+  have hle : (Finset.univ : Finset (ZMod p)).card ≤ s.card := by
+    exact Finset.card_le_card_of_surjOn tag (by simpa using hsurj)
+  have hpcard : (Finset.univ : Finset (ZMod p)).card = p := by
+    simpa using ZMod.card p
   omega
 
 /-- The power used to realize the Fourier frequency `t` by a Galois
@@ -92,9 +94,10 @@ theorem conjugatingExponent_coprime_squarefree {p m : ℕ} (hp : p.Prime)
     rw [Nat.coprime_comm, hp.coprime_iff_not_dvd]
     intro hpu
     have hu0 : (u : ZMod p) = 0 := by
-      exact ZMod.natCast_eq_zero_iff.mpr hpu
+      rw [ZMod.natCast_eq_zero_iff]
+      exact hpu
     have hrel : (1 : ZMod p) - t * (m : ZMod p) = 0 := by
-      simpa [u, conjugatingExponent, Nat.cast_add, Nat.cast_mul,
+      simpa [sub_eq_add_neg, u, conjugatingExponent, Nat.cast_add, Nat.cast_mul,
         Nat.cast_sub (Nat.le_of_lt t.val_lt), ZMod.natCast_zmod_val] using hu0
     have htm : t * (m : ZMod p) = 1 := (sub_eq_zero.mp hrel).symm
     exact ht (eq_inv_of_mul_eq_one_left htm)
