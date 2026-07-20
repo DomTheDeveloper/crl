@@ -1,0 +1,104 @@
+name: Verify WOWII 314 exact Lean theorem
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/verify-wowii314-exact-final.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-wowii314-exact-final
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out pinned Formal Conjectures proof commit
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 1967d975cc0c31fb0405a53930165e4f8e533c43
+          path: formal-conjectures
+
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Reject proof holes and unsafe shortcuts
+        shell: bash
+        working-directory: formal-conjectures
+        run: |
+          set -euo pipefail
+          files=(
+            FormalConjectures/WrittenOnTheWallII/GraphConjecture314.lean
+            FormalConjectures/WrittenOnTheWallII/GraphConjecture314Core.lean
+            FormalConjectures/WrittenOnTheWallII/GraphConjecture314Proof.lean
+            WOWII/ZZGraphConjecture314BipartiteClassification.lean
+            WOWII/ZZGraphConjecture314BipartiteCommon.lean
+            WOWII/ZZGraphConjecture314C5Bags.lean
+            WOWII/ZZGraphConjecture314C5BlowupClassification.lean
+            WOWII/ZZGraphConjecture314C5Dominates.lean
+            WOWII/ZZGraphConjecture314C5Embedding.lean
+            WOWII/ZZGraphConjecture314ChainGraph.lean
+            WOWII/ZZGraphConjecture314ConditionalFinal.lean
+            WOWII/ZZGraphConjecture314Core.lean
+            WOWII/ZZGraphConjecture314Cycle5.lean
+            WOWII/ZZGraphConjecture314Cycle5Blowup.lean
+            WOWII/ZZGraphConjecture314CycleDichotomy.lean
+            WOWII/ZZGraphConjecture314DominatingEdge.lean
+            WOWII/ZZGraphConjecture314Final.lean
+            WOWII/ZZGraphConjecture314GeodesicP5.lean
+            WOWII/ZZGraphConjecture314P5Bridge.lean
+            WOWII/ZZGraphConjecture314PathTree.lean
+          )
+          if grep -nE '^[[:space:]]*(axiom|opaque|sorry|admit)([[:space:]]|$)|:= by[[:space:]]*(sorry|admit)([[:space:]]|$)|native_decide' "${files[@]}"; then
+            exit 1
+          fi
+
+      - name: Download Mathlib cache
+        shell: bash
+        working-directory: formal-conjectures
+        run: lake exe cache get
+
+      - name: Build exact theorem module
+        shell: bash
+        working-directory: formal-conjectures
+        run: |
+          set -euo pipefail
+          lake build FormalConjectures.WrittenOnTheWallII.GraphConjecture314 2>&1 \
+            | tee ../wowii314-build.log
+
+      - name: Audit exact theorem axioms
+        shell: bash
+        working-directory: formal-conjectures
+        run: |
+          set -euo pipefail
+          cat > AuditWOWII314.lean <<'EOF'
+          import FormalConjectures.WrittenOnTheWallII.GraphConjecture314
+          #check WrittenOnTheWallII.GraphConjecture314.conjecture314
+          #print axioms WrittenOnTheWallII.GraphConjecture314.conjecture314
+          EOF
+          lake env lean AuditWOWII314.lean 2>&1 | tee ../wowii314-axioms.log
+          if grep -q sorryAx ../wowii314-axioms.log; then
+            echo 'conjecture314 depends on sorryAx' >&2
+            exit 1
+          fi
+          grep -F 'WrittenOnTheWallII.GraphConjecture314.conjecture314' ../wowii314-axioms.log
+
+      - name: Upload verification transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wowii314-exact-audit
+          path: |
+            wowii314-build.log
+            wowii314-axioms.log
+          if-no-files-found: warn
