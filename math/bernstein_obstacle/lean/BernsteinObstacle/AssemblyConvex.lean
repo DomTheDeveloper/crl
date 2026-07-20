@@ -1,4 +1,5 @@
 import BernsteinObstacle.AssembledObstacle
+import BernsteinObstacle.ProjectionVI
 import Mathlib.Analysis.Convex.Basic
 import Mathlib.Tactic
 
