@@ -90,7 +90,7 @@ theorem finrank_restrictTotalDegree_eq_card_restrictedMonomialIndex
     Module.finrank ℝ (MvPolynomial.restrictTotalDegree (Fin d) ℝ n) =
       Fintype.card (RestrictedMonomialIndex d n) := by
   simpa [MvPolynomial.restrictTotalDegree] using
-    (finrank_eq_card_basis
+    (finrank_eq_nat_card_basis
       (MvPolynomial.basisRestrictSupport ℝ
         {s : Fin d →₀ ℕ | s.sum (fun _ e => e) ≤ n}))
 
