@@ -35,6 +35,9 @@ import BernsteinObstacle
 #check BernsteinObstacle.discreteEnergy_difference_identity
 #check BernsteinObstacle.half_error_energy_le
 #check BernsteinObstacle.coercive_error_le_energy
+#check BernsteinObstacle.vi_solution_is_energy_minimizer
+#check BernsteinObstacle.vi_solution_half_error_le_energy_gap
+#check BernsteinObstacle.vi_solution_coercive_error_le_energy_gap
 #check BernsteinObstacle.moscoConverges_const_self
 #check BernsteinObstacle.mosco_recovery
 #check BernsteinObstacle.mosco_weak_limit
@@ -74,6 +77,9 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.discreteEnergy_difference_identity
 #print axioms BernsteinObstacle.half_error_energy_le
 #print axioms BernsteinObstacle.coercive_error_le_energy
+#print axioms BernsteinObstacle.vi_solution_is_energy_minimizer
+#print axioms BernsteinObstacle.vi_solution_half_error_le_energy_gap
+#print axioms BernsteinObstacle.vi_solution_coercive_error_le_energy_gap
 #print axioms BernsteinObstacle.moscoConverges_const_self
 #print axioms BernsteinObstacle.mosco_recovery
 #print axioms BernsteinObstacle.mosco_weak_limit
