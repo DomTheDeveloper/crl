@@ -36,6 +36,8 @@ theorem affineNodeFunctional_eq_cardinalBasis_coord (d n : ℕ)
   simp [affineNodeFunctional, affineLatticeCardinalBasis_apply,
     affineLatticeCardinalVector,
     eval_affineLatticeCardinalPolynomial_eq_ite]
+  rw [← affineLatticeCardinalBasis_apply d n α]
+  exact ((affineLatticeCardinalBasis d n).repr_self_apply α β).symm
 
 /-- Nodal evaluation on the complete simplex lattice is a linear equivalence. -/
 def affineNodalEvaluationEquiv (d n : ℕ) :
@@ -75,12 +77,14 @@ theorem existsUnique_polynomial_with_simplex_lattice_values (d n : ℕ)
   let p := (affineNodalEvaluationEquiv d n).symm values
   refine ⟨p, ?_, ?_⟩
   · intro β
-    have h := congrFun (affineNodalEvaluationEquiv d n).apply_symm_apply values β
+    have h := congrFun
+      ((affineNodalEvaluationEquiv d n).apply_symm_apply values) β
     simpa [p, affineNodalEvaluationEquiv_apply] using h
   · intro q hq
     apply (affineNodalEvaluationEquiv d n).injective
     funext β
-    have hp := congrFun (affineNodalEvaluationEquiv d n).apply_symm_apply values β
+    have hp := congrFun
+      ((affineNodalEvaluationEquiv d n).apply_symm_apply values) β
     rw [affineNodalEvaluationEquiv_apply, affineNodalEvaluationEquiv_apply]
     rw [hq β]
     exact hp.symm
