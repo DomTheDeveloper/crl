@@ -105,7 +105,12 @@ theorem residueVector_eq_zero_large_prime {ι : Type*} {p m : ℕ}
   let tag : ι → ZMod p := fun i ↦ exponentResidue (p := p) (a i)
   obtain ⟨r₀, hr₀⟩ := exists_missing_residue hp s tag hcard hp6
   have hv₀ : residueVector (N := p * m) (p := p) s a r₀ = 0 := by
-    simp [residueVector, tag, hr₀]
+    simp only [residueVector]
+    apply Finset.sum_eq_zero
+    intro i hi
+    have himem := Finset.mem_filter.mp hi
+    have hne := hr₀ i himem.1
+    exact (hne (by simpa [tag] using himem.2)).elim
   apply dft_eq_zero_of_one_missing
     (residueVector (N := p * m) (p := p) s a)
     ((m : ZMod p)⁻¹) r₀ hv₀
