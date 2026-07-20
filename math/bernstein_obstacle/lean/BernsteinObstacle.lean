@@ -40,6 +40,7 @@ import BernsteinObstacle.SobolevFEMRecovery
 import BernsteinObstacle.TranslatedMosco
 import BernsteinObstacle.MovingObstacleConvergence
 import BernsteinObstacle.MovingObstacleRate
+import BernsteinObstacle.GrandSaturationRate
 import BernsteinObstacle.CoefficientMosco
 import BernsteinObstacle.AssemblyMosco
 import BernsteinObstacle.MinimizerConvergence
