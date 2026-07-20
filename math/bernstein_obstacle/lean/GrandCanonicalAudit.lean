@@ -5,6 +5,8 @@ import BernsteinObstacle
 #check BernsteinObstacle.affineBox_mem_Icc
 #check BernsteinObstacle.boxApprox_mem_Icc
 #check BernsteinObstacle.simplexBoxApproxNat_mem_Icc
+#check BernsteinObstacle.translatedSet
+#check BernsteinObstacle.moscoConverges_translated
 #check BernsteinObstacle.BilateralBarrierEnvelopeData.moscoConverges
 #check BernsteinObstacle.BilateralBarrierEnvelopeData.inner_and_mosco
 #check BernsteinObstacle.hilbert_vi_pythagorean
@@ -27,6 +29,8 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.affineBox_mem_Icc
 #print axioms BernsteinObstacle.boxApprox_mem_Icc
 #print axioms BernsteinObstacle.simplexBoxApproxNat_mem_Icc
+#print axioms BernsteinObstacle.translatedSet
+#print axioms BernsteinObstacle.moscoConverges_translated
 #print axioms BernsteinObstacle.BilateralBarrierEnvelopeData.moscoConverges
 #print axioms BernsteinObstacle.BilateralBarrierEnvelopeData.inner_and_mosco
 #print axioms BernsteinObstacle.hilbert_vi_pythagorean
