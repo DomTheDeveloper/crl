@@ -1,5 +1,6 @@
 import BernsteinObstacle.AffineLatticePolynomial
 import BernsteinObstacle.PolynomialDimension
+import Mathlib.LinearAlgebra.Basis.Defs
 import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
 import Mathlib.Tactic
 
@@ -33,9 +34,9 @@ theorem affineLatticeCardinalVector_linearIndependent (d n : ℕ) :
 /-- The complete affine cardinal family is a basis of all polynomials in `d`
 variables having total degree at most `n`. -/
 def affineLatticeCardinalBasis (d n : ℕ) :
-    Basis (MultiIndex d n) ℝ
+    Module.Basis (MultiIndex d n) ℝ
       (MvPolynomial.restrictTotalDegree (Fin d) ℝ n) :=
-  basisOfLinearIndependentOfCardEqFinrank'
+  Module.basisOfLinearIndependentOfCardEqFinrank'
     (affineLatticeCardinalVector d n)
     (affineLatticeCardinalVector_linearIndependent d n)
     (finrank_restrictTotalDegree_eq_card_multiIndex d n).symm
@@ -43,7 +44,11 @@ def affineLatticeCardinalBasis (d n : ℕ) :
 @[simp]
 theorem affineLatticeCardinalBasis_apply (d n : ℕ) (α : MultiIndex d n) :
     affineLatticeCardinalBasis d n α = affineLatticeCardinalVector d n α := by
-  simp [affineLatticeCardinalBasis]
+  change Module.basisOfLinearIndependentOfCardEqFinrank'
+      (affineLatticeCardinalVector d n)
+      (affineLatticeCardinalVector_linearIndependent d n)
+      (finrank_restrictTotalDegree_eq_card_multiIndex d n).symm α = _
+  rw [Module.coe_basisOfLinearIndependentOfCardEqFinrank']
 
 /-- The affine cardinal polynomials span the entire degree-bounded polynomial
 space. -/
@@ -55,7 +60,7 @@ theorem span_affineLatticeCardinalVector_eq_top (d n : ℕ) :
 polynomial basis. -/
 theorem affineLatticeCardinalBasis_sum_repr (d n : ℕ)
     (p : MvPolynomial.restrictTotalDegree (Fin d) ℝ n) :
-    ∑ α, ((affineLatticeCardinalBasis d n).repr p α) •
+    ∑ α, (((affineLatticeCardinalBasis d n).repr p α : ℝ)) •
       affineLatticeCardinalVector d n α = p := by
   simpa [affineLatticeCardinalBasis_apply] using
     (affineLatticeCardinalBasis d n).sum_repr p
