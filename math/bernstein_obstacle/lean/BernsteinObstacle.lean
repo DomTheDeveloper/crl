@@ -5,6 +5,7 @@ import BernsteinObstacle.ProjectionVI
 import BernsteinObstacle.Tensor
 import BernsteinObstacle.Simplex
 import BernsteinObstacle.SimplexPartition
+import BernsteinObstacle.LatticeCardinal
 import BernsteinObstacle.GlobalMesh
 import BernsteinObstacle.Energy
 import BernsteinObstacle.FiniteObstacle
