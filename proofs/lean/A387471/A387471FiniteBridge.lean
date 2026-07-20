@@ -4,9 +4,9 @@ import A387471Finite60
 # Analytic bridge to the finite 60th-root certificate
 
 A bounded integral sine relation is evaluated directly in the sixteen-dimensional
-coefficient model from `A387471Finite60`.  The primitive 60th root satisfies the
+coefficient model from `A387471Finite60`. The primitive 60th root satisfies the
 recurrence encoded by `stepVec60`, and its rational minimal polynomial has degree
-16.  Consequently a represented polynomial of degree at most 15 evaluates to zero
+16. Consequently a represented polynomial of degree at most 15 evaluates to zero
 only when every coefficient is zero.
 -/
 
@@ -168,8 +168,10 @@ theorem bounded_grid_sine_classification (a b c : Fin 29)
       Real.sin (angleReal c) = 0) :
     classifiedGrid (angleInt a) (angleInt b) (angleInt c) := by
   apply finite60_grid_certificate a b c hadm
-  rw [vectorRelationGrid]
-  exact (evalVec60_eq_zero_iff _).mp (evalVec60_relation_eq_zero h)
+  have hvec : relationVec60 (angleInt a) (angleInt b) (angleInt c) = 0 :=
+    (evalVec60_eq_zero_iff _).mp (evalVec60_relation_eq_zero h)
+  intro i
+  exact congrFun hvec i
 
 #print axioms canonicalRoot60_phi_relation
 #print axioms evalVec60_powVecNat60
