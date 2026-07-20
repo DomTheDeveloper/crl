@@ -1,0 +1,70 @@
+name: Verify CRL upstream submissions (WOWII 65/143/160/322)
+
+# Single verification lane for the consolidated submission branch
+# `crl-upstream-submissions` on the fork. Builds all four WOWII modules against
+# real Mathlib and audits axioms. 65 and 322 carry inline proofs (must be
+# sorryAx-free); 143 and 160 keep `sorry` with an external formal_proof link, so
+# their modules may report sorryAx by design.
+
+on:
+  push:
+    paths:
+      - .github/workflows/verify-crl-submissions.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-crl-submissions-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out the consolidated submission branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: crl-upstream-submissions
+          path: fc
+
+      - name: Install elan (Lean toolchain manager)
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch prebuilt Mathlib cache
+        working-directory: fc
+        run: lake exe cache get || echo "cache miss — Mathlib will build from source"
+
+      - name: Build the four WOWII modules
+        working-directory: fc
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build \
+            FormalConjectures.WrittenOnTheWallII.GraphConjecture65 \
+            FormalConjectures.WrittenOnTheWallII.GraphConjecture143 \
+            FormalConjectures.WrittenOnTheWallII.GraphConjecture160 \
+            FormalConjectures.WrittenOnTheWallII.GraphConjecture322 2>&1 | tee ../build.log
+
+      - name: Audit axioms of the inline proofs (65 and 322 must be sorryAx-free)
+        working-directory: fc
+        shell: bash
+        run: |
+          set -o pipefail
+          cat > Audit.lean <<'EOF'
+          import FormalConjectures.WrittenOnTheWallII.GraphConjecture65
+          import FormalConjectures.WrittenOnTheWallII.GraphConjecture322
+          #print axioms WrittenOnTheWallII.GraphConjecture65.conjecture65
+          #print axioms WrittenOnTheWallII.GraphConjecture322.conjecture322
+          EOF
+          lake env lean Audit.lean 2>&1 | tee ../audit.log
+          if grep -q "sorryAx" ../audit.log; then
+            echo "::error::an inline proof (65/322) depends on sorryAx"; exit 1
+          fi
+          echo "OK: 65 and 322 inline proofs are sorryAx-free."
