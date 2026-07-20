@@ -1,4 +1,5 @@
 name: Isolated WOWII 314 ARM64 audit
+# Exact audit revision: explicit ten-center C5 classification and corrected bag uniqueness orientation.
 
 on:
   pull_request:
@@ -62,11 +63,11 @@ jobs:
           path = root / 'WOWII/ZZGraphConjecture314C5BlowupClassification.lean'
           text = path.read_text()
           old = """    exact (Classical.choose_spec
-      (existsUnique_C5BagSpec G hG hTriFree hNoP5 c hc x)).2 i hi
-"""
+            (existsUnique_C5BagSpec G hG hTriFree hNoP5 c hc x)).2 i hi
+          """
           new = """    exact ((Classical.choose_spec
-      (existsUnique_C5BagSpec G hG hTriFree hNoP5 c hc x)).2 i hi).symm
-"""
+            (existsUnique_C5BagSpec G hG hTriFree hNoP5 c hc x)).2 i hi).symm
+          """
           if old not in text:
               raise SystemExit('expected bag uniqueness orientation site not found')
           path.write_text(text.replace(old, new, 1))
