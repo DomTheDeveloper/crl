@@ -2,10 +2,10 @@
 """Recover and deterministically repair the generated Handelman Lean module.
 
 The archived gzip member has localized corruption in a repeated, generated
-case-dispatch suffix.  The intact raw DEFLATE stream still contains every
+case-dispatch suffix. The intact raw DEFLATE stream still contains every
 coefficient proof, every cell certificate, and the terminal global theorem.
 This script applies only the mechanically identifiable textual repairs caused
-by that corruption.  The repaired module is not trusted: the Lean kernel must
+by that corruption. The repaired module is not trusted: the Lean kernel must
 recheck every coefficient sign, polynomial identity, cell implication, and the
 final global obstacle theorem.
 """
@@ -67,19 +67,16 @@ def repair(text: str) -> tuple[str, list[tuple[str, int]]]:
         text, count = re.subn(pattern, replacement, text)
         changes.append((pattern, count))
 
-    # Localized identifier damage.
     literal("primalElF", "primalE")
     literal("primalFlF", "primalF")
     literal("dualHandelmanCoef6", "dualHandelmanCoeff46")
     regex(r"dualHandelmanCoe(?=\d)", "dualHandelmanCoeff")
 
-    # Localized parenthesis/argument damage in generated affine identities.
     literal("primalC(v))", "primalC))")
     literal("primalD(v))", "primalD))")
     literal("primalF(v))", "primalF))")
     literal("))v))", ")))")
 
-    # Localized loss of plus signs between generated nonnegative summands.
     literal(")) 1 *", ")) + 1 *")
     literal(")) 2 *", ")) + 2 *")
     literal(")) 0 :=", ")) + 0 :=")
@@ -88,13 +85,18 @@ def repair(text: str) -> tuple[str, list[tuple[str, int]]]:
     return text, changes
 
 
-def validate_structure(text: str) -> None:
+def structural_counts(text: str) -> tuple[int, int]:
     coeffs = sorted({int(x) for x in re.findall(r"def dualHandelmanCoeff(\d+)", text)})
     cells = sorted({int(x) for x in re.findall(r"theorem dualCell(\d+)_nonneg", text)})
     if coeffs != list(range(91)):
         raise SystemExit(f"expected coefficients 0..90, found {coeffs}")
     if cells != list(range(24)):
         raise SystemExit(f"expected cell theorems 0..23, found {cells}")
+    return len(coeffs), len(cells)
+
+
+def validate_structure(text: str) -> tuple[int, int]:
+    counts = structural_counts(text)
     for name in (
         "dualCell13Triangle0_nonneg",
         "dualCell13Triangle1_nonneg",
@@ -121,6 +123,7 @@ def validate_structure(text: str) -> None:
     for lineno, line in enumerate(text.splitlines(), 1):
         if lineno >= 5290 and "have hid_" in line and line.count("(") != line.count(")"):
             raise SystemExit(f"unbalanced repaired identity at line {lineno}: {line}")
+    return counts
 
 
 def main() -> None:
@@ -130,7 +133,7 @@ def main() -> None:
     original_hash = hashlib.sha256(source).hexdigest()
     original_text = source.decode("utf-8")
     repaired, changes = repair(original_text)
-    validate_structure(repaired)
+    coefficient_count, cell_count = validate_structure(repaired)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(repaired, encoding="utf-8")
@@ -144,8 +147,8 @@ def main() -> None:
                 f"inflated_lines={len(original_text.splitlines())}",
                 f"repaired_sha256={repaired_hash}",
                 f"repaired_lines={len(repaired.splitlines())}",
-                f"coefficients={len(set(re.findall(r'def dualHandelmanCoeff(\\d+)', repaired)))}",
-                f"cell_theorems={len(set(re.findall(r'theorem dualCell(\\d+)_nonneg', repaired)))}",
+                f"coefficients={coefficient_count}",
+                f"cell_theorems={cell_count}",
             ]
             + [f"repair_count[{old}]={count}" for old, count in changes]
         )
