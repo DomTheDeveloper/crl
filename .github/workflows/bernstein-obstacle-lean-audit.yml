@@ -60,6 +60,8 @@ jobs:
           lake env lean SimplexFaceFieldAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean GeometryRecoveryAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SimplexAffineReproductionAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean EventuallySobolevFEMRecoveryAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean FreeBoundaryQuadraticLocalizationAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean AffineBernsteinAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean ConvergenceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean MovingAnalysisAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
@@ -69,40 +71,25 @@ jobs:
             exit 1
           fi
           grep -F 'BernsteinObstacle.noPenetration_after_clipping' bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.clippedRecovery_localBoundaryFaceTrace_eq_zero' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.simplexField_lastFace_extension' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.simplexField_orientedLastFace_extension' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.simplexSamplingRecovery_nonneg' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.simplexMultinomialPolynomialExpansion' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.clipped_orientedSimplexFaceTrace_eq_of_sharedDofs' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.affineBernsteinBasis_sum_repr' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.existsUnique_bernsteinCoefficients_with_latticeValues' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.diagonalRecovery_minimizers_strongConvergence' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.mosco_of_scheduledRecovery_of_subset_closedConvex' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.SobolevFEMRecoveryData.moscoConverges' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.SobolevFEMRecoveryData.minimizers_strongConvergence' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.moscoConverges' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.minimizers_strongConvergence' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier' \
-            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.clippedRecovery_localBoundaryFaceTrace_eq_zero' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexField_lastFace_extension' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexField_orientedLastFace_extension' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexSamplingRecovery_nonneg' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexMultinomialPolynomialExpansion' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.EventuallySobolevFEMRecoveryData.minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.distance_lt_stripWidth_of_coefficient_neg' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.clipped_orientedSimplexFaceTrace_eq_of_sharedDofs' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.affineBernsteinBasis_sum_repr' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.existsUnique_bernsteinCoefficients_with_latticeValues' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.diagonalRecovery_minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.mosco_of_scheduledRecovery_of_subset_closedConvex' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.SobolevFEMRecoveryData.moscoConverges' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.SobolevFEMRecoveryData.minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.moscoConverges' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier' bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript
         if: always()
