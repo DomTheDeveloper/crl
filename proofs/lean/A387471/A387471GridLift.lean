@@ -122,12 +122,12 @@ lemma exceptionalGrid_to_ABC {n A B C qA qB qC : ℤ}
       refine ⟨q, by omega, Or.inl ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by simpa [mul_comm] using hB)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by simpa [mul_comm] using hC)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inl ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by simpa [mul_comm] using hC)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by simpa [mul_comm] using hB)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inl ?_⟩
       simp only [Perm3]
@@ -154,12 +154,12 @@ lemma exceptionalGrid_to_ABC {n A B C qA qB qC : ℤ}
       refine ⟨q, by omega, Or.inr ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by simpa [mul_comm] using hB)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by simpa [mul_comm] using hC)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inr ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by simpa [mul_comm] using hC)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by simpa [mul_comm] using hB)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inr ?_⟩
       simp only [Perm3]
