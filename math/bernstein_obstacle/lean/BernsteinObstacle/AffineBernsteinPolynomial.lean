@@ -123,10 +123,7 @@ theorem eval_affineBernsteinPolynomial (d n : ℕ)
           (((Fin.snoc x (1 - ∑ j : Fin d, x j) : Fin (d + 1) → ℝ) i) ^
             (α.1 i : ℕ)) := by
   unfold affineBernsteinPolynomial
-  rw [map_mul, map_prod]
-  change affineBernsteinCoefficient d n α *
-      ∏ i : Fin (d + 1),
-        MvPolynomial.eval x ((affineBarycentric d i) ^ (α.1 i : ℕ)) = _
+  rw [map_mul, MvPolynomial.eval_C, map_prod]
   refine congrArg (fun z : ℝ => affineBernsteinCoefficient d n α * z) ?_
   apply Finset.prod_congr rfl
   intro i hi
