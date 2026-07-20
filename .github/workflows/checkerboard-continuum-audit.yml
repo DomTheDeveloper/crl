@@ -24,18 +24,15 @@ concurrency:
 
 jobs:
   audit:
-    runs-on: macos-latest
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
       - name: Recover and repair generated Handelman Lean source
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/checkerboard/repair_handelman_certificate.py \
+          python3 scripts/checkerboard/repair_handelman_certificate.py \
             2>&1 | tee proofs/lean/Checkerboard/handelman-repair.log
           test -s proofs/lean/Checkerboard/Checkerboard/LP/DualHandelmanData.lean
           grep -q '^coefficients=91$' proofs/lean/Checkerboard/handelman-repair.txt
@@ -45,7 +42,7 @@ jobs:
         run: |
           set -euo pipefail
           : > proofs/lean/Checkerboard/generation.log
-          python -m pip install sympy 2>&1 | tee -a proofs/lean/Checkerboard/generation.log
+          python3 -m pip install --user sympy 2>&1 | tee -a proofs/lean/Checkerboard/generation.log
           for script in \
             generate_outer_certificate.py \
             generate_outer_density_certificate.py \
@@ -58,7 +55,7 @@ jobs:
             generate_dual_function_identities.py
           do
             echo "=== $script ===" | tee -a proofs/lean/Checkerboard/generation.log
-            python "scripts/checkerboard/$script" 2>&1 | tee -a proofs/lean/Checkerboard/generation.log
+            python3 "scripts/checkerboard/$script" 2>&1 | tee -a proofs/lean/Checkerboard/generation.log
           done
       - name: Install pinned Lean
         shell: bash
@@ -78,7 +75,7 @@ jobs:
         working-directory: proofs/lean/Checkerboard
         shell: bash
         run: |
-          set -euo pipefail
+          set -o pipefail
           lake build Checkerboard.LP.ContinuumOptimum 2>&1 | tee continuum-audit.log
       - name: Audit exact theorem heads
         working-directory: proofs/lean/Checkerboard
