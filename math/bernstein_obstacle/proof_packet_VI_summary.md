@@ -1,230 +1,201 @@
-# Bernstein–Bézier Obstacle Proof Packet VI
+# Bernstein–Bézier Obstacle Proof Packet XII
 
 ## Exact scope
 
-This file closes the following theorems under explicit hypotheses:
+This packet records the strongest theorem currently supported by the repository:
 
-1. Mosco convergence of pointwise-feasible Bernstein finite-element cones to the homogeneous obstacle cone, without free-boundary regularity assumptions.
-2. Strong convergence of the corresponding obstacle minimizers.
-3. A regular-free-boundary recovery and minimizer estimate
+1. Mosco convergence of fixed-degree conforming simplicial Bernstein coefficient cones to the homogeneous obstacle cone.
+2. Strong convergence of the corresponding symmetric coercive energy minimizers.
+3. Under the corrected regular-interface assumptions below,
    \[
-   \|u-u_h^B\|_{H^1(\Omega)}\le C\bigl(h^r+h_\Gamma^{3/2}\bigr),
+   \|u-u_h^B\|_{H^1(\Omega)}\le C\bigl(h^r+h_\Gamma^{3/2}\bigr).
    \]
-   under quadratic gap growth, bounded multiplier, local mesh regularity, and boundary compatibility.
-4. Nestedness and strict-positivity completeness of subdivision-refined Bernstein cones.
-5. A correction to the previous subdivision claim: subdivision does not certify every nonnegative polynomial with zeros.
+4. Nestedness and strict-positivity completeness of uniformly shape-regular subdivision-refined Bernstein cones.
+5. The limitation that subdivision alone need not certify a nonnegative polynomial having zeros.
 
-The full line-by-line proof packet and verification bundle are archived separately; this repository file records the theorem structure and audit conclusions.
+The internal adversarial audit returned **PASS AFTER CORRECTION**. The corrections are part of the theorem statement here, not merely editorial notes.
 
 ---
 
 ## 1. General Bernstein cones
 
 Let
-
 \[
-V=H_0^1(\Omega),\qquad K=\{v\in V:v\ge0\text{ a.e.}\}.
+V=H_0^1(\Omega),\qquad K=\{v\in V:v\ge0\text{ a.e.}\},
 \]
-
-On a shape-regular conforming simplicial mesh, let \(V_h^r\) be the continuous piecewise-\(\mathbb P_r\) space with zero trace. Define
-
+and on a conforming uniformly shape-regular simplicial mesh let
 \[
-K_h^B=\{v_h\in V_h^r:b_{T,\alpha}(v_h)\ge0\text{ for every }T,\alpha\}.
+K_h^B=\{v_h\in V_h^r:b_{T,\alpha}(v_h)\ge0\ \forall T,\alpha\}.
 \]
+The nonnegative Bernstein partition of unity gives `K_h^B ⊂ K`.
 
-Since the Bernstein basis is nonnegative and sums to one, \(K_h^B\subset K\).
-
-For a continuous function \(w\), define the local positive Bernstein operator
-
+For smooth `w ≥ 0`, define
 \[
 \mathcal B_T^rw=\sum_{|\alpha|=r}w(x_{T,\alpha})B_{T,\alpha}.
 \]
+The sampled face data agree from both adjacent elements, so the operator is conforming. If `w` has compact support in the interior, then for all sufficiently fine meshes every boundary lattice value vanishes, hence the assembled recovery has homogeneous trace.
 
-It is positive, globally conforming, and preserves zero boundary traces. It reproduces affine functions, so for smooth \(w\),
-
+On the fixed reference simplex, the operator reproduces affine functions. Taylor expansion and affine scaling therefore give
 \[
-\|w-\mathcal B_h^rw\|_{H^1}\to0.
+\|w-\mathcal B_T^rw\|_{L^2(T)}
+ \le C h_T^2 |T|^{1/2}\|D^2w\|_{L^\infty(T)},
 \]
+\[
+\|\nabla(w-\mathcal B_T^rw)\|_{L^2(T)}
+ \le C h_T |T|^{1/2}\|D^2w\|_{L^\infty(T)}.
+\]
+The constant depends only on fixed degree, dimension, and shape regularity.
 
-Nonnegative smooth compactly supported functions are dense in \(K\): approximate in \(H_0^1\), take positive parts, and mollify with nonnegative kernels inside the domain. A diagonal sequence of positive Bernstein approximants therefore proves the Mosco recovery condition. The weak-limit condition follows because \(K\) is closed and convex, hence weakly closed.
+Nonnegative `C_c^∞(Ω)` functions are dense in the positive cone of `H_0^1`: approximate in `H_0^1`, apply the continuous positive-part map, and mollify with a nonnegative kernel inside the positive distance of the compact support from the boundary. A monotone diagonal sequence then gives, for every `v in K`, a sequence `v_h in K_h^B` converging strongly to `v`.
 
-Thus
-
+The weak Mosco condition follows from `K_h^B ⊂ K` and weak closedness of the norm-closed convex cone `K`. Hence
 \[
 K_h^B\xrightarrow{M}K.
 \]
-
-For a symmetric continuous coercive quadratic energy
-
-\[
-J(v)=\tfrac12a(v,v)-F(v),
-\]
-
-Mosco convergence and strict convexity imply strong convergence of minimizers. Equivalently, if \(z\) solves \(a(z,w)=F(w)\), then the minimizers are the energy-metric projections
-
-\[
-u=P_K^az,\qquad u_h=P_{K_h^B}^az,
-\]
-
-and Mosco convergence implies convergence of projections.
+For a symmetric continuous coercive quadratic energy, recovery, weak lower semicontinuity, uniqueness, and convergence of the energy norm imply strong convergence of minimizers.
 
 ---
 
 ## 2. Exact coefficient-to-value estimate
 
-Let \(I_T^r\) be barycentric-lattice Lagrange interpolation. Let \(E_r\) be the Bernstein collocation matrix and \(A_r=E_r^{-1}\). Then
-
+For barycentric-lattice interpolation `I_T^r`, let `A_r` be the inverse Bernstein collocation matrix on the reference simplex. Then
 \[
 b_\alpha(I_T^rv)=\sum_j(A_r)_{\alpha j}v(x_j).
 \]
-
-Affine reproduction gives the exact moment identities
-
+Affine reproduction gives
 \[
 \sum_j(A_r)_{\alpha j}=1,
 \qquad
 \sum_j(A_r)_{\alpha j}x_j=x_\alpha.
 \]
-
-Taylor expansion at \(x_\alpha\) cancels the constant and linear terms and yields
-
+Taylor expansion therefore cancels the constant and linear terms and yields
 \[
 |b_{T,\alpha}(I_T^rv)-v(x_{T,\alpha})|
-\le C_{r,\mathrm{shape}}h_T^2\operatorname{Lip}(\nabla v).
+\le C_{r,d,\sigma}h_T^2\operatorname{Lip}(\nabla v),
 \]
-
-A second proof follows because the same functional annihilates \(\mathbb P_1\), so reference-element Bramble–Hilbert gives the identical scaling.
-
-Exact rational inversion on the standard triangle gives maximal reference constants
-
-\[
-C_1=0,\quad C_2=\tfrac14,\quad C_3=\tfrac59,
-\quad C_4=\tfrac98,\quad C_5=\tfrac{2852}{1125},
-\quad C_6=\tfrac{1304}{225}.
-\]
+where `σ` is the shape-regularity bound. The general barycentric-lattice unisolvence theorem is proved separately; finite exact inversions through degree six are verification examples rather than the existence proof.
 
 ---
 
-## 3. Regular-free-boundary theorem
+## 3. Corrected regular-free-boundary theorem
 
 Assume:
 
-- \(\Gamma=\partial\{u>0\}\cap\Omega\) is compact and \(C^1\);
-- \(u\in C^{1,1}\), with piecewise \(H^{r+1}\) regularity away from \(\Gamma\);
-- on the positive side near \(\Gamma\),
+- `Γ = ∂{u>0} ∩ Ω` is compact and `C^1` and has positive distance from the physical boundary;
+- `u ∈ C^{1,1}` and `u = ∇u = 0` on `Γ`;
+- in a fixed tubular neighborhood on the positive side,
   \[
   c_0d(x,\Gamma)^2\le u(x)\le C_0d(x,\Gamma)^2;
   \]
-- the multiplier \(\lambda=Au-F\) has a nonnegative \(L^\infty\) density supported on the contact set;
-- free-boundary elements are locally quasi-uniform of size \(h_\Gamma\);
-- the physical boundary is compatible: either there is a contact collar, or positive boundary elements satisfy a uniform linear lower bound in the inward distance. Without this condition an additional boundary-strip term is required.
+- a mesh-independent one-sided `H^{r+1}` extension exists near `Γ`;
+- outside the risky patch the broken regularity is uniformly bounded:
+  \[
+  \sum_{T\notin\omega_h}|u|_{H^{r+1}(T)}^2\le C_{\rm reg};
+  \]
+- the multiplier is a nonnegative `L^∞` density supported on the contact set;
+- the local risky set is
+  \[
+  \mathcal R_h=\{T:\operatorname{dist}(T,\Gamma)\le\kappa h_T\};
+  \]
+- on its fixed one-ring enlargement `ω_h`,
+  \[
+  c_mh_\Gamma\le h_T\le C_mh_\Gamma,
+  \qquad |\omega_h|\le C_\Gamma h_\Gamma;
+  \]
+- every physical-boundary lattice point carries the homogeneous value zero, while positive boundary elements away from `Γ` satisfy a uniform inward linear lower bound at lattice points lying off the union of all physical-boundary faces;
+- the obstacle is represented exactly after shifting to a zero-gap problem.
 
-The coefficient estimate and quadratic nondegeneracy imply that every negative coefficient of \(I_h^ru\) is confined to an \(O(h_\Gamma)\)-thick free-boundary patch and has magnitude at most \(Ch_\Gamma^2\).
+The local-distance definition is essential. A strip defined only with one global `h_Γ` does not control larger transition elements under shape regularity alone.
 
-### Preferred repair: coefficient clipping
+### Localization
 
-Identify the global Bernstein face/control coefficients of the continuous finite-element function and set
+A non-risky element does not meet `Γ`, hence, by connectedness, is either contained in the contact interior or in the positive phase.
 
+- Contact-interior elements interpolate zero.
+- Positive elements in the tubular neighborhood have nodal values at least `c κ^2 h_T^2`; for sufficiently large fixed `κ`, this dominates the coefficient discrepancy `C h_T^2`.
+- Positive elements separated from both `Γ` and the physical boundary have a mesh-independent positive lower bound, which dominates `C h_T^2` for sufficiently small `h`.
+- On a positive physical-boundary element, coefficients whose lattice points lie on any physical-boundary face vanish exactly. Every other fixed-degree lattice point lies a distance comparable to `h_T` inside the domain, so the inward linear lower bound is `O(h_T)` and dominates the `O(h_T^2)` coefficient discrepancy.
+
+Thus all negative coefficients occur in `R_h`.
+
+### One-ring amplitude bound
+
+Clipping a face coefficient changes every incident element, so the repair is supported on the one-ring patch `ω_h`, not merely on `R_h`. Every point of `ω_h` lies within `C h_Γ` of `Γ`. Quadratic upper growth on the positive side and vanishing on contact give
 \[
-c_i=\max\{b_i,0\}.
+|u(x_j)|\le Ch_\Gamma^2
+\]
+at every interpolation node in the patch. Fixed-degree collocation stability gives
+\[
+|b_{T,\alpha}(I_h^ru)|\le Ch_\Gamma^2,
+\qquad T\subset\omega_h.
 \]
 
-Face coefficients agree across adjacent elements, so clipping preserves conformity. Boundary coefficients remain zero. The clipped function is globally pointwise feasible.
+### Conforming clipping repair
 
-The correction has coefficients \(O(h_\Gamma^2)\) on a patch of measure \(O(h_\Gamma)\). Finite-dimensional scaling gives
+Clip each shared global coefficient once:
+\[
+\widetilde b_i=\max\{b_i,0\}.
+\]
+Common-face traces remain identical, all physical-boundary coefficients remain zero, and the resulting function is pointwise feasible.
 
+The correction has coefficient amplitude `O(h_Γ^2)` on a codimension-one patch of volume `O(h_Γ)`. Reference-element norm equivalence and affine scaling give
 \[
 \|d_h\|_{L^2}\le Ch_\Gamma^{5/2},
 \qquad
 \|\nabla d_h\|_{L^2}\le Ch_\Gamma^{3/2}.
 \]
+The exponent is independent of ambient dimension because the patch has codimension one.
 
-Together with standard bulk interpolation and \(C^{1,1}\) strip interpolation,
-
+The uniform broken regularity bound gives the bulk `O(h^r)` term. On `ω_h`, `C^{1,1}` interpolation gives an `O(h_Γ)` pointwise gradient error over volume `O(h_Γ)`, hence an `O(h_Γ^{3/2})` contribution. Therefore a feasible recovery satisfies
 \[
 \|u-v_h^B\|_{H^1}
 \le C\bigl(h^r+h_\Gamma^{3/2}\bigr).
 \]
-
-### Independent repair: positive cutoff lift
-
-A nonnegative piecewise-linear cutoff equal to one on risky elements has nonnegative degree-elevated Bernstein coefficients. Adding \(Mh_\Gamma^2\eta_h\) gives the same recovery rate. This independently checks the clipping proof.
+A positive piecewise-linear cutoff lift provides a second repair with the same rate.
 
 ---
 
-## 4. Two independent minimizer proofs
+## 4. Transfer to the minimizer
 
-For every feasible \(v\), the exact energy identity is
-
+For feasible `v`, with multiplier convention
 \[
-J(v)-J(u)
-=\tfrac12a(v-u,v-u)+\langle\lambda,v-u\rangle.
+\langle\lambda,v-u\rangle=a(u,v-u)-\ell(v-u)\ge0,
 \]
-
-Discrete minimality against the recovery function gives
-
+the exact energy identity is
 \[
-\tfrac\alpha2\|u_h^B-u\|_{H^1}^2
-\le
-C\|v_h^B-u\|_{H^1}^2
-+\langle\lambda,v_h^B-u\rangle.
+J(v)-J(u)=\tfrac12a(v-u,v-u)+\langle\lambda,v-u\rangle.
 \]
-
-On the contact part of the risky strip, \(0\le v_h^B\le Ch_\Gamma^2\); the strip has measure \(O(h_\Gamma)\). Hence
-
+On the contact part of the risky patch, `u=0` and `0 ≤ v_h^B ≤ Ch_Γ^2`; bounded multiplier density and patch measure `O(h_Γ)` give
 \[
 \langle\lambda,v_h^B-u\rangle\le C\|\lambda\|_\infty h_\Gamma^3.
 \]
-
-This proves
-
+Discrete minimality, continuity, and coercivity yield
 \[
 \|u-u_h^B\|_{H^1}
 \le C\bigl(h^r+h_\Gamma^{3/2}\bigr).
 \]
-
-A separate Falk derivation starts from coercivity, uses the continuous and discrete variational inequalities, and yields
-
-\[
-\|u-u_h^B\|_{H^1}^2
-\le C\|u-v_h\|_{H^1}^2
-+C\langle\lambda,v_h-u\rangle.
-\]
-
-Substitution of the same recovery produces the identical result.
+A separate Falk derivation gives the same estimate.
 
 ---
 
-## 5. Subdivision theorem and required correction
+## 5. Numerical-claim correction
 
-De Casteljau subdivision expresses child coefficients as convex combinations of parent coefficients. Therefore subdivision-refined feasible cones are nested.
+One matched-size Hertz mesh pair produced an approximately `48.9×` smaller bracketed active-set contact-width error. Neighboring meshes show that this scalar estimator is phase sensitive because the last active edge can land unusually close to the exact Hertz radius. It is not a uniform convergence-factor claim.
 
-If a polynomial is strictly positive on a simplex, sufficiently fine subdivision gives positive Bernstein coefficients because coefficient errors relative to barycentric-grid values are \(O(h_S^2)\).
+The robust conclusions are:
 
-However, exact certification of every nonnegative polynomial is false. A published simplicial counterexample has an isolated zero and retains a negative Bernstein coefficient in a simplex of every triangulation. The correct conclusion is:
+- coefficientwise nonpenetration over each complete curved edge;
+- small KKT residuals and accurate total reaction;
+- positive curved-element Jacobians;
+- lower pressure-profile error for curved quadratic geometry on the reported benchmark sequence;
+- close agreement with a second FEM assembly framework developed within the project.
 
-- strict positivity is eventually certified;
-- every nonnegative polynomial is locally approximated by certified polynomials \(p+\varepsilon\);
-- subdivision alone cannot replace free-boundary clipping/repair where the gap vanishes.
-
-This correction is now incorporated into the theorem scope.
-
----
-
-## 6. Verification
-
-The exact symbolic verification script checks the affine moment identities over \(\mathbb Q\) and computes the constants above.
-
-A phase-locked one-dimensional contact test uses meshes \(n=3\cdot2^k+1\), keeping each free boundary in the same relative position in its cut element. For degrees \(2,3,4,5\), coefficient clipping produces observed \(H^1\) rate
-
-\[
-1.500000\ldots
-\]
-
-at every refinement step, matching the proved strip scaling.
+That second implementation is not described as an external clean-room replication.
 
 ---
 
-## Deliberate exclusions
+## 6. Deliberate exclusions and trust boundary
 
-The theorem does not claim coverage of singular/degenerate free-boundary points, boundary-touching free boundaries, inexact arbitrary obstacles, measure-valued multipliers without additional work, nonsymmetric operators, or optimal adaptive complexity without a specified refinement-closure theorem.
+The sharp theorem excludes singular or degenerate free-boundary points, free boundaries meeting the physical boundary, anisotropic meshes without a separate audit, inexact arbitrary obstacles, measure-valued multipliers, nonsymmetric operators, and optimal adaptive-complexity claims.
+
+The finite coefficient, simplex, clipping, projection/KKT, assembly, energy, Mosco-infrastructure, diagonal-recovery, strip-scaling, and Hilbert-space VI layers are machine checked under pinned Lean/mathlib toolchains. The moving Sobolev finite-element realization, local free-boundary geometry, coefficient localization on actual meshes, and complete sharp rate remain analytical and require independent expert review.
