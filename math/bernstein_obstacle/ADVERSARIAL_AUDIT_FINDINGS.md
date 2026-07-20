@@ -1,127 +1,128 @@
-# Adversarial internal audit findings
+# Adversarial internal audit findings - corrected status
 
 Date: 2026-07-20
 
-This document records an attempt to falsify the headline theorems before
-external review. It is not an independent endorsement. The audit deliberately
-looked for dimension errors, hidden regularity assumptions, invalid uses of
-point evaluation, loss of conformity under clipping, and incorrect
-free-boundary scaling.
+This file records internal attempts to falsify the headline theorems. It is not an independent endorsement.
 
-## Corrections found and incorporated
+## Final internal verdict
 
-### 1. Positive sampling operator: dimension-sensitive point evaluation
+**PASS AFTER CORRECTION**
 
-An earlier draft described a local `H^2 -> H^1` estimate for an operator whose
-coefficients are point samples. Point evaluation is not a dimension-free
-bounded functional on `H^2(T)`, so that formulation was unsafe in high
-dimension.
+No fatal counterexample was found to:
 
-The corrected statement assumes `w in W^{2,infty}(T)` and proves
+- the general Bernstein-cone Mosco theorem;
+- strong convergence of the constrained minimizers;
+- the coefficient-to-grid-value estimate;
+- conformity-preserving shared-coefficient clipping;
+- the codimension-one `h_Gamma^(3/2)` repair mechanism.
 
-```text
-||w - B_T^r w||_{L2(T)}
-  <= C_r h_T^2 |T|^(1/2) ||D^2 w||_{Linfty(T)},
+The audit found two material issues that are now incorporated into the theorem statement and proof packet:
 
-||grad(w - B_T^r w)||_{L2(T)}
-  <= C_r h_T |T|^(1/2) ||D^2 w||_{Linfty(T)}.
-```
+1. localization must compare distance to the **local element diameter** `h_T`, not only to one global interface scale;
+2. the bulk `O(h^r)` estimate needs a uniform broken `H^{r+1}` bound.
 
-This is sufficient for the Mosco recovery theorem because the recovery first
-approximates a nonnegative `H_0^1` function by a smooth compactly supported
-function and only then applies the sampling operator. The general convergence
-theorem therefore remains dimension-independent.
+It also found that a selected-mesh Hertz contact-width improvement factor was phase sensitive and should not be presented as a uniform numerical rate.
 
-### 2. Uniform high-order regularity approaching the free boundary
+## Corrections incorporated
 
-The phrase “piecewise `H^{r+1}` away from the free boundary” did not by itself
-provide a uniform bulk interpolation constant for non-risky elements whose
-distance from the interface is proportional to their diameter.
+### 1. Dimension-safe positive sampling estimate
 
-The sharp theorem now assumes a one-sided `H^{r+1}` extension on the positive
-side of a fixed tubular neighborhood, with a mesh-independent norm, plus
-`H^{r+1}` regularity on the remaining positive phase.
-
-### 3. Two-sided risky-element coefficient bound
-
-The multiplier estimate needs an upper amplitude bound on the clipped recovery
-inside the contact portion of the risky strip. The localization lemma now
-states explicitly
+The positive sampling operator is applied only to smooth recovery functions. The local estimate is stated in `W^{2,infinity}` form:
 
 ```text
-|b_{T,alpha}(I_h^r u)| <= C h_Gamma^2
+||w - B_T^r w||_L2
+  <= C h_T^2 |T|^(1/2) ||D^2 w||_Linfinity,
+
+||grad(w - B_T^r w)||_L2
+  <= C h_T |T|^(1/2) ||D^2 w||_Linfinity.
 ```
 
-for every risky element, not merely a lower bound on negative coefficients.
-Quadratic upper growth and the coefficient-to-grid-value estimate prove this.
+This avoids a false dimension-independent point-evaluation assertion on `H^2`.
 
-### 4. Subdivision theorem needs shape regularity
+### 2. Uniform regularity
 
-The strict-positivity certification theorem now requires a uniformly
-shape-regular nested subdivision family with maximal cell diameter tending to
-zero. Diameter decay alone does not control affine-scaling constants on
-arbitrarily degenerate simplices.
+The sharp theorem now assumes:
 
-### 5. General-degree interpolation unisolvence
+- a mesh-independent one-sided `H^{r+1}` extension near the regular interface;
+- a uniform broken bound outside the risky patch:
+  \[
+  \sum_{T\notin\omega_h}|u|_{H^{r+1}(T)}^2\le C_{\rm reg}.
+  \]
 
-Exact rational inverse collocation matrices were checked only through degree
-six. Those computations verify examples and constants, not the general
-existence theorem. The paper must cite or prove unisolvence of interpolation at
-the degree-`r` barycentric lattice for arbitrary fixed `r` before using the
-inverse collocation matrix abstractly.
+### 3. Local-distance risky set
 
-## Current audit status by dependency
+The risky set is now
+\[
+\mathcal R_h=\{T:\operatorname{dist}(T,\Gamma)\le\kappa h_T\}.
+\]
+On its fixed one-ring enlargement,
+\[
+c_mh_\Gamma\le h_T\le C_mh_\Gamma,
+\qquad |\omega_h|\le C_\Gamma h_\Gamma.
+\]
 
-| Dependency | Internal status | Residual external-review question |
+This closes the mismatch between a strip defined using `h_Gamma` and a positivity proof requiring distance larger than a multiple of `h_T`.
+
+### 4. Physical-boundary split
+
+For a positive boundary element, classify local Bernstein lattice points into those lying on **any** physical-boundary face and those lying off the union of all physical-boundary faces. Then:
+
+- coefficients attached to boundary lattice points are exactly zero;
+- every remaining lattice point is a distance comparable to `h_T` inside the domain, with constants depending only on fixed degree and shape regularity;
+- the compatible inward linear lower bound is `O(h_T)` and dominates the `O(h_T^2)` coefficient discrepancy.
+
+This formulation covers corner elements having more than one boundary face.
+
+### 5. Two-sided risky coefficient bound
+
+On every element in the one-ring risky patch,
+\[
+|b_{T,\alpha}(I_h^ru)|\le Ch_\Gamma^2.
+\]
+This is needed for the repair norm and multiplier term. The support enlargement from `R_h` to `omega_h` is essential because a clipped face coefficient modifies every element sharing that global degree of freedom.
+
+### 6. Shape-regular subdivision
+
+Strict-positivity certification by subdivision is stated only for uniformly shape-regular nested subdivisions whose maximum cell diameter tends to zero.
+
+### 7. General-degree unisolvence
+
+Barycentric-lattice interpolation is justified for arbitrary fixed degree by an explicit cardinal-polynomial proof. Exact inversions through degree six are treated only as verification examples.
+
+### 8. Hertz numerical claim
+
+The approximately `48.9×` contact-width comparison occurred at one selected matched-size mesh pair. Neighboring meshes show phase sensitivity in both the bracketed and pressure-fitted contact-width estimators. The corrected manuscript:
+
+- removes the factor from the abstract;
+- labels the original table as a selected-mesh comparison;
+- adds neighboring-mesh sensitivity data;
+- emphasizes pressure error, force balance, KKT residuals, geometry quality, and exact coefficient feasibility.
+
+The scikit-fem calculation is described as a second assembly framework developed within the project, not as a third-party clean-room replication.
+
+## Current status by dependency
+
+| Dependency | Internal status | Remaining external question |
 |---|---|---|
-| Bernstein cone implies pointwise feasibility | Pass | Check global face orientation/index identification in implementation |
-| Nonnegative smooth density in the obstacle cone | Pass | Reviewer should verify the positive-part and mollification diagonal argument |
-| Smooth positive Bernstein recovery | Pass after W2-infinity correction | Check affine-scaling constants on the chosen mesh family |
-| Mosco weak condition | Pass | None beyond standard weak closure of closed convex sets |
-| Strong minimizer convergence | Pass by projection and energy routes | Confirm the exact Mosco-to-projection theorem used |
-| Coefficient-to-value estimate | Pass conditionally | Requires general barycentric-lattice unisolvence |
-| Localization outside risky strip | Pass under stated growth/mesh assumptions | Check constants and physical-boundary hypothesis |
-| Clipping preserves conformity | Pass | Verify shared face coefficients use a single global orientation-independent DOF |
-| Repair norm `O(h_Gamma^(3/2))` | Pass for locally quasi-uniform isotropic interface patch | Anisotropic meshes are excluded |
-| Multiplier term `O(h_Gamma^3)` | Pass for nonnegative `L^infinity` density supported in contact set | Measure-valued multipliers are excluded |
-| Subdivision completeness | Corrected | Only strict positivity is eventually certified |
-| General sharp theorem | Conditional pass | Needs independent line-by-line review of all explicit hypotheses |
-
-## Falsification tests for external reviewers
-
-The sharp theorem should be rejected or restated if any reviewer finds one of
-the following:
-
-1. a conforming finite-element orientation for which shared face Bernstein
-   coefficients are not identified consistently under clipping;
-2. a regular quadratic-growth free-boundary example satisfying the stated
-   hypotheses but having an `O(1)` negative interpolant coefficient outside the
-   risky strip;
-3. failure of the one-sided extension assumption to imply uniform `h^r` bulk
-   interpolation on the non-risky positive elements;
-4. a mesh satisfying the stated local quasi-uniformity assumptions whose
-   fixed-layer risky patch has volume larger than `C h_Gamma`;
-5. a contact-side clipped recovery whose amplitude exceeds `C h_Gamma^2`;
-6. an incorrect sign in the multiplier energy identity or Falk estimate;
-7. a counterexample to the positive smooth density construction in the stated
-   polyhedral Lipschitz domain setting.
-
-## Formal and computational checks completed
-
-- The one-dimensional Bernstein finite certificate, convex-hull bounds,
-  coefficient clipping, and obstacle no-penetration theorem compile under
-  pinned Lean `v4.33.0-rc1`.
-- The terminal `#print axioms` audit reports only the standard mathlib axioms
-  `propext`, `Classical.choice`, and `Quot.sound`; no `sorryAx` appears.
-- A separate 3D L-BFGS-B solve from the zero vector matches the PDAS objective
-  to `2.22e-16`, the coefficient vector to `4.08e-9` in `L-infinity`, and
-  remains nonnegative at 54,791 independently evaluated points.
-- Three pre-existing numerical tables were regenerated exactly from clean
-  executions.
+| Bernstein coefficients imply pointwise feasibility | Pass | Concrete implementation indexing review |
+| Nonnegative smooth density | Pass | Human verification of positive-part/mollifier details |
+| Smooth positive Bernstein recovery | Pass | Check affine-scaling constants |
+| Mosco weak condition | Pass | Standard weak-closure audit |
+| Strong minimizer convergence | Pass | Check exact energy assumptions |
+| Coefficient-to-value estimate | Pass | Human review of all-degree presentation |
+| Localization | Pass after local-size correction | Are grading assumptions optimal/natural? |
+| Clipping conformity | Pass | Concrete mesh orientation audit |
+| `h_Gamma^(3/2)` repair scaling | Pass under corrected patch assumptions | Anisotropic extension excluded |
+| Multiplier term | Pass for bounded density | Measure multipliers excluded |
+| Physical boundary | Pass after multi-face boundary expansion | Human review of boundary geometry |
+| Hertz certificate and force balance | Pass | External independent reproduction |
+| Uniform `48.9×` claim | Rejected | Replaced by selected-mesh statement |
+| Full sharp theorem | Conditional pass | Independent line-by-line mathematical review |
 
 ## Trust boundary
 
-The corrected theorem package has passed this internal adversarial audit. It
-has **not** yet received an independent expert endorsement. The external audit
-issue remains open, and publication claims should say “proved under the stated
-hypotheses; independent review requested,” not “independently verified.”
+The corrections improve the internal logical consistency of the sharp theorem. They do not constitute independent verification. Publication language should say:
+
+> proved under the stated local grading, regularity, multiplier, and boundary hypotheses; independent expert review requested.
+
+The finite algebraic and Hilbert-space layers are machine checked under pinned Lean/mathlib toolchains. The moving Sobolev finite-element realization and free-boundary analysis remain analytical.
