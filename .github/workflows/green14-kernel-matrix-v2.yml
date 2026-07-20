@@ -7,6 +7,10 @@ on:
     paths:
       - '.github/workflows/green14-kernel-matrix-v2.yml'
       - 'ci/lean/Green14Matrix/**'
+  pull_request:
+    paths:
+      - '.github/workflows/green14-kernel-matrix-v2.yml'
+      - 'ci/lean/Green14Matrix/**'
   workflow_dispatch:
 
 permissions:
