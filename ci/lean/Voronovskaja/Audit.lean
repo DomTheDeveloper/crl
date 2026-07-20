@@ -1,5 +1,11 @@
 import FormalConjectures.Paper.VoronovskajaTypeFormula
 
--- Exact public theorem and terminal axiom audit.
 #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
+#check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth
+#check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth.limit_exists
+#check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.answer_smoothness
+
 #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
+#print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth
+#print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth.limit_exists
+#print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.answer_smoothness
