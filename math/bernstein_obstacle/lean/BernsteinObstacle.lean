@@ -6,4 +6,5 @@ import BernsteinObstacle.Simplex
 import BernsteinObstacle.SimplexPartition
 import BernsteinObstacle.GlobalMesh
 import BernsteinObstacle.Energy
+import BernsteinObstacle.FiniteObstacle
 import BernsteinObstacle.Mosco
