@@ -52,3 +52,4 @@ import BernsteinObstacle.StripScaling
 import BernsteinObstacle.RecoveryRate
 import BernsteinObstacle.CorrectedSharpRate
 import BernsteinObstacle.BulkMultiplierRate
+import BernsteinObstacle.OptimalGrading
