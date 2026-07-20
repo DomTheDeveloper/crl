@@ -58,9 +58,21 @@ lemma sum_sixRoot (n : ℕ) (A B C : ℤ) :
   have hA := exp_sub_exp_neg_eq_two_sin_mul_I (latticeAngle n A)
   have hB := exp_sub_exp_neg_eq_two_sin_mul_I (latticeAngle n B)
   have hC := exp_sub_exp_neg_eq_two_sin_mul_I (latticeAngle n C)
-  norm_num [Fin.sum_univ_succ, sixRoot]
-  push_cast
-  linear_combination hA + hB + hC
+  calc
+    (∑ r : Fin 6, sixRoot n A B C r) =
+        (Complex.exp ((latticeAngle n A : ℂ) * Complex.I) -
+          Complex.exp (-(latticeAngle n A : ℂ) * Complex.I)) +
+        (Complex.exp ((latticeAngle n B : ℂ) * Complex.I) -
+          Complex.exp (-(latticeAngle n B : ℂ) * Complex.I)) +
+        (Complex.exp ((latticeAngle n C : ℂ) * Complex.I) -
+          Complex.exp (-(latticeAngle n C : ℂ) * Complex.I)) := by
+            norm_num [Fin.sum_univ_succ, sixRoot]
+            ring
+    _ = 2 * ((Real.sin (latticeAngle n A) + Real.sin (latticeAngle n B) +
+          Real.sin (latticeAngle n C) : ℝ) : ℂ) * Complex.I := by
+            rw [hA, hB, hC]
+            push_cast
+            ring
 
 /-- A reduced sine equation is a vanishing sum of the six labeled roots. -/
 lemma sixRoot_vanishes_of_sines {n : ℕ} {A B C : ℤ}
