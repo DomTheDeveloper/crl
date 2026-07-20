@@ -55,12 +55,12 @@ lemma sum_sixRoot (n : ℕ) (A B C : ℤ) :
     ∑ r : Fin 6, sixRoot n A B C r =
       2 * ((Real.sin (latticeAngle n A) + Real.sin (latticeAngle n B) +
         Real.sin (latticeAngle n C) : ℝ) : ℂ) * Complex.I := by
-  simp only [Fin.sum_univ_succ, sixRoot]
-  rw [exp_sub_exp_neg_eq_two_sin_mul_I,
-    exp_sub_exp_neg_eq_two_sin_mul_I,
-    exp_sub_exp_neg_eq_two_sin_mul_I]
+  have hA := exp_sub_exp_neg_eq_two_sin_mul_I (latticeAngle n A)
+  have hB := exp_sub_exp_neg_eq_two_sin_mul_I (latticeAngle n B)
+  have hC := exp_sub_exp_neg_eq_two_sin_mul_I (latticeAngle n C)
+  norm_num [Fin.sum_univ_succ, sixRoot]
   push_cast
-  ring
+  linear_combination hA + hB + hC
 
 /-- A reduced sine equation is a vanishing sum of the six labeled roots. -/
 lemma sixRoot_vanishes_of_sines {n : ℕ} {A B C : ℤ}
@@ -76,7 +76,6 @@ lemma canonical_positive_root {n : ℕ} [NeZero n] (A : ℤ) :
   rw [canonicalRoot_pow_intResidue]
   congr 1
   simp [latticeAngle]
-  push_cast
   field_simp [NeZero.ne n]
   ring
 
@@ -87,12 +86,12 @@ lemma canonical_negative_root {n : ℕ} [NeZero n] (A : ℤ) :
       -Complex.exp (-(latticeAngle n A : ℂ) * Complex.I) := by
   rw [canonicalRoot_pow_intResidue]
   calc
-    Complex.exp (2 * Real.pi * Complex.I * (6 * (n : ℤ) - A) / (12 * n)) =
+    Complex.exp (2 * Real.pi * Complex.I *
+        (((6 * (n : ℤ) - A : ℤ) : ℂ)) / (((12 * n : ℕ) : ℂ))) =
         Complex.exp ((Real.pi : ℂ) * Complex.I +
           (-(latticeAngle n A : ℂ)) * Complex.I) := by
           congr 1
           simp [latticeAngle]
-          push_cast
           field_simp [NeZero.ne n]
           ring
     _ = Complex.exp ((Real.pi : ℂ) * Complex.I) *
@@ -122,7 +121,15 @@ lemma canonical_six_vanishes_of_sines {n : ℕ} [NeZero n] {A B C : ℤ}
     Vanishes Finset.univ
       (fun r : Fin 6 ↦ canonicalRoot (12 * n) ^ (sixExponent n A B C r).val) := by
   have hv := sixRoot_vanishes_of_sines h
-  simpa only [sixRoot_eq_canonical] using hv
+  rw [Vanishes] at hv ⊢
+  calc
+    (∑ r ∈ Finset.univ,
+        canonicalRoot (12 * n) ^ (sixExponent n A B C r).val) =
+        ∑ r ∈ Finset.univ, sixRoot n A B C r := by
+          apply Finset.sum_congr rfl
+          intro r _
+          exact (sixRoot_eq_canonical A B C r).symm
+    _ = 0 := hv
 
 #print axioms sum_sixRoot
 #print axioms sixRoot_eq_canonical
