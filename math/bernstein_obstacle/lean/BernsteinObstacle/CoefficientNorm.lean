@@ -63,7 +63,10 @@ theorem stronglyConverges_zero_of_coefficientNormSq_tendsto_zero
   have hSqrt :
       Tendsto (fun k => Real.sqrt (coefficientNormSq (w k))) atTop (nhds 0) := by
     have h := Real.continuous_sqrt.continuousAt.tendsto.comp hSq
-    simpa only [Function.comp_apply, Real.sqrt_zero] using h
+    change Tendsto
+      ((fun x : ℝ => Real.sqrt x) ∘ (fun k => coefficientNormSq (w k)))
+      atTop (nhds 0)
+    exact h
   unfold StronglyConverges
   exact squeeze_zero_norm
     (fun k => norm_le_sqrt_coefficientNormSq (w k)) hSqrt
