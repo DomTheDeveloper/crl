@@ -39,19 +39,36 @@ jobs:
           EOF
           python3 - <<'PY'
           from pathlib import Path
-          path = Path('.lake/packages/formal_conjectures/WOWII/ZZGraphConjecture314C5Bags.lean')
+          root = Path('.lake/packages/formal_conjectures')
+
+          path = root / 'WOWII/ZZGraphConjecture314C5Bags.lean'
           text = path.read_text()
           old = "\n".join([
               "    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ] <;>",
               "    decide",
           ])
-          new = "\n".join([
-              "    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ]",
-              "  all_goals trace_state",
-              "  all_goals admit",
-          ])
+          witness_order = [1, 4, 2, 0, 1, 3, 4, 2, 0, 3]
+          lines = ["    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ]"]
+          for k in witness_order:
+              lines.extend([
+                  f"  · refine ⟨({k} : Fin 5), by decide, ?_⟩",
+                  "    intro y hy",
+                  "    fin_cases y <;> simp_all at hy ⊢",
+              ])
           if old not in text:
               raise SystemExit('expected concrete Fin 5 closure not found')
+          path.write_text(text.replace(old, "\n".join(lines), 1))
+
+          path = root / 'WOWII/ZZGraphConjecture314C5BlowupClassification.lean'
+          text = path.read_text()
+          old = """    exact (Classical.choose_spec
+      (existsUnique_C5BagSpec G hG hTriFree hNoP5 c hc x)).2 i hi
+"""
+          new = """    exact ((Classical.choose_spec
+      (existsUnique_C5BagSpec G hG hTriFree hNoP5 c hc x)).2 i hi).symm
+"""
+          if old not in text:
+              raise SystemExit('expected bag uniqueness orientation site not found')
           path.write_text(text.replace(old, new, 1))
           PY
       - name: Fetch Mathlib cache
