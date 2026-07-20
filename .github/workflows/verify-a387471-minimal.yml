@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/crl
-          ref: 576398946c436b42f278feccfe7472ee4d988eab
+          ref: 95e6334c1ab4621e414e96da4e57b32989ae4a2c
           path: campaign
       - name: Install pinned Lean
         shell: bash
@@ -38,16 +38,34 @@ jobs:
         run: lake build A387471Ratio A387471AngleBounds A387471SixRoots A387471SineCancel
       - name: Build three-root module
         working-directory: campaign/proofs/lean/A387471
-        run: lake build A387471ThreeRoots 2>&1 | tee ../../../../a387471-three-roots.log
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build A387471ThreeRoots 2>&1 | tee ../../../../a387471-three-roots.log
       - name: Build pair module
         working-directory: campaign/proofs/lean/A387471
-        run: lake build A387471Pairs 2>&1 | tee ../../../../a387471-pairs.log
-      - name: Build labeled branches
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build A387471Pairs 2>&1 | tee ../../../../a387471-pairs.log
+      - name: Build pair labels
         working-directory: campaign/proofs/lean/A387471
-        run: lake build A387471PairLabels A387471TripleLabels 2>&1 | tee ../../../../a387471-labels.log
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build A387471PairLabels 2>&1 | tee ../../../../a387471-pair-labels.log
+      - name: Build triple labels
+        working-directory: campaign/proofs/lean/A387471
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build A387471TripleLabels 2>&1 | tee ../../../../a387471-triple-labels.log
       - name: Build nonminimal theorem
         working-directory: campaign/proofs/lean/A387471
-        run: lake build A387471Nonminimal 2>&1 | tee ../../../../a387471-nonminimal-only.log
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build A387471Nonminimal 2>&1 | tee ../../../../a387471-nonminimal-only.log
       - name: Upload diagnostic transcripts
         if: always()
         uses: actions/upload-artifact@v4
@@ -56,6 +74,7 @@ jobs:
           path: |
             a387471-three-roots.log
             a387471-pairs.log
-            a387471-labels.log
+            a387471-pair-labels.log
+            a387471-triple-labels.log
             a387471-nonminimal-only.log
           if-no-files-found: warn
