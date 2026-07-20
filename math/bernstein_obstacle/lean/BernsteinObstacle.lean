@@ -9,6 +9,7 @@ import BernsteinObstacle.SimplexFace
 import BernsteinObstacle.SimplexFaceField
 import BernsteinObstacle.SimplexOrientedFace
 import BernsteinObstacle.SimplexRecovery
+import BernsteinObstacle.SimplexAffineReproduction
 import BernsteinObstacle.SimplexPartition
 import BernsteinObstacle.AffineLattice
 import BernsteinObstacle.LatticeCardinal
