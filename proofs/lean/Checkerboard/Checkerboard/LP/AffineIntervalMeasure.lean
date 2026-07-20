@@ -41,6 +41,7 @@ theorem map_centered_interval_mul
       constructor <;> nlinarith
   have hrestrict := Measure.restrict_map
     (μ := volume) (f := fun t : ℝ => s * t)
+    (s := Set.Icc (-s / 2) (s / 2))
     (by fun_prop) measurableSet_Icc
   rw [hpre] at hrestrict
   calc
@@ -66,6 +67,7 @@ theorem map_restrict_Icc_add_left (m a b : ℝ) :
     constructor <;> rintro ⟨hl, hu⟩ <;> constructor <;> linarith
   have hrestrict := Measure.restrict_map
     (μ := volume) (f := fun t : ℝ => m + t)
+    (s := Set.Icc (m + a) (m + b))
     (by fun_prop) measurableSet_Icc
   rw [hpre] at hrestrict
   calc
@@ -87,7 +89,7 @@ theorem map_centered_interval_affine
     Measure.map (fun t : ℝ => m + s * t) centeredUnitIntervalMeasure =
         Measure.map (fun u : ℝ => m + u)
           (Measure.map (fun t : ℝ => s * t) centeredUnitIntervalMeasure) := by
-      rw [Measure.map_map hmul hadd]
+      rw [Measure.map_map hadd hmul]
       congr 1
       funext t
       rfl
@@ -122,19 +124,22 @@ theorem map_centered_interval_affine_neg
       constructor <;> rintro ⟨hl, hu⟩ <;> constructor <;> linarith
     have hrestrict := Measure.restrict_map
       (μ := volume) (f := fun t : ℝ => -t)
+      (s := Set.Icc (-1 / 2 : ℝ) (1 / 2))
       (by fun_prop) measurableSet_Icc
     rw [hpre] at hrestrict
     have hmap : Measure.map (fun t : ℝ => -t) volume = volume := by
       simpa using Real.map_volume_mul_left (a := (-1 : ℝ)) (by norm_num)
     simpa [centeredUnitIntervalMeasure, hmap] using hrestrict.symm
+  have haff : Measurable (fun u : ℝ => m + s * u) := by fun_prop
+  have hneg : Measurable (fun t : ℝ => -t) := by fun_prop
   calc
     Measure.map (fun t : ℝ => m - s * t) centeredUnitIntervalMeasure =
         Measure.map (fun u : ℝ => m + s * u)
           (Measure.map (fun t : ℝ => -t) centeredUnitIntervalMeasure) := by
-      rw [Measure.map_map (by fun_prop) (by fun_prop)]
+      rw [Measure.map_map haff hneg]
       congr 1
       funext t
-      ring
+      ring_nf
     _ = Measure.map (fun u : ℝ => m + s * u) centeredUnitIntervalMeasure := by
       rw [hreflect]
     _ = ENNReal.ofReal s⁻¹ •
@@ -144,7 +149,7 @@ theorem map_centered_interval_affine_neg
 /-- The centered source has total mass one. -/
 theorem centeredUnitIntervalMeasure_univ :
     centeredUnitIntervalMeasure Set.univ = 1 := by
-  simp [centeredUnitIntervalMeasure, Real.volume_Icc]
+  norm_num [centeredUnitIntervalMeasure, Real.volume_Icc]
 
 end
 
