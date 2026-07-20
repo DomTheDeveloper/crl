@@ -13,6 +13,12 @@ import BernsteinObstacle
 #check BernsteinObstacle.finiteTrace_eq_of_reindex
 #check BernsteinObstacle.localFaceTrace_eq_of_orientation
 #check BernsteinObstacle.clipped_localFaceTrace_eq_of_orientation
+#check BernsteinObstacle.latticeFactor_self
+#check BernsteinObstacle.latticeFactor_eq_zero_of_lt
+#check BernsteinObstacle.latticeCardinalValue_self
+#check BernsteinObstacle.exists_coord_lt_of_sum_eq_of_ne
+#check BernsteinObstacle.latticeCardinalValue_eq_zero_of_ne
+#check BernsteinObstacle.latticeCardinalValue_eq_ite
 #check BernsteinObstacle.assemblyFeasibleSet_weaklySequentiallyClosed
 #check BernsteinObstacle.assemblyFeasibleSet_mosco_const
 #check BernsteinObstacle.assemblyFeasibleSet_identity_recovery
@@ -43,6 +49,12 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.finiteTrace_eq_of_reindex
 #print axioms BernsteinObstacle.localFaceTrace_eq_of_orientation
 #print axioms BernsteinObstacle.clipped_localFaceTrace_eq_of_orientation
+#print axioms BernsteinObstacle.latticeFactor_self
+#print axioms BernsteinObstacle.latticeFactor_eq_zero_of_lt
+#print axioms BernsteinObstacle.latticeCardinalValue_self
+#print axioms BernsteinObstacle.exists_coord_lt_of_sum_eq_of_ne
+#print axioms BernsteinObstacle.latticeCardinalValue_eq_zero_of_ne
+#print axioms BernsteinObstacle.latticeCardinalValue_eq_ite
 #print axioms BernsteinObstacle.assemblyFeasibleSet_weaklySequentiallyClosed
 #print axioms BernsteinObstacle.assemblyFeasibleSet_mosco_const
 #print axioms BernsteinObstacle.assemblyFeasibleSet_identity_recovery
