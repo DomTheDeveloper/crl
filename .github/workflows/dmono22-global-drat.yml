@@ -1,0 +1,91 @@
+name: Dmono22 unrestricted global DRAT certificate
+
+on:
+  push:
+    branches:
+      - audit/dmono22-global-drat
+    paths:
+      - '.github/workflows/dmono22-global-drat.yml'
+      - 'math/checkerboard/n22_exact/emit_global_cnf.py'
+      - 'math/checkerboard/n22_exact/n22_exact_core.py'
+      - 'math/checkerboard/n22_exact/n22_data.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dmono22-global-drat
+  cancel-in-progress: true
+
+jobs:
+  certify-global:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install exact CNF and proof tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          pip install --disable-pip-version-check python-sat
+          sudo apt-get update
+          sudo apt-get install -y cadical build-essential git zlib1g-dev
+          git clone --depth 1 https://github.com/marijnheule/drat-trim.git /tmp/drat-trim
+          make -C /tmp/drat-trim
+          sudo install /tmp/drat-trim/drat-trim /usr/local/bin/drat-trim
+      - name: Emit unrestricted exact target-34 CNF
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 emit_global_cnf.py dmono22-global.cnf --manifest dmono22-global-manifest.json
+          grep -q '"boundary_restrictions": null' dmono22-global-manifest.json
+          sha256sum dmono22-global.cnf dmono22-global-manifest.json | tee dmono22-global.sha256
+      - name: Produce global textual DRAT proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set +e
+          /usr/bin/time -v cadical --no-binary dmono22-global.cnf dmono22-global.drat \
+            2>&1 | tee dmono22-global-cadical.log
+          code=${PIPESTATUS[0]}
+          set -e
+          if [[ "$code" != 20 ]]; then
+            echo "Expected CaDiCaL UNSAT exit code 20, got $code" >&2
+            exit 1
+          fi
+          test -s dmono22-global.drat
+          sha256sum dmono22-global.drat | tee -a dmono22-global.sha256
+      - name: Independently replay the global proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v drat-trim dmono22-global.cnf dmono22-global.drat \
+            2>&1 | tee dmono22-global-drat-check.log
+          grep -E 'VERIFIED|s VERIFIED' dmono22-global-drat-check.log
+      - name: Compress proof certificate
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          xz -T0 -6 dmono22-global.drat
+          sha256sum dmono22-global.drat.xz | tee -a dmono22-global.sha256
+      - name: Upload global certificate package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dmono22-global-drat
+          path: |
+            math/checkerboard/n22_exact/dmono22-global.cnf
+            math/checkerboard/n22_exact/dmono22-global.drat.xz
+            math/checkerboard/n22_exact/dmono22-global-manifest.json
+            math/checkerboard/n22_exact/dmono22-global.sha256
+            math/checkerboard/n22_exact/dmono22-global-cadical.log
+            math/checkerboard/n22_exact/dmono22-global-drat-check.log
+          if-no-files-found: warn
+          retention-days: 30
