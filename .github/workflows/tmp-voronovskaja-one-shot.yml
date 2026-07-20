@@ -72,6 +72,17 @@ jobs:
           from pathlib import Path
           root = Path('.lake/packages/formal_conjectures')
 
+          defs = root / 'FormalConjectures/Paper/VoronovskajaDefinitions.lean'
+          text = defs.read_text()
+          for decl in [
+              'noncomputable def bernsteinTail',
+              'noncomputable def bezierBernstein',
+          ]:
+              if text.count(decl) != 1:
+                  raise SystemExit(f'exact definition site not found: {decl}')
+              text = text.replace(decl, '@[expose]\n' + decl, 1)
+          defs.write_text(text)
+
           proof = root / 'FormalConjectures/Paper/VoronovskajaProof.lean'
           text = proof.read_text()
           old = "\nimport FormalConjectures.Paper.VoronovskajaDefinitions\nimport FormalConjecturesForMathlib.Probability.CentralLimitTheorem\nimport FormalConjecturesForMathlib.Probability.Distributions.Binomial\n"
@@ -85,8 +96,17 @@ jobs:
           if '  rw [← cdf_eq_real μ x]' not in text:
               raise SystemExit('CDF rewrite site not found')
           text = text.replace('  rw [← cdf_eq_real μ x]', '  rw [cdf_eq_real μ x]', 1)
-          old = "  convert h using 1\n  ext z\n  simp"
-          new = "  convert h using 1 <;> simp"
+          old = """  convert h using 1
+  ext z
+  simp
+"""
+          new = """  have hset : Iic (-t) = {z : ℝ | t ≤ (-id) z} := by
+    ext z
+    simp only [mem_Iic, Pi.neg_apply, id_eq, mem_setOf_eq]
+    constructor <;> intro hz <;> linarith
+  rw [hset]
+  exact h
+"""
           if old not in text:
               raise SystemExit('left-tail conversion site not found')
           tails.write_text(text.replace(old, new, 1))
