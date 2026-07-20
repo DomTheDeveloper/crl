@@ -1,0 +1,67 @@
+name: Voronovskaja final Windows kernel audit
+
+on:
+  push:
+    branches:
+      - audit/voronovskaja-crl-isolated
+    paths:
+      - 'ci/lean/Voronovskaja/**'
+      - '.github/workflows/voronovskaja-final-windows.yml'
+  pull_request:
+    paths:
+      - 'ci/lean/Voronovskaja/**'
+      - '.github/workflows/voronovskaja-final-windows.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: voronovskaja-final-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: windows-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://raw.githubusercontent.com/leanprover/elan/master/elan-init.ps1 -OutFile elan-init.ps1
+          & powershell -ExecutionPolicy Bypass -File .\elan-init.ps1 -y --default-toolchain none
+          "$env:USERPROFILE\.elan\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Resolve exact proof dependency
+        shell: pwsh
+        working-directory: ci/lean/Voronovskaja
+        run: |
+          lake update
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Fetch Mathlib cache
+        shell: pwsh
+        working-directory: ci/lean/Voronovskaja
+        run: |
+          lake exe cache get
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build exact theorem stack
+        shell: pwsh
+        working-directory: ci/lean/Voronovskaja
+        run: |
+          lake build '@formal_conjectures/+FormalConjectures.Paper.VoronovskajaTypeFormula' 2>&1 |
+            Tee-Object -FilePath audit-windows.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Compile and audit exact catalog theorem
+        shell: pwsh
+        working-directory: ci/lean/Voronovskaja
+        run: |
+          lake env lean Audit.lean 2>&1 | Tee-Object -FilePath audit-windows.log -Append
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path audit-windows.log -Pattern 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce') { exit 1 }
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: voronovskaja-final-windows-audit
+          path: ci/lean/Voronovskaja/audit-windows.log
+          if-no-files-found: warn
