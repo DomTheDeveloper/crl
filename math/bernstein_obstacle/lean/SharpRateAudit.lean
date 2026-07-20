@@ -20,6 +20,9 @@ import BernsteinObstacle
 #check BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier
 #check BernsteinObstacle.correctedSharpMinimizerRate_of_local_strip
 #check BernsteinObstacle.corrected_localization_and_sharp_rate
+#check BernsteinObstacle.broken_bulk_sum_le_rate
+#check BernsteinObstacle.multiplier_strip_le_cubic
+#check BernsteinObstacle.correctedSharpMinimizerRate_of_broken_bulk_and_multiplier
 
 #print axioms BernsteinObstacle.coefficient_nonneg_of_abs_sub_le
 #print axioms BernsteinObstacle.value_lt_error_of_coefficient_neg
@@ -41,3 +44,6 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier
 #print axioms BernsteinObstacle.correctedSharpMinimizerRate_of_local_strip
 #print axioms BernsteinObstacle.corrected_localization_and_sharp_rate
+#print axioms BernsteinObstacle.broken_bulk_sum_le_rate
+#print axioms BernsteinObstacle.multiplier_strip_le_cubic
+#print axioms BernsteinObstacle.correctedSharpMinimizerRate_of_broken_bulk_and_multiplier
