@@ -42,7 +42,7 @@ theorem eval_coordinateDescPochhammer (i : ι) (a : ℕ) (β : ι → ℕ) :
 linear factors in the selected coordinate. -/
 theorem coordinateDescPochhammer_eq_prod (i : ι) (a : ℕ) :
     coordinateDescPochhammer i a =
-      ∏ m in Finset.range a,
+      ∏ m ∈ Finset.range a,
         (MvPolynomial.X i - MvPolynomial.C (m : ℝ)) := by
   induction a with
   | zero =>
@@ -71,12 +71,12 @@ theorem totalDegree_coordinateDescPochhammer_le (i : ι) (a : ℕ) :
     (coordinateDescPochhammer i a).totalDegree ≤ a := by
   rw [coordinateDescPochhammer_eq_prod]
   calc
-    (∏ m in Finset.range a,
+    (∏ m ∈ Finset.range a,
         (MvPolynomial.X i - MvPolynomial.C (m : ℝ))).totalDegree
-        ≤ ∑ m in Finset.range a,
+        ≤ ∑ m ∈ Finset.range a,
             (MvPolynomial.X i - MvPolynomial.C (m : ℝ)).totalDegree :=
       MvPolynomial.totalDegree_finsetProd _ _
-    _ ≤ ∑ _m in Finset.range a, 1 := by
+    _ ≤ ∑ _m ∈ Finset.range a, 1 := by
       apply Finset.sum_le_sum
       intro m hm
       simpa using MvPolynomial.totalDegree_sub_C_le
