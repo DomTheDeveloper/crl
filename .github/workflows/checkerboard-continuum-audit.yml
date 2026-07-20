@@ -24,8 +24,8 @@ concurrency:
 
 jobs:
   audit:
-    runs-on: ubuntu-latest
-    timeout-minutes: 180
+    runs-on: macos-latest
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
