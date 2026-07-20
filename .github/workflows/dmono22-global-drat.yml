@@ -9,13 +9,19 @@ on:
       - 'math/checkerboard/n22_exact/emit_global_cnf.py'
       - 'math/checkerboard/n22_exact/n22_exact_core.py'
       - 'math/checkerboard/n22_exact/n22_data.py'
+  pull_request:
+    paths:
+      - '.github/workflows/dmono22-global-drat.yml'
+      - 'math/checkerboard/n22_exact/emit_global_cnf.py'
+      - 'math/checkerboard/n22_exact/n22_exact_core.py'
+      - 'math/checkerboard/n22_exact/n22_data.py'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: dmono22-global-drat
+  group: dmono22-global-drat-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
