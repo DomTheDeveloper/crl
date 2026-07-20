@@ -1,7 +1,11 @@
 name = "voronovskaja_audit"
-defaultTargets = []
+defaultTargets = ["Audit"]
 
 [[require]]
 name = "formal_conjectures"
 git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
 rev = "a862193a427425f6c8ff36bfd1518d0f3aea0eee"
+
+[[lean_lib]]
+name = "Audit"
+globs = ["Audit"]
