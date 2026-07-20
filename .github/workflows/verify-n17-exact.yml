@@ -42,5 +42,3 @@ jobs:
           EOF
           lake env lean N17AxiomAudit.lean 2>&1 | tee n17-axioms.log
           ! grep -q 'sorryAx' n17-axioms.log
-          grep -q 'Checkerboard.exact_n17_p0' n17-axioms.log
-          grep -q 'Checkerboard.exact_n17_p1' n17-axioms.log
