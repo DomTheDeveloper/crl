@@ -1,3 +1,4 @@
+# Trigger: expose operator definitions and prove exact left-tail set identity.
 name: One-shot Voronovskaja exact audit
 
 on:
