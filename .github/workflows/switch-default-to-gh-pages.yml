@@ -1,0 +1,56 @@
+name: Switch default to gh-pages
+
+on:
+  push:
+    paths:
+      - .github/workflows/switch-default-to-gh-pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  switch-default:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/gracious-hamilton-8k6xhz
+          fetch-depth: 1
+      - name: Switch default branch while preserving Pages content
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo="$GITHUB_REPOSITORY"
+          pages_sha='c8e745f409811f4d63fa6c9693ef04b0a993e754'
+
+          restore_pages() {
+            if gh api "repos/$repo/git/ref/heads/gh-pages" >/dev/null 2>&1; then
+              gh api --method PATCH "repos/$repo/git/refs/heads/gh-pages" \
+                -f sha="$pages_sha" -F force=true >/dev/null || true
+            else
+              gh api --method POST "repos/$repo/git/refs" \
+                -f ref='refs/heads/gh-pages' -f sha="$pages_sha" >/dev/null || true
+            fi
+          }
+          trap 'code=$?; [[ $code -eq 0 ]] || restore_pages; exit $code' EXIT
+
+          git switch -C 'claude/gracious-hamilton-8k6xhz' \
+            'origin/claude/gracious-hamilton-8k6xhz'
+          [[ "$(git branch --show-current)" == 'claude/gracious-hamilton-8k6xhz' ]]
+
+          gh api --method DELETE "repos/$repo/git/refs/heads/gh-pages"
+          gh api --method POST 'repos/{owner}/{repo}/branches/{branch}/rename' \
+            -f new_name='gh-pages' >/dev/null
+
+          for _ in $(seq 1 30); do
+            [[ "$(gh api "repos/$repo" --jq '.default_branch')" == 'gh-pages' ]] && break
+            sleep 1
+          done
+          [[ "$(gh api "repos/$repo" --jq '.default_branch')" == 'gh-pages' ]]
+
+          gh api --method PATCH "repos/$repo/git/refs/heads/gh-pages" \
+            -f sha="$pages_sha" -F force=true >/dev/null
+          trap - EXIT
