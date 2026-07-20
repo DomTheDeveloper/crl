@@ -13,6 +13,9 @@ import BernsteinObstacle
 #check BernsteinObstacle.finiteTrace_eq_of_reindex
 #check BernsteinObstacle.localFaceTrace_eq_of_orientation
 #check BernsteinObstacle.clipped_localFaceTrace_eq_of_orientation
+#check BernsteinObstacle.multiIndexToAffine_affineToMultiIndex
+#check BernsteinObstacle.affineToMultiIndex_multiIndexToAffine
+#check BernsteinObstacle.multiIndexAffineEquiv
 #check BernsteinObstacle.latticeFactor_self
 #check BernsteinObstacle.latticeFactor_eq_zero_of_lt
 #check BernsteinObstacle.latticeCardinalValue_self
@@ -68,6 +71,8 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.finiteTrace_eq_of_reindex
 #print axioms BernsteinObstacle.localFaceTrace_eq_of_orientation
 #print axioms BernsteinObstacle.clipped_localFaceTrace_eq_of_orientation
+#print axioms BernsteinObstacle.multiIndexToAffine_affineToMultiIndex
+#print axioms BernsteinObstacle.affineToMultiIndex_multiIndexToAffine
 #print axioms BernsteinObstacle.latticeFactor_self
 #print axioms BernsteinObstacle.latticeFactor_eq_zero_of_lt
 #print axioms BernsteinObstacle.latticeCardinalValue_self
