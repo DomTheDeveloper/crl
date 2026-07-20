@@ -4,6 +4,8 @@ open scoped BigOperators
 
 namespace BernsteinObstacle
 
+noncomputable section
+
 /-!
 # Finite-dimensional obstacle energy algebra
 
@@ -36,7 +38,7 @@ def coefficientNormSq (u : ι → ℝ) : ℝ :=
 @[simp]
 theorem matrixBilin_add_left (a : ι → ι → ℝ) (u v w : ι → ℝ) :
     matrixBilin a (u + v) w = matrixBilin a u w + matrixBilin a v w := by
-  simp [matrixBilin, add_mul, mul_add, Finset.sum_add_distrib]
+  simp [matrixBilin, mul_add, Finset.sum_add_distrib]
 
 @[simp]
 theorem matrixBilin_add_right (a : ι → ι → ℝ) (u v w : ι → ℝ) :
@@ -46,7 +48,7 @@ theorem matrixBilin_add_right (a : ι → ι → ℝ) (u v w : ι → ℝ) :
 @[simp]
 theorem matrixBilin_sub_left (a : ι → ι → ℝ) (u v w : ι → ℝ) :
     matrixBilin a (u - v) w = matrixBilin a u w - matrixBilin a v w := by
-  simp [matrixBilin, sub_mul, mul_sub, Finset.sum_sub_distrib]
+  simp [matrixBilin, mul_sub, Finset.sum_sub_distrib]
 
 @[simp]
 theorem matrixBilin_sub_right (a : ι → ι → ℝ) (u v w : ι → ℝ) :
@@ -83,20 +85,30 @@ theorem discreteEnergy_difference_identity
     discreteEnergy a f v - discreteEnergy a f u =
       (1 / 2 : ℝ) * matrixBilin a (v - u) (v - u) +
         (matrixBilin a u (v - u) - vectorLoad f (v - u)) := by
-  have hv : v = u + (v - u) := by
+  let w : ι → ℝ := v - u
+  have hvw : v = u + w := by
     funext i
-    simp
+    simp [w]
+  have hquadw :
+      matrixBilin a v v =
+        matrixBilin a u u + 2 * matrixBilin a u w +
+          matrixBilin a w w := by
+    rw [hvw, matrixBilin_add_left, matrixBilin_add_right,
+      matrixBilin_add_right]
+    have hcross : matrixBilin a w u = matrixBilin a u w :=
+      matrixBilin_symm a hsymm w u
+    linarith
+  have hloadw :
+      vectorLoad f v = vectorLoad f u + vectorLoad f w := by
+    rw [hvw, vectorLoad_add]
   have hquad :
       matrixBilin a v v =
         matrixBilin a u u + 2 * matrixBilin a u (v - u) +
           matrixBilin a (v - u) (v - u) := by
-    rw [hv, matrixBilin_add_left, matrixBilin_add_right,
-      matrixBilin_add_right]
-    have hcross := matrixBilin_symm a hsymm (v - u) u
-    linarith
+    simpa [w] using hquadw
   have hload :
       vectorLoad f v = vectorLoad f u + vectorLoad f (v - u) := by
-    rw [hv, vectorLoad_add]
+    simpa [w] using hloadw
   rw [discreteEnergy, discreteEnergy, hquad, hload]
   ring
 
@@ -125,5 +137,7 @@ theorem coercive_error_le_energy
   nlinarith
 
 end FiniteEnergy
+
+end
 
 end BernsteinObstacle
