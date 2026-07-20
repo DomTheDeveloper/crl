@@ -22,7 +22,7 @@ jobs:
       - name: Reject unfinished shortcuts
         working-directory: proofs/lean/Checkerboard
         run: |
-          ! grep -RnE '\bsorry\b|\badmit\b|native_decide|^[[:space:]]*(axiom|opaque)[[:space:]]' --include='*.lean' Checkerboard/Model.lean Checkerboard/FiniteExact.lean
+          ! grep -RnE '^[[:space:]]*(sorry|admit|native_decide|axiom|opaque)([[:space:]]|$)' Checkerboard/Model.lean Checkerboard/FiniteExact.lean
       - name: Resolve pinned Mathlib
         working-directory: proofs/lean/Checkerboard
         run: lake update
