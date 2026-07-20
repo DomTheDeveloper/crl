@@ -26,6 +26,7 @@ abbrev AffineMultiIndex (d n : ℕ) :=
 def multiIndexToAffine (d n : ℕ) (α : MultiIndex d n) :
     AffineMultiIndex d n := by
   refine ⟨fun i => α.1 i.castSucc, ?_⟩
+  change (∑ i : Fin d, (α.1 i.castSucc : ℕ)) ≤ n
   have hsum := α.2
   rw [Fin.sum_univ_castSucc] at hsum
   omega
@@ -39,7 +40,8 @@ def affineToMultiIndex (d n : ℕ) (γ : AffineMultiIndex d n) :
     ⟨n - s, Nat.lt_succ_iff.mpr (Nat.sub_le n s)⟩
   refine ⟨Fin.snoc γ.1 lastCoord, ?_⟩
   rw [Fin.sum_univ_castSucc]
-  simp [lastCoord, s]
+  simp only [Fin.snoc_castSucc, Fin.snoc_last]
+  change (∑ i, (γ.1 i : ℕ)) + (n - ∑ i, (γ.1 i : ℕ)) = n
   omega
 
 @[simp]
@@ -57,9 +59,11 @@ theorem affineToMultiIndex_multiIndexToAffine (d n : ℕ)
   apply Subtype.ext
   funext i
   refine Fin.lastCases ?_ (fun j => ?_) i
-  · have hsum := α.2
+  · apply Fin.ext
+    change n - (∑ j : Fin d, (α.1 j.castSucc : ℕ)) =
+      (α.1 (Fin.last d) : ℕ)
+    have hsum := α.2
     rw [Fin.sum_univ_castSucc] at hsum
-    simp [affineToMultiIndex, multiIndexToAffine]
     omega
   · simp [affineToMultiIndex, multiIndexToAffine]
 
