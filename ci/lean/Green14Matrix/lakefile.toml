@@ -1,0 +1,7 @@
+name = "green14_matrix_audit"
+defaultTargets = []
+
+[[require]]
+name = "formal_conjectures"
+git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
+rev = "1833f25f6e853b08d8808f35d0b59217d5396a63"
