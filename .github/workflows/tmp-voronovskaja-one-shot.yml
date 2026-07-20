@@ -1,0 +1,90 @@
+name: One-shot Voronovskaja exact audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/tmp-voronovskaja-one-shot.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: one-shot-voronovskaja-exact
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Create isolated exact audit project
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/voronovskaja-audit
+          cat > /tmp/voronovskaja-audit/lean-toolchain <<'EOF'
+          leanprover/lean4:v4.27.0
+          EOF
+          cat > /tmp/voronovskaja-audit/lakefile.toml <<'EOF'
+          name = "voronovskaja_exact_audit"
+          defaultTargets = ["Audit"]
+
+          [[require]]
+          name = "formal_conjectures"
+          git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
+          rev = "d3fc76a047c3027bfa41ca6774ef1a6ccf7b7ac4"
+
+          [[lean_lib]]
+          name = "Audit"
+          globs = ["Audit"]
+          EOF
+          cat > /tmp/voronovskaja-audit/Audit.lean <<'EOF'
+          import FormalConjectures.Paper.VoronovskajaTypeFormula
+
+          #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
+          #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth
+          #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth.limit_exists
+          #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.answer_smoothness
+          #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
+          #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth
+          #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth.limit_exists
+          #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.answer_smoothness
+          EOF
+      - name: Resolve and fetch cache
+        working-directory: /tmp/voronovskaja-audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build exact theorem stack
+        working-directory: /tmp/voronovskaja-audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build '@formal_conjectures/+FormalConjectures.Paper.VoronovskajaTypeFormula' 2>&1 | tee audit.log
+      - name: Check public theorems and axioms
+        working-directory: /tmp/voronovskaja-audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Audit.lean 2>&1 | tee -a audit.log
+          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' audit.log; then
+            exit 1
+          fi
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: voronovskaja-one-shot-audit
+          path: /tmp/voronovskaja-audit/audit.log
+          if-no-files-found: warn
