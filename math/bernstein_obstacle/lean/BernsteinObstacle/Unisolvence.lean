@@ -54,9 +54,9 @@ theorem affineLatticeCardinalBasis_apply (d n : ℕ) (α : MultiIndex d n) :
 space. -/
 theorem span_affineLatticeCardinalVector_eq_top (d n : ℕ) :
     Submodule.span ℝ (Set.range (affineLatticeCardinalVector d n)) = ⊤ := by
-  exact (affineLatticeCardinalVector_linearIndependent d n)
-    .span_eq_top_of_card_eq_finrank'
-      (finrank_restrictTotalDegree_eq_card_multiIndex d n).symm
+  exact LinearIndependent.span_eq_top_of_card_eq_finrank'
+    (affineLatticeCardinalVector_linearIndependent d n)
+    (finrank_restrictTotalDegree_eq_card_multiIndex d n).symm
 
 /-- Every degree-bounded polynomial has a unique expansion in the cardinal
 polynomial basis. -/
