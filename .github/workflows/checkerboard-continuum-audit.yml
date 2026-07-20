@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - agent/checkerboard-lp-asymptotic-lean
+      - audit/checkerboard-continuum-core
     paths:
       - '.github/workflows/checkerboard-continuum-audit.yml'
   pull_request:
