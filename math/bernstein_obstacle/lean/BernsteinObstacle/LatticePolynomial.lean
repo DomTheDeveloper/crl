@@ -48,8 +48,17 @@ theorem coordinateDescPochhammer_eq_prod (i : ι) (a : ℕ) :
   | zero =>
       simp [coordinateDescPochhammer]
   | succ a ih =>
-      simp [coordinateDescPochhammer, descPochhammer_succ_right,
-        Finset.prod_range_succ, ih]
+      rw [Finset.prod_range_succ]
+      unfold coordinateDescPochhammer
+      rw [descPochhammer_succ_right, Polynomial.eval₂_mul]
+      simp only [Polynomial.eval₂_sub, Polynomial.eval₂_X,
+        Polynomial.eval₂_natCast]
+      change coordinateDescPochhammer i a *
+          (MvPolynomial.X i - MvPolynomial.C (a : ℝ)) =
+        (∏ m ∈ Finset.range a,
+          (MvPolynomial.X i - MvPolynomial.C (m : ℝ))) *
+            (MvPolynomial.X i - MvPolynomial.C (a : ℝ))
+      rw [ih]
 
 /-- One normalized cardinal factor, now as an actual multivariate polynomial. -/
 def coordinateLatticeCardinalPolynomial (i : ι) (a : ℕ) :
