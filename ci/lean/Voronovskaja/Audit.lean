@@ -1,4 +1,4 @@
--- API probe trigger for the Lean 4.27 compatibility repair.
+-- Corrected API probe trigger for the Lean 4.27 compatibility repair.
 import FormalConjectures.Paper.VoronovskajaTypeFormula
 
 #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
