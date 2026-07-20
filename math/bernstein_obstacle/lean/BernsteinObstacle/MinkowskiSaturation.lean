@@ -61,8 +61,9 @@ theorem phaseLockedQuadraticMiddleCoefficient_neg
     (h theta : ℝ) (hh : 0 < h) (htheta : theta < 1) :
     phaseLockedQuadraticMiddleCoefficient h theta < 0 := by
   have hgap : 0 < 1 - theta := sub_pos.mpr htheta
-  have hgapSq : 0 < (1 - theta) ^ 2 := sq_pos_of_pos hgap
-  have hhSq : 0 < h ^ 2 := sq_pos_of_pos hh
+  have hgapSq : 0 < (1 - theta) ^ 2 :=
+    sq_pos_of_ne_zero (ne_of_gt hgap)
+  have hhSq : 0 < h ^ 2 := sq_pos_of_ne_zero (ne_of_gt hh)
   have hprod : 0 < (1 - theta) ^ 2 * h ^ 2 := mul_pos hgapSq hhSq
   unfold phaseLockedQuadraticMiddleCoefficient
   nlinarith
