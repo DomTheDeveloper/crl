@@ -82,6 +82,50 @@ theorem affineBernsteinPolynomial_factor (d n : ℕ)
   simp only [affineBarycentric, Fin.snoc_castSucc, Fin.snoc_last]
   rw [prod_X_pow_eq_affineBernsteinMonomial]
 
+/-- The eliminated barycentric coordinate has constant coefficient one. -/
+@[simp]
+theorem coeff_zero_affineBarycentric_last (d : ℕ) :
+    MvPolynomial.coeff 0 (affineBarycentric d (Fin.last d)) = 1 := by
+  simp [affineBarycentric]
+
+/-- Every power of the eliminated barycentric coordinate retains constant
+coefficient one. -/
+@[simp]
+theorem coeff_zero_affineBarycentric_last_pow (d m : ℕ) :
+    MvPolynomial.coeff 0
+      ((affineBarycentric d (Fin.last d)) ^ m) = 1 := by
+  induction m with
+  | zero => simp
+  | succ m ih =>
+      rw [pow_succ, MvPolynomial.coeff_mul]
+      simpa using ih
+
+/-- The coefficient of the lowest affine monomial of a Bernstein polynomial is
+exactly its positive multinomial coefficient. -/
+theorem coeff_affineBernsteinPolynomial_at_own_exponent (d n : ℕ)
+    (α : MultiIndex d n) :
+    MvPolynomial.coeff (affineBernsteinExponent d n α)
+      (affineBernsteinPolynomial d n α) =
+        affineBernsteinCoefficient d n α := by
+  rw [affineBernsteinPolynomial_factor, MvPolynomial.coeff_C_mul]
+  simpa using
+    (MvPolynomial.coeff_monomial_mul
+      (0 : Fin d →₀ ℕ) (affineBernsteinExponent d n α) (1 : ℝ)
+      ((affineBarycentric d (Fin.last d)) ^
+        (α.1 (Fin.last d) : ℕ)))
+
+/-- A Bernstein polynomial cannot contribute to a target monomial whose
+exponent does not dominate its own lowest exponent. -/
+theorem coeff_affineBernsteinPolynomial_eq_zero_of_not_le (d n : ℕ)
+    (α β : MultiIndex d n)
+    (hnot : ¬ affineBernsteinExponent d n β ≤
+      affineBernsteinExponent d n α) :
+    MvPolynomial.coeff (affineBernsteinExponent d n α)
+      (affineBernsteinPolynomial d n β) = 0 := by
+  rw [affineBernsteinPolynomial_factor, MvPolynomial.coeff_C_mul]
+  rw [MvPolynomial.coeff_monomial_mul']
+  simp [hnot]
+
 end
 
 end BernsteinObstacle
