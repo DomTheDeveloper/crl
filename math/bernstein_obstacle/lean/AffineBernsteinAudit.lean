@@ -6,6 +6,11 @@ import BernsteinObstacle
 #check BernsteinObstacle.affineBernsteinPolynomial_mem_restrictTotalDegree
 #check BernsteinObstacle.eval_affineBernsteinPolynomial
 #check BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis
+#check BernsteinObstacle.affineBernsteinExponent_sum
+#check BernsteinObstacle.affineBernsteinCoefficient_pos
+#check BernsteinObstacle.affineBernsteinCoefficient_ne_zero
+#check BernsteinObstacle.prod_X_pow_eq_affineBernsteinMonomial
+#check BernsteinObstacle.affineBernsteinPolynomial_factor
 
 #print axioms BernsteinObstacle.eval_affineBarycentric
 #print axioms BernsteinObstacle.totalDegree_affineBarycentric_le
@@ -13,3 +18,8 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.affineBernsteinPolynomial_mem_restrictTotalDegree
 #print axioms BernsteinObstacle.eval_affineBernsteinPolynomial
 #print axioms BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis
+#print axioms BernsteinObstacle.affineBernsteinExponent_sum
+#print axioms BernsteinObstacle.affineBernsteinCoefficient_pos
+#print axioms BernsteinObstacle.affineBernsteinCoefficient_ne_zero
+#print axioms BernsteinObstacle.prod_X_pow_eq_affineBernsteinMonomial
+#print axioms BernsteinObstacle.affineBernsteinPolynomial_factor
