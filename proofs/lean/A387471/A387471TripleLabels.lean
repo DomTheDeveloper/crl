@@ -41,14 +41,18 @@ theorem positive_angular_triple_impossible {n : ℕ} (hn : 0 < n) {A B C : ℤ}
     simpa [a, b, c, canonical_positive_root] using h
   have hcubeA := canonical_three_ratio_cube
     (mul_ne_zero (by norm_num) hn.ne') a b c hcan
+  have hcanB : canonicalRoot (12 * n) ^ b.val + canonicalRoot (12 * n) ^ a.val +
+      canonicalRoot (12 * n) ^ c.val = 0 := by
+    linear_combination hcan
   have hcubeB := canonical_three_ratio_cube
-    (mul_ne_zero (by norm_num) hn.ne') b a c (by simpa [add_comm, add_left_comm] using hcan)
+    (mul_ne_zero (by norm_num) hn.ne') b a c hcanB
   have hdA := order_dvd_of_canonical_ratio_pow_eq_one
     (N := 12 * n) A C 3 (by simpa [a, c] using hcubeA)
   have hdB := order_dvd_of_canonical_ratio_pow_eq_one
     (N := 12 * n) B C 3 (by simpa [b, c] using hcubeB)
   rcases hdA with ⟨qA, hqA⟩
   rcases hdB with ⟨qB, hqB⟩
+  push_cast at hqA hqB
   have hnz : (0 : ℤ) < n := by exact_mod_cast hn
   have hqAlo : -1 ≤ qA := by nlinarith
   have hqAhi : qA ≤ 1 := by nlinarith
@@ -96,6 +100,7 @@ theorem negative_angular_triple_impossible {n : ℕ} (hn : 0 < n) {A B C : ℤ}
     have hnegB : latticeAngle n (-B) = -latticeAngle n B := by simp [latticeAngle]
     have hnegC : latticeAngle n (-C) = -latticeAngle n C := by simp [latticeAngle]
     rw [hnegA, hnegB, hnegC]
+    push_cast
     linear_combination -h
   exact positive_angular_triple_impossible hn (by omega) (by omega) (by omega) hpos
 
@@ -112,7 +117,9 @@ theorem two_positive_one_negative_impossible {n : ℕ} (hn : 0 < n)
   let c : Fin (12 * n) := intResidue (12 * n) (6 * (n : ℤ) - C)
   have hcan : canonicalRoot (12 * n) ^ a.val + canonicalRoot (12 * n) ^ b.val +
       canonicalRoot (12 * n) ^ c.val = 0 := by
-    simpa [a, b, c, canonical_positive_root, canonical_negative_root] using h
+    dsimp [a, b, c]
+    rw [canonical_positive_root A, canonical_positive_root B, canonical_negative_root C]
+    exact h
   have hcube := canonical_three_ratio_cube
     (mul_ne_zero (by norm_num) hn.ne') a b c hcan
   exact mixed_cube_ratio_impossible hn hAC.1 hAC.2 (by simpa [a, c] using hcube)
@@ -130,11 +137,17 @@ theorem one_positive_two_negative_impossible {n : ℕ} (hn : 0 < n)
   let c : Fin (12 * n) := intResidue (12 * n) (6 * (n : ℤ) - C)
   have hcan : canonicalRoot (12 * n) ^ a.val + canonicalRoot (12 * n) ^ b.val +
       canonicalRoot (12 * n) ^ c.val = 0 := by
-    simpa [a, b, c, canonical_positive_root, canonical_negative_root] using h
+    dsimp [a, b, c]
+    rw [canonical_positive_root A, canonical_negative_root B, canonical_negative_root C]
+    exact h
+  have hperm : canonicalRoot (12 * n) ^ a.val + canonicalRoot (12 * n) ^ c.val +
+      canonicalRoot (12 * n) ^ b.val = 0 := by
+    linear_combination hcan
   have hcube := canonical_three_ratio_cube
-    (mul_ne_zero (by norm_num) hn.ne') a c b (by simpa [add_comm, add_left_comm] using hcan)
+    (mul_ne_zero (by norm_num) hn.ne') a c b hperm
   exact mixed_cube_ratio_impossible hn hAB.1 hAB.2 (by simpa [a, b] using hcube)
 
+set_option maxHeartbeats 0 in
 /-- No three distinct labeled roots form a vanishing triple. -/
 theorem labeled_triple_impossible {n : ℕ} (hn : 0 < n) {A B C : ℤ}
     (hA : -3 * (n : ℤ) < A ∧ A < 3 * (n : ℤ))
@@ -150,7 +163,7 @@ theorem labeled_triple_impossible {n : ℕ} (hn : 0 < n) {A B C : ℤ}
   all_goals try {simp at hrs}
   all_goals try {simp at hrt}
   all_goals try {simp at hst}
-  all_goals first
+  all_goals solve
     | exact positive_angular_triple_impossible hn hA hB hC h
     | exact positive_angular_triple_impossible hn hA hC hB
         (by simpa [add_comm, add_left_comm] using h)
