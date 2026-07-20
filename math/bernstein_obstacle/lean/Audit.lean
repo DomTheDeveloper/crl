@@ -21,6 +21,10 @@ import BernsteinObstacle
 #check BernsteinObstacle.clipped_simplexField_nonneg
 #check BernsteinObstacle.simplex_noPenetration_of_nonnegative_coefficients
 #check BernsteinObstacle.simplex_noPenetration_after_clipping
+#check BernsteinObstacle.simplexBasisNat_nonneg
+#check BernsteinObstacle.simplexBasisNat_sum_eq_one
+#check BernsteinObstacle.simplexFieldNat_nonneg
+#check BernsteinObstacle.simplexFieldNat_mem_Icc
 
 #print axioms BernsteinObstacle.basis_nonneg
 #print axioms BernsteinObstacle.basis_sum_eq_one
@@ -43,3 +47,7 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.clipped_simplexField_nonneg
 #print axioms BernsteinObstacle.simplex_noPenetration_of_nonnegative_coefficients
 #print axioms BernsteinObstacle.simplex_noPenetration_after_clipping
+#print axioms BernsteinObstacle.simplexBasisNat_nonneg
+#print axioms BernsteinObstacle.simplexBasisNat_sum_eq_one
+#print axioms BernsteinObstacle.simplexFieldNat_nonneg
+#print axioms BernsteinObstacle.simplexFieldNat_mem_Icc
