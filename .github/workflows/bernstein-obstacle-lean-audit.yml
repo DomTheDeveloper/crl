@@ -41,7 +41,13 @@ jobs:
 
       - name: Build formalization
         working-directory: math/bernstein_obstacle/lean
-        run: lake build BernsteinObstacle
+        shell: bash
+        run: |
+          set +e
+          lake build BernsteinObstacle 2>&1 | tee bernstein-obstacle-build.log
+          code=${PIPESTATUS[0]}
+          set -e
+          exit "$code"
 
       - name: Audit terminal theorem axioms
         working-directory: math/bernstein_obstacle/lean
@@ -60,5 +66,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bernstein-obstacle-lean-audit
-          path: math/bernstein_obstacle/lean/bernstein-obstacle-axioms.log
+          path: |
+            math/bernstein_obstacle/lean/bernstein-obstacle-build.log
+            math/bernstein_obstacle/lean/bernstein-obstacle-axioms.log
           if-no-files-found: warn
