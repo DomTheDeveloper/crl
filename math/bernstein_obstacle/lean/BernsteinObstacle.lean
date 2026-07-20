@@ -35,3 +35,5 @@ import BernsteinObstacle.EnergyGapConvergence
 import BernsteinObstacle.Uniqueness
 import BernsteinObstacle.HilbertVI
 import BernsteinObstacle.NestedHilbertVI
+import BernsteinObstacle.RecoveryRate
+import BernsteinObstacle.FreeBoundaryRate
