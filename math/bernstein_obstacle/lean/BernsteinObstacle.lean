@@ -14,4 +14,5 @@ import BernsteinObstacle.FaceTrace
 import BernsteinObstacle.Mosco
 import BernsteinObstacle.MoscoTools
 import BernsteinObstacle.CoefficientMosco
+import BernsteinObstacle.AssemblyMosco
 import BernsteinObstacle.MinimizerConvergence
