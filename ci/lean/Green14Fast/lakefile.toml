@@ -1,0 +1,11 @@
+name = "green14_fast_audit"
+defaultTargets = ["Audit"]
+
+[[require]]
+name = "formal_conjectures"
+git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
+rev = "eb445916ff2f3fe0e335f990e7ab05981cd40224"
+
+[[lean_lib]]
+name = "Audit"
+globs = ["Audit"]
