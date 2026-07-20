@@ -60,6 +60,27 @@ theorem lastFaceMultiIndex_last (d n : ℕ) (β : MultiIndex d n) :
     (lastFaceMultiIndex d n β).1 (Fin.last (d + 1)) = 0 := by
   simp [lastFaceMultiIndex]
 
+/-- The ambient factorial product of an embedded face multi-index is exactly
+the lower-dimensional factorial product. -/
+theorem factorialProd_lastFaceMultiIndex (d n : ℕ)
+    (β : MultiIndex d n) :
+    (∏ i : Fin (d + 2),
+      (Nat.factorial ((lastFaceMultiIndex d n β).1 i) : ℝ)) =
+      ∏ i : Fin (d + 1), (Nat.factorial (β.1 i) : ℝ) := by
+  rw [Fin.prod_univ_castSucc]
+  simp
+
+/-- The ambient power product of an embedded face basis function is exactly
+the lower-dimensional power product. -/
+theorem powerProd_lastFace_embed (d n : ℕ)
+    (β : MultiIndex d n) (x : BarycentricPoint d) :
+    (∏ i : Fin (d + 2),
+      ((lastFacePoint d x).1 i) ^
+        ((lastFaceMultiIndex d n β).1 i : ℕ)) =
+      ∏ i : Fin (d + 1), (x.1 i) ^ (β.1 i : ℕ) := by
+  rw [Fin.prod_univ_castSucc]
+  simp
+
 /-- The ambient Bernstein basis associated with an embedded face multi-index
 restricts exactly to the lower-dimensional Bernstein basis. -/
 theorem simplexBasis_lastFace_embed (d n : ℕ)
@@ -67,8 +88,7 @@ theorem simplexBasis_lastFace_embed (d n : ℕ)
     simplexBasis (d + 1) n (lastFaceMultiIndex d n β)
       (lastFacePoint d x) = simplexBasis d n β x := by
   unfold simplexBasis
-  rw [Fin.prod_univ_castSucc, Fin.prod_univ_castSucc]
-  simp
+  rw [factorialProd_lastFaceMultiIndex, powerProd_lastFace_embed]
 
 /-- Every ambient Bernstein basis function with positive exponent in the
 omitted last coordinate vanishes identically on the last face. -/
@@ -76,9 +96,13 @@ theorem simplexBasis_lastFace_eq_zero_of_last_pos (d n : ℕ)
     (α : MultiIndex (d + 1) n) (x : BarycentricPoint d)
     (hpos : 0 < (α.1 (Fin.last (d + 1)) : ℕ)) :
     simplexBasis (d + 1) n α (lastFacePoint d x) = 0 := by
+  have hpowers :
+      (∏ i : Fin (d + 2),
+        ((lastFacePoint d x).1 i) ^ (α.1 i : ℕ)) = 0 := by
+    rw [Fin.prod_univ_castSucc]
+    simp [zero_pow hpos.ne']
   unfold simplexBasis
-  rw [Fin.prod_univ_castSucc, Fin.prod_univ_castSucc]
-  simp [zero_pow hpos.ne']
+  rw [hpowers, mul_zero]
 
 end
 
