@@ -43,10 +43,16 @@ theorem affineBernsteinPolynomial_linearIndependent (d n : ℕ) :
     induction k using Nat.strong_induction_on with
     | h k ih =>
         intro α hα
-        have hcoeff := congrArg
-          (MvPolynomial.coeff (affineBernsteinExponent d n α)) hzero
-        simp only [map_sum, MvPolynomial.coeff_smul,
-          MvPolynomial.coeff_zero] at hcoeff
+        have hcoeff :
+            (∑ β : MultiIndex d n,
+              (f β - g β) *
+                MvPolynomial.coeff (affineBernsteinExponent d n α)
+                  (affineBernsteinPolynomial d n β)) = 0 := by
+          have hmap := congrArg
+            (fun p : MvPolynomial (Fin d) ℝ =>
+              (MvPolynomial.lcoeff ℝ
+                (affineBernsteinExponent d n α)) p) hzero
+          simpa using hmap
         have hsum :
             (∑ β : MultiIndex d n,
               (f β - g β) *
