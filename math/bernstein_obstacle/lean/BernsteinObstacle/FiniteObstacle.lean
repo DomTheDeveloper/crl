@@ -45,8 +45,9 @@ theorem vi_solution_is_energy_minimizer
   · intro v hv
     have hvi := hu.2 v hv
     have hid := discreteEnergy_difference_identity a f u v hsymm
-    have hquad : 0 ≤ (1 / 2 : ℝ) * matrixBilin a (v - u) (v - u) := by
-      positivity
+    have hhalf : 0 ≤ (1 / 2 : ℝ) := by norm_num
+    have hquad : 0 ≤ (1 / 2 : ℝ) * matrixBilin a (v - u) (v - u) :=
+      mul_nonneg hhalf (hpsd (v - u))
     have hres : 0 ≤ matrixBilin a u (v - u) - vectorLoad f (v - u) := by
       linarith
     linarith
