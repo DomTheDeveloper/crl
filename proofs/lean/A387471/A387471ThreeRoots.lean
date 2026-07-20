@@ -15,7 +15,7 @@ lemma conj_canonicalRoot {N : ℕ} (hN : N ≠ 0) :
   rw [canonicalRoot, ← Complex.exp_neg, ← Complex.exp_conj]
   congr 1
   push_cast
-  simp
+  simp [Complex.conj_ofNat]
   ring
 
 /-- The same fact for every canonical-root power. -/
