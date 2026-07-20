@@ -1,0 +1,151 @@
+name: Dmono22 top-24 left-mask DRAT matrix
+
+on:
+  push:
+    branches:
+      - audit/dmono22-top24-left-matrix
+    paths:
+      - '.github/workflows/dmono22-top24-left-drat.yml'
+      - 'math/checkerboard/n22_exact/emit_top_left_cnf.py'
+  pull_request:
+    paths:
+      - '.github/workflows/dmono22-top24-left-drat.yml'
+      - 'math/checkerboard/n22_exact/emit_top_left_cnf.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dmono22-top24-left-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certify-left:
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        left: [24,33,34,36,40,48,65,66,68,72,80,96,129,130,132,136,144,160,192,257,258,260,264,272,288,320,384,513,514,516,520,528,544,576,640,768,1025,1026,1028,1032,1040,1056,1088,1152,1280,1536]
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install exact CNF and proof tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --user --disable-pip-version-check python-sat
+          sudo apt-get update
+          sudo apt-get install -y build-essential git zlib1g-dev
+          git clone --depth 1 --branch rel-4.0.4 https://github.com/arminbiere/kissat.git /tmp/kissat
+          (cd /tmp/kissat && ./configure && make -j2)
+          sudo install /tmp/kissat/build/kissat /usr/local/bin/kissat
+          git clone --depth 1 https://github.com/marijnheule/drat-trim.git /tmp/drat-trim
+          make -C /tmp/drat-trim
+          sudo install /tmp/drat-trim/drat-trim /usr/local/bin/drat-trim
+      - name: Emit exact top-24 and left-mask subfamily
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          left='${{ matrix.left }}'
+          python3 emit_top_left_cnf.py 24 "$left" "top24-left-$left.cnf" \
+            --manifest "top24-left-$left-manifest.json"
+          test -s "top24-left-$left.cnf"
+          test -s "top24-left-$left-manifest.json"
+          grep -q '"top": 24' "top24-left-$left-manifest.json"
+          grep -q "\"left\": $left" "top24-left-$left-manifest.json"
+          sha256sum "top24-left-$left.cnf" "top24-left-$left-manifest.json" \
+            | tee "top24-left-$left.sha256"
+      - name: Produce textual DRAT proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set +e
+          left='${{ matrix.left }}'
+          /usr/bin/time -v kissat --unsat --no-binary \
+            "top24-left-$left.cnf" "top24-left-$left.drat" \
+            > "top24-left-$left-kissat.log" 2>&1
+          code=$?
+          tail -n 100 "top24-left-$left-kissat.log"
+          set -e
+          if [[ "$code" != 20 ]]; then
+            echo "Expected Kissat UNSAT exit code 20, got $code" >&2
+            exit 1
+          fi
+          test -s "top24-left-$left.drat"
+          sha256sum "top24-left-$left.drat" | tee -a "top24-left-$left.sha256"
+      - name: Independently replay proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          left='${{ matrix.left }}'
+          /usr/bin/time -v drat-trim \
+            "top24-left-$left.cnf" "top24-left-$left.drat" \
+            > "top24-left-$left-drat-check.log" 2>&1
+          tail -n 100 "top24-left-$left-drat-check.log"
+          grep -E 'VERIFIED|s VERIFIED' "top24-left-$left-drat-check.log"
+      - name: Compress and hash proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          left='${{ matrix.left }}'
+          xz -T0 -1 "top24-left-$left.drat"
+          sha256sum "top24-left-$left.drat.xz" | tee -a "top24-left-$left.sha256"
+      - name: Upload certificate package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dmono22-top24-left-${{ matrix.left }}-drat
+          path: |
+            math/checkerboard/n22_exact/top24-left-${{ matrix.left }}.cnf
+            math/checkerboard/n22_exact/top24-left-${{ matrix.left }}.drat.xz
+            math/checkerboard/n22_exact/top24-left-${{ matrix.left }}-manifest.json
+            math/checkerboard/n22_exact/top24-left-${{ matrix.left }}.sha256
+            math/checkerboard/n22_exact/top24-left-${{ matrix.left }}-kissat.log
+            math/checkerboard/n22_exact/top24-left-${{ matrix.left }}-drat-check.log
+          if-no-files-found: warn
+          retention-days: 30
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prove the static matrix is the complete canonical left partition
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import n22_data as d
+
+          matrix = [24,33,34,36,40,48,65,66,68,72,80,96,129,130,132,136,
+                    144,160,192,257,258,260,264,272,288,320,384,513,514,516,
+                    520,528,544,576,640,768,1025,1026,1028,1032,1040,1056,
+                    1088,1152,1280,1536]
+          expected = [m for m in d.DOUBLES if m >= 24]
+          assert matrix == expected, (matrix, expected)
+          assert len(matrix) == 46
+          with open('top24-left-coverage.json', 'w') as fh:
+              json.dump({
+                  'top': 24,
+                  'partition_rule': 'all two-bit left masks with left >= top',
+                  'count': len(matrix),
+                  'left_masks': matrix,
+                  'disjoint': 'each CNF fixes every left-border variable',
+                  'exhaustive': 'build_double(24) excludes exactly masks left < 24',
+              }, fh, indent=2, sort_keys=True)
+              fh.write('\n')
+          PY
+          sha256sum top24-left-coverage.json | tee top24-left-coverage.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dmono22-top24-left-coverage
+          path: |
+            math/checkerboard/n22_exact/top24-left-coverage.json
+            math/checkerboard/n22_exact/top24-left-coverage.sha256
+          retention-days: 30
