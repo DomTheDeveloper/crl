@@ -100,6 +100,8 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.correctedSharpMinimizerRate_of_broken_bulk_and_multiplier' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.optimalBulkRate_of_balanced_interface' \
+            bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript
         if: always()
