@@ -1,0 +1,92 @@
+name: Dmono22 unrestricted Kissat DRAT certificate
+
+on:
+  push:
+    branches:
+      - audit/dmono22-global-drat
+    paths:
+      - '.github/workflows/dmono22-global-kissat.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dmono22-global-kissat
+  cancel-in-progress: true
+
+jobs:
+  certify-global-kissat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install exact CNF and proof tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          pip install --disable-pip-version-check python-sat
+          sudo apt-get update
+          sudo apt-get install -y build-essential git zlib1g-dev
+          git clone --depth 1 --branch rel-4.0.4 https://github.com/arminbiere/kissat.git /tmp/kissat
+          (cd /tmp/kissat && ./configure && make -j2)
+          sudo install /tmp/kissat/build/kissat /usr/local/bin/kissat
+          git clone --depth 1 https://github.com/marijnheule/drat-trim.git /tmp/drat-trim
+          make -C /tmp/drat-trim
+          sudo install /tmp/drat-trim/drat-trim /usr/local/bin/drat-trim
+          kissat --version
+      - name: Emit unrestricted exact target-34 CNF
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 emit_global_cnf.py dmono22-kissat.cnf --manifest dmono22-kissat-manifest.json
+          grep -q '"boundary_restrictions": null' dmono22-kissat-manifest.json
+          sha256sum dmono22-kissat.cnf dmono22-kissat-manifest.json | tee dmono22-kissat.sha256
+      - name: Produce global textual DRAT proof with Kissat
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set +e
+          /usr/bin/time -v kissat --unsat --no-binary dmono22-kissat.cnf dmono22-kissat.drat \
+            2>&1 | tee dmono22-kissat.log
+          code=${PIPESTATUS[0]}
+          set -e
+          if [[ "$code" != 20 ]]; then
+            echo "Expected Kissat UNSAT exit code 20, got $code" >&2
+            exit 1
+          fi
+          test -s dmono22-kissat.drat
+          sha256sum dmono22-kissat.drat | tee -a dmono22-kissat.sha256
+      - name: Independently replay Kissat proof
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v drat-trim dmono22-kissat.cnf dmono22-kissat.drat \
+            2>&1 | tee dmono22-kissat-drat-check.log
+          grep -E 'VERIFIED|s VERIFIED' dmono22-kissat-drat-check.log
+      - name: Compress proof certificate
+        working-directory: math/checkerboard/n22_exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          xz -T0 -6 dmono22-kissat.drat
+          sha256sum dmono22-kissat.drat.xz | tee -a dmono22-kissat.sha256
+      - name: Upload global certificate package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dmono22-global-kissat-drat
+          path: |
+            math/checkerboard/n22_exact/dmono22-kissat.cnf
+            math/checkerboard/n22_exact/dmono22-kissat.drat.xz
+            math/checkerboard/n22_exact/dmono22-kissat-manifest.json
+            math/checkerboard/n22_exact/dmono22-kissat.sha256
+            math/checkerboard/n22_exact/dmono22-kissat.log
+            math/checkerboard/n22_exact/dmono22-kissat-drat-check.log
+          if-no-files-found: warn
+          retention-days: 30
