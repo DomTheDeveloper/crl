@@ -30,7 +30,11 @@ noncomputable def angleReal (a : Fin 29) : ℝ :=
 /-- The chosen natural residue represents the original integer in `ZMod 60`. -/
 lemma intResidue60_angleInt_cast (a : Fin 29) :
     ((intResidue60 (angleInt a)).val : ZMod 60) = (angleInt a : ZMod 60) := by
-  fin_cases a <;> norm_num [angleInt, intResidue60]
+  have hres : intResidue60 (angleInt a) = intResidue 60 (angleInt a) := by
+    apply Fin.ext
+    rfl
+  rw [hres]
+  exact intResidue_cast 60 (angleInt a)
 
 /-- The explicit recurrence polynomial vanishes at the canonical primitive
 60th root. -/
@@ -89,7 +93,8 @@ lemma evalVec60_eq_zero_iff (v : Fin 16 → ℤ) :
       rw [← Polynomial.cyclotomic_eq_minpoly_rat hprim (by norm_num),
         Polynomial.natDegree_cyclotomic] at hnat
       have hupper := natDegree_vecPoly60Q_le v
-      norm_num at hnat
+      have htot : Nat.totient 60 = 16 := by decide
+      rw [htot] at hnat
       omega
     exact (vecPoly60Q_eq_zero_iff v).mp hpoly
   · rintro rfl
@@ -99,7 +104,7 @@ lemma evalVec60_eq_zero_iff (v : Fin 16 → ℤ) :
 lemma canonicalRoot60_pow_angleInt (a : Fin 29) :
     canonicalRoot 60 ^ (intResidue60 (angleInt a)).val =
       Complex.exp (2 * Real.pi * Complex.I * (angleInt a : ℤ) / 60) := by
-  rw [canonicalRoot_pow_eq_stdAddChar]
+  rw [canonicalRoot_pow_nat_eq_stdAddChar]
   rw [intResidue60_angleInt_cast]
   exact ZMod.stdAddChar_coe (N := 60) (angleInt a)
 
@@ -155,10 +160,9 @@ lemma evalVec60_relation_eq_zero {a b c : Fin 29}
   rw [evalVec60_add, evalVec60_add, evalVec60_sine_angleInt,
     evalVec60_sine_angleInt, evalVec60_sine_angleInt]
   have hc :
-      ((Real.sin (angleReal a) + Real.sin (angleReal b) +
-        Real.sin (angleReal c) : ℝ) : ℂ) = 0 := by
+      (Real.sin (angleReal a) : ℂ) + (Real.sin (angleReal b) : ℂ) +
+        (Real.sin (angleReal c) : ℂ) = 0 := by
     exact_mod_cast h
-  push_cast at hc
   linear_combination (2 * Complex.I) * hc
 
 /-- Complete classification of bounded integral three-sine relations. -/
