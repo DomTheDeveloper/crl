@@ -1,0 +1,63 @@
+name: Isolated Green14 fast kernel audit
+
+on:
+  push:
+    branches:
+      - audit/green14-fast-isolated
+    paths:
+      - 'ci/lean/Green14Fast/**'
+      - '.github/workflows/green14-fast-isolated.yml'
+  pull_request:
+    paths:
+      - 'ci/lean/Green14Fast/**'
+      - '.github/workflows/green14-fast-isolated.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: isolated-green14-fast-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve exact proof dependency
+        working-directory: ci/lean/Green14Fast
+        run: lake update
+      - name: Fetch Mathlib cache
+        working-directory: ci/lean/Green14Fast
+        run: lake exe cache get
+      - name: Build direct-array kernel certificate
+        working-directory: ci/lean/Green14Fast
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build Audit 2>&1 | tee audit.log
+      - name: Enforce clean kernel trust base
+        working-directory: ci/lean/Green14Fast
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Audit.lean 2>&1 | tee -a audit.log
+          if grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' audit.log; then
+            exit 1
+          fi
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: green14-fast-isolated-log
+          path: ci/lean/Green14Fast/audit.log
+          if-no-files-found: warn
