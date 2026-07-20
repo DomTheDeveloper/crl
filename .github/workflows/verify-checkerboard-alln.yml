@@ -1,0 +1,43 @@
+name: Verify checkerboard all-n Lean theorem
+
+on:
+  pull_request:
+    paths:
+      - "proofs/lean/Checkerboard/**"
+      - ".github/workflows/verify-checkerboard-alln.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-alln:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Reject unfinished shortcuts
+        working-directory: proofs/lean/Checkerboard
+        run: |
+          ! grep -RnE '^[[:space:]]*(sorry|admit|native_decide|axiom|opaque)([[:space:]]|$)' Checkerboard/AllNTheorem.lean Checkerboard/AllNUpper.lean Checkerboard/N6Base.lean
+      - name: Resolve pinned Mathlib
+        working-directory: proofs/lean/Checkerboard
+        run: lake update
+      - name: Fetch Mathlib cache
+        working-directory: proofs/lean/Checkerboard
+        run: lake exe cache get
+      - name: Compile all-n theorem
+        working-directory: proofs/lean/Checkerboard
+        run: lake env lean Checkerboard/AllNTheorem.lean 2>&1 | tee alln-build.log
+      - name: Print and audit axioms
+        working-directory: proofs/lean/Checkerboard
+        run: |
+          cat > AllNAxiomAudit.lean <<'EOF'
+          import Checkerboard.AllNTheorem
+          #print axioms Checkerboard.checkerboard_upper_all_n
+          EOF
+          lake env lean AllNAxiomAudit.lean 2>&1 | tee alln-axioms.log
+          ! grep -q 'sorryAx' alln-axioms.log
