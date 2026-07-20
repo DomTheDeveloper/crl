@@ -54,7 +54,15 @@ The selected 160-interval mesh has an unusually small bracketed contact-width er
 | 165 | 20,823 | `2.400e-3` | `2.712e-5` | `9.074e-2` | `6.69e-12` |
 | 170 | 21,453 | `4.289e-5` | `1.832e-3` | `1.381e-1` | `1.62e-11` |
 
-Every rerun retained minimum gap coefficient zero. Therefore the previously quoted approximately `48.9×` comparison is only a selected-mesh observation, not a uniform accuracy factor. The robust validation metrics are:
+Every rerun retained minimum gap coefficient zero. Therefore the previously quoted approximately `48.9×` comparison is only a selected-mesh observation, not a uniform accuracy factor.
+
+A matched-size P1 calculation with 20,513 displacement unknowns had bracketed half-width error `4.997e-3` and pressure `L2` error `3.230e-1`. Across the five neighboring curved-P2 meshes above:
+
+- the median bracketed half-width error is `2.346e-3`, approximately `2.13×` lower;
+- the median pressure `L2` error is `9.735e-2`, approximately `3.32×` lower;
+- even the largest P2 pressure error in the sweep, `1.381e-1`, remains approximately `2.34×` lower than the matched-size P1 value.
+
+These phase-robust comparisons are the appropriate numerical headline. The robust validation metrics are:
 
 - exact coefficientwise feasibility;
 - KKT residual and complementarity;
