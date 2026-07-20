@@ -41,11 +41,6 @@ jobs:
           from pathlib import Path
           path = Path('.lake/packages/formal_conjectures/WOWII/ZZGraphConjecture314C5Bags.lean')
           text = path.read_text()
-          attribute_old = "local attribute [-instance] Classical.propDecidable"
-          attribute_new = "attribute [-instance] Classical.propDecidable"
-          if text.count(attribute_old) != 1:
-              raise SystemExit('expected finite-pattern attribute site not found')
-          text = text.replace(attribute_old, attribute_new, 1)
           old = "\n".join([
               "    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ] <;>",
               "    decide",
