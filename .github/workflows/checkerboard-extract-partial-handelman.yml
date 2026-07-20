@@ -1,0 +1,60 @@
+name: Extract partial Handelman source
+
+on:
+  push:
+    branches:
+      - audit/checkerboard-continuum-core
+    paths:
+      - '.github/workflows/checkerboard-extract-partial-handelman.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/checkerboard-extract-partial-handelman.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inflate intact raw prefix
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p extracted
+          python3 - <<'PY'
+          import base64, hashlib, struct, zlib
+          from pathlib import Path
+          root=Path('.')
+          parts=[root/f'math/checkerboard/lp/certificates/dual_handelman_payload_{i}.txt' for i in range(3)]
+          packed=base64.b64decode(''.join(p.read_text().strip() for p in parts), validate=False)
+          flags=packed[3]; pos=10
+          if flags & 4:
+              xlen=struct.unpack_from('<H', packed, pos)[0]; pos += 2+xlen
+          for bit in (8,16):
+              if flags & bit:
+                  end=packed.index(0,pos); pos=end+1
+          if flags & 2: pos += 2
+          dec=zlib.decompressobj(-zlib.MAX_WBITS)
+          try:
+              source=dec.decompress(packed[pos:-8]) + dec.flush()
+          except zlib.error as exc:
+              source=dec.unconsumed_tail
+              raise
+          out=Path('extracted/DualHandelmanData.partial.lean')
+          out.write_bytes(source)
+          Path('extracted/manifest.txt').write_text(
+              f'sha256={hashlib.sha256(source).hexdigest()}\nbytes={len(source)}\nlines={len(source.decode("utf-8",errors="replace").splitlines())}\n'
+          )
+          print(Path('extracted/manifest.txt').read_text(), end='')
+          PY
+          tail -n 80 extracted/DualHandelmanData.partial.lean > extracted/tail.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: partial-handelman-source
+          path: extracted
+          if-no-files-found: error
+          retention-days: 30
