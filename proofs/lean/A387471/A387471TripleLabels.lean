@@ -189,9 +189,9 @@ private theorem labeled_triple_sorted_impossible {n : ℕ} (hn : 0 < n) {A B C :
   · exact two_positive_one_negative_impossible (A := A) (B := C) (C := C)
       hn hAC h
   · exact one_positive_two_negative_impossible (A := A) (B := B) (C := A)
-      hn hAB (by simpa [add_comm, add_left_comm] using h)
+      hn hAB (by simpa [add_comm, add_left_comm, add_assoc] using h)
   · exact one_positive_two_negative_impossible (A := A) (B := C) (C := A)
-      hn hAC (by simpa [add_comm, add_left_comm] using h)
+      hn hAC (by simpa [add_comm, add_left_comm, add_assoc] using h)
   · exact one_positive_two_negative_impossible (A := A) (B := B) (C := C)
       hn hAB h
   · exact two_positive_one_negative_impossible (A := B) (B := C) (C := A)
@@ -205,13 +205,13 @@ private theorem labeled_triple_sorted_impossible {n : ℕ} (hn : 0 < n) {A B C :
   · exact one_positive_two_negative_impossible (A := B) (B := A) (C := C)
       hn (by omega) (by simpa [add_comm, add_left_comm] using h)
   · exact one_positive_two_negative_impossible (A := B) (B := C) (C := B)
-      hn hBC (by simpa [add_comm, add_left_comm] using h)
+      hn hBC (by simpa [add_comm, add_left_comm, add_assoc] using h)
   · exact one_positive_two_negative_impossible (A := C) (B := A) (C := B)
       hn (by omega) (by simpa [add_comm, add_left_comm] using h)
   · exact one_positive_two_negative_impossible (A := C) (B := A) (C := C)
-      hn hAC (by simpa [add_comm, add_left_comm] using h)
+      hn (by omega) (by simpa [add_comm, add_left_comm] using h)
   · exact one_positive_two_negative_impossible (A := C) (B := B) (C := C)
-      hn hBC (by simpa [add_comm, add_left_comm] using h)
+      hn (by omega) (by simpa [add_comm, add_left_comm] using h)
   · exact negative_angular_triple_impossible hn hA hB hC h
 
 /-- No three distinct labeled roots form a vanishing triple. -/
