@@ -29,6 +29,7 @@ lemma negative_angular_pair_impossible {n : ℕ} (hn : 0 < n) {A B : ℤ}
   have hangA : latticeAngle n (-A) = -latticeAngle n A := by simp [latticeAngle]
   have hangB : latticeAngle n (-B) = -latticeAngle n B := by simp [latticeAngle]
   rw [hangA, hangB]
+  push_cast
   linear_combination -h
 
 lemma mixed_angular_pair_sum_eq_zero {n : ℕ} (hn : 0 < n) {A B : ℤ}
@@ -91,6 +92,7 @@ lemma ordinary_of_self_pair_C {n : ℕ} (hn : 0 < n) {A B C : ℤ}
   refine ⟨A, ?_⟩
   simp [Perm3, hneg]
 
+set_option maxHeartbeats 0 in
 /-- Every vanishing pair of distinct labeled roots forces the ordinary ABC family. -/
 theorem labeled_pair_implies_ordinary {n : ℕ} (hn : 0 < n) {A B C : ℤ}
     (hA : -3 * (n : ℤ) < A ∧ A < 3 * (n : ℤ))
@@ -107,7 +109,7 @@ theorem labeled_pair_implies_ordinary {n : ℕ} (hn : 0 < n) {A B C : ℤ}
   fin_cases r <;> fin_cases s
   all_goals simp only [sixRoot] at hpair
   all_goals try {simp at hrs}
-  all_goals first
+  all_goals solve
     | exact (positive_angular_pair_impossible hn hA hB hpair).elim
     | exact (positive_angular_pair_impossible hn hA hC hpair).elim
     | exact (positive_angular_pair_impossible hn hB hA hpair).elim
