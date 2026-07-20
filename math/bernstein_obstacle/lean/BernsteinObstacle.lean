@@ -30,6 +30,7 @@ import BernsteinObstacle.AssembledObstacle
 import BernsteinObstacle.AssemblyConvex
 import BernsteinObstacle.FaceTrace
 import BernsteinObstacle.FaceOrientation
+import BernsteinObstacle.ConcreteFaceConformity
 import BernsteinObstacle.Mosco
 import BernsteinObstacle.MoscoTools
 import BernsteinObstacle.ConvexWeakClosure
