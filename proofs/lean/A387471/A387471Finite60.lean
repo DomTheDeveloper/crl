@@ -107,7 +107,13 @@ lemma aeval_vecPoly60Q (z : ℂ) (v : Fin 16 → ℤ) :
 lemma coeff_vecPoly60Q (v : Fin 16 → ℤ) (i : Fin 16) :
     (vecPoly60Q v).coeff i.val = (v i : ℚ) := by
   classical
-  simp [vecPoly60Q, Fin.ext_iff]
+  have hval (x : Fin 16) : i.val = x.val ↔ x = i := by
+    constructor
+    · intro h
+      exact Fin.ext h.symm
+    · rintro rfl
+      rfl
+  simp [vecPoly60Q, hval]
 
 lemma vecPoly60Q_eq_zero_iff (v : Fin 16 → ℤ) : vecPoly60Q v = 0 ↔ v = 0 := by
   constructor
