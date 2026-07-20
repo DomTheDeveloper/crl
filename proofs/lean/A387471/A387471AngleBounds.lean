@@ -22,14 +22,20 @@ lemma latticeAngle_mem_Icc {n : ℕ} (hn : 0 < n) {A : ℤ}
     rw [div_lt_iff₀ hden]
     nlinarith
   constructor
-  · have hp := Real.pi_pos
-    have hm := mul_lt_mul_of_pos_right hloq hp
-    simp [latticeAngle]
-    nlinarith
-  · have hp := Real.pi_pos
-    have hm := mul_lt_mul_of_pos_right hhiq hp
-    simp [latticeAngle]
-    nlinarith
+  · have hm := mul_lt_mul_of_pos_right hloq Real.pi_pos
+    calc
+      -(Real.pi / 2) = -(1 / 2 : ℝ) * Real.pi := by ring
+      _ ≤ (A : ℝ) / (6 * n) * Real.pi := le_of_lt hm
+      _ = latticeAngle n A := by
+        simp only [latticeAngle]
+        ring
+  · have hm := mul_lt_mul_of_pos_right hhiq Real.pi_pos
+    calc
+      latticeAngle n A = (A : ℝ) / (6 * n) * Real.pi := by
+        simp only [latticeAngle]
+        ring
+      _ ≤ (1 / 2 : ℝ) * Real.pi := le_of_lt hm
+      _ = Real.pi / 2 := by ring
 
 /-- On the admissible interval, a zero sine forces the integer coefficient to
 be zero. -/
@@ -38,7 +44,9 @@ lemma coefficient_eq_zero_of_sine {n : ℕ} (hn : 0 < n) {A : ℤ}
     (hsin : Real.sin (latticeAngle n A) = 0) : A = 0 := by
   have hmem := latticeAngle_mem_Icc hn hA
   have hzero : (0 : ℝ) ∈ Set.Icc (-(Real.pi / 2)) (Real.pi / 2) := by
-    constructor <;> positivity
+    constructor
+    · nlinarith [Real.pi_pos]
+    · nlinarith [Real.pi_pos]
   have hangle : latticeAngle n A = 0 :=
     Real.injOn_sin hmem hzero (by simpa using hsin)
   have hn0 : (6 * (n : ℝ)) ≠ 0 := by positivity
