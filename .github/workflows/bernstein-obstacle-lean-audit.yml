@@ -103,6 +103,8 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.boxApprox_mem_Icc' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexBoxApproxNat_mem_Icc' \
+            bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.twoScaleRate_of_energy_components' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.universalFirstOrderRate_of_energy' \
