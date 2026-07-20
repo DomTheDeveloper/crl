@@ -37,7 +37,10 @@ theorem affineBernsteinCollocationEquiv_apply (d n : ℕ)
     affineBernsteinCollocationEquiv d n c β =
       MvPolynomial.eval (fun j : Fin d => (β.1 j.castSucc : ℝ))
         (((affineBernsteinCoefficientEquiv d n).symm c).1) := by
-  rfl
+  change affineNodalEvaluationEquiv d n
+      ((affineBernsteinCoefficientEquiv d n).symm c) β = _
+  exact affineNodalEvaluationEquiv_apply d n
+    ((affineBernsteinCoefficientEquiv d n).symm c) β
 
 /-- The full Bernstein collocation operator is injective. -/
 theorem affineBernsteinCollocation_injective (d n : ℕ) :
@@ -59,7 +62,8 @@ theorem existsUnique_bernsteinCoefficients_with_latticeValues (d n : ℕ)
   · exact (affineBernsteinCollocationEquiv d n).apply_symm_apply values
   · intro c hc
     exact (affineBernsteinCollocationEquiv d n).injective
-      (hc.trans (affineBernsteinCollocationEquiv d n).apply_symm_apply values |>.symm)
+      (hc.trans
+        ((affineBernsteinCollocationEquiv d n).apply_symm_apply values).symm)
 
 end
 
