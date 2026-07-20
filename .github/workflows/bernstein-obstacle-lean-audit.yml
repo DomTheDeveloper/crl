@@ -105,6 +105,10 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.nested_hilbert_vi_strongConvergence_of_recovery' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.hilbertVISolutions_strongConvergence' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.mosco_and_hilbertVISolutions_strongConvergence' \
+            bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript
         if: always()
