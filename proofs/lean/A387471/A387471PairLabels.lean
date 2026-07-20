@@ -106,40 +106,54 @@ theorem labeled_pair_implies_ordinary {n : ℕ} (hn : 0 < n) {A B C : ℤ}
     (r s : Fin 6) (hrs : r ≠ s)
     (hpair : sixRoot n A B C r + sixRoot n A B C s = 0) :
     ∃ t : ℤ, Perm3 A B C 0 t (-t) := by
+  have hBA : -2 * (n : ℤ) < B + A ∧ B + A < 2 * (n : ℤ) := by omega
+  have hCA : -2 * (n : ℤ) < C + A ∧ C + A < 2 * (n : ℤ) := by omega
+  have hCB : -2 * (n : ℤ) < C + B ∧ C + B < 2 * (n : ℤ) := by omega
   fin_cases r <;> fin_cases s
   all_goals simp only [sixRoot] at hpair
   all_goals try {simp at hrs}
-  all_goals solve
-    | exact (positive_angular_pair_impossible hn hA hB hpair).elim
-    | exact (positive_angular_pair_impossible hn hA hC hpair).elim
-    | exact (positive_angular_pair_impossible hn hB hA hpair).elim
-    | exact (positive_angular_pair_impossible hn hB hC hpair).elim
-    | exact (positive_angular_pair_impossible hn hC hA hpair).elim
-    | exact (positive_angular_pair_impossible hn hC hB hpair).elim
-    | exact (negative_angular_pair_impossible hn hA hB hpair).elim
-    | exact (negative_angular_pair_impossible hn hA hC hpair).elim
-    | exact (negative_angular_pair_impossible hn hB hA hpair).elim
-    | exact (negative_angular_pair_impossible hn hB hC hpair).elim
-    | exact (negative_angular_pair_impossible hn hC hA hpair).elim
-    | exact (negative_angular_pair_impossible hn hC hB hpair).elim
-    | exact ordinary_of_self_pair_A hn hA hB hC hsin hpair
-    | exact ordinary_of_self_pair_A hn hA hB hC hsin (by simpa [add_comm] using hpair)
-    | exact ordinary_of_self_pair_B hn hA hB hC hsin hpair
-    | exact ordinary_of_self_pair_B hn hA hB hC hsin (by simpa [add_comm] using hpair)
-    | exact ordinary_of_self_pair_C hn hA hB hC hsin hpair
-    | exact ordinary_of_self_pair_C hn hA hB hC hsin (by simpa [add_comm] using hpair)
-    | exact ordinary_of_AB_cancel hn hC
-        (mixed_angular_pair_sum_eq_zero hn hAB hpair) hsin
-    | exact ordinary_of_AB_cancel hn hC
-        (mixed_angular_pair_sum_eq_zero hn hAB (by simpa [add_comm] using hpair)) hsin
-    | exact ordinary_of_AC_cancel hn hB
-        (mixed_angular_pair_sum_eq_zero hn hAC hpair) hsin
-    | exact ordinary_of_AC_cancel hn hB
-        (mixed_angular_pair_sum_eq_zero hn hAC (by simpa [add_comm] using hpair)) hsin
-    | exact ordinary_of_BC_cancel hn hA
-        (mixed_angular_pair_sum_eq_zero hn hBC hpair) hsin
-    | exact ordinary_of_BC_cancel hn hA
-        (mixed_angular_pair_sum_eq_zero hn hBC (by simpa [add_comm] using hpair)) hsin
+  · exact (positive_angular_pair_impossible hn hA hB hpair).elim
+  · exact (positive_angular_pair_impossible hn hA hC hpair).elim
+  · exact ordinary_of_self_pair_A hn hA hB hC hsin hpair
+  · exact ordinary_of_AB_cancel hn hC
+      (mixed_angular_pair_sum_eq_zero hn hAB hpair) hsin
+  · exact ordinary_of_AC_cancel hn hB
+      (mixed_angular_pair_sum_eq_zero hn hAC hpair) hsin
+  · exact (positive_angular_pair_impossible hn hB hA hpair).elim
+  · exact (positive_angular_pair_impossible hn hB hC hpair).elim
+  · have hBA0 := mixed_angular_pair_sum_eq_zero hn hBA hpair
+    exact ordinary_of_AB_cancel hn hC (by omega) hsin
+  · exact ordinary_of_self_pair_B hn hA hB hC hsin hpair
+  · exact ordinary_of_BC_cancel hn hA
+      (mixed_angular_pair_sum_eq_zero hn hBC hpair) hsin
+  · exact (positive_angular_pair_impossible hn hC hA hpair).elim
+  · exact (positive_angular_pair_impossible hn hC hB hpair).elim
+  · have hCA0 := mixed_angular_pair_sum_eq_zero hn hCA hpair
+    exact ordinary_of_AC_cancel hn hB (by omega) hsin
+  · have hCB0 := mixed_angular_pair_sum_eq_zero hn hCB hpair
+    exact ordinary_of_BC_cancel hn hA (by omega) hsin
+  · exact ordinary_of_self_pair_C hn hA hB hC hsin hpair
+  · exact ordinary_of_self_pair_A hn hA hB hC hsin (by simpa [add_comm] using hpair)
+  · have hBA0 := mixed_angular_pair_sum_eq_zero hn hBA (by simpa [add_comm] using hpair)
+    exact ordinary_of_AB_cancel hn hC (by omega) hsin
+  · have hCA0 := mixed_angular_pair_sum_eq_zero hn hCA (by simpa [add_comm] using hpair)
+    exact ordinary_of_AC_cancel hn hB (by omega) hsin
+  · exact (negative_angular_pair_impossible hn hA hB hpair).elim
+  · exact (negative_angular_pair_impossible hn hA hC hpair).elim
+  · exact ordinary_of_AB_cancel hn hC
+      (mixed_angular_pair_sum_eq_zero hn hAB (by simpa [add_comm] using hpair)) hsin
+  · exact ordinary_of_self_pair_B hn hA hB hC hsin (by simpa [add_comm] using hpair)
+  · have hCB0 := mixed_angular_pair_sum_eq_zero hn hCB (by simpa [add_comm] using hpair)
+    exact ordinary_of_BC_cancel hn hA (by omega) hsin
+  · exact (negative_angular_pair_impossible hn hB hA hpair).elim
+  · exact (negative_angular_pair_impossible hn hB hC hpair).elim
+  · exact ordinary_of_AC_cancel hn hB
+      (mixed_angular_pair_sum_eq_zero hn hAC (by simpa [add_comm] using hpair)) hsin
+  · exact ordinary_of_BC_cancel hn hA
+      (mixed_angular_pair_sum_eq_zero hn hBC (by simpa [add_comm] using hpair)) hsin
+  · exact ordinary_of_self_pair_C hn hA hB hC hsin (by simpa [add_comm] using hpair)
+  · exact (negative_angular_pair_impossible hn hC hA hpair).elim
+  · exact (negative_angular_pair_impossible hn hC hB hpair).elim
 
 #print axioms labeled_pair_implies_ordinary
 
