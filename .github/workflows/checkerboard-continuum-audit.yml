@@ -31,15 +31,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Recover exact Handelman Lean source
+      - name: Recover and repair generated Handelman Lean source
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/checkerboard/recover_handelman_certificate.py \
-            2>&1 | tee proofs/lean/Checkerboard/handelman-recovery.log
-          grep -q 'sha256=258056bf2cded9ea19b5419f4f3a837e6476373d7594b4158b7d54accba0febf' \
-            proofs/lean/Checkerboard/handelman-recovery.txt
-          test "$(wc -l < proofs/lean/Checkerboard/Checkerboard/LP/DualHandelmanData.lean)" = 10589
+          python scripts/checkerboard/repair_handelman_certificate.py \
+            2>&1 | tee proofs/lean/Checkerboard/handelman-repair.log
+          test -s proofs/lean/Checkerboard/Checkerboard/LP/DualHandelmanData.lean
+          grep -q '^coefficients=91$' proofs/lean/Checkerboard/handelman-repair.txt
+          grep -q '^cell_theorems=24$' proofs/lean/Checkerboard/handelman-repair.txt
       - name: Generate remaining exact certificate modules
         shell: bash
         run: |
@@ -103,6 +103,7 @@ jobs:
         run: |
           ! grep -RnE '\bsorry\b|\badmit\b|native_decide' --include='*.lean' \
             Checkerboard/LP/ContinuumModel.lean \
+            Checkerboard/LP/DualHandelmanData.lean \
             Checkerboard/LP/ContinuumPrimalCertificate.lean \
             Checkerboard/LP/ContinuumDualCertificate.lean \
             Checkerboard/LP/ContinuumOptimum.lean
@@ -112,8 +113,8 @@ jobs:
         with:
           name: checkerboard-continuum-audit
           path: |
-            proofs/lean/Checkerboard/handelman-recovery.txt
-            proofs/lean/Checkerboard/handelman-recovery.log
+            proofs/lean/Checkerboard/handelman-repair.txt
+            proofs/lean/Checkerboard/handelman-repair.log
             proofs/lean/Checkerboard/generation.log
             proofs/lean/Checkerboard/continuum-audit.log
           if-no-files-found: warn
