@@ -5,11 +5,11 @@ files. “Verified” means compiled under the pinned toolchain and included in 
 terminal `#print axioms` audit. “Represented” means a related theorem exists,
 but the full paper statement is not formalized.
 
-Latest complete audit: workflow run `29767290521`, commit
-`2d580a14ef1a86d5696c81979fb765c3a2dcdbc6`.
+Latest complete audit: workflow run `29775964944`, commit
+`c42e7faee7df72590122b75c6b125c6478adaff5`.
 
-The audit completed all 3,080 `BernsteinObstacle` build jobs, ran both terminal
-audit entry points, rejected `sorryAx`, and reported only `propext`,
+The audit completed all 3,087 `BernsteinObstacle` build jobs, ran all three
+terminal audit entry points, rejected `sorryAx`, and reported only `propext`,
 `Classical.choice`, and `Quot.sound`.
 
 | Paper result | Lean declaration / file | Status | Missing work |
@@ -48,10 +48,16 @@ audit entry points, rejected `sorryAx`, and reported only `propext`,
 | Uniform coercivity plus a vanishing recovery energy gap gives strong convergence | `coefficientNormSq_tendsto_zero_of_scaled_le`, `stronglyConverges_of_recovery_scaledEnergyGap`, `assembledVISolutions_strongConvergence_of_energyGap` in `EnergyGapConvergence.lean` | Verified | Prove uniform assembled FEM coercivity and the recovery energy-gap limit |
 | Boundary-compatible clipped recovery plus vanishing energy gap gives strong convergence | `assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap` | Verified | Construct the physical Bernstein recovery sequence and prove the energy-gap limit |
 | Positive coercivity gives uniqueness of the finite obstacle VI solution | `coefficientNormSq_eq_zero_iff`, `discreteVISolution_unique_of_coercive`, `assembledObstacleSolution_unique_of_coercive` in `Uniqueness.lean` | Verified | Existence and physical FEM identification remain |
-| Falling-factorial cardinal values satisfy the all-degree lattice delta formula | `latticeFactor_self`, `latticeFactor_eq_zero_of_lt`, `latticeCardinalValue_eq_ite` in `LatticeCardinal.lean` | Verified | Package the expressions as multivariate polynomials of total degree at most `n` |
-| Cardinal collocation matrix is the identity with determinant one | `latticeCardinalMatrix_apply`, `latticeCardinalMatrix_eq_one`, `latticeCardinalMatrix_det` in `LatticeInterpolation.lean` | Verified | Connect the cardinal polynomial family to the full polynomial space `P_n` |
-| Exact cardinal nodal interpolation and injectivity | `latticeCardinalInterpolantValue_eq`, `latticeCardinalEvaluation_eq_id`, `latticeCardinalEvaluation_injective` | Verified | Formal polynomial-space dimension and Bernstein-basis change-of-basis remain |
-| General barycentric-lattice unisolvence for `P_n` and invertibility of the Bernstein collocation matrix | Cardinal delta and identity collocation matrix verified | Partially represented | Formalize the cardinal expressions in `MvPolynomial`, prove total degree `≤ n`, prove `#A_n = dim P_n`, and connect the Bernstein basis to `P_n` |
+| Falling-factorial cardinal values satisfy the all-degree lattice delta formula | `latticeFactor_self`, `latticeFactor_eq_zero_of_lt`, `latticeCardinalValue_eq_ite` in `LatticeCardinal.lean` | Verified | None |
+| Cardinal collocation matrix is the identity with determinant one | `latticeCardinalMatrix_apply`, `latticeCardinalMatrix_eq_one`, `latticeCardinalMatrix_det` in `LatticeInterpolation.lean` | Verified | None |
+| Cardinal expressions are actual affine multivariate polynomials of total degree at most `n` | `affineLatticeCardinalPolynomial`, `totalDegree_affineLatticeCardinalPolynomial_le`, `affineLatticeCardinalPolynomial_mem_restrictTotalDegree` | Verified | None |
+| Exact cardinal delta evaluation and linear independence in `MvPolynomial` | `eval_affineLatticeCardinalPolynomial_eq_ite`, `affineLatticeCardinalPolynomial_linearIndependent` | Verified | None |
+| Exact dimension `#A_n = dim P_n` | `finrank_restrictTotalDegree_eq_card_multiIndex` in `PolynomialDimension.lean` | Verified | None |
+| All-degree simplex-lattice cardinal basis of `P_n` | `affineLatticeCardinalBasis`, `span_affineLatticeCardinalVector_eq_top`, `affineLatticeCardinalBasis_sum_repr` | Verified | None |
+| Nodal evaluation is a linear equivalence and interpolation exists uniquely | `affineNodalEvaluationEquiv_apply`, `polynomial_eq_of_eq_on_simplex_lattice`, `existsUnique_polynomial_with_simplex_lattice_values` | Verified | None |
+| The manuscript's simplicial Bernstein functions are actual affine polynomials in `P_n` | `affineBernsteinPolynomial`, `totalDegree_affineBernsteinPolynomial_le`, `affineBernsteinPolynomial_mem_restrictTotalDegree` in `AffineBernsteinPolynomial.lean` | Verified | None for representation and degree membership |
+| Affine polynomial evaluation exactly equals `simplexBasis` on the standard simplex | `eval_affineBernsteinPolynomial_eq_simplexBasis` | Verified | None |
+| The affine Bernstein family is a basis of `P_n`; equivalently its full lattice collocation matrix is invertible | Polynomial representation and exact cardinal basis are verified | Partially represented | Prove Bernstein-family linear independence or an explicit invertible change of basis |
 | Sequential Mosco convergence definition and strong/weak obligations | `MoscoConverges`, `mosco_recovery`, `mosco_weak_limit` in `Mosco.lean` | Verified infrastructure | Must prove the moving Sobolev Bernstein cones satisfy these obligations |
 | Mosco reduction for inner approximations and recovery operators | `mosco_of_recovery_of_subset_of_weaklyClosed`, `mosco_of_recovery_operators_of_subset_of_weaklyClosed` in `MoscoTools.lean` | Verified | Sobolev weak closedness, discrete-set inclusion, and positive recovery remain |
 | Finite nonnegative coefficient cone is weakly sequentially closed and Mosco constant | `coefficientCone_weaklySequentiallyClosed`, `coefficientCone_mosco_const` in `CoefficientMosco.lean` | Verified | This is finite-dimensional, not the moving-mesh PDE theorem |
@@ -62,7 +68,7 @@ audit entry points, rejected `sorryAx`, and reported only `propext`,
 | Recovery closeness transfers strong convergence to discrete minimizers | `stronglyConverges_of_recovery_closeness`, `mosco_recovery_closeness_implies_strong_convergence`, `recoveryOperator_closeness_implies_strong_convergence` | Verified | Derive the vanishing norm majorant from FEM estimates |
 | Boundary-compatible clipped recovery is assembled-feasible and yields strong convergence | `assembledClippedRecovery_implies_strongConvergence` in `AssemblyConvergence.lean` | Verified | Construct the actual Bernstein recovery and prove its convergence/error majorant |
 | Assembled Mosco/operator convergence interfaces | `assemblyMosco_recovery_closeness_implies_strongConvergence`, `assemblyRecoveryOperator_closeness_implies_strongConvergence` | Verified | Instantiate with moving finite-element spaces and the physical `H_0^1` target |
-| Full strong convergence of Bernstein obstacle minimizers | Above assembly, Mosco, energy, VI, uniqueness, face-trace, and convergence layers | Partially represented | Sobolev/FEM recovery, changing spaces, physical coercivity/consistency, and the vanishing energy gap |
+| Full strong convergence of Bernstein obstacle minimizers | Above assembly, Mosco, energy, VI, uniqueness, face-trace, convergence, and polynomial layers | Partially represented | Sobolev/FEM recovery, changing spaces, physical coercivity/consistency, and the vanishing energy gap |
 | Coefficient-to-grid-value `O(h_T^2)` estimate | No project declaration | Not formalized | Simplicial interpolation, Taylor/Bramble–Hilbert, affine scaling |
 | Localization of negative coefficients near regular free boundary | No project declaration | Not formalized | Free-boundary geometry, quadratic growth, mesh strips |
 | Recovery rate `h^r + h_Gamma^(3/2)` | No project declaration | Not formalized | FEM interpolation, coefficient localization, clipping repair, and strip scaling |
@@ -78,13 +84,14 @@ coefficient certificates, projection/KKT theory, abstract global assembly,
 orientation-independent complete shared-face trace conformity, boundary traces,
 finite assembled convexity and weak closure, finite Mosco convergence, assembled
 obstacle VI minimization and uniqueness, coercive energy-gap convergence,
-clipped recovery, and the finite collocation-matrix half of all-degree lattice
-unisolvence.
+clipped recovery, complete all-degree simplex-lattice unisolvence for `P_n`, and
+exact affine-polynomial realization of the manuscript's simplicial Bernstein
+basis functions.
 
 The remaining core is the infinite-dimensional and geometric realization:
-construct concrete shape-regular simplicial meshes and their face maps, embed
-the changing coefficient spaces into `H_0^1`, formalize positive Sobolev
-recovery and weak closedness, prove physical assembled coercivity and
-consistency, finish the polynomial-space half of unisolvence, and then formalize
-interpolation, free-boundary localization, strip scaling, and the sharp
-`h^r + h_Gamma^(3/2)` rate.
+prove the affine Bernstein family is a basis of `P_n`, construct concrete
+shape-regular simplicial meshes and their face maps, embed the changing
+coefficient spaces into `H_0^1`, formalize positive Sobolev recovery and weak
+closedness, prove physical assembled coercivity and consistency, and then
+formalize interpolation, free-boundary localization, strip scaling, and the
+sharp `h^r + h_Gamma^(3/2)` rate.
