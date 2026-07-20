@@ -1,0 +1,38 @@
+name: Verify full Checkerboard Lean package
+
+on:
+  pull_request:
+    paths:
+      - "proofs/lean/Checkerboard/**"
+      - ".github/workflows/verify-checkerboard-full-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  full-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Reject unfinished shortcuts
+        working-directory: proofs/lean/Checkerboard
+        run: |
+          ! grep -RnE '^[[:space:]]*(sorry|admit|native_decide|axiom|opaque)([[:space:]]|$)' --include='*.lean' Checkerboard Checkerboard.lean
+      - name: Resolve pinned Mathlib
+        working-directory: proofs/lean/Checkerboard
+        run: lake update
+      - name: Fetch Mathlib cache
+        working-directory: proofs/lean/Checkerboard
+        run: lake exe cache get
+      - name: Full package build
+        working-directory: proofs/lean/Checkerboard
+        run: lake build 2>&1 | tee full-build.log
+      - name: Reject sorryAx in build output
+        working-directory: proofs/lean/Checkerboard
+        run: |
+          ! grep -q 'sorryAx' full-build.log
