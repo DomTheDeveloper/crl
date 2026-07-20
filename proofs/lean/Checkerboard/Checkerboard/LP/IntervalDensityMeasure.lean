@@ -5,7 +5,7 @@ import Mathlib.MeasureTheory.Measure.WithDensity
 # Finite interval-density assembly
 
 Generated certificate arithmetic proves that constant densities sum to the
-required value on every atomic cell.  This file supplies the generic measure
+required value on every atomic cell. This file supplies the generic measure
 lemmas that turn those pointwise identities into equalities of finite sums of
 restricted Lebesgue measures.
 -/
@@ -15,8 +15,9 @@ namespace Checkerboard
 noncomputable section
 
 open MeasureTheory Set
+open scoped ENNReal
 
-/-- A constant `ℝ≥0∞` density on a closed interval.  Endpoint overlaps are
+/-- A constant `ℝ≥0∞` density on a closed interval. Endpoint overlaps are
 irrelevant for Lebesgue measure and are handled later by almost-everywhere
 congruence. -/
 def intervalDensity (a b c : ℝ) (x : ℝ) : ℝ≥0∞ :=
@@ -76,6 +77,7 @@ theorem map_fintype_sum
     [Fintype ι]
     (μ : ι → Measure α) (f : α → β) (hf : Measurable f) :
     Measure.map f (∑ i, μ i) = ∑ i, Measure.map f (μ i) := by
+  classical
   simpa using map_finset_sum Finset.univ μ f hf
 
 /-- Finite sums of weighted restricted intervals are represented by the sum of
