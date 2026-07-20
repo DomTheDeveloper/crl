@@ -127,6 +127,16 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexFieldNat_contact_mem_Icc_of_modulus' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.sum_local_recovery_sq_le_modulus_indicator' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.sum_weighted_contact_recovery_le' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.universalRate_of_modulusIndicator_and_contact' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.universalRate_of_modulus_and_contact' \
+            bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript
         if: always()
