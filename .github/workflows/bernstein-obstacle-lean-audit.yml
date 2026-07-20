@@ -1,5 +1,6 @@
 name: Bernstein obstacle Lean audit
 
+# Canonical exact-head audit trigger; theorem sources are unchanged by this commit.
 on:
   push:
     branches:
