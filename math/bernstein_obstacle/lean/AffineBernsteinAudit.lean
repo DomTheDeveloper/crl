@@ -26,6 +26,10 @@ import BernsteinObstacle
 #check BernsteinObstacle.affineBernsteinBasis_apply
 #check BernsteinObstacle.span_affineBernsteinVector_eq_top
 #check BernsteinObstacle.affineBernsteinBasis_sum_repr
+#check BernsteinObstacle.affineBernsteinCollocationEquiv_apply
+#check BernsteinObstacle.affineBernsteinCollocation_injective
+#check BernsteinObstacle.affineBernsteinCollocation_surjective
+#check BernsteinObstacle.existsUnique_bernsteinCoefficients_with_latticeValues
 
 #print axioms BernsteinObstacle.eval_affineBarycentric
 #print axioms BernsteinObstacle.totalDegree_affineBarycentric_le
@@ -53,3 +57,7 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.affineBernsteinBasis_apply
 #print axioms BernsteinObstacle.span_affineBernsteinVector_eq_top
 #print axioms BernsteinObstacle.affineBernsteinBasis_sum_repr
+#print axioms BernsteinObstacle.affineBernsteinCollocationEquiv_apply
+#print axioms BernsteinObstacle.affineBernsteinCollocation_injective
+#print axioms BernsteinObstacle.affineBernsteinCollocation_surjective
+#print axioms BernsteinObstacle.existsUnique_bernsteinCoefficients_with_latticeValues
