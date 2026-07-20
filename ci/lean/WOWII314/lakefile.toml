@@ -4,4 +4,4 @@ defaultTargets = []
 [[require]]
 name = "formal_conjectures"
 git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
-rev = "2a06f1e84781e96dc2eceaf5d09035640b4731b0"
+rev = "10990dd229d2236416f05326e73e6dd62dbb5fa2"
