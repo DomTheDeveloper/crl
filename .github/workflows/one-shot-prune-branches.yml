@@ -1,0 +1,97 @@
+name: One-shot branch cleanup
+
+on:
+  push:
+    paths:
+      - .github/workflows/one-shot-prune-branches.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preserve gh-pages and delete every other branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}"
+          headers=(
+            -H "Authorization: Bearer ${GH_TOKEN}"
+            -H "Accept: application/vnd.github+json"
+            -H "X-GitHub-Api-Version: 2022-11-28"
+          )
+
+          api_get() {
+            curl --fail-with-body --silent --show-error "${headers[@]}" "$1"
+          }
+
+          api_delete() {
+            curl --fail-with-body --silent --show-error -X DELETE "${headers[@]}" "$1"
+          }
+
+          api_post() {
+            curl --fail-with-body --silent --show-error -X POST "${headers[@]}" \
+              -H "Content-Type: application/json" --data "$2" "$1"
+          }
+
+          api_patch() {
+            curl --fail-with-body --silent --show-error -X PATCH "${headers[@]}" \
+              -H "Content-Type: application/json" --data "$2" "$1"
+          }
+
+          encode_ref() {
+            python3 - "$1" <<'PY'
+          import sys
+          from urllib.parse import quote
+          print(quote(sys.argv[1], safe=''))
+          PY
+          }
+
+          default_branch="$(api_get "$api" | jq -r '.default_branch')"
+          pages_sha="$(api_get "$api/git/ref/heads/gh-pages" | jq -r '.object.sha')"
+
+          echo "Current default branch: $default_branch"
+          echo "Preserved gh-pages commit: $pages_sha"
+
+          if [[ "$default_branch" != "gh-pages" ]]; then
+            echo "Removing the old gh-pages ref temporarily."
+            api_delete "$api/git/refs/heads/gh-pages"
+
+            encoded_default="$(encode_ref "$default_branch")"
+            echo "Renaming the default branch to gh-pages."
+            api_post "$api/branches/$encoded_default/rename" '{"new_name":"gh-pages"}' >/dev/null
+
+            echo "Restoring gh-pages to its preserved commit."
+            api_patch "$api/git/refs/heads/gh-pages" \
+              "$(jq -cn --arg sha "$pages_sha" '{sha:$sha,force:true}')" >/dev/null
+          fi
+
+          echo "Deleting all remaining non-gh-pages refs."
+          api_get "$api/git/matching-refs/heads/" \
+            | jq -r '.[].ref | sub("^refs/heads/"; "")' \
+            | while IFS= read -r branch; do
+                [[ "$branch" == "gh-pages" ]] && continue
+                encoded="$(encode_ref "$branch")"
+                echo "Deleting $branch"
+                api_delete "$api/git/refs/heads/$encoded"
+              done
+
+          final_default="$(api_get "$api" | jq -r '.default_branch')"
+          mapfile -t final_branches < <(
+            api_get "$api/git/matching-refs/heads/" \
+              | jq -r '.[].ref | sub("^refs/heads/"; "")' \
+              | sort
+          )
+
+          printf 'Final default branch: %s\n' "$final_default"
+          printf 'Final branches:\n%s\n' "${final_branches[*]}"
+
+          [[ "$final_default" == "gh-pages" ]]
+          [[ "${#final_branches[@]}" -eq 1 ]]
+          [[ "${final_branches[0]}" == "gh-pages" ]]
