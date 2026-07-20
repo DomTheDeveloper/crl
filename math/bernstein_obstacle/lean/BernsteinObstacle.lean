@@ -14,6 +14,7 @@ import BernsteinObstacle.AffineBernsteinPolynomial
 import BernsteinObstacle.AffineBernsteinTriangular
 import BernsteinObstacle.AffineBernsteinOrder
 import BernsteinObstacle.AffineBernsteinBasis
+import BernsteinObstacle.AffineBernsteinCollocation
 import BernsteinObstacle.PolynomialDimension
 import BernsteinObstacle.Unisolvence
 import BernsteinObstacle.NodalUnisolvence
