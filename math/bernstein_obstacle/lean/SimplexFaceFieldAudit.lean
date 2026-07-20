@@ -1,0 +1,11 @@
+import BernsteinObstacle
+
+#check BernsteinObstacle.lastFaceMultiIndex_injective
+#check BernsteinObstacle.lastFaceCoefficientExtension_embed
+#check BernsteinObstacle.lastFaceCoefficientExtension_eq_zero_of_last_pos
+#check BernsteinObstacle.simplexField_lastFace_extension
+
+#print axioms BernsteinObstacle.lastFaceMultiIndex_injective
+#print axioms BernsteinObstacle.lastFaceCoefficientExtension_embed
+#print axioms BernsteinObstacle.lastFaceCoefficientExtension_eq_zero_of_last_pos
+#print axioms BernsteinObstacle.simplexField_lastFace_extension
