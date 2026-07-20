@@ -17,3 +17,4 @@ import BernsteinObstacle.CoefficientMosco
 import BernsteinObstacle.AssemblyMosco
 import BernsteinObstacle.MinimizerConvergence
 import BernsteinObstacle.AssemblyConvergence
+import BernsteinObstacle.CoefficientNorm
