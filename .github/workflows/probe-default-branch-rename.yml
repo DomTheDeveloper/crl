@@ -1,0 +1,76 @@
+name: Probe default branch rename
+
+on:
+  push:
+    paths:
+      - .github/workflows/probe-default-branch-rename.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/gracious-hamilton-8k6xhz
+          fetch-depth: 1
+      - name: Rename default to a temporary name and restore
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set +e
+          repo="$GITHUB_REPOSITORY"
+          original='claude/gracious-hamilton-8k6xhz'
+          temporary='default-rename-probe'
+
+          git switch -C "$original" "origin/$original" >/dev/null 2>&1
+
+          first="$(gh api --method POST \
+            'repos/{owner}/{repo}/branches/{branch}/rename' \
+            -f new_name="$temporary" 2>&1)"
+          first_code=$?
+
+          restore='not-run'
+          restore_code=99
+          if [[ $first_code -eq 0 ]]; then
+            for _ in $(seq 1 20); do
+              [[ "$(gh api "repos/$repo" --jq '.default_branch' 2>/dev/null)" == "$temporary" ]] && break
+              sleep 1
+            done
+
+            if gh api "repos/$repo/git/ref/heads/$original" >/dev/null 2>&1; then
+              gh api --method DELETE "repos/$repo/git/refs/heads/$original" >/dev/null 2>&1
+            fi
+
+            restore="$(gh api --method POST \
+              "repos/$repo/branches/$temporary/rename" \
+              -f new_name="$original" 2>&1)"
+            restore_code=$?
+          fi
+
+          result="$(jq -cn --arg first_code "$first_code" --arg first "$first" \
+            --arg restore_code "$restore_code" --arg restore "$restore" \
+            --arg default "$(gh api "repos/$repo" --jq '.default_branch' 2>/dev/null || echo unknown)" \
+            --arg run "$GITHUB_RUN_ID" \
+            '{first_exit:$first_code,first_response:$first,restore_exit:$restore_code,restore_response:$restore,final_default:$default,run_id:$run}')"
+          encoded="$(printf '%s\n' "$result" | base64 -w 0)"
+          url="repos/$repo/contents/default-rename-probe-result.json"
+          old_sha="$(gh api "$url?ref=gh-pages" --jq '.sha' 2>/dev/null || true)"
+          if [[ -n "$old_sha" ]]; then
+            jq -cn --arg message 'Record default rename probe' --arg content "$encoded" \
+              --arg branch 'gh-pages' --arg sha "$old_sha" \
+              '{message:$message,content:$content,branch:$branch,sha:$sha}' \
+              | gh api --method PUT "$url" --input - >/dev/null
+          else
+            jq -cn --arg message 'Record default rename probe' --arg content "$encoded" \
+              --arg branch 'gh-pages' \
+              '{message:$message,content:$content,branch:$branch}' \
+              | gh api --method PUT "$url" --input - >/dev/null
+          fi
+
+          echo "$result"
+          [[ $first_code -eq 0 && $restore_code -eq 0 ]]
