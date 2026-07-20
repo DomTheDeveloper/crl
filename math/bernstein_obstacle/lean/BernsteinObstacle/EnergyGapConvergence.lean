@@ -29,6 +29,7 @@ theorem coefficientNormSq_sub_comm (u v : ι → ℝ) :
   unfold coefficientNormSq
   apply Finset.sum_congr rfl
   intro i hi
+  change (u i - v i) ^ 2 = (v i - u i) ^ 2
   ring
 
 /-- A positive fixed multiple of a nonnegative coefficient squared error cannot
