@@ -10,6 +10,9 @@ import BernsteinObstacle
 #check BernsteinObstacle.sharedBoundaryFaceTrace_eq_zero
 #check BernsteinObstacle.localBoundaryFaceTrace_eq_zero
 #check BernsteinObstacle.clippedRecovery_localBoundaryFaceTrace_eq_zero
+#check BernsteinObstacle.assemblyFeasibleSet_weaklySequentiallyClosed
+#check BernsteinObstacle.assemblyFeasibleSet_mosco_const
+#check BernsteinObstacle.assemblyFeasibleSet_identity_recovery
 
 #print axioms BernsteinObstacle.zero_mem_assemblyFeasibleSet
 #print axioms BernsteinObstacle.assemblyFeasibleSet_convex
@@ -21,3 +24,6 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.sharedBoundaryFaceTrace_eq_zero
 #print axioms BernsteinObstacle.localBoundaryFaceTrace_eq_zero
 #print axioms BernsteinObstacle.clippedRecovery_localBoundaryFaceTrace_eq_zero
+#print axioms BernsteinObstacle.assemblyFeasibleSet_weaklySequentiallyClosed
+#print axioms BernsteinObstacle.assemblyFeasibleSet_mosco_const
+#print axioms BernsteinObstacle.assemblyFeasibleSet_identity_recovery
