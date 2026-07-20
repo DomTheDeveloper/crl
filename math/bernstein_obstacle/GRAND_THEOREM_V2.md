@@ -32,31 +32,34 @@ assume near `Sigma`
 \[
 c\,\operatorname{dist}(x,\Sigma)^q
 \le w(x)\le
-C\,\operatorname{dist}(x,\Sigma)^q.
+C\,\operatorname{dist}(x,\Sigma)^q,
+\qquad q\ge1.
 \]
 
-Assume the coefficient-to-value defect is `O(h^m)`. Define
+Assume the coefficient-to-value defect is `O(h^m)` with `m>=1`. Define
 
 \[
 a=\min\{m,q\}.
 \]
 
-Assume the interface has Minkowski codimension `s`:
+Assume the interface has Minkowski codimension `sigma>0`:
 
 \[
 |\{x:\operatorname{dist}(x,\Sigma)\le\delta\}|
-\le C\delta^s.
+\le C\delta^\sigma.
 \]
 
-The risky-patch thickness is
+The risky-patch thickness is more precisely
 
 \[
-\delta_h\simeq h^{a/q}.
+\delta_h\simeq h+h^{m/q}\simeq h^{a/q}
+\qquad(0<h\le1).
 \]
 
 The `min` is essential. When coefficient consistency exceeds the physical
 vanishing order, true gap values on a cut element—not coefficient error—control
-the repair amplitude.
+the repair amplitude. When `m<q`, the risky layer is wider than one mesh cell
+and fractional powers of the original mesh scale are unavoidable.
 
 ---
 
@@ -69,21 +72,21 @@ conforming pointwise-feasible recovery and
 
 \[
 \|d_h\|_{L^2}
-\lesssim h^a\delta_h^{s/2},
+\lesssim h^a\delta_h^{\sigma/2},
 \]
 
 \[
 \|d_h\|_{H^1}
-\lesssim h^{a-1}\delta_h^{s/2}.
+\lesssim h^{a-1}\delta_h^{\sigma/2}.
 \]
 
-Therefore the repair exponent is
+Therefore the repair exponent in the original mesh scale is
 
 \[
 \boxed{
 \rho_{\mathrm{repair}}
 =
-a-1+\frac{sa}{2q}.
+a-1+\frac{\sigma a}{2q}.
 }
 \]
 
@@ -91,7 +94,7 @@ If the obstacle multiplier is a bounded density, its contact-consistency term
 has size
 
 \[
-O(h^a\delta_h^s).
+O(h^a\delta_h^\sigma).
 \]
 
 After the energy/Falk square-root transfer, the generic variational-inequality
@@ -101,7 +104,7 @@ interface exponent is
 \boxed{
 \rho_{\mathrm{VI}}
 =
-\frac{sa}{2q}
+\frac{\sigma a}{2q}
 +
 \min\left\{a-1,\frac a2\right\}.
 }
@@ -113,7 +116,7 @@ For `a>=2`,
 \boxed{
 \rho_{\mathrm{VI}}
 =
-\frac a2\left(1+\frac s q\right).
+\frac a2\left(1+\frac \sigma q\right).
 }
 \]
 
@@ -121,7 +124,7 @@ This separates three independent mechanisms:
 
 1. coefficient consistency `m`;
 2. physical vanishing order `q`;
-3. geometric Minkowski codimension `s`.
+3. geometric Minkowski codimension `sigma`.
 
 ---
 
@@ -130,7 +133,7 @@ This separates three independent mechanisms:
 For ordinary regular contact,
 
 \[
-m=2,\qquad q=2,\qquad s=1.
+m=2,\qquad q=2,\qquad \sigma=1.
 \]
 
 Thus `a=2` and
@@ -234,48 +237,58 @@ Therefore
 For fixed `theta`, this is a positive lower bound of exact order `h^(3/2)`.
 Thus the classical clipping exponent is sharp for this unfitted family.
 
+This proves sharpness of the **clipping correction**. It does not by itself
+prove that every discrete obstacle solution has an `h^(3/2)` lower error bound;
+additional transfer and noncancellation arguments would be needed for that
+stronger statement.
+
 The exact symbolic calculation is reproduced by
-`verification/verify_grand_sharpness.py` in the grand-theorem research PR.
+`verification/verify_grand_sharpness.py`.
 
 ---
 
 ### 7. Stratified and rough interfaces
 
 If the active interface decomposes into strata with vanishing orders `q_j`,
-coefficient orders `m_j`, and tubular exponents `s_j`, then each stratum
+coefficient orders `m_j`, and tubular exponents `sigma_j`, then each stratum
 contributes its own exponent
 
 \[
 \rho_j
 =
-\frac{s_j a_j}{2q_j}
+\frac{\sigma_j a_j}{2q_j}
 +
 \min\left\{a_j-1,\frac{a_j}{2}\right\},
 \qquad
 a_j=\min(m_j,q_j).
 \]
 
-The smallest exponent controls the global interface term. This replaces the
-need for a globally smooth interface by quantitative growth and tubular-volume
-hypotheses. Applying it to a particular singular free boundary still requires
-proving those hypotheses for that PDE.
+The smallest exponent controls the global interface term, provided the stratum
+patches have uniformly summable overlap. This replaces the need for a globally
+smooth interface by quantitative growth and tubular-volume hypotheses.
+Applying it to a particular singular free boundary still requires proving those
+hypotheses for that PDE.
 
 ---
 
 ### 8. Formal and review status
 
-The live Lean branch now formalizes:
+The live Lean branch formalizes:
 
-- vanishing-order/codimension repair scales;
+- integer vanishing-order/integer-codimension repair scales;
 - dimension cancellation in strip counts;
-- consistency-limited order `min m q`;
+- the algebraic consistency-limited order `min m q`;
+- the physically justified same-scale saturation regime `q<=m`;
 - quadratic-contact saturation for every `m>=2`;
 - strict negativity of the phase-locked middle coefficient;
 - the algebraic correction slope identity;
-- the general moving-obstacle and coercive rate-composition endgames.
+- moving-obstacle Mosco convergence and coercive rate-composition endgames;
+- a terminal quadratic-contact grand theorem.
 
-The exact integral sharpness calculation is symbolically verified, but its
-integral identity is not yet kernel-formalized in Lean.
+The full low-consistency regime `m<q` involves the fractional layer thickness
+`h^(m/q)` and is presently an analytical theorem, not yet a Lean theorem. The
+exact integral sharpness calculation is symbolically verified, but its integral
+identity is not yet kernel-formalized in Lean.
 
 The grand theorem remains internally derived and must receive independent
 numerical-analysis and free-boundary review before being called independently
