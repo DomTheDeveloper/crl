@@ -11,6 +11,7 @@ import BernsteinObstacle.LatticeInterpolation
 import BernsteinObstacle.LatticePolynomial
 import BernsteinObstacle.AffineLatticePolynomial
 import BernsteinObstacle.PolynomialDimension
+import BernsteinObstacle.Unisolvence
 import BernsteinObstacle.GlobalMesh
 import BernsteinObstacle.Energy
 import BernsteinObstacle.FiniteObstacle
