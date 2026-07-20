@@ -33,6 +33,8 @@ theorem norm_sq_le_coefficientNormSq (w : ι → ℝ) :
   cases isEmpty_or_nonempty ι with
   | inl h =>
       letI := h
+      have hw : w = 0 := Subsingleton.elim w 0
+      rw [hw]
       simp [coefficientNormSq]
   | inr h =>
       letI := h
@@ -61,7 +63,7 @@ theorem stronglyConverges_zero_of_coefficientNormSq_tendsto_zero
   have hSqrt :
       Tendsto (fun k => Real.sqrt (coefficientNormSq (w k))) atTop (nhds 0) := by
     have h := Real.continuous_sqrt.continuousAt.tendsto.comp hSq
-    simpa using h
+    simpa only [Function.comp_apply, Real.sqrt_zero] using h
   unfold StronglyConverges
   exact squeeze_zero_norm
     (fun k => norm_le_sqrt_coefficientNormSq (w k)) hSqrt
