@@ -1,4 +1,5 @@
 import A387471Finite60
+import A387471IntResidue
 
 /-!
 # Analytic bridge to the finite 60th-root certificate
