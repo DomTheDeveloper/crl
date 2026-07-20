@@ -1,0 +1,61 @@
+name: Diagnose A387471 minimal branch
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/verify-a387471-minimal.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: diagnose-a387471-minimal
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - name: Check out repaired proof
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/crl
+          ref: 66881d9c719c281ad00436e8c8481bc9f454e811
+          path: campaign
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Download Mathlib cache
+        working-directory: campaign/proofs/lean/A387471
+        run: lake exe cache get
+      - name: Build finite prerequisites
+        working-directory: campaign/proofs/lean/A387471
+        run: lake build A387471SixRoots A387471Finite60 A387471FiniteBridge
+      - name: Build ratio
+        working-directory: campaign/proofs/lean/A387471
+        run: lake build A387471Ratio 2>&1 | tee ../../../../a387471-ratio.log
+      - name: Build grid lift
+        working-directory: campaign/proofs/lean/A387471
+        run: lake build A387471GridLift 2>&1 | tee ../../../../a387471-grid-lift.log
+      - name: Build bounds
+        working-directory: campaign/proofs/lean/A387471
+        run: lake build A387471Bounds 2>&1 | tee ../../../../a387471-bounds.log
+      - name: Build minimal theorem
+        working-directory: campaign/proofs/lean/A387471
+        run: lake build A387471Minimal 2>&1 | tee ../../../../a387471-minimal-only.log
+      - name: Upload diagnostic transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a387471-minimal-diagnostic
+          path: |
+            a387471-ratio.log
+            a387471-grid-lift.log
+            a387471-bounds.log
+            a387471-minimal-only.log
+          if-no-files-found: warn
