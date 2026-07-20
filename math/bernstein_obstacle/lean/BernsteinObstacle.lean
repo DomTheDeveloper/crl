@@ -54,10 +54,14 @@ import BernsteinObstacle.SharpRateAlgebra
 import BernsteinObstacle.StripScaling
 import BernsteinObstacle.MinkowskiRate
 import BernsteinObstacle.MinkowskiSaturation
+import BernsteinObstacle.MinkowskiSharpness
 import BernsteinObstacle.RecoveryRate
 import BernsteinObstacle.CorrectedSharpRate
 import BernsteinObstacle.BulkMultiplierRate
 import BernsteinObstacle.OptimalGrading
+import BernsteinObstacle.MovingObstacleRate
+import BernsteinObstacle.GrandSaturationRate
+import BernsteinObstacle.GrandTheorem
 import BernsteinObstacle.HilbertVI
 import BernsteinObstacle.NestedHilbertVI
 import BernsteinObstacle.MovingHilbertVI
