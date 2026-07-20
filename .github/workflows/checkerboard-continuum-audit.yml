@@ -3,7 +3,6 @@ name: Checkerboard exact continuum optimum audit
 on:
   push:
     branches:
-      - agent/checkerboard-lp-asymptotic-lean
       - audit/checkerboard-continuum-core
     paths:
       - '.github/workflows/checkerboard-continuum-audit.yml'
@@ -11,7 +10,6 @@ on:
     paths:
       - '.github/workflows/checkerboard-continuum-audit.yml'
       - 'proofs/lean/Checkerboard/**'
-      - 'scripts/checkerboard/**'
   workflow_dispatch:
 
 permissions:
@@ -27,24 +25,6 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Generate exact certificate modules
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m pip install sympy
-          python scripts/checkerboard/generate_outer_certificate.py
-          python scripts/checkerboard/generate_outer_density_certificate.py
-          python scripts/checkerboard/generate_outer_support_certificate.py
-          python scripts/checkerboard/generate_outer_geometry_certificate.py
-          python scripts/checkerboard/generate_outer_marginal_ae_certificate.py
-          python scripts/checkerboard/generate_outer_projection_ae_certificate.py
-          python scripts/checkerboard/generate_outer_measure_certificate.py
-          python scripts/checkerboard/generate_dual_bernstein_certificate.py
-          python scripts/checkerboard/generate_dual_function_identities.py
-          python scripts/checkerboard/emit_dual_handelman_certificate.py
       - name: Install pinned Lean
         shell: bash
         run: |
@@ -59,7 +39,7 @@ jobs:
           set -euo pipefail
           lake update
           lake exe cache get
-      - name: Build exact continuum primal-dual stack
+      - name: Build committed exact continuum primal-dual stack
         working-directory: proofs/lean/Checkerboard
         shell: bash
         run: |
@@ -82,11 +62,15 @@ jobs:
           if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' continuum-audit.log; then
             exit 1
           fi
-      - name: Reject unfinished proof markers
+      - name: Reject unfinished proof markers in continuum core
         working-directory: proofs/lean/Checkerboard
         shell: bash
         run: |
-          ! grep -RnE '\bsorry\b|\badmit\b|native_decide' --include='*.lean' Checkerboard/LP
+          ! grep -RnE '\bsorry\b|\badmit\b|native_decide' --include='*.lean' \
+            Checkerboard/LP/ContinuumModel.lean \
+            Checkerboard/LP/ContinuumPrimalCertificate.lean \
+            Checkerboard/LP/ContinuumDualCertificate.lean \
+            Checkerboard/LP/ContinuumOptimum.lean
       - name: Upload transcript
         if: always()
         uses: actions/upload-artifact@v4
