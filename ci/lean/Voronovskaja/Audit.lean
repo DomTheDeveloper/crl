@@ -1,11 +1,13 @@
--- Moment-layer migration build trigger.
+-- Final child-PR audit trigger.
 import FormalConjectures.Paper.VoronovskajaTypeFormula
 
+#check VoronovskajaTypeFormula.voronovskaja_theorem.bernstein_operators
 #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
 #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth
 #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth.limit_exists
 #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.answer_smoothness
 
+#print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bernstein_operators
 #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
 #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth
 #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth.limit_exists
