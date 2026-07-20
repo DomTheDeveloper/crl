@@ -43,7 +43,7 @@ theorem coefficientCone_mosco_const :
 point in the finite coefficient cone. -/
 theorem coefficientCone_identity_recovery
     (c : ι → ℝ) (hc : c ∈ coefficientCone ι) :
-    (∀ n, c ∈ coefficientCone ι) ∧
+    (∀ n : ℕ, c ∈ coefficientCone ι) ∧
       StronglyConverges (fun _ : ℕ => c) c := by
   constructor
   · intro n
