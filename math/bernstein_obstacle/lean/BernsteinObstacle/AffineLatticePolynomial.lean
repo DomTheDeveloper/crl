@@ -129,7 +129,8 @@ theorem totalDegree_affineScaledBarycentric_le (d n : ℕ)
     simp only [affineScaledBarycentric, Fin.snoc_last]
     refine (MvPolynomial.totalDegree_sub _ _).trans (max_le ?_ hsum)
     change (MvPolynomial.C (n : ℝ) : MvPolynomial (Fin d) ℝ).totalDegree ≤ 1
-    simp
+    rw [MvPolynomial.totalDegree_C]
+    omega
   · simp [affineScaledBarycentric]
 
 /-- The simplex cardinal polynomial expressed in the `d` independent affine
