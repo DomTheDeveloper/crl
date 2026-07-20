@@ -24,6 +24,9 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Download exact arXiv v1 source with mirrors
         id: download
         shell: bash
@@ -73,20 +76,33 @@ jobs:
         run: |
           set +e
           code=0
+          : > fetched/validation.log
           if [[ '${{ steps.download.outputs.exit_code }}' != '0' ]]; then
             code=1
           else
             sha256sum fetched/prellberg-source.tar | tee fetched/source-tar.sha256
             find fetched/source -type f -print | sort | tee fetched/file-list.txt
-            root='fetched/source/odd_fat_certificate'
-            for f in bernstein_coefficients.tsv constants.tsv sign_checks.tsv triangles.tsv verify_odd_fat_certificate.py; do
-              test -f "$root/$f" || { echo "missing $root/$f" | tee -a fetched/validation.log; code=1; }
-            done
+            root=$(find fetched/source -type d -name odd_fat_certificate -print -quit)
+            if [[ -z "$root" ]]; then
+              echo 'odd_fat_certificate directory not found' | tee -a fetched/validation.log
+              code=1
+            else
+              echo "$root" | tee fetched/certificate-root.txt
+              for f in bernstein_coefficients.tsv constants.tsv sign_checks.tsv triangles.tsv verify_odd_fat_certificate.py; do
+                test -f "$root/$f" || { echo "missing $root/$f" | tee -a fetched/validation.log; code=1; }
+              done
+            fi
             if [[ "$code" = 0 ]]; then
-              python "$root/verify_odd_fat_certificate.py" \
-                > fetched/upstream-verification.log 2>&1
-              code=$?
-              tail -n 100 fetched/upstream-verification.log
+              python -m pip install shapely >> fetched/validation.log 2>&1
+              install_code=$?
+              if [[ "$install_code" != 0 ]]; then
+                code=$install_code
+              else
+                (cd "$root" && python verify_odd_fat_certificate.py) \
+                  > fetched/upstream-verification.log 2>&1
+                code=$?
+                tail -n 100 fetched/upstream-verification.log
+              fi
             fi
           fi
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
