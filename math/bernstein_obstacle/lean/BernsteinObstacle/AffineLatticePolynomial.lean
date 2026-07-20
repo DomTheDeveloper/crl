@@ -88,7 +88,7 @@ theorem eval_normalizedDescPochhammerAt_nat {ι : Type*}
     (hq : MvPolynomial.eval x q = (b : ℝ)) :
     MvPolynomial.eval x (normalizedDescPochhammerAt q a) = latticeFactor a b := by
   unfold normalizedDescPochhammerAt descPochhammerAt MvPolynomial.eval
-  rw [map_mul, map_C, Polynomial.hom_eval₂]
+  rw [map_mul, MvPolynomial.eval₂Hom_C, Polynomial.hom_eval₂]
   simp [hq, descPochhammer_eval_eq_descFactorial, latticeFactor,
     div_eq_mul_inv, mul_comm]
 
@@ -126,8 +126,7 @@ theorem totalDegree_affineScaledBarycentric_le (d n : ℕ)
       apply MvPolynomial.totalDegree_finsetSum_le
       intro j hj
       simp
-    change (MvPolynomial.C (n : ℝ) -
-      ∑ j : Fin d, (MvPolynomial.X j : MvPolynomial (Fin d) ℝ)).totalDegree ≤ 1
+    simp only [affineScaledBarycentric, Fin.snoc_last]
     exact (MvPolynomial.totalDegree_sub _ _).trans
       (max_le (by simp) hsum)
   · simp [affineScaledBarycentric]
@@ -195,8 +194,11 @@ theorem eval_affineLatticeCardinalPolynomial_eq_ite (d n : ℕ)
       (fun j : Fin d => (β.1 j.castSucc : ℝ)) (β.1 i)
       (eval_affineScaledBarycentric d n β i)]
   rw [hprod]
+  have hsum :
+      (∑ i, ((α.1 i : Fin (n + 1)) : ℕ)) =
+        ∑ i, ((β.1 i : Fin (n + 1)) : ℕ) := α.2.trans β.2.symm
   exact latticeCardinalValue_eq_ite
-    (fun i => (α.1 i : ℕ)) (fun i => (β.1 i : ℕ)) α.2 β.2
+    (fun i => (α.1 i : ℕ)) (fun i => (β.1 i : ℕ)) hsum
 
 /-- The affine cardinal polynomial family is linearly independent in the
 correct `d`-variable polynomial space. -/
