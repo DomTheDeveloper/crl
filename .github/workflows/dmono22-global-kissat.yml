@@ -3,7 +3,10 @@ name: Dmono22 unrestricted Kissat DRAT certificate
 on:
   push:
     branches:
-      - audit/dmono22-global-drat
+      - audit/dmono22-global-kissat
+    paths:
+      - '.github/workflows/dmono22-global-kissat.yml'
+  pull_request:
     paths:
       - '.github/workflows/dmono22-global-kissat.yml'
   workflow_dispatch:
@@ -12,7 +15,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: dmono22-global-kissat
+  group: dmono22-global-kissat-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
