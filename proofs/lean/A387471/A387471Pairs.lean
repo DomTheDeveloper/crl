@@ -15,7 +15,7 @@ lemma ratio_square_eq_one_of_add_eq_zero {x y : ℂ} (hy : y ≠ 0)
   norm_num
 
 /-- Two roots from the same open half of the six-root relation cannot cancel. -/
-theorem same_side_pair_impossible {n : ℕ} (hn : 0 < n) {A B : ℤ}
+theorem same_side_pair_impossible {n : ℕ} [NeZero (12 * n)] (hn : 0 < n) {A B : ℤ}
     (hA : -3 * (n : ℤ) < A ∧ A < 3 * (n : ℤ))
     (hB : -3 * (n : ℤ) < B ∧ B < 3 * (n : ℤ))
     (hpair : canonicalRoot (12 * n) ^ (intResidue (12 * n) A).val +
@@ -29,6 +29,7 @@ theorem same_side_pair_impossible {n : ℕ} (hn : 0 < n) {A B : ℤ}
   have hd := order_dvd_of_canonical_ratio_pow_eq_one
     (N := 12 * n) A B 2 hsquare
   rcases hd with ⟨q, hq⟩
+  push_cast at hq
   have hnz : (0 : ℤ) < n := by exact_mod_cast hn
   have hdifflo : -6 * (n : ℤ) < A - B := by omega
   have hdiffhi : A - B < 6 * (n : ℤ) := by omega
@@ -45,8 +46,8 @@ theorem same_side_pair_impossible {n : ℕ} (hn : 0 < n) {A B : ℤ}
   exact (pow_ne_zero _ hroot0) (by simpa [z] using hz)
 
 /-- A mixed positive/negative cancelling pair forces the two angle coefficients
- to sum to zero. -/
-theorem mixed_pair_sum_eq_zero {n : ℕ} (hn : 0 < n) {A B : ℤ}
+to sum to zero. -/
+theorem mixed_pair_sum_eq_zero {n : ℕ} [NeZero (12 * n)] (hn : 0 < n) {A B : ℤ}
     (hpairBound : -2 * (n : ℤ) < A + B ∧ A + B < 2 * (n : ℤ))
     (hpair : canonicalRoot (12 * n) ^ (intResidue (12 * n) A).val +
       canonicalRoot (12 * n) ^
@@ -60,6 +61,7 @@ theorem mixed_pair_sum_eq_zero {n : ℕ} (hn : 0 < n) {A B : ℤ}
   have hd := order_dvd_of_canonical_ratio_pow_eq_one
     (N := 12 * n) A (6 * (n : ℤ) - B) 2 hsquare
   rcases hd with ⟨q, hq⟩
+  push_cast at hq
   have hnz : (0 : ℤ) < n := by exact_mod_cast hn
   have hrlo : -1 < q + 1 := by nlinarith
   have hrhi : q + 1 < 1 := by nlinarith
