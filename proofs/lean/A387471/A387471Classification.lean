@@ -49,7 +49,9 @@ theorem vanishing_relation_coprime_power {N : ℕ} (hN : 0 < N) {ζ : ℂ}
   obtain ⟨q, hq⟩ := minpoly.dvd ℚ ζ hp0
   have hroot : Polynomial.aeval (ζ ^ u) (minpoly ℚ ζ) = 0 := by
     rw [← Polynomial.cyclotomic_eq_minpoly_rat hζ hN]
-    exact (hζ.pow_of_coprime u hu).isRoot_cyclotomic hN
+    have hrootC := (hζ.pow_of_coprime u hu).isRoot_cyclotomic hN
+    rw [← Polynomial.map_cyclotomic N (algebraMap ℚ ℂ)] at hrootC
+    simpa [Polynomial.IsRoot, Polynomial.aeval_def] using hrootC
   have heval : Polynomial.aeval (ζ ^ u) (exponentPolynomial s a) = 0 := by
     rw [hq, map_mul, hroot, zero_mul]
   simpa [pow_mul] using heval
@@ -61,10 +63,9 @@ theorem sum_weighted_fibers {ι κ R : Type*} [DecidableEq ι] [Fintype κ]
     ∑ r : κ, w r * ∑ i ∈ s with tag i = r, g i =
       ∑ i ∈ s, w (tag i) * g i := by
   classical
-  induction s using Finset.induction_on with
-  | empty => simp
-  | @insert i s hi ih =>
-      simp [hi, ih]
+  simp_rw [Finset.sum_filter, Finset.mul_sum, mul_ite, mul_zero]
+  rw [Finset.sum_comm]
+  simp
 
 #print axioms vanishes_empty
 #print axioms aeval_exponentPolynomial
