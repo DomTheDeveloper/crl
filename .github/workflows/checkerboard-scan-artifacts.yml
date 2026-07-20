@@ -1,0 +1,82 @@
+name: Scan historical checkerboard artifacts
+
+on:
+  push:
+    branches:
+      - audit/checkerboard-continuum-core
+    paths:
+      - '.github/workflows/checkerboard-scan-artifacts.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/checkerboard-scan-artifacts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: checkerboard-scan-artifacts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: List and scan non-expired artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p scan/zips scan/extracted
+          gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.expired == false) | [.id,.name,.size_in_bytes,.workflow_run.id,.created_at] | @tsv' \
+            > scan/artifacts.tsv
+          cat scan/artifacts.tsv
+          : > scan/scan.log
+          found=0
+          while IFS=$'\t' read -r id name size run created; do
+            case "$name" in
+              *checkerboard*|*continuum*|*lean*|*proof*|*certificate*) ;;
+              *) continue ;;
+            esac
+            echo "=== id=$id name=$name size=$size run=$run created=$created ===" | tee -a scan/scan.log
+            zip="scan/zips/$id.zip"
+            if ! gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id/zip" > "$zip" 2>> scan/scan.log; then
+              echo "download failed" | tee -a scan/scan.log
+              continue
+            fi
+            if unzip -l "$zip" | tee -a scan/scan.log | grep -q 'DualHandelmanData\.lean'; then
+              dir="scan/extracted/$id"
+              mkdir -p "$dir"
+              unzip -q "$zip" -d "$dir"
+              while IFS= read -r candidate; do
+                sha=$(sha256sum "$candidate" | cut -d' ' -f1)
+                lines=$(wc -l < "$candidate")
+                echo "candidate=$candidate sha256=$sha lines=$lines" | tee -a scan/scan.log
+                if [[ "$sha" = '258056bf2cded9ea19b5419f4f3a837e6476373d7594b4158b7d54accba0febf' && "$lines" = 10589 ]]; then
+                  mkdir -p scan/found
+                  cp "$candidate" scan/found/DualHandelmanData.lean
+                  printf 'artifact_id=%s\nartifact_name=%s\nworkflow_run=%s\nsha256=%s\nlines=%s\n' \
+                    "$id" "$name" "$run" "$sha" "$lines" > scan/found/manifest.txt
+                  found=1
+                  break 2
+                fi
+              done < <(find "$dir" -type f -name 'DualHandelmanData.lean')
+            fi
+          done < scan/artifacts.tsv
+          echo "found=$found" | tee -a scan/scan.log
+      - name: Upload scan result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkerboard-historical-artifact-scan
+          path: |
+            scan/artifacts.tsv
+            scan/scan.log
+            scan/found
+          if-no-files-found: warn
+          retention-days: 30
