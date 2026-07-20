@@ -1,9 +1,18 @@
 Pinned toolchain: leanprover/lean4:v4.33.0-rc1
+Pinned mathlib: 4608056c77c52468b80773e8dcd585ef821c7c5e
 Workflow: Bernstein obstacle Lean audit
-Workflow run: 29756366830
-Head SHA: 1e3447857970115cdf72bea9099a20ff8fe014fa
+Workflow run: 29758902996
+Head SHA: f1170dc567bcd53fa79c4d6610d0a30e089ca174
+Artifact SHA-256: a72d7ab42368ab7bbf936de3e87a13dec5d5d30b2e1efc7e70e5583e11421e88
 
-✔ [3002/3005] Built BernsteinObstacle.Core (2.1s)
-✔ [3003/3005] Built BernsteinObstacle.Tensor (1.9s)
-✔ [3004/3005] Built BernsteinObstacle (1.7s)
-Build completed successfully (3005 jobs).
+✔ [3006/3012] Built BernsteinObstacle.Core
+✔ [3007/3012] Built BernsteinObstacle.Tensor
+✔ [3008/3012] Built BernsteinObstacle.CoefficientCone
+✔ [3009/3012] Built BernsteinObstacle.Simplex
+✔ [3010/3012] Built BernsteinObstacle.SimplexPartition
+✔ [3011/3012] Built BernsteinObstacle
+Build completed successfully (3012 jobs).
+
+Non-fatal linter suggestions:
+- combine successive intro commands in coefficientCone_convex;
+- omit an unused max_eq_left simp argument in clipCoefficients_idem.
