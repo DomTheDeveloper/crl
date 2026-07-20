@@ -1,3 +1,4 @@
+import BernsteinObstacle.Core
 import BernsteinObstacle.SharpRateAlgebra
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Tactic
@@ -5,7 +6,7 @@ import Mathlib.Tactic
 namespace BernsteinObstacle
 
 /-!
-# Universal obstacle-rate algebra
+# Universal obstacle-rate and exact box-constraint algebra
 
 The analytical universal theorem produces two nonnegative squared scales:
 
@@ -13,8 +14,40 @@ The analytical universal theorem produces two nonnegative squared scales:
 * a contact-measure consistency scale.
 
 This file certifies the coercive square-root transfer for arbitrary scales and
-its first-order specialization.
+its first-order specialization. It also connects the Bernstein coefficient
+interval certificate to exact lower/upper obstacles that need not themselves be
+polynomials.
 -/
+
+/-- Affinely mapping a scalar in `[0,1]` into `[ψ, φ]` preserves the interval. -/
+theorem affineBox_mem_Icc
+    (ψ φ θ : ℝ) (hψφ : ψ ≤ φ) (hθ : θ ∈ Set.Icc (0 : ℝ) 1) :
+    ψ + (φ - ψ) * θ ∈ Set.Icc ψ φ := by
+  have hwidth : 0 ≤ φ - ψ := sub_nonneg.mpr hψφ
+  constructor
+  · have hnonneg : 0 ≤ (φ - ψ) * θ := mul_nonneg hwidth hθ.1
+    linarith
+  · have hmul : (φ - ψ) * θ ≤ (φ - ψ) * 1 :=
+      mul_le_mul_of_nonneg_left hθ.2 hwidth
+    linarith
+
+/-- A physical field obtained by affinely mapping a Bernstein curve between two
+possibly nonpolynomial obstacles. -/
+def boxApprox
+    (ψ φ : ℝ → ℝ) (n : ℕ) (c : ℕ → ℝ) (x : ℝ) : ℝ :=
+  ψ x + (φ x - ψ x) * curve n c x
+
+/-- Coefficients in `[0,1]` certify exact pointwise lower and upper obstacle
+bounds for the affine physical field. -/
+theorem boxApprox_mem_Icc
+    (ψ φ : ℝ → ℝ) (n : ℕ) (c : ℕ → ℝ)
+    (hc : ∀ k ∈ Finset.range (n + 1), c k ∈ Set.Icc (0 : ℝ) 1)
+    {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1)
+    (hψφ : ψ x ≤ φ x) :
+    boxApprox ψ φ n c x ∈ Set.Icc (ψ x) (φ x) := by
+  unfold boxApprox
+  exact affineBox_mem_Icc (ψ x) (φ x) (curve n c x) hψφ
+    (curve_mem_Icc n c 0 1 hc hx0 hx1)
 
 /-- Two nonnegative squared energy scales imply a norm estimate by the sum of
 the corresponding scales. -/
