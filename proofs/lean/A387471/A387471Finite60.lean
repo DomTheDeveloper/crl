@@ -108,7 +108,7 @@ lemma coeff_vecPoly60Q (v : Fin 16 → ℤ) (i : Fin 16) :
     (vecPoly60Q v).coeff i.val = (v i : ℚ) := by
   classical
   unfold vecPoly60Q
-  change (∑ j in Finset.univ,
+  change Finset.univ.sum (fun j : Fin 16 ↦
       (C (v j : ℚ) * X ^ j.val).coeff i.val) = (v i : ℚ)
   apply Finset.sum_eq_single i
   · intro j _ hji
