@@ -27,9 +27,11 @@ theorem basis_nonneg (n k : ℕ) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) :
 /-- The Bernstein basis is a partition of unity. -/
 theorem basis_sum_eq_one (n : ℕ) (x : ℝ) :
     (∑ k ∈ Finset.range (n + 1), basis n k x) = 1 := by
-  have h := congrArg (fun p : ℝ[X] => p.eval x) (bernsteinPolynomial.sum ℝ n)
-  rw [Polynomial.eval_finset_sum] at h
-  simpa [basis, bernsteinPolynomial, mul_assoc] using h
+  calc
+    (∑ k ∈ Finset.range (n + 1), basis n k x) = (x + (1 - x)) ^ n := by
+      rw [add_pow]
+      simp only [basis, mul_comm, mul_assoc]
+    _ = 1 := by ring
 
 /-- A polynomial curve written in the degree-`n` Bernstein basis. -/
 def curve (n : ℕ) (c : ℕ → ℝ) (x : ℝ) : ℝ :=
