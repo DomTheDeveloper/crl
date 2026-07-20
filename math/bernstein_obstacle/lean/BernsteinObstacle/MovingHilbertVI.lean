@@ -1,5 +1,5 @@
 import BernsteinObstacle.NestedHilbertVI
-import BernsteinObstacle.Mosco
+import BernsteinObstacle.SobolevFEMRecovery
 import Mathlib.Tactic
 
 open Filter
@@ -14,7 +14,7 @@ noncomputable section
 
 This file turns strong feasible recovery for nested moving cones into strong
 convergence of the corresponding Hilbert-space variational-inequality
-solutions.  It complements the scheduled Sobolev/FEM recovery infrastructure
+solutions. It complements the scheduled Sobolev/FEM recovery infrastructure
 with a direct coordinate-free projection proof.
 -/
 
@@ -70,6 +70,35 @@ theorem nested_hilbert_vi_strongConvergence_of_recovery
     simpa using hsqrt
   unfold StronglyConverges
   exact tendsto_iff_norm_tendsto_zero.mpr hnorm
+
+/-- The threshold-form Sobolev/FEM recovery package is sufficient by itself to
+prove strong convergence of nested projection-form obstacle VI solutions. No
+separate solution-to-recovery error hypothesis is required. -/
+theorem ThresholdSobolevFEMRecoveryData.hilbertVISolutions_strongConvergence
+    (D : ThresholdSobolevFEMRecoveryData E)
+    (z u : E) (udisc : ℕ → E)
+    (hu : IsHilbertVISolution D.limitCone z u)
+    (hudisc : ∀ n, IsHilbertVISolution (D.discreteCone n) z (udisc n)) :
+    StronglyConverges udisc u := by
+  obtain ⟨w, R, stage, err, hw, hstage, hmem, hclose, herr⟩ :=
+    D.scheduledRecovery u hu.1
+  have hrecovery : StronglyConverges (fun n => R (stage n) n) u :=
+    diagonalRecovery_stronglyConverges
+      w R stage u err hw hstage hclose herr
+  exact nested_hilbert_vi_strongConvergence_of_recovery
+    D.discreteCone D.limitCone z u udisc (fun n => R (stage n) n)
+    D.inner hu hudisc hmem hrecovery
+
+/-- The same threshold-form package simultaneously yields Mosco convergence and
+direct strong convergence of the projection-form VI solutions. -/
+theorem ThresholdSobolevFEMRecoveryData.mosco_and_hilbertVISolutions_strongConvergence
+    (D : ThresholdSobolevFEMRecoveryData E)
+    (z u : E) (udisc : ℕ → E)
+    (hu : IsHilbertVISolution D.limitCone z u)
+    (hudisc : ∀ n, IsHilbertVISolution (D.discreteCone n) z (udisc n)) :
+    MoscoConverges D.discreteCone D.limitCone ∧ StronglyConverges udisc u := by
+  exact ⟨D.moscoConverges,
+    D.hilbertVISolutions_strongConvergence z u udisc hu hudisc⟩
 
 end MovingHilbertVI
 
