@@ -35,6 +35,7 @@ import BernsteinObstacle.Mosco
 import BernsteinObstacle.MoscoTools
 import BernsteinObstacle.ConvexWeakClosure
 import BernsteinObstacle.DiagonalRecovery
+import BernsteinObstacle.ScheduledRecovery
 import BernsteinObstacle.SobolevFEMRecovery
 import BernsteinObstacle.CoefficientMosco
 import BernsteinObstacle.AssemblyMosco
