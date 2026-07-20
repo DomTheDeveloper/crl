@@ -1,0 +1,34 @@
+name: Set default branch to gh-pages
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/set-default-gh-pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  set-default:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set repository default branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          response_file="$(mktemp)"
+          status="$(curl --silent --show-error \
+            -o "$response_file" -w '%{http_code}' \
+            -X PATCH \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -H "Content-Type: application/json" \
+            --data '{"default_branch":"gh-pages"}' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}")"
+          echo "HTTP status: $status"
+          cat "$response_file"
+          test "$status" = "200"
+
+# PR trigger
