@@ -2,9 +2,48 @@
 
 ## Immutable audit target
 
-Reviewers must identify the exact commit audited. The current campaign target is
-PR #95 on `agent/bernstein-obstacle-research`; use the latest successful Lean and
-reproduction workflow commits reported in the PR before beginning.
+Reviewers must identify the exact commit audited.
+
+The current corrected analytical review target is:
+
+- branch: `review/bernstein-obstacle-v2-corrected`;
+- commit: `f2bd41f19ff5afbcca8a23f9afdcdf084364dae4`;
+- correction PR: #106.
+
+The superseded v1 target remains available only for provenance:
+
+- branch: `review/bernstein-obstacle-v1`;
+- commit: `209460f762b24d05534075424a5a3864cc5edb9c`.
+
+The moving research branch `agent/bernstein-obstacle-research` is not an
+immutable external-review target. Any later formalization commit must receive a
+new frozen SHA and a new report or explicit delta review before it can inherit
+an external verdict.
+
+## Reviewer qualification gate
+
+A report counts as a qualified external review only when the reviewer supplies
+public evidence of relevant research-level competence for the panel being
+assessed. Acceptable evidence includes publications, a doctoral or postdoctoral
+research profile, substantial professional finite-element/variational-analysis
+work, recognized Lean/mathlib contributions, or another comparably verifiable
+technical record.
+
+Panel-specific minimum expertise:
+
+- Panel A: approximation theory, Bernstein/Bézier methods, or obstacle/contact
+  discretization and prior-art analysis;
+- Panel B: Sobolev spaces, conforming finite elements, variational inequalities,
+  Mosco convergence, or convex minimization;
+- Panel C: free-boundary regularity, obstacle/contact mechanics, a priori FEM
+  error analysis, or multiplier estimates;
+- Panel D: Lean/mathlib proof auditing and enough mathematical background to
+  compare formal statements with the manuscript.
+
+A reviewer may cover more than one panel, but the report must state the evidence
+supporting qualification for each panel. Repository-owner reviews, automated
+agent output, and anonymous reports without a verifiable technical profile do
+not satisfy this gate.
 
 ## Required reviewer identity and conflict statement
 
@@ -12,9 +51,10 @@ A valid external report must include:
 
 - reviewer name and professional affiliation or public mathematical profile;
 - GitHub account used to submit the report;
-- relevant expertise;
-- disclosure of collaboration, competition, prior coauthorship, or other
-  material conflicts with the author or closest predecessor authors;
+- relevant expertise and the qualification evidence above;
+- disclosure of collaboration, competition, prior coauthorship, financial
+  interest, or other material conflicts with the author or closest predecessor
+  authors;
 - exact commit SHA and artifact checksums reviewed.
 
 ## Required verdict format
@@ -41,7 +81,9 @@ The report must:
 5. state whether constants are uniform in mesh size;
 6. state all dimension, regularity, boundary, and shape-regularity restrictions;
 7. distinguish validity, novelty, and computational usefulness;
-8. attach calculations or code for every claimed counterexample.
+8. attach calculations or code for every claimed counterexample;
+9. identify any step that is represented only by an abstract Lean interface
+   rather than a concrete physical Sobolev/FEM construction.
 
 ## Formal-verification report requirements
 
@@ -54,7 +96,10 @@ For Lean review, report:
 - complete `#print axioms` output;
 - confirmation of no `sorry`, `sorryAx`, unsafe declarations, or project axioms;
 - a manuscript-to-Lean correspondence table;
-- every manuscript claim not represented by a faithful Lean theorem.
+- every manuscript claim not represented by a faithful Lean theorem;
+- whether any physical mesh, affine pullback, Sobolev-density, interpolation, or
+  PDE coercivity hypothesis remains supplied as an assumption to an abstract
+  interface.
 
 ## Computational reproduction requirements
 
@@ -80,3 +125,8 @@ No internal report, automated agent output, repository-owner review, or second
 implementation written by the same project counts as independent endorsement.
 The analytical result reaches externally confirmed status only after qualified
 reviewers submit public reports under this protocol.
+
+A report on the corrected v2 analytical target does not automatically certify
+later moving-branch changes. Conversely, a Lean build of an abstract recovery
+interface does not by itself prove the physical Sobolev/FEM hypotheses used to
+instantiate that interface.
