@@ -19,6 +19,12 @@ import BernsteinObstacle
 #check BernsteinObstacle.exists_coord_lt_of_sum_eq_of_ne
 #check BernsteinObstacle.latticeCardinalValue_eq_zero_of_ne
 #check BernsteinObstacle.latticeCardinalValue_eq_ite
+#check BernsteinObstacle.latticeCardinalMatrix_apply
+#check BernsteinObstacle.latticeCardinalMatrix_eq_one
+#check BernsteinObstacle.latticeCardinalMatrix_det
+#check BernsteinObstacle.latticeCardinalInterpolantValue_eq
+#check BernsteinObstacle.latticeCardinalEvaluation_eq_id
+#check BernsteinObstacle.latticeCardinalEvaluation_injective
 #check BernsteinObstacle.assemblyFeasibleSet_weaklySequentiallyClosed
 #check BernsteinObstacle.assemblyFeasibleSet_mosco_const
 #check BernsteinObstacle.assemblyFeasibleSet_identity_recovery
@@ -55,6 +61,12 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.exists_coord_lt_of_sum_eq_of_ne
 #print axioms BernsteinObstacle.latticeCardinalValue_eq_zero_of_ne
 #print axioms BernsteinObstacle.latticeCardinalValue_eq_ite
+#print axioms BernsteinObstacle.latticeCardinalMatrix_apply
+#print axioms BernsteinObstacle.latticeCardinalMatrix_eq_one
+#print axioms BernsteinObstacle.latticeCardinalMatrix_det
+#print axioms BernsteinObstacle.latticeCardinalInterpolantValue_eq
+#print axioms BernsteinObstacle.latticeCardinalEvaluation_eq_id
+#print axioms BernsteinObstacle.latticeCardinalEvaluation_injective
 #print axioms BernsteinObstacle.assemblyFeasibleSet_weaklySequentiallyClosed
 #print axioms BernsteinObstacle.assemblyFeasibleSet_mosco_const
 #print axioms BernsteinObstacle.assemblyFeasibleSet_identity_recovery
