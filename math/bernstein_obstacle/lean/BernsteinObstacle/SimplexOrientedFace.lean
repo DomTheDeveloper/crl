@@ -40,10 +40,10 @@ theorem orientedLastFaceMultiIndex_injective (d n : ℕ)
     (e : Fin (d + 2) ≃ Fin (d + 2)) :
     Function.Injective (orientedLastFaceMultiIndex d n e) := by
   intro β γ h
+  have hinv := congrArg (permuteMultiIndex (d + 1) n e.symm) h
   have hbase :
-      lastFaceMultiIndex d n β = lastFaceMultiIndex d n γ :=
-    (permuteMultiIndexEquiv (d + 1) n e).injective (by
-      simpa [orientedLastFaceMultiIndex] using h)
+      lastFaceMultiIndex d n β = lastFaceMultiIndex d n γ := by
+    simpa [orientedLastFaceMultiIndex, permuteMultiIndex_trans] using hinv
   exact (lastFaceMultiIndex_injective d n) hbase
 
 /-- The oriented zero extension recovers every face coefficient. -/
