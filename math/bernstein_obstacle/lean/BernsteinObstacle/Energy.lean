@@ -38,22 +38,22 @@ def coefficientNormSq (u : ι → ℝ) : ℝ :=
 @[simp]
 theorem matrixBilin_add_left (a : ι → ι → ℝ) (u v w : ι → ℝ) :
     matrixBilin a (u + v) w = matrixBilin a u w + matrixBilin a v w := by
-  simp [matrixBilin, mul_add, Finset.sum_add_distrib]
+  simp [matrixBilin, add_mul, mul_add, Finset.sum_add_distrib]
 
 @[simp]
 theorem matrixBilin_add_right (a : ι → ι → ℝ) (u v w : ι → ℝ) :
     matrixBilin a u (v + w) = matrixBilin a u v + matrixBilin a u w := by
-  simp [matrixBilin, add_mul, mul_add, Finset.sum_add_distrib]
+  simp [matrixBilin, mul_add, Finset.sum_add_distrib]
 
 @[simp]
 theorem matrixBilin_sub_left (a : ι → ι → ℝ) (u v w : ι → ℝ) :
     matrixBilin a (u - v) w = matrixBilin a u w - matrixBilin a v w := by
-  simp [matrixBilin, mul_sub, Finset.sum_sub_distrib]
+  simp [matrixBilin, sub_mul, mul_sub, Finset.sum_sub_distrib]
 
 @[simp]
 theorem matrixBilin_sub_right (a : ι → ι → ℝ) (u v w : ι → ℝ) :
     matrixBilin a u (v - w) = matrixBilin a u v - matrixBilin a u w := by
-  simp [matrixBilin, sub_mul, mul_sub, Finset.sum_sub_distrib]
+  simp [matrixBilin, mul_sub, Finset.sum_sub_distrib]
 
 @[simp]
 theorem vectorLoad_add (f u v : ι → ℝ) :
