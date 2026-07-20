@@ -1,0 +1,121 @@
+name: Final prune to gh-pages v2
+
+on:
+  push:
+    paths:
+      - .github/workflows/final-prune-to-gh-pages-v2.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/gracious-hamilton-8k6xhz
+          fetch-depth: 1
+      - name: Make gh-pages the sole branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo="$GITHUB_REPOSITORY"
+          pages_sha='c8e745f409811f4d63fa6c9693ef04b0a993e754'
+          backup="pages-backup-${GITHUB_RUN_ID}"
+          stage='start'
+
+          restore_pages() {
+            if gh api "repos/$repo/git/ref/heads/gh-pages" >/dev/null 2>&1; then
+              gh api --method PATCH "repos/$repo/git/refs/heads/gh-pages" \
+                -f sha="$pages_sha" -F force=true >/dev/null || true
+            else
+              gh api --method POST "repos/$repo/git/refs" \
+                -f ref='refs/heads/gh-pages' -f sha="$pages_sha" >/dev/null || true
+            fi
+          }
+
+          report_failure() {
+            status="$1"
+            default_now="$(gh api "repos/$repo" --jq '.default_branch' 2>/dev/null || echo unknown)"
+            result="$(jq -cn --arg stage "$stage" --arg status "$status" \
+              --arg default "$default_now" --arg run "$GITHUB_RUN_ID" \
+              '{stage:$stage,status:$status,default_branch:$default,run_id:$run}')"
+            encoded="$(printf '%s\n' "$result" | base64 -w 0)"
+            url="repos/$repo/contents/final-prune-failure-v2.json"
+            old_sha="$(gh api "$url?ref=gh-pages" --jq '.sha' 2>/dev/null || true)"
+            if [[ -n "$old_sha" ]]; then
+              jq -cn --arg message 'Record cleanup failure' --arg content "$encoded" \
+                --arg branch 'gh-pages' --arg sha "$old_sha" \
+                '{message:$message,content:$content,branch:$branch,sha:$sha}' \
+                | gh api --method PUT "$url" --input - >/dev/null || true
+            else
+              jq -cn --arg message 'Record cleanup failure' --arg content "$encoded" \
+                --arg branch 'gh-pages' \
+                '{message:$message,content:$content,branch:$branch}' \
+                | gh api --method PUT "$url" --input - >/dev/null || true
+            fi
+          }
+
+          on_exit() {
+            code=$?
+            if [[ $code -ne 0 ]]; then
+              restore_pages
+              report_failure "$code"
+            fi
+            exit $code
+          }
+          trap on_exit EXIT
+
+          stage='checkout-default'
+          git switch -C 'claude/gracious-hamilton-8k6xhz' \
+            'origin/claude/gracious-hamilton-8k6xhz'
+          [[ "$(git branch --show-current)" == 'claude/gracious-hamilton-8k6xhz' ]]
+
+          stage='backup-pages'
+          gh api --method POST "repos/$repo/branches/gh-pages/rename" \
+            -f new_name="$backup" >/dev/null
+          gh api "repos/$repo/git/ref/heads/$backup" >/dev/null
+
+          stage='free-pages-name'
+          for _ in $(seq 1 15); do
+            gh api "repos/$repo/git/ref/heads/gh-pages" >/dev/null 2>&1 || break
+            sleep 1
+          done
+          if gh api "repos/$repo/git/ref/heads/gh-pages" >/dev/null 2>&1; then
+            gh api --method DELETE "repos/$repo/git/refs/heads/gh-pages"
+          fi
+
+          stage='rename-default'
+          gh api --method POST 'repos/{owner}/{repo}/branches/{branch}/rename' \
+            -f new_name='gh-pages' >/dev/null
+
+          stage='confirm-default'
+          for _ in $(seq 1 30); do
+            [[ "$(gh api "repos/$repo" --jq '.default_branch')" == 'gh-pages' ]] && break
+            sleep 1
+          done
+          [[ "$(gh api "repos/$repo" --jq '.default_branch')" == 'gh-pages' ]]
+
+          stage='restore-pages-tree'
+          gh api --method PATCH "repos/$repo/git/refs/heads/gh-pages" \
+            -f sha="$pages_sha" -F force=true >/dev/null
+
+          stage='delete-other-branches'
+          mapfile -t refs < <(gh api --paginate "repos/$repo/git/matching-refs/heads/" \
+            --jq '.[].ref | sub("^refs/heads/"; "")')
+          for branch in "${refs[@]}"; do
+            [[ "$branch" == 'gh-pages' ]] && continue
+            gh api --method DELETE "repos/$repo/git/refs/heads/$branch"
+          done
+
+          stage='verify'
+          [[ "$(gh api "repos/$repo" --jq '.default_branch')" == 'gh-pages' ]]
+          mapfile -t final < <(gh api --paginate "repos/$repo/git/matching-refs/heads/" \
+            --jq '.[].ref | sub("^refs/heads/"; "")')
+          [[ "${#final[@]}" -eq 1 ]]
+          [[ "${final[0]}" == 'gh-pages' ]]
+          trap - EXIT
