@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - agent/bernstein-obstacle-research
+      - agent/bernstein-obstacle-v5-hardening
     paths:
       - 'math/bernstein_obstacle/lean/**'
       - '.github/workflows/bernstein-obstacle-lean-audit.yml'
