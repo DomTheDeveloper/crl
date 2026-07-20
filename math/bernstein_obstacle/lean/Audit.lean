@@ -1,0 +1,17 @@
+import BernsteinObstacle
+
+#check BernsteinObstacle.basis_nonneg
+#check BernsteinObstacle.basis_sum_eq_one
+#check BernsteinObstacle.curve_nonneg
+#check BernsteinObstacle.curve_mem_Icc
+#check BernsteinObstacle.curve_le_clipped_curve
+#check BernsteinObstacle.noPenetration_of_nonnegative_coefficients
+#check BernsteinObstacle.noPenetration_after_clipping
+
+#print axioms BernsteinObstacle.basis_nonneg
+#print axioms BernsteinObstacle.basis_sum_eq_one
+#print axioms BernsteinObstacle.curve_nonneg
+#print axioms BernsteinObstacle.curve_mem_Icc
+#print axioms BernsteinObstacle.curve_le_clipped_curve
+#print axioms BernsteinObstacle.noPenetration_of_nonnegative_coefficients
+#print axioms BernsteinObstacle.noPenetration_after_clipping
