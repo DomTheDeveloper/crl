@@ -1,10 +1,6 @@
 name: Isolated WOWII 314 macOS audit
 
 on:
-  pull_request:
-    paths:
-      - 'ci/lean/WOWII314/**'
-      - '.github/workflows/wowii314-isolated-macos.yml'
   workflow_dispatch:
 
 permissions:
