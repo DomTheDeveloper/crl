@@ -37,33 +37,6 @@ jobs:
           [[lean_lib]]
           name = "WOWII"
           EOF
-          python3 - <<'PY'
-          from pathlib import Path
-          path = Path('.lake/packages/formal_conjectures/WOWII/ZZGraphConjecture314C5Bags.lean')
-          text = path.read_text()
-          declaration = 'lemma fin5_existsUnique_neighbor_pattern\n'
-          guarded = 'attribute [-instance] Classical.propDecidable in\nlemma fin5_existsUnique_neighbor_pattern\n'
-          if guarded not in text:
-              if declaration not in text:
-                  raise SystemExit('finite lemma declaration marker not found')
-              text = text.replace(declaration, guarded, 1)
-          old = '''  simp only [cycleGraph_adj] at hind ⊢
-  have hP : P = ![P 0, P 1, P 2, P 3, P 4] := by
-    funext i
-    fin_cases i <;> rfl
-  rw [hP] at hne hind htwo ⊢
-  cases h0 : P 0 <;> cases h1 : P 1 <;> cases h2 : P 2 <;>
-    cases h3 : P 3 <;> cases h4 : P 4 <;>
-    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ]
-'''
-          new = '''  simp only [cycleGraph_adj] at hind ⊢
-  revert P
-  decide
-'''
-          if old not in text and new not in text:
-              raise SystemExit('finite lemma proof marker not found')
-          path.write_text(text.replace(old, new, 1))
-          PY
       - name: Fetch Mathlib cache
         working-directory: ci/lean/WOWII314
         run: lake exe cache get
