@@ -1,5 +1,5 @@
 name: Isolated WOWII 314 ARM64 audit
-# Exact audit revision: all ten surviving C5 cases and corrected bag uniqueness orientation.
+# Exact audit of the committed WOWII 314 proof source.
 
 on:
   pull_request:
@@ -40,58 +40,18 @@ jobs:
           [[lean_lib]]
           name = "WOWII"
           EOF
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          root = Path('.lake/packages/formal_conjectures')
-
-          path = root / 'WOWII/ZZGraphConjecture314C5Bags.lean'
-          text = path.read_text()
-          pattern = re.compile(
-              r"    simp_all \[Fin\.forall_fin_succ, Fin\.exists_fin_succ\] <;>\n"
-              r"    decide"
-          )
-          witness_order = [1, 4, 2, 0, 1, 3, 4, 2, 0, 3]
-          lines = ["    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ]"]
-          for k in witness_order:
-              lines.extend([
-                  f"  · refine ⟨({k} : Fin 5), by decide, ?_⟩",
-                  "    intro y hy",
-                  "    fin_cases y <;> simp_all",
-              ])
-          text, count = pattern.subn("\n".join(lines), text, count=1)
-          print(f'C5 finite-pattern replacements: {count}')
-          if count != 1:
-              raise SystemExit('expected exactly one concrete Fin 5 closure')
-          path.write_text(text)
-
-          path = root / 'WOWII/ZZGraphConjecture314C5BlowupClassification.lean'
-          text = path.read_text()
-          pattern = re.compile(
-              r"    exact \(Classical\.choose_spec\s*\n"
-              r"\s*\(existsUnique_C5BagSpec G hG hTriFree hNoP5 c hc x\)\)\.2 i hi"
-          )
-          replacement = (
-              "    exact ((Classical.choose_spec\n"
-              "      (existsUnique_C5BagSpec G hG hTriFree hNoP5 c hc x)).2 i hi).symm"
-          )
-          text, count = pattern.subn(replacement, text, count=1)
-          print(f'bag-uniqueness orientation replacements: {count}')
-          if count != 1:
-              raise SystemExit('expected exactly one bag uniqueness orientation site')
-          path.write_text(text)
-          PY
       - name: Fetch Mathlib cache
         working-directory: ci/lean/WOWII314
         run: lake exe cache get
-      - name: Reject terminal proof holes and unsafe shortcuts
+      - name: Reject proof holes and unsafe shortcuts
         working-directory: ci/lean/WOWII314/.lake/packages/formal_conjectures
         shell: bash
         run: |
           set -euo pipefail
           files=(
             FormalConjectures/WrittenOnTheWallII/GraphConjecture314.lean
+            WOWII/ZZGraphConjecture314C5Bags.lean
+            WOWII/ZZGraphConjecture314C5BlowupClassification.lean
             WOWII/ZZGraphConjecture314Final.lean
           )
           if grep -nE '^[[:space:]]*(axiom|opaque|sorry|admit)([[:space:]]|$)|:= by[[:space:]]*(sorry|admit)([[:space:]]|$)|native_decide' "${files[@]}"; then
