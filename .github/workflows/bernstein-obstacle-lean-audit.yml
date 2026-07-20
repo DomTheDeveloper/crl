@@ -67,6 +67,8 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.affineBernsteinBasis_sum_repr' \
+            bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap' \
             bernstein-obstacle-axioms.log
 
