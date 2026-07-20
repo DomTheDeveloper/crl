@@ -27,7 +27,9 @@ def continuumTriangle : Set ContinuumPoint :=
 
 lemma measurableSet_continuumTriangle : MeasurableSet continuumTriangle := by
   unfold continuumTriangle
-  fun_prop
+  exact (measurableSet_le measurable_const measurable_snd).inter
+    ((measurableSet_le measurable_snd measurable_fst).inter
+      (measurableSet_le (measurable_fst.add measurable_snd) measurable_const))
 
 /-- The four affine coordinates corresponding to rows/columns and diagonals. -/
 def coordX (z : ContinuumPoint) : ℝ := z.1
@@ -38,10 +40,10 @@ def coordSum (z : ContinuumPoint) : ℝ := z.1 + z.2
 
 def coordDiff (z : ContinuumPoint) : ℝ := z.1 - z.2
 
-lemma measurable_coordX : Measurable coordX := by fun_prop
-lemma measurable_coordOneSubY : Measurable coordOneSubY := by fun_prop
-lemma measurable_coordSum : Measurable coordSum := by fun_prop
-lemma measurable_coordDiff : Measurable coordDiff := by fun_prop
+lemma measurable_coordX : Measurable coordX := measurable_fst
+lemma measurable_coordOneSubY : Measurable coordOneSubY := measurable_const.sub measurable_snd
+lemma measurable_coordSum : Measurable coordSum := measurable_fst.add measurable_snd
+lemma measurable_coordDiff : Measurable coordDiff := measurable_fst.sub measurable_snd
 
 /-- Lebesgue measure restricted to the unit interval. -/
 def unitIntervalVolume : Measure ℝ := volume.restrict (Set.Icc 0 1)
@@ -54,7 +56,8 @@ lemma measurable_pairedObstacle {A B : ℝ → ℝ≥0∞}
     (hA : Measurable A) (hB : Measurable B) :
     Measurable (pairedObstacle A B) := by
   unfold pairedObstacle
-  fun_prop
+  exact (((hA.comp measurable_coordX).add (hA.comp measurable_coordOneSubY)).add
+    (hB.comp measurable_coordSum)).add (hB.comp measurable_coordDiff)
 
 /-- Feasibility for the continuum primal.
 
@@ -63,11 +66,11 @@ constraints.  It is deliberately quantified only over measurable nonnegative
 functions, because the codomain `ℝ≥0∞` already encodes nonnegativity.
 -/
 structure ContinuumPrimalFeasible (μ : Measure ContinuumPoint) : Prop where
-  support : ∀ᵐ z ∂μ, z ∈ continuumTriangle
+  support : ∀ᵐ z ∂ μ, z ∈ continuumTriangle
   projection_bound :
     ∀ (A B : ℝ → ℝ≥0∞), Measurable A → Measurable B →
-      (∫⁻ z, pairedObstacle A B z ∂μ) ≤
-        4 * ((∫⁻ t, A t ∂unitIntervalVolume) + (∫⁻ t, B t ∂unitIntervalVolume))
+      (∫⁻ z, pairedObstacle A B z ∂ μ) ≤
+        4 * ((∫⁻ t, A t ∂ unitIntervalVolume) + (∫⁻ t, B t ∂ unitIntervalVolume))
 
 /-- Feasibility for the continuum dual obstacle problem. -/
 structure ContinuumDualFeasible (A B : ℝ → ℝ≥0∞) : Prop where
@@ -80,7 +83,7 @@ def continuumPrimalValue (μ : Measure ContinuumPoint) : ℝ≥0∞ := μ Set.un
 
 /-- Objective value of a continuum dual candidate. -/
 def continuumDualValue (A B : ℝ → ℝ≥0∞) : ℝ≥0∞ :=
-  4 * ((∫⁻ t, A t ∂unitIntervalVolume) + (∫⁻ t, B t ∂unitIntervalVolume))
+  4 * ((∫⁻ t, A t ∂ unitIntervalVolume) + (∫⁻ t, B t ∂ unitIntervalVolume))
 
 /-- Weak duality for the exact continuum primal and dual. -/
 theorem continuum_weak_duality
@@ -88,14 +91,14 @@ theorem continuum_weak_duality
     (hμ : ContinuumPrimalFeasible μ) (hAB : ContinuumDualFeasible A B) :
     continuumPrimalValue μ ≤ continuumDualValue A B := by
   calc
-    continuumPrimalValue μ = ∫⁻ _z, (1 : ℝ≥0∞) ∂μ := by
+    continuumPrimalValue μ = ∫⁻ _z, (1 : ℝ≥0∞) ∂ μ := by
       simp [continuumPrimalValue]
-    _ ≤ ∫⁻ z, pairedObstacle A B z ∂μ := by
+    _ ≤ ∫⁻ z, pairedObstacle A B z ∂ μ := by
       apply lintegral_mono_ae
       filter_upwards [hμ.support] with z hz
       exact hAB.obstacle z hz
-    _ ≤ 4 * ((∫⁻ t, A t ∂unitIntervalVolume) +
-        (∫⁻ t, B t ∂unitIntervalVolume)) :=
+    _ ≤ 4 * ((∫⁻ t, A t ∂ unitIntervalVolume) +
+        (∫⁻ t, B t ∂ unitIntervalVolume)) :=
       hμ.projection_bound A B hAB.measurable_A hAB.measurable_B
     _ = continuumDualValue A B := rfl
 
