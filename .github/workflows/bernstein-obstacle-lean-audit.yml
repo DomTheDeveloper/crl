@@ -95,6 +95,12 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.minimizers_strongConvergence' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.moscoConverges_translated' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.movingObstacle_moscoConverges' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.movingObstacle_minimizers_strongConvergence' \
+            bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier' \
