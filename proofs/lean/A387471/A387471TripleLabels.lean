@@ -147,7 +147,57 @@ theorem one_positive_two_negative_impossible {n : ℕ} (hn : 0 < n)
     (mul_ne_zero (by norm_num) hn.ne') a c b hperm
   exact mixed_cube_ratio_impossible hn hAB.1 hAB.2 (by simpa [a, b] using hcube)
 
-set_option maxHeartbeats 0 in
+private theorem labeled_triple_sorted_impossible {n : ℕ} (hn : 0 < n) {A B C : ℤ}
+    (hA : -3 * (n : ℤ) < A ∧ A < 3 * (n : ℤ))
+    (hB : -3 * (n : ℤ) < B ∧ B < 3 * (n : ℤ))
+    (hC : -3 * (n : ℤ) < C ∧ C < 3 * (n : ℤ))
+    (hAB : -2 * (n : ℤ) < A + B ∧ A + B < 2 * (n : ℤ))
+    (hAC : -2 * (n : ℤ) < A + C ∧ A + C < 2 * (n : ℤ))
+    (hBC : -2 * (n : ℤ) < B + C ∧ B + C < 2 * (n : ℤ))
+    (r s t : Fin 6) (hrs : r < s) (hst : s < t)
+    (h : sixRoot n A B C r + sixRoot n A B C s + sixRoot n A B C t = 0) : False := by
+  fin_cases r <;> fin_cases s <;> fin_cases t
+  all_goals norm_num at hrs hst
+  all_goals simp only [sixRoot] at h
+  · exact positive_angular_triple_impossible hn hA hB hC h
+  · exact two_positive_one_negative_impossible (A := B) (B := A) (C := A)
+      hn (by omega) (by simpa [add_comm, add_left_comm] using h)
+  · exact two_positive_one_negative_impossible (A := A) (B := B) (C := B)
+      hn (by omega) (by simpa [add_comm, add_left_comm] using h)
+  · exact two_positive_one_negative_impossible (A := A) (B := B) (C := C)
+      hn hAC h
+  · exact two_positive_one_negative_impossible (A := C) (B := A) (C := A)
+      hn (by omega) (by simpa [add_comm, add_left_comm] using h)
+  · exact two_positive_one_negative_impossible (A := A) (B := C) (C := B)
+      hn hAB (by simpa [add_comm, add_left_comm] using h)
+  · exact two_positive_one_negative_impossible (A := A) (B := C) (C := C)
+      hn hAC h
+  · exact one_positive_two_negative_impossible (A := A) (B := B) (C := A)
+      hn hAB (by simpa [add_comm, add_left_comm] using h)
+  · exact one_positive_two_negative_impossible (A := A) (B := C) (C := A)
+      hn hAC (by simpa [add_comm, add_left_comm] using h)
+  · exact one_positive_two_negative_impossible (A := A) (B := B) (C := C)
+      hn hAB h
+  · exact two_positive_one_negative_impossible (A := B) (B := C) (C := A)
+      hn (by omega) (by simpa [add_comm, add_left_comm] using h)
+  · exact two_positive_one_negative_impossible (A := C) (B := B) (C := B)
+      hn (by omega) (by simpa [add_comm, add_left_comm] using h)
+  · exact two_positive_one_negative_impossible (A := B) (B := C) (C := C)
+      hn hBC h
+  · exact one_positive_two_negative_impossible (A := B) (B := A) (C := B)
+      hn (by omega) (by simpa [add_comm, add_left_comm] using h)
+  · exact one_positive_two_negative_impossible (A := B) (B := A) (C := C)
+      hn (by omega) (by simpa [add_comm, add_left_comm] using h)
+  · exact one_positive_two_negative_impossible (A := B) (B := C) (C := B)
+      hn hBC (by simpa [add_comm, add_left_comm] using h)
+  · exact one_positive_two_negative_impossible (A := C) (B := A) (C := B)
+      hn (by omega) (by simpa [add_comm, add_left_comm] using h)
+  · exact one_positive_two_negative_impossible (A := C) (B := A) (C := C)
+      hn hAC (by simpa [add_comm, add_left_comm] using h)
+  · exact one_positive_two_negative_impossible (A := C) (B := B) (C := C)
+      hn hBC (by simpa [add_comm, add_left_comm] using h)
+  · exact negative_angular_triple_impossible hn hA hB hC h
+
 /-- No three distinct labeled roots form a vanishing triple. -/
 theorem labeled_triple_impossible {n : ℕ} (hn : 0 < n) {A B C : ℤ}
     (hA : -3 * (n : ℤ) < A ∧ A < 3 * (n : ℤ))
@@ -158,52 +208,23 @@ theorem labeled_triple_impossible {n : ℕ} (hn : 0 < n) {A B C : ℤ}
     (hBC : -2 * (n : ℤ) < B + C ∧ B + C < 2 * (n : ℤ))
     (r s t : Fin 6) (hrs : r ≠ s) (hrt : r ≠ t) (hst : s ≠ t)
     (h : sixRoot n A B C r + sixRoot n A B C s + sixRoot n A B C t = 0) : False := by
-  fin_cases r <;> fin_cases s <;> fin_cases t
-  all_goals simp only [sixRoot] at h
-  all_goals try {simp at hrs}
-  all_goals try {simp at hrt}
-  all_goals try {simp at hst}
-  all_goals first
-    | exact positive_angular_triple_impossible (A := A) (B := B) (C := C)
-        hn hA hB hC (by simpa [add_comm, add_left_comm] using h)
-    | exact negative_angular_triple_impossible (A := A) (B := B) (C := C)
-        hn hA hB hC (by simpa [add_comm, add_left_comm] using h)
-    | exact two_positive_one_negative_impossible (A := B) (B := A) (C := A)
-        hn (by omega) (by simpa [add_comm, add_left_comm] using h)
-    | exact two_positive_one_negative_impossible (A := A) (B := B) (C := B)
-        hn (by omega) (by simpa [add_comm, add_left_comm] using h)
-    | exact two_positive_one_negative_impossible (A := A) (B := B) (C := C)
-        hn hAC (by simpa [add_comm, add_left_comm] using h)
-    | exact two_positive_one_negative_impossible (A := C) (B := A) (C := A)
-        hn (by omega) (by simpa [add_comm, add_left_comm] using h)
-    | exact two_positive_one_negative_impossible (A := A) (B := C) (C := B)
-        hn hAB (by simpa [add_comm, add_left_comm] using h)
-    | exact two_positive_one_negative_impossible (A := A) (B := C) (C := C)
-        hn hAC (by simpa [add_comm, add_left_comm] using h)
-    | exact two_positive_one_negative_impossible (A := B) (B := C) (C := A)
-        hn (by omega) (by simpa [add_comm, add_left_comm] using h)
-    | exact two_positive_one_negative_impossible (A := C) (B := B) (C := B)
-        hn (by omega) (by simpa [add_comm, add_left_comm] using h)
-    | exact two_positive_one_negative_impossible (A := B) (B := C) (C := C)
-        hn hBC (by simpa [add_comm, add_left_comm] using h)
-    | exact one_positive_two_negative_impossible (A := A) (B := B) (C := A)
-        hn hAB (by simpa [add_comm, add_left_comm] using h)
-    | exact one_positive_two_negative_impossible (A := A) (B := C) (C := A)
-        hn hAC (by simpa [add_comm, add_left_comm] using h)
-    | exact one_positive_two_negative_impossible (A := A) (B := B) (C := C)
-        hn hAB (by simpa [add_comm, add_left_comm] using h)
-    | exact one_positive_two_negative_impossible (A := B) (B := A) (C := B)
-        hn (by omega) (by simpa [add_comm, add_left_comm] using h)
-    | exact one_positive_two_negative_impossible (A := B) (B := A) (C := C)
-        hn (by omega) (by simpa [add_comm, add_left_comm] using h)
-    | exact one_positive_two_negative_impossible (A := B) (B := C) (C := B)
-        hn hBC (by simpa [add_comm, add_left_comm] using h)
-    | exact one_positive_two_negative_impossible (A := C) (B := A) (C := B)
-        hn (by omega) (by simpa [add_comm, add_left_comm] using h)
-    | exact one_positive_two_negative_impossible (A := C) (B := A) (C := C)
-        hn hAC (by simpa [add_comm, add_left_comm] using h)
-    | exact one_positive_two_negative_impossible (A := C) (B := B) (C := C)
-        hn hBC (by simpa [add_comm, add_left_comm] using h)
+  rcases lt_or_gt_of_ne hrs with hrslt | hsrl
+  · rcases lt_or_gt_of_ne hst with hstlt | hts
+    · exact labeled_triple_sorted_impossible hn hA hB hC hAB hAC hBC
+        r s t hrslt hstlt h
+    · rcases lt_or_gt_of_ne hrt with hrtlt | htr
+      · exact labeled_triple_sorted_impossible hn hA hB hC hAB hAC hBC
+          r t s hrtlt hts (by simpa [add_comm, add_left_comm] using h)
+      · exact labeled_triple_sorted_impossible hn hA hB hC hAB hAC hBC
+          t r s htr hrslt (by simpa [add_comm, add_left_comm] using h)
+  · rcases lt_or_gt_of_ne hrt with hrtlt | htr
+    · exact labeled_triple_sorted_impossible hn hA hB hC hAB hAC hBC
+        s r t hsrl hrtlt (by simpa [add_comm, add_left_comm] using h)
+    · rcases lt_or_gt_of_ne hst with hstlt | hts
+      · exact labeled_triple_sorted_impossible hn hA hB hC hAB hAC hBC
+          s t r hstlt htr (by simpa [add_comm, add_left_comm] using h)
+      · exact labeled_triple_sorted_impossible hn hA hB hC hAB hAC hBC
+          t s r hts hsrl (by simpa [add_comm, add_left_comm] using h)
 
 #print axioms labeled_triple_impossible
 
