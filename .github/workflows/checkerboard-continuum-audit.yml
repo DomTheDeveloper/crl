@@ -1,0 +1,90 @@
+name: Checkerboard exact continuum optimum audit
+
+on:
+  push:
+    branches:
+      - agent/checkerboard-lp-asymptotic-lean
+    paths:
+      - '.github/workflows/checkerboard-continuum-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checkerboard-continuum-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate exact certificate modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install sympy
+          python scripts/checkerboard/generate_outer_certificate.py
+          python scripts/checkerboard/generate_outer_density_certificate.py
+          python scripts/checkerboard/generate_outer_support_certificate.py
+          python scripts/checkerboard/generate_outer_geometry_certificate.py
+          python scripts/checkerboard/generate_outer_marginal_ae_certificate.py
+          python scripts/checkerboard/generate_outer_projection_ae_certificate.py
+          python scripts/checkerboard/generate_outer_measure_certificate.py
+          python scripts/checkerboard/generate_dual_bernstein_certificate.py
+          python scripts/checkerboard/generate_dual_function_identities.py
+          python scripts/checkerboard/emit_dual_handelman_certificate.py
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve Mathlib and cache
+        working-directory: proofs/lean/Checkerboard
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build exact continuum primal-dual stack
+        working-directory: proofs/lean/Checkerboard
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build Checkerboard.LP.ContinuumOptimum 2>&1 | tee continuum-audit.log
+      - name: Audit exact theorem heads
+        working-directory: proofs/lean/Checkerboard
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/CheckerboardContinuumAxioms.lean <<'EOF'
+          import Checkerboard.LP.ContinuumOptimum
+          #print axioms Checkerboard.checkerboardContinuumPrimal_feasible
+          #print axioms Checkerboard.checkerboardContinuumPrimal_value
+          #print axioms Checkerboard.certifiedDual_feasible
+          #print axioms Checkerboard.certifiedDual_value
+          #print axioms Checkerboard.checkerboard_continuum_strong_duality
+          EOF
+          lake env lean /tmp/CheckerboardContinuumAxioms.lean 2>&1 | tee -a continuum-audit.log
+          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' continuum-audit.log; then
+            exit 1
+          fi
+      - name: Reject unfinished proof markers
+        working-directory: proofs/lean/Checkerboard
+        shell: bash
+        run: |
+          ! grep -RnE '\bsorry\b|\badmit\b|native_decide' --include='*.lean' Checkerboard/LP
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkerboard-continuum-audit
+          path: proofs/lean/Checkerboard/continuum-audit.log
+          if-no-files-found: warn
