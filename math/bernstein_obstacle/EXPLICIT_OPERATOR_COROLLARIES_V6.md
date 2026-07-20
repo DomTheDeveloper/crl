@@ -3,10 +3,10 @@
 ## Purpose
 
 This note instantiates the abstract grand theorem with concrete PDE operators.
-It demonstrates that the V6 result is not merely a relabeling of the symmetric
-Laplacian theorem.
+It demonstrates that V6 is not merely a relabeling of the symmetric Laplacian
+theorem.
 
-Throughout, let
+Let
 
 \[
 V=H_0^1(\Omega),
@@ -14,17 +14,17 @@ V=H_0^1(\Omega),
 \|v\|_V=\|\nabla v\|_{L^2(\Omega)},
 \]
 
-and let `C_P` be a Poincaré constant:
+and let `C_P` satisfy
 
 \[
 \|v\|_{L^2}\le C_P\|v\|_V.
 \]
 
-Let `D_s=(D+D^T)/2` denote the symmetric part of a matrix field.
+Write `D_s=(D+D^T)/2`.
 
 ---
 
-## 1. Nonsymmetric convection-diffusion obstacle problem
+## 1. Nonsymmetric convection-diffusion obstacle operator
 
 Define
 
@@ -33,37 +33,34 @@ Define
 =
 \int_\Omega D\nabla u\cdot\nabla v
 +
-\int_\Omega (\beta\cdot\nabla u)v
+\int_\Omega(\beta\cdot\nabla u)v
 +
 \int_\Omega c u v.
 \]
 
-Assume
+Assume:
 
-\[
-\xi^TD_s(x)\xi\ge d_0|\xi|^2
-\qquad\text{a.e.},
-\]
+- `D in L^infinity(Omega;R^{dxd})`;
+- `beta in W^{1,infinity}(Omega;R^d)`;
+- `c in L^infinity(Omega)`;
+- for some `d_0>0`,
+  \[
+  \xi^TD_s(x)\xi\ge d_0|\xi|^2
+  \quad\text{a.e.};
+  \]
+- and
+  \[
+  c-\tfrac12\operatorname{div}\beta\ge0
+  \quad\text{a.e.}
+  \]
 
-for `d_0>0`, and
-
-\[
-c-\tfrac12\operatorname{div}\beta\ge0
-\qquad\text{a.e.}
-\]
-
-with
-
-\[
-D,\beta,c,\operatorname{div}\beta\in L^\infty.
-\]
-
-The form is generally nonsymmetric when `beta` is nonzero or `D` has a
+The operator is generally nonsymmetric when `beta` is nonzero or `D` has a
 skew-symmetric part.
 
 ### Strong monotonicity
 
-For `e=u-w`, integration by parts and the zero trace give
+For `e=u-w`, the zero trace and `beta in W^{1,infinity}` give the standard
+identity
 
 \[
 \int_\Omega(\beta\cdot\nabla e)e
@@ -76,7 +73,7 @@ The skew part of `D` vanishes in the quadratic expression. Therefore
 \begin{aligned}
 \langle A(u)-A(w),u-w\rangle
 &=
-\int_\Omega \nabla e^TD_s\nabla e
+\int_\Omega\nabla e^TD_s\nabla e
 +
 \int_\Omega
 \left(c-\tfrac12\operatorname{div}\beta\right)e^2\\
@@ -104,7 +101,7 @@ L_{\rm cd}\|e\|_V\|v\|_V,
 \end{aligned}
 \]
 
-where one may take
+where
 
 \[
 L_{\rm cd}
@@ -113,8 +110,6 @@ L_{\rm cd}
 +C_P\|\beta\|_\infty
 +C_P^2\|c\|_\infty.
 \]
-
-Hence `A:V->V*` is Lipschitz.
 
 ### Corollary 1.1
 
@@ -125,16 +120,15 @@ multiplier hypotheses,
 \[
 \boxed{
 \|u-u_n^B\|_{H^1(\Omega)}
-\le
-C\bigl(h_n^r+h_{\Gamma,n}^{3/2}\bigr).
+\le C\bigl(h_n^r+h_{\Gamma,n}^{3/2}\bigr).
 }
 \]
 
-No symmetrization of the discrete problem is needed.
+No symmetrization of the discrete operator is required.
 
 ---
 
-## 2. Nonlinear nonsymmetric reaction-convection obstacle problem
+## 2. Nonlinear nonsymmetric reaction-convection operator
 
 Let `g:R->R` be monotone and globally Lipschitz:
 
@@ -160,27 +154,20 @@ Define
 \int_\Omega g(u)v.
 \]
 
-Assume the same diffusion, convection, and reaction hypotheses as in Section
-1.
-
-### Strong monotonicity
-
-For `e=u-w`, monotonicity of `g` gives
+The monotone reaction contributes
 
 \[
-\int_\Omega(g(u)-g(w))(u-w)\ge0.
+\int_\Omega(g(u)-g(w))(u-w)\ge0,
 \]
 
-Consequently,
+so
 
 \[
 \langle A_g(u)-A_g(w),u-w\rangle
 \ge d_0\|u-w\|_V^2.
 \]
 
-### Lipschitz bound
-
-The nonlinear term satisfies
+Moreover,
 
 \[
 \left|
@@ -190,7 +177,8 @@ The nonlinear term satisfies
 L_gC_P^2\|u-w\|_V\|v\|_V.
 \]
 
-Thus one may take
+Thus `A_g` is strongly monotone and Lipschitz, with one admissible Lipschitz
+constant
 
 \[
 L=L_{\rm cd}+L_gC_P^2.
@@ -198,9 +186,9 @@ L=L_{\rm cd}+L_gC_P^2.
 
 ### Corollary 2.1
 
-The complete V6 Bernstein convergence and rate theory applies to `A_g`.
-In particular, the method retains exact pointwise feasibility and the sharp
-regular-interface estimate for a genuinely nonlinear, nonsymmetric operator.
+The complete V6 Bernstein convergence and sharp-rate theory applies to
+`A_g`. Exact pointwise feasibility and the interface rate survive for a
+genuinely nonlinear and nonsymmetric operator.
 
 ---
 
@@ -214,10 +202,11 @@ D=I,
 c\ge\tfrac12\operatorname{div}\beta,
 \qquad
 g(s)=\gamma\tanh(s),
-\quad\gamma\ge0.
+\quad\gamma\ge0,
 \]
 
-Then `g` is monotone and `gamma`-Lipschitz. The operator
+with `beta in W^{1,infinity}` and bounded `c`. Since `tanh` is monotone and
+1-Lipschitz, the operator
 
 \[
 A(u)
@@ -228,11 +217,10 @@ A(u)
 +\gamma\tanh(u)
 \]
 
-is strongly monotone and Lipschitz from `H_0^1` to `H^{-1}` under the stated
-boundedness assumptions. It is nonlinear when `gamma>0` and nonsymmetric when
-`beta` is nonzero.
+is strongly monotone and Lipschitz from `H_0^1` to `H^{-1}`. It is nonlinear
+when `gamma>0` and nonsymmetric when `beta` is nonzero.
 
-For the unilateral problem
+For
 
 \[
 u\ge0,
@@ -243,7 +231,7 @@ u\ge0,
 \qquad(v\ge0),
 \]
 
-the Bernstein finite-element solutions satisfy
+the Bernstein solutions satisfy
 
 \[
 u_n^B\to u
@@ -265,61 +253,51 @@ is nonnegative and supported on contact, then
 }
 \]
 
-This is a direct new application of the V6 operator theorem and is not covered
-by the old symmetric metric-projection proof.
+This application is not covered by the old symmetric metric-projection proof.
 
 ---
 
-## 4. Variable nonlinear reaction examples
+## 4. Further nonlinear reactions and a deliberate exclusion
 
-The same conclusion applies to any monotone globally Lipschitz reaction, for
-example
-
-\[
-g(s)=\gamma\tanh(s),
-\]
+The same argument applies to any monotone globally Lipschitz reaction, such as
 
 \[
-g(s)=\gamma\arctan(s),
+g(s)=\gamma\tanh(s)
+\quad\text{or}\quad
+g(s)=\gamma\arctan(s).
 \]
 
-or a monotone globally Lipschitz saturation law.
-
-A polynomial reaction such as `g(s)=s^3` is monotone but not globally
-Lipschitz on `H_0^1`. It requires either:
-
-- a priori `L^infinity` bounds and a bounded-set Lipschitz version of the grand
-  theorem; or
-- a different monotone-operator convergence argument.
-
-It is intentionally not included in the current headline theorem.
+A reaction such as `g(s)=s^3` is monotone but not globally Lipschitz on
+`H_0^1`. It requires either an a priori `L^infinity` bound and a bounded-set
+Lipschitz theorem, or a different monotone-operator stability proof. It is not
+included in the current headline result.
 
 ---
 
 ## 5. What remains problem specific
 
-The operator theorem supplies the VI stability endgame. The sharp rate still
-requires the physical solution to satisfy:
+The operator theorem supplies the universal VI endgame. The sharp rate still
+requires:
 
 1. the corrected regular free-boundary geometry;
 2. the one-sided and broken regularity assumptions;
 3. local interface mesh grading;
 4. a bounded multiplier density supported on contact.
 
-For a particular nonlinear PDE, these are regularity assumptions to verify or
-cite. The V6 theorem does not manufacture free-boundary regularity from strong
-monotonicity alone.
+For a concrete nonlinear PDE, those are regularity hypotheses to verify or
+cite. Strong monotonicity alone does not create the required free-boundary
+regularity.
 
 ---
 
 ## 6. Audit questions
 
-1. Are the coercivity hypotheses for the convection term stated with the
-   correct sign?
-2. Does the integration-by-parts identity require any boundary assumption
-   beyond `e in H_0^1` and the stated regularity of `beta`?
+1. Is the sign condition
+   `c-(1/2) div beta >= 0` sufficient and correctly oriented?
+2. Are the `W^{1,infinity}` assumptions on `beta` sufficient for the weak
+   integration-by-parts identity?
 3. Is `A_g:H_0^1->H^{-1}` globally Lipschitz under the listed assumptions?
 4. Is the multiplier convention `lambda=A(u)-f` consistent with
    nonnegativity on contact?
-5. Which nonlinear obstacle regularity theorem supplies the required
-   `C^{1,1}` and quadratic-growth hypotheses for the flagship example?
+5. Which nonlinear obstacle regularity results provide `C^{1,1}` and quadratic
+   growth for the flagship example?
