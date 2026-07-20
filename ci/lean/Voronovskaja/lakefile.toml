@@ -4,7 +4,7 @@ defaultTargets = ["Audit"]
 [[require]]
 name = "formal_conjectures"
 git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
-rev = "d3fc76a047c3027bfa41ca6774ef1a6ccf7b7ac4"
+rev = "059751f0ef4981f352853bbba54f77a432b7b412"
 
 [[lean_lib]]
 name = "Audit"
