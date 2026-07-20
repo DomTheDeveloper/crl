@@ -57,9 +57,9 @@ theorem clipped_field3_nonneg (n : ℕ) (c : ℕ → ℕ → ℕ → ℝ)
     (hy0 : 0 ≤ y) (hy1 : y ≤ 1)
     (hz0 : 0 ≤ z) (hz1 : z ≤ 1) :
     0 ≤ field3 n (clip3 c) x y z := by
-  apply field3_nonneg n (clip3 c)
-  intro i hi j hj k hk
-  exact clip_nonneg (c i j k)
+  exact field3_nonneg n (clip3 c)
+    (fun i _ j _ k _ => clip_nonneg (c i j k))
+    hx0 hx1 hy0 hy1 hz0 hz1
 
 /-- An obstacle plus a three-dimensional tensor-product Bernstein gap. -/
 def obstacleApprox3
