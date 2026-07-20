@@ -1,0 +1,13 @@
+{
+  "framework": "scikit-fem 12.0.2",
+  "cases": [
+    {"radial_intervals":4,"angular_intervals":40,"halfwidth_absolute_difference":5.673953866011661e-06,"reaction_absolute_difference":2.0355939156502245e-13,"geometry_radius_error_difference":9.252965060824181e-11,"minimum_gap_skfem":0.0,"minimum_gap_custom":0.0},
+    {"radial_intervals":6,"angular_intervals":60,"halfwidth_absolute_difference":2.8016223742738378e-06,"reaction_absolute_difference":1.3938294962656528e-12,"geometry_radius_error_difference":1.8278156765916265e-11,"minimum_gap_skfem":0.0,"minimum_gap_custom":0.0},
+    {"radial_intervals":8,"angular_intervals":80,"halfwidth_absolute_difference":1.6545974283188603e-06,"reaction_absolute_difference":1.4164225348167747e-12,"geometry_radius_error_difference":5.783262757574903e-12,"minimum_gap_skfem":0.0,"minimum_gap_custom":0.0},
+    {"radial_intervals":12,"angular_intervals":120,"halfwidth_absolute_difference":7.703388626989494e-07,"reaction_absolute_difference":4.583000645652646e-13,"geometry_radius_error_difference":1.142419492339286e-12,"minimum_gap_skfem":-2.168404344971009e-18,"minimum_gap_custom":0.0},
+    {"radial_intervals":16,"angular_intervals":160,"halfwidth_absolute_difference":4.431467789806076e-07,"reaction_absolute_difference":1.1556422485625717e-11,"geometry_radius_error_difference":3.6148861681795097e-13,"minimum_gap_skfem":-3.903127820947816e-18,"minimum_gap_custom":0.0}
+  ],
+  "maximum_halfwidth_difference": 5.673953866011661e-06,
+  "maximum_reaction_difference": 1.1556422485625717e-11,
+  "maximum_geometry_error_difference": 9.252965060824181e-11
+}
