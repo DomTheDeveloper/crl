@@ -92,7 +92,7 @@ theorem finrank_restrictTotalDegree_eq_card_restrictedMonomialIndex
   change Module.finrank ℝ
       (MvPolynomial.restrictSupport ℝ
         {s : Fin d →₀ ℕ | s.sum (fun _ e => e) ≤ n}) =
-    Fintype.card (RestrictedMonomialIndex d n)
+    Fintype.card {s : Fin d →₀ ℕ // s.sum (fun _ e => e) ≤ n}
   calc
     Module.finrank ℝ
         (MvPolynomial.restrictSupport ℝ
@@ -101,12 +101,9 @@ theorem finrank_restrictTotalDegree_eq_card_restrictedMonomialIndex
       Module.finrank_eq_nat_card_basis
         (MvPolynomial.basisRestrictSupport ℝ
           {s : Fin d →₀ ℕ | s.sum (fun _ e => e) ≤ n})
-    _ = Nat.card (RestrictedMonomialIndex d n) := by
-      simpa [RestrictedMonomialIndex] using
-        (Nat.card_coe_set_eq
-          ({s : Fin d →₀ ℕ | s.sum (fun _ e => e) ≤ n} : Set _)).symm
-    _ = Fintype.card (RestrictedMonomialIndex d n) := by
-      exact Nat.card_eq_fintype_card
+    _ = Fintype.card {s : Fin d →₀ ℕ // s.sum (fun _ e => e) ≤ n} :=
+      (Set.fintypeCard_eq_ncard
+        ({s : Fin d →₀ ℕ | s.sum (fun _ e => e) ≤ n} : Set _)).symm
 
 /-- Therefore the dimension of `P_n` in `d` affine coordinates is exactly the
 number of degree-`n` simplex lattice points. -/
