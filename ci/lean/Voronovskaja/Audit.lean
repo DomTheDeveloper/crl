@@ -1,4 +1,5 @@
 import FormalConjectures.Paper.VoronovskajaTypeFormula
 
+-- Exact public theorem and terminal axiom audit.
 #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
 #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
