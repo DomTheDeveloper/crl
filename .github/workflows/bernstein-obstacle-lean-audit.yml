@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - agent/bernstein-obstacle-research
+      - formalization/bernstein-sobolev-next
     paths:
       - 'math/bernstein_obstacle/lean/**'
       - '.github/workflows/bernstein-obstacle-lean-audit.yml'
@@ -58,6 +59,7 @@ jobs:
           lake env lean FaceTraceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean AffineBernsteinAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean ConvergenceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean HilbertVIAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           if grep -q 'sorryAx' bernstein-obstacle-axioms.log; then
             echo 'Unexpected sorryAx found' >&2
             exit 1
@@ -69,6 +71,7 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.hilbert_vi_unique' bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript
         if: always()
