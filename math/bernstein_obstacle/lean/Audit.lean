@@ -1,5 +1,7 @@
 import BernsteinObstacle
 
+-- Regression target: finite certificate, projection/KKT, energy, and Mosco tools.
+
 #check BernsteinObstacle.basis_nonneg
 #check BernsteinObstacle.basis_sum_eq_one
 #check BernsteinObstacle.curve_nonneg
