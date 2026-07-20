@@ -1,3 +1,4 @@
+import BernsteinObstacle.CoefficientCone
 import BernsteinObstacle.Energy
 import Mathlib.Tactic
 
