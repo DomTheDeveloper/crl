@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/crl
-          ref: 576398946c436b42f278feccfe7472ee4d988eab
+          ref: 95e6334c1ab4621e414e96da4e57b32989ae4a2c
           path: campaign
 
       - name: Install pinned Lean
@@ -67,12 +67,33 @@ jobs:
           set -euo pipefail
           lake build A387471Ratio A387471GridLift A387471Bounds A387471Minimal 2>&1 | tee ../../../../a387471-minimal.log
 
-      - name: Build nonminimal branch
+      - name: Build nonminimal prerequisites
         shell: bash
         working-directory: campaign/proofs/lean/A387471
         run: |
           set -euo pipefail
-          lake build A387471ThreeRoots A387471AngleBounds A387471Pairs A387471SineCancel A387471PairLabels A387471TripleLabels A387471Nonminimal 2>&1 | tee ../../../../a387471-nonminimal.log
+          lake build A387471ThreeRoots A387471AngleBounds A387471Pairs A387471SineCancel 2>&1 | tee ../../../../a387471-nonminimal-prereqs.log
+
+      - name: Build pair labels
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: |
+          set -euo pipefail
+          lake build A387471PairLabels 2>&1 | tee ../../../../a387471-pair-labels.log
+
+      - name: Build triple labels
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: |
+          set -euo pipefail
+          lake build A387471TripleLabels 2>&1 | tee ../../../../a387471-triple-labels.log
+
+      - name: Build nonminimal theorem
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: |
+          set -euo pipefail
+          lake build A387471Nonminimal 2>&1 | tee ../../../../a387471-nonminimal.log
 
       - name: Build global classification and converse
         shell: bash
@@ -122,6 +143,9 @@ jobs:
             a387471-bottlenecks.log
             a387471-finite-bridge.log
             a387471-minimal.log
+            a387471-nonminimal-prereqs.log
+            a387471-pair-labels.log
+            a387471-triple-labels.log
             a387471-nonminimal.log
             a387471-classification.log
             a387471-candidates.log
