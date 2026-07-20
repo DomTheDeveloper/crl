@@ -26,10 +26,84 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Generate exact certificate modules
+      - name: Recover exact Handelman source from Git history
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune
+          python3 - <<'PY'
+          from __future__ import annotations
+          import base64, gzip, hashlib, itertools, subprocess
+          from pathlib import Path
+
+          paths = [
+              'math/checkerboard/lp/certificates/dual_handelman_payload_0.txt',
+              'math/checkerboard/lp/certificates/dual_handelman_payload_1.txt',
+              'math/checkerboard/lp/certificates/dual_handelman_payload_2.txt',
+          ]
+          expected_sha = '258056bf2cded9ea19b5419f4f3a837e6476373d7594b4158b7d54accba0febf'
+          expected_lines = 10589
+          versions = []
+          for path in paths:
+              commits = subprocess.check_output(
+                  ['git', 'log', '--all', '--format=%H', '--', path], text=True
+              ).split()
+              seen = set()
+              entries = []
+              for commit in commits:
+                  try:
+                      data = subprocess.check_output(
+                          ['git', 'show', f'{commit}:{path}'], text=True,
+                          stderr=subprocess.DEVNULL,
+                      ).strip()
+                  except subprocess.CalledProcessError:
+                      continue
+                  key = hashlib.sha256(data.encode('ascii')).hexdigest()
+                  if key not in seen:
+                      seen.add(key)
+                      entries.append((commit, key, data))
+              if not entries:
+                  raise SystemExit(f'no historical versions found for {path}')
+              print(path, 'unique versions:', len(entries))
+              versions.append(entries)
+
+          found = None
+          attempts = 0
+          for combo in itertools.product(*versions):
+              attempts += 1
+              encoded = ''.join(entry[2] for entry in combo)
+              try:
+                  source = gzip.decompress(base64.b64decode(encoded))
+              except Exception:
+                  continue
+              digest = hashlib.sha256(source).hexdigest()
+              line_count = len(source.decode('utf-8').splitlines())
+              if digest == expected_sha and line_count == expected_lines:
+                  found = (combo, source)
+                  break
+          if found is None:
+              raise SystemExit(f'no exact historical payload combination found after {attempts} attempts')
+
+          combo, source = found
+          output = Path('proofs/lean/Checkerboard/Checkerboard/LP/DualHandelmanData.lean')
+          output.parent.mkdir(parents=True, exist_ok=True)
+          output.write_bytes(source)
+          manifest = Path('proofs/lean/Checkerboard/handelman-recovery.txt')
+          manifest.write_text(
+              '\n'.join(
+                  [f'sha256={expected_sha}', f'lines={expected_lines}', f'attempts={attempts}'] +
+                  [f'{paths[i]} commit={entry[0]} blob_sha256={entry[1]}'
+                   for i, entry in enumerate(combo)]
+              ) + '\n'
+          )
+          print(manifest.read_text(), end='')
+          PY
+      - name: Generate remaining exact certificate modules
         shell: bash
         run: |
           set -euo pipefail
@@ -44,8 +118,7 @@ jobs:
             generate_outer_projection_ae_certificate.py \
             generate_outer_measure_certificate.py \
             generate_dual_bernstein_certificate.py \
-            generate_dual_function_identities.py \
-            emit_dual_handelman_certificate.py
+            generate_dual_function_identities.py
           do
             echo "=== $script ===" | tee -a proofs/lean/Checkerboard/generation.log
             python "scripts/checkerboard/$script" 2>&1 | tee -a proofs/lean/Checkerboard/generation.log
@@ -102,6 +175,7 @@ jobs:
         with:
           name: checkerboard-continuum-audit
           path: |
+            proofs/lean/Checkerboard/handelman-recovery.txt
             proofs/lean/Checkerboard/generation.log
             proofs/lean/Checkerboard/continuum-audit.log
           if-no-files-found: warn
