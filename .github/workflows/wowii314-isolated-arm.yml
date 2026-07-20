@@ -29,7 +29,14 @@ jobs:
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Resolve exact proof dependency
         working-directory: ci/lean/WOWII314
-        run: lake update
+        run: |
+          set -euo pipefail
+          lake update
+          cat >> .lake/packages/formal_conjectures/lakefile.toml <<'EOF'
+
+          [[lean_lib]]
+          name = "WOWII"
+          EOF
       - name: Fetch Mathlib cache
         working-directory: ci/lean/WOWII314
         run: lake exe cache get
