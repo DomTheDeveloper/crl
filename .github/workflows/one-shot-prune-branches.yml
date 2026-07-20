@@ -4,7 +4,14 @@ on:
   push:
     paths:
       - .github/workflows/one-shot-prune-branches.yml
+  pull_request:
+    paths:
+      - .github/workflows/one-shot-prune-branches.yml
   workflow_dispatch:
+
+concurrency:
+  group: one-shot-branch-cleanup
+  cancel-in-progress: false
 
 permissions:
   contents: write
