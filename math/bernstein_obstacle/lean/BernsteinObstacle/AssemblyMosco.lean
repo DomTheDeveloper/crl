@@ -55,7 +55,7 @@ theorem assemblyFeasibleSet_mosco_const
 theorem assemblyFeasibleSet_identity_recovery
     (A : BernsteinAssembly Element Dof d n)
     (c : Dof → ℝ) (hc : c ∈ assemblyFeasibleSet A) :
-    (∀ k, c ∈ assemblyFeasibleSet A) ∧
+    (∀ _k : ℕ, c ∈ assemblyFeasibleSet A) ∧
       StronglyConverges (fun _ : ℕ => c) c := by
   constructor
   · intro k
