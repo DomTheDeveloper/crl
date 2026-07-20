@@ -14,7 +14,6 @@ def fin29OfInt (q : ℤ) (hlo : -14 ≤ q) (hhi : q ≤ 14) : Fin 29 :=
 @[simp] lemma angleInt_fin29OfInt (q : ℤ) (hlo : -14 ≤ q) (hhi : q ≤ 14) :
     angleInt (fin29OfInt q hlo hhi) = q := by
   simp [angleInt, fin29OfInt, Int.toNat_of_nonneg (by omega : 0 ≤ q + 14)]
-  omega
 
 /-- The coefficient bound `|A|<3n` makes the quotient `5A/n` lie in `[-14,14]`. -/
 lemma quotient_bounds {n : ℕ} (hn : 0 < n) {A q : ℤ}
@@ -52,16 +51,31 @@ lemma ordinaryGrid_to_ABC {n A B C qA qB qC : ℤ} (hn : n ≠ 0)
   rcases hord with ⟨hqA, hqBC⟩ | ⟨hqB, hqAC⟩ | ⟨hqC, hqAB⟩
   · subst qA
     have hAz : A = 0 := by nlinarith
+    have h5BC : 5 * (B + C) = 0 := by
+      calc
+        5 * (B + C) = 5 * B + 5 * C := by ring
+        _ = n * qB + n * qC := by rw [hB, hC]
+        _ = 0 := by rw [hqBC]; ring
     have hBC : B = -C := by nlinarith
     refine ⟨B, ?_⟩
     simp [Perm3, hAz, hBC]
   · subst qB
     have hBz : B = 0 := by nlinarith
+    have h5AC : 5 * (A + C) = 0 := by
+      calc
+        5 * (A + C) = 5 * A + 5 * C := by ring
+        _ = n * qA + n * qC := by rw [hA, hC]
+        _ = 0 := by rw [hqAC]; ring
     have hAC : A = -C := by nlinarith
     refine ⟨A, ?_⟩
     simp [Perm3, hBz, hAC]
   · subst qC
     have hCz : C = 0 := by nlinarith
+    have h5AB : 5 * (A + B) = 0 := by
+      calc
+        5 * (A + B) = 5 * A + 5 * B := by ring
+        _ = n * qA + n * qB := by rw [hA, hB]
+        _ = 0 := by rw [hqAB]; ring
     have hAB : A = -B := by nlinarith
     refine ⟨A, ?_⟩
     simp [Perm3, hCz, hAB]
@@ -80,6 +94,7 @@ lemma five_dvd_of_five_mul_eq_neg_three_mul {x n : ℤ} (h : 5 * x = -3 * n) :
   · norm_num at h53
   · exact h5n
 
+set_option maxHeartbeats 0 in
 /-- Either exceptional finite-grid pattern lifts to the exact exceptional ABC family. -/
 lemma exceptionalGrid_to_ABC {n A B C qA qB qC : ℤ}
     (hA : 5 * A = n * qA) (hB : 5 * B = n * qB) (hC : 5 * C = n * qC)
