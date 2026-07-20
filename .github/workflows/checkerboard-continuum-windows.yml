@@ -1,0 +1,111 @@
+name: Checkerboard continuum Windows kernel audit
+
+on:
+  push:
+    branches:
+      - audit/checkerboard-continuum-core
+    paths:
+      - '.github/workflows/checkerboard-continuum-windows.yml'
+      - 'proofs/lean/Checkerboard/**'
+      - 'scripts/checkerboard/**'
+  pull_request:
+    paths:
+      - '.github/workflows/checkerboard-continuum-windows.yml'
+      - 'proofs/lean/Checkerboard/**'
+      - 'scripts/checkerboard/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checkerboard-continuum-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: windows-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover and validate Handelman source
+        shell: pwsh
+        run: |
+          python scripts/checkerboard/repair_handelman_certificate.py 2>&1 |
+            Tee-Object -FilePath proofs/lean/Checkerboard/handelman-repair-windows.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (-not (Test-Path proofs/lean/Checkerboard/Checkerboard/LP/DualHandelmanData.lean)) { exit 1 }
+          $report = Get-Content proofs/lean/Checkerboard/handelman-repair.txt -Raw
+          if ($report -notmatch '(?m)^coefficients=91$') { exit 1 }
+          if ($report -notmatch '(?m)^cell_theorems=24$') { exit 1 }
+      - name: Generate exact certificate modules
+        shell: pwsh
+        run: |
+          python -m pip install sympy 2>&1 |
+            Tee-Object -FilePath proofs/lean/Checkerboard/generation-windows.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $scripts = @(
+            'generate_outer_certificate.py',
+            'generate_outer_density_certificate.py',
+            'generate_outer_support_certificate.py',
+            'generate_outer_geometry_certificate.py',
+            'generate_outer_marginal_ae_certificate.py',
+            'generate_outer_projection_ae_certificate.py',
+            'generate_outer_measure_certificate.py',
+            'generate_dual_bernstein_certificate.py',
+            'generate_dual_function_identities.py'
+          )
+          foreach ($script in $scripts) {
+            "=== $script ===" | Tee-Object -FilePath proofs/lean/Checkerboard/generation-windows.log -Append
+            python "scripts/checkerboard/$script" 2>&1 |
+              Tee-Object -FilePath proofs/lean/Checkerboard/generation-windows.log -Append
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+      - name: Install pinned Lean
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://raw.githubusercontent.com/leanprover/elan/master/elan-init.ps1 -OutFile elan-init.ps1
+          & powershell -ExecutionPolicy Bypass -File .\elan-init.ps1 -y --default-toolchain none
+          "$env:USERPROFILE\.elan\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Resolve Mathlib and cache
+        shell: pwsh
+        working-directory: proofs/lean/Checkerboard
+        run: |
+          lake update
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          lake exe cache get
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build exact continuum primal-dual stack
+        shell: pwsh
+        working-directory: proofs/lean/Checkerboard
+        run: |
+          lake build Checkerboard.LP.ContinuumOptimum 2>&1 |
+            Tee-Object -FilePath continuum-windows.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Audit exact theorem heads
+        shell: pwsh
+        working-directory: proofs/lean/Checkerboard
+        run: |
+          @'
+          import Checkerboard.LP.ContinuumOptimum
+          #print axioms Checkerboard.checkerboardContinuumPrimal_feasible
+          #print axioms Checkerboard.checkerboardContinuumPrimal_value
+          #print axioms Checkerboard.certifiedDual_feasible
+          #print axioms Checkerboard.certifiedDual_value
+          #print axioms Checkerboard.checkerboard_continuum_strong_duality
+          '@ | Set-Content -Encoding utf8 CheckerboardContinuumWindowsAxioms.lean
+          lake env lean CheckerboardContinuumWindowsAxioms.lean 2>&1 |
+            Tee-Object -FilePath continuum-windows.log -Append
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path continuum-windows.log -Pattern 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce') { exit 1 }
+      - name: Upload transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkerboard-continuum-windows-audit
+          path: |
+            proofs/lean/Checkerboard/handelman-repair.txt
+            proofs/lean/Checkerboard/handelman-repair-windows.log
+            proofs/lean/Checkerboard/generation-windows.log
+            proofs/lean/Checkerboard/continuum-windows.log
+          if-no-files-found: warn
