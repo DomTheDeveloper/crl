@@ -35,7 +35,9 @@ import BernsteinObstacle.Mosco
 import BernsteinObstacle.MoscoTools
 import BernsteinObstacle.ConvexWeakClosure
 import BernsteinObstacle.DiagonalRecovery
+import BernsteinObstacle.ScheduledRecovery
 import BernsteinObstacle.TranslatedMosco
+import BernsteinObstacle.MovingObstacleConvergence
 import BernsteinObstacle.SobolevFEMRecovery
 import BernsteinObstacle.CoefficientMosco
 import BernsteinObstacle.AssemblyMosco
@@ -50,6 +52,8 @@ import BernsteinObstacle.LocalDistanceLocalization
 import BernsteinObstacle.BoundaryCoefficientLocalization
 import BernsteinObstacle.SharpRateAlgebra
 import BernsteinObstacle.StripScaling
+import BernsteinObstacle.MinkowskiRate
+import BernsteinObstacle.MinkowskiSaturation
 import BernsteinObstacle.RecoveryRate
 import BernsteinObstacle.CorrectedSharpRate
 import BernsteinObstacle.BulkMultiplierRate
