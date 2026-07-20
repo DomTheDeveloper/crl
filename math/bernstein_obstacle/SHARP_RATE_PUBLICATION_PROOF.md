@@ -4,10 +4,16 @@
 
 This note expands the corrected free-boundary proof map into a continuous
 argument. It proves the stated rate only under the explicit regularity,
-local-grading, multiplier, exact-obstacle, and physical-boundary hypotheses
-listed below. It does not cover singular or degenerate free-boundary points,
-anisotropic interface meshes, measure-valued multipliers, arbitrary inexact
-obstacles, or free boundaries meeting the physical boundary.
+local-grading, multiplier, exact-obstacle, dimension, and physical-boundary
+hypotheses listed below. It does not cover singular or degenerate free-boundary
+points, anisotropic interface meshes, measure-valued multipliers, arbitrary
+inexact obstacles, or free boundaries meeting the physical boundary.
+
+The intended mechanics theorem is for spatial dimension `d = 2` or `d = 3`
+and fixed polynomial degree `r >= 1`. More generally, the same argument applies
+in a fixed finite dimension when the pointwise barycentric interpolation below
+is well defined, for example when `r + 1 > d/2`, together with the stated local
+`C^{1,1}` assumptions.
 
 This is an internal analytical proof completion. It is not an independent
 expert endorsement.
@@ -56,40 +62,43 @@ Let
 
 be the interior free boundary. Assume:
 
-1. `Gamma` is compact and `C^1`;
-2. `u in C^{1,1}` in a fixed neighborhood of `Gamma` and
+1. `d = 2` or `d = 3` and `r >= 1`; more generally, assume the pointwise
+   barycentric interpolant is well defined, for example `r + 1 > d/2`;
+2. `Gamma` is compact and `C^1`;
+3. `u in C^{1,1}` in a fixed neighborhood of `Gamma` and
    `u=grad u=0` on `Gamma`;
-3. on the positive side of that neighborhood,
+4. on the positive side of that neighborhood,
    \[
    c_0\,d(x,\Gamma)^2\le u(x)\le C_0\,d(x,\Gamma)^2;
    \]
-4. a mesh-independent one-sided `H^{r+1}` extension exists from the positive
+5. a mesh-independent one-sided `H^{r+1}` extension exists from the positive
    phase across `Gamma` in a fixed tubular neighborhood;
-5. outside the interface patch defined below,
+6. outside the interface patch defined below,
    \[
    \sum_{T\notin\omega_h}|u|_{H^{r+1}(T)}^2\le C_{reg};
    \]
-6. the multiplier is represented by a nonnegative function
+7. the multiplier is represented by a nonnegative function
    `lambda in L^infinity(Omega)` supported in the contact set, with
    \[
    a(u,w)-\ell(w)=\int_\Omega\lambda w
    \qquad\text{for every }w\in V;
    \]
-7. the local risky set is
+8. the local risky set is
    \[
    \mathcal R_h
    =\{T:\operatorname{dist}(T,\Gamma)\le\kappa h_T\};
    \]
-8. on a fixed one-ring enlargement `omega_h` of `R_h`,
+9. on a fixed one-ring enlargement `omega_h` of `R_h`,
    \[
    c_m h_\Gamma\le h_T\le C_m h_\Gamma,
    \qquad
    |\omega_h|\le C_\Gamma h_\Gamma;
    \]
-9. either `Gamma` is separated from the physical boundary by a contact collar,
-   or every positive physical-boundary element satisfies a uniform inward
-   linear-growth estimate;
-10. the original obstacle has been represented exactly and subtracted, so the
+10. either `Gamma` is separated from the physical boundary by a contact collar,
+    or every positive physical-boundary element lies in a fixed collar on
+    which `u` has a uniform `C^{1,1}` bound and satisfies a uniform inward
+    linear-growth estimate;
+11. the original obstacle has been represented exactly and subtracted, so the
     gap problem is genuinely the zero-obstacle problem.
 
 All constants below may depend on the fixed degree, dimension, shape
@@ -192,9 +201,16 @@ nonnegative.
 
 After removing a fixed neighborhood of `Gamma` and the physical boundary, the
 remaining positive region is compactly contained in `{u>0}`. Hence `u` has a
-strictly positive minimum there. The interpolation coefficients converge to
-nearby point values by (3.1), so all such coefficients are positive for small
-enough `h`.
+strictly positive minimum `m_0` there.
+
+In `d = 2,3`, the assumed broken `H^{r+1}` regularity with `r >= 1` gives a
+continuous representative on each such element and the usual local nodal
+interpolation estimates. More generally, this is where the condition
+`r + 1 > d/2` is used. As `h -> 0`, the values of `u` at all lattice points of
+one element become uniformly close to one another. The inverse collocation map
+sends a constant value vector to the same constant coefficient vector because
+its rows sum to one. Therefore every Bernstein coefficient is at least
+`m_0/2` for sufficiently small `h`.
 
 ### 4.5 Positive physical-boundary elements
 
@@ -209,7 +225,8 @@ assumed inward linear-growth condition,
 u(x_{T,\alpha})\ge c_b h_T
 \]
 
-for every off-face lattice point. Estimate (3.1) changes this by only
+for every off-face lattice point. The uniform `C^{1,1}` boundary-collar bound
+makes (3.1) available on these elements, so the coefficient discrepancy is only
 `O(h_T^2)`. Thus every off-face coefficient is nonnegative for sufficiently
 small `h`.
 
@@ -307,16 +324,20 @@ Therefore
 \tag{7.1}
 \]
 
-The exponent is independent of the ambient dimension because the repair is
+The exponent is independent of the ambient dimension once the pointwise
+interpolation and local regularity assumptions are valid, because the repair is
 supported on a codimension-one patch of volume `O(h_Gamma)`.
 
 ## 8. Interpolation error outside and inside the patch
 
 ### 8.1 Bulk region
 
-The mesh-independent one-sided extension near `Gamma`, together with the
-uniform broken `H^{r+1}` bound away from the patch, gives the standard
-shape-regular interpolation estimate
+In `d = 2,3`, `r >= 1` makes the nodal interpolation well defined under the
+assumed broken `H^{r+1}` regularity. More generally, assume the pointwise
+interpolant is defined, for example `r + 1 > d/2`. The mesh-independent
+one-sided extension near `Gamma`, together with the uniform broken
+`H^{r+1}` bound away from the patch, gives the standard shape-regular
+interpolation estimate
 
 \[
 \|u-I_h^r u\|_{H^1(\Omega\setminus\omega_h)}
@@ -434,19 +455,23 @@ feasible recovery and the multiplier estimate (9.1).
 ## 11. Audit verdict for Panel C
 
 - **C1 coefficient-to-value estimate:** PASS for fixed degree and fixed finite
-  dimension.
+  dimension on elements with the stated `C^{1,1}` control.
 - **C2 local-size localization:** PASS under quadratic growth, sufficiently
-  large fixed `kappa`, and the explicit far-interior split in Section 4.4.
-- **C3 physical-boundary split:** PASS under the stated inward linear-growth
-  hypothesis or boundary-separating contact collar.
+  large fixed `kappa`, the far-interior compactness argument, and the explicit
+  dimension/pointwise-interpolation scope.
+- **C3 physical-boundary split:** PASS under the stated uniform `C^{1,1}`
+  boundary-collar and inward linear-growth hypotheses, or a boundary-separating
+  contact collar.
 - **C4 two-sided risky coefficient amplitude:** PASS under the one-ring
   distance and local quasi-uniformity assumptions.
 - **C5 global clipping:** PASS when clipping is performed once per shared global
   Bernstein degree of freedom.
 - **C6 three-halves scaling:** PASS for isotropic, locally quasi-uniform,
   shape-regular interface patches with volume `O(h_Gamma)`.
-- **C7 bulk and strip interpolation:** PASS under the mesh-independent one-sided
-  extension and uniform broken regularity assumptions.
+- **C7 bulk and strip interpolation:** PASS in `d = 2,3` for `r >= 1`, or more
+  generally when pointwise interpolation is well defined, under the
+  mesh-independent one-sided extension and uniform broken regularity
+  assumptions.
 - **C8 multiplier and minimizer transfer:** PASS for a bounded nonnegative
   multiplier density supported on contact and a symmetric continuous coercive
   energy.
@@ -458,6 +483,9 @@ This theorem does not establish:
 - the same rate at singular or degenerate free-boundary points;
 - validity when `Gamma` meets `partial Omega` without a separate corner/contact
   analysis;
+- nodal interpolation outside the stated dimension/regularity regime;
+- physical-boundary coefficient positivity without the stated collar
+  regularity and inward growth;
 - anisotropic interface refinement without anisotropic norm and counting
   estimates;
 - measure-valued multipliers;
