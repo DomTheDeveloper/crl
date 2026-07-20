@@ -4,7 +4,7 @@ import A387471Mann
 # Completion of the weight-six Mann reduction
 
 This module performs conductor descent after the prime-residue collapse proved
-in `A387471Mann`.  It yields the exact specialized Mann theorem needed by the
+in `A387471Mann`. It yields the exact specialized Mann theorem needed by the
 A387471 roots-of-unity classification.
 -/
 
@@ -136,7 +136,7 @@ theorem mann_weight_six_canonical {ι : Type*} :
                 (canonicalRoot N ^ N) ^ (a i).val := by
                   rw [← pow_mul, ← pow_mul]
                   congr 1
-                  omega
+                  exact Nat.mul_comm _ _
             _ = 1 := by rw [hroot.pow_eq_one, one_pow]
         have hxj : (canonicalRoot N ^ (a j).val) ^ N = 1 := by
           calc
@@ -144,12 +144,13 @@ theorem mann_weight_six_canonical {ι : Type*} :
                 (canonicalRoot N ^ N) ^ (a j).val := by
                   rw [← pow_mul, ← pow_mul]
                   congr 1
-                  omega
+                  exact Nat.mul_comm _ _
             _ = 1 := by rw [hroot.pow_eq_one, one_pow]
         have hratioN :
             (canonicalRoot N ^ (a i).val /
               canonicalRoot N ^ (a j).val) ^ N = 1 := by
-          rw [div_pow, hxi, hxj, one_div]
+          rw [div_pow, hxi, hxj]
+          simp
         rw [h30, pow_mul, hratioN, one_pow]
       · obtain ⟨p, hp, hpN, hbad⟩ :=
           exists_bad_prime_of_not_dvd_thirty hN hdiv
