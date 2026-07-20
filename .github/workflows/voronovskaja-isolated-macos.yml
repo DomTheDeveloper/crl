@@ -33,11 +33,18 @@ jobs:
       - name: Fetch Mathlib cache
         working-directory: ci/lean/Voronovskaja
         run: lake exe cache get
-      - name: Probe current Lean and Mathlib APIs
+      - name: Build working prerequisite layer
         working-directory: ci/lean/Voronovskaja
         shell: bash
         run: |
           set -euo pipefail
+          lake build '@formal_conjectures/+FormalConjectures.Paper.VoronovskajaProof'
+          lake build '@formal_conjectures/+FormalConjecturesForMathlib.Probability.Distributions.PoweredBinomialTails'
+      - name: Probe current Lean and Mathlib APIs
+        working-directory: ci/lean/Voronovskaja
+        shell: bash
+        run: |
+          set +e
           cat > Probe.lean <<'EOF'
           import FormalConjectures.Paper.VoronovskajaProof
           import FormalConjecturesForMathlib.Probability.Distributions.PoweredBinomialTails
@@ -52,7 +59,7 @@ jobs:
           #check ProbabilityTheory.standardizedBinomialMeasure
           #check ProbabilityTheory.binomialRealMeasure
           #check PMF.toMeasure_map
-          #check PMF.map_map
+          #check PMF.map_comp
           #check Measure.map_map
           #check Measure.eq_of_cdf
           #check Measure.ext_of_Iic
@@ -61,7 +68,11 @@ jobs:
           #print ProbabilityTheory.standardizedBinomialMeasure
           #print ProbabilityTheory.binomialRealMeasure
           EOF
-          lake env lean Probe.lean 2>&1 | tee probe.log
+          lake env lean Probe.lean > probe.log 2>&1
+          status=$?
+          cat probe.log
+          printf '%s\n' "$status" > probe.status
+          exit 0
       - name: Build exact proof dependency graph
         working-directory: ci/lean/Voronovskaja
         shell: bash
@@ -78,6 +89,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          probe_status=$(cat probe.status)
+          if [[ "$probe_status" != 0 ]]; then exit "$probe_status"; fi
           status=$(cat audit.status)
           if [[ "$status" != 0 ]]; then exit "$status"; fi
           lake env lean Audit.lean 2>&1 | tee -a audit.log
@@ -91,6 +104,7 @@ jobs:
           name: voronovskaja-isolated-macos
           path: |
             ci/lean/Voronovskaja/probe.log
+            ci/lean/Voronovskaja/probe.status
             ci/lean/Voronovskaja/audit.log
             ci/lean/Voronovskaja/audit.status
           if-no-files-found: warn
