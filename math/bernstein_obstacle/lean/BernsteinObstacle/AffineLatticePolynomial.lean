@@ -127,8 +127,9 @@ theorem totalDegree_affineScaledBarycentric_le (d n : ℕ)
       intro j hj
       simp
     simp only [affineScaledBarycentric, Fin.snoc_last]
-    exact (MvPolynomial.totalDegree_sub _ _).trans
-      (max_le (by simp) hsum)
+    refine (MvPolynomial.totalDegree_sub _ _).trans (max_le ?_ hsum)
+    change (MvPolynomial.C (n : ℝ) : MvPolynomial (Fin d) ℝ).totalDegree ≤ 1
+    simp
   · simp [affineScaledBarycentric]
 
 /-- The simplex cardinal polynomial expressed in the `d` independent affine
@@ -197,8 +198,19 @@ theorem eval_affineLatticeCardinalPolynomial_eq_ite (d n : ℕ)
   have hsum :
       (∑ i, ((α.1 i : Fin (n + 1)) : ℕ)) =
         ∑ i, ((β.1 i : Fin (n + 1)) : ℕ) := α.2.trans β.2.symm
-  exact latticeCardinalValue_eq_ite
+  have hdelta := latticeCardinalValue_eq_ite
     (fun i => (α.1 i : ℕ)) (fun i => (β.1 i : ℕ)) hsum
+  by_cases h : α = β
+  · subst β
+    simpa using hdelta
+  · have hfun : (fun i => (α.1 i : ℕ)) ≠ (fun i => (β.1 i : ℕ)) := by
+      intro heq
+      apply h
+      apply Subtype.ext
+      funext i
+      apply Fin.ext
+      exact congrFun heq i
+    simpa [h, hfun] using hdelta
 
 /-- The affine cardinal polynomial family is linearly independent in the
 correct `d`-variable polynomial space. -/
