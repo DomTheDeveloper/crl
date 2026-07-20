@@ -13,6 +13,14 @@ import BernsteinObstacle
 #check BernsteinObstacle.finiteTrace_eq_of_reindex
 #check BernsteinObstacle.localFaceTrace_eq_of_orientation
 #check BernsteinObstacle.clipped_localFaceTrace_eq_of_orientation
+#check BernsteinObstacle.lastFacePoint_castSucc
+#check BernsteinObstacle.lastFacePoint_last
+#check BernsteinObstacle.lastFaceMultiIndex_castSucc
+#check BernsteinObstacle.lastFaceMultiIndex_last
+#check BernsteinObstacle.factorialProd_lastFaceMultiIndex
+#check BernsteinObstacle.powerProd_lastFace_embed
+#check BernsteinObstacle.simplexBasis_lastFace_embed
+#check BernsteinObstacle.simplexBasis_lastFace_eq_zero_of_last_pos
 #check BernsteinObstacle.multiIndexToAffine_affineToMultiIndex
 #check BernsteinObstacle.affineToMultiIndex_multiIndexToAffine
 #check BernsteinObstacle.multiIndexAffineEquiv
@@ -93,6 +101,14 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.finiteTrace_eq_of_reindex
 #print axioms BernsteinObstacle.localFaceTrace_eq_of_orientation
 #print axioms BernsteinObstacle.clipped_localFaceTrace_eq_of_orientation
+#print axioms BernsteinObstacle.lastFacePoint_castSucc
+#print axioms BernsteinObstacle.lastFacePoint_last
+#print axioms BernsteinObstacle.lastFaceMultiIndex_castSucc
+#print axioms BernsteinObstacle.lastFaceMultiIndex_last
+#print axioms BernsteinObstacle.factorialProd_lastFaceMultiIndex
+#print axioms BernsteinObstacle.powerProd_lastFace_embed
+#print axioms BernsteinObstacle.simplexBasis_lastFace_embed
+#print axioms BernsteinObstacle.simplexBasis_lastFace_eq_zero_of_last_pos
 #print axioms BernsteinObstacle.multiIndexToAffine_affineToMultiIndex
 #print axioms BernsteinObstacle.affineToMultiIndex_multiIndexToAffine
 #print axioms BernsteinObstacle.latticeFactor_self
