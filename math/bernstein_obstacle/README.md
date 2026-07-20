@@ -43,16 +43,21 @@ the conforming positive Bernstein recovery operator, a dimension-safe
 `W^{2,infinity}` estimate, the diagonal sequence, weak closure, and the direct
 energy proof of strong minimizer convergence.
 
-The theorem needs no free-boundary regularity. The abstract finite/Hilbert
-reductions are machine checked, but the concrete moving Sobolev/FEM realization
-has not yet been formalized in Lean or independently endorsed.
+The theorem needs no free-boundary regularity and is valid in every fixed finite
+dimension. The abstract finite/Hilbert reductions are machine checked, but the
+concrete moving Sobolev/FEM realization has not yet been formalized in Lean or
+independently endorsed.
 
 ### Scoped sharp theorem
 
+The intended mechanics theorem is stated for `d = 2` or `d = 3` and fixed
+polynomial degree `r >= 1`. More generally, it applies when the pointwise
+barycentric interpolation is well defined, for example under `r + 1 > d/2`.
 Under a compact regular interior free boundary, quadratic gap growth, a
 mesh-independent one-sided `H^{r+1}` extension, bounded multiplier density,
-local interface quasi-uniformity, exact obstacle representation, and the
-stated physical-boundary compatibility condition,
+local interface quasi-uniformity, exact obstacle representation, and either a
+boundary-separating contact collar or a uniform `C^{1,1}` physical-boundary
+collar with inward linear growth,
 
 \[
 \|u-u_h^B\|_{H^1}
@@ -133,8 +138,9 @@ Dependencies: Python 3.11+, NumPy, SciPy, SymPy, pandas, Matplotlib.
 ## Scope warning
 
 The sharp rate does not claim singular or degenerate free boundaries,
-boundary-touching free boundaries, arbitrary inexact obstacles,
-measure-valued multipliers without further hypotheses, nonsymmetric operators,
-or optimal adaptive complexity without a specified refinement-closure theorem.
-The general Mosco and strong-minimizer convergence theorems are broader but
-remain analytical rather than fully Lean-formalized.
+boundary-touching free boundaries, nodal interpolation outside the stated
+dimension/regularity regime, arbitrary inexact obstacles, physical-boundary
+positivity without the stated collar hypotheses, measure-valued multipliers,
+nonsymmetric operators, or optimal adaptive complexity without a specified
+refinement-closure theorem. The general Mosco and strong-minimizer convergence
+theorems are broader but remain analytical rather than fully Lean-formalized.
