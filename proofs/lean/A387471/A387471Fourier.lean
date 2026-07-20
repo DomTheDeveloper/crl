@@ -43,7 +43,9 @@ theorem dft_eq_zero_of_one_missing (v : ZMod N → ℂ) (t₀ r₀ : ZMod N)
       intro t ht
       rw [hvan t ht, mul_zero]
     rw [hsingle] at hinv
-    exact (mul_eq_zero.mp hinv).resolve_left (by simp)
+    have hchar : (ZMod.stdAddChar (r₀ * t₀) : ℂ) ≠ 0 :=
+      Circle.coe_ne_zero _
+    exact (mul_eq_zero.mp hinv).resolve_left hchar
   apply ZMod.dft.injective
   funext t
   by_cases ht : t = t₀
