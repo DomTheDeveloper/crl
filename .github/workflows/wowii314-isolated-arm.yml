@@ -37,6 +37,37 @@ jobs:
           [[lean_lib]]
           name = "WOWII"
           EOF
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('.lake/packages/formal_conjectures/WOWII/ZZGraphConjecture314C5Bags.lean')
+          text = path.read_text()
+          old = "\n".join([
+              "    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ] <;>",
+              "    decide",
+          ])
+          new = "\n".join([
+              "    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ] <;>",
+              "    solve",
+              "    | refine ⟨(0 : Fin 5), by decide, ?_⟩",
+              "      intro y hy",
+              "      fin_cases y <;> simp_all <;> decide",
+              "    | refine ⟨(1 : Fin 5), by decide, ?_⟩",
+              "      intro y hy",
+              "      fin_cases y <;> simp_all <;> decide",
+              "    | refine ⟨(2 : Fin 5), by decide, ?_⟩",
+              "      intro y hy",
+              "      fin_cases y <;> simp_all <;> decide",
+              "    | refine ⟨(3 : Fin 5), by decide, ?_⟩",
+              "      intro y hy",
+              "      fin_cases y <;> simp_all <;> decide",
+              "    | refine ⟨(4 : Fin 5), by decide, ?_⟩",
+              "      intro y hy",
+              "      fin_cases y <;> simp_all <;> decide",
+          ])
+          if old not in text:
+              raise SystemExit('expected concrete Fin 5 closure not found')
+          path.write_text(text.replace(old, new, 1))
+          PY
       - name: Fetch Mathlib cache
         working-directory: ci/lean/WOWII314
         run: lake exe cache get
