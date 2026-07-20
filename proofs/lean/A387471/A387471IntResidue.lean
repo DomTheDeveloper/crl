@@ -23,12 +23,21 @@ def intResidue (N : ℕ) [NeZero N] (a : ℤ) : Fin N :=
 /-- The canonical representative has the expected class in `ZMod N`. -/
 theorem intResidue_cast (N : ℕ) [NeZero N] (a : ℤ) :
     ((intResidue N a).val : ZMod N) = (a : ZMod N) := by
-  apply ZMod.val_injective
-  apply Int.ofNat_inj.mp
-  change (↑(intResidue N a).val : ℤ) = ↑(a : ZMod N).val
-  rw [show (intResidue N a).val = (a % (N : ℤ)).toNat by rfl,
-    Int.toNat_of_nonneg (Int.emod_nonneg _ (by exact_mod_cast NeZero.ne N))]
-  exact (ZMod.val_intCast (n := N) a).symm
+  have hnonneg : 0 ≤ a % (N : ℤ) :=
+    Int.emod_nonneg _ (by exact_mod_cast NeZero.ne N)
+  have hklt : ((intResidue N a).val : ℤ) < N := by
+    exact_mod_cast (intResidue N a).isLt
+  have hkmod : ((intResidue N a).val : ℤ) % (N : ℤ) = a % (N : ℤ) := by
+    calc
+      ((intResidue N a).val : ℤ) % (N : ℤ) =
+          ((intResidue N a).val : ℤ) :=
+        Int.emod_eq_of_lt (Int.natCast_nonneg _) hklt
+      _ = ((a % (N : ℤ)).toNat : ℤ) := by rfl
+      _ = a % (N : ℤ) := by rw [Int.toNat_of_nonneg hnonneg]
+  have hk : (((intResidue N a).val : ℤ) : ZMod N) = (a : ZMod N) :=
+    (ZMod.intCast_eq_intCast_iff'
+      ((intResidue N a).val : ℤ) a N).2 hkmod
+  simpa using hk
 
 /-- A canonical-root power with signed exponent is the standard exponential. -/
 theorem canonicalRoot_pow_intResidue (N : ℕ) [NeZero N] (a : ℤ) :
