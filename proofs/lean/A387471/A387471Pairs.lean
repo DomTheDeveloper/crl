@@ -43,7 +43,10 @@ theorem same_side_pair_impossible {n : ℕ} [NeZero (12 * n)] (hn : 0 < n) {A B 
     dsimp [z]
     linear_combination hpair
   have hz : z = 0 := (mul_eq_zero.mp htwoz).resolve_left (by norm_num)
-  exact (pow_ne_zero _ hroot0) (by simpa [z] using hz)
+  have hz_ne : z ≠ 0 := by
+    dsimp [z]
+    exact pow_ne_zero _ hroot0
+  exact hz_ne hz
 
 /-- A mixed positive/negative cancelling pair forces the two angle coefficients
 to sum to zero. -/
