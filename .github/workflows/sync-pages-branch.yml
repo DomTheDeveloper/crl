@@ -1,15 +1,11 @@
 name: Sync and deploy GitHub Pages
 
-# The only automatic CRL workflow: publish non-CI content changes from canonical main.
+# Canonical branch policy: every commit pushed to main is mirrored exactly to gh-pages.
 
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - ".github/**"
-      - "proofs/lean/**"
-      - "ci/**"
   workflow_dispatch:
 
 permissions:
@@ -25,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Mirror source commit to allowed gh-pages branch
+      - name: Mirror the complete main commit to gh-pages
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -38,6 +34,17 @@ jobs:
             gh api --method POST repos/DomTheDeveloper/crl/git/refs \
               -f ref="refs/heads/gh-pages" -f sha="$SOURCE_SHA" --silent
           fi
+
+      - name: Verify exact branch mirror
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          MAIN_SHA="$(gh api repos/DomTheDeveloper/crl/git/ref/heads/main --jq '.object.sha')"
+          PAGES_SHA="$(gh api repos/DomTheDeveloper/crl/git/ref/heads/gh-pages --jq '.object.sha')"
+          echo "main:     $MAIN_SHA"
+          echo "gh-pages: $PAGES_SHA"
+          test "$MAIN_SHA" = "$PAGES_SHA"
 
       - name: Dispatch and verify Pages deployment
         env:
