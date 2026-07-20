@@ -30,7 +30,10 @@ theorem basis_sum_eq_one (n : ℕ) (x : ℝ) :
   calc
     (∑ k ∈ Finset.range (n + 1), basis n k x) = (x + (1 - x)) ^ n := by
       rw [add_pow]
-      simp only [basis, mul_comm, mul_assoc]
+      apply Finset.sum_congr rfl
+      intro k hk
+      simp only [basis]
+      ring
     _ = 1 := by ring
 
 /-- A polynomial curve written in the degree-`n` Bernstein basis. -/
