@@ -18,6 +18,9 @@ import BernsteinObstacle
 #check BernsteinObstacle.twoScaleRate_of_energy_components
 #check BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure
 #check BernsteinObstacle.monotoneInnerCone_falk_sq
+#check BernsteinObstacle.IsOperatorVISolution
+#check BernsteinObstacle.monotoneInnerCone_operator_core
+#check BernsteinObstacle.monotoneInnerCone_operator_falk_sq
 #check BernsteinObstacle.threeHalvesContactLaw
 #check BernsteinObstacle.balancedContactOrder_equalizes
 
@@ -37,5 +40,8 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.twoScaleRate_of_energy_components
 #print axioms BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure
 #print axioms BernsteinObstacle.monotoneInnerCone_falk_sq
+#print axioms BernsteinObstacle.IsOperatorVISolution
+#print axioms BernsteinObstacle.monotoneInnerCone_operator_core
+#print axioms BernsteinObstacle.monotoneInnerCone_operator_falk_sq
 #print axioms BernsteinObstacle.threeHalvesContactLaw
 #print axioms BernsteinObstacle.balancedContactOrder_equalizes
