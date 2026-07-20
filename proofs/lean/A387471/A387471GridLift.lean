@@ -102,64 +102,64 @@ lemma exceptionalGrid_to_ABC {n A B C qA qB qC : ℤ}
   rcases hexc with hexc | hexc
   · rcases hexc with h | h | h | h | h | h
     all_goals rcases h with ⟨rfl, rfl, rfl⟩
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by nlinarith : 5 * B = -3 * n)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by simpa [mul_comm] using hB)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inl ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by nlinarith : 5 * C = -3 * n)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by simpa [mul_comm] using hC)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inl ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by nlinarith : 5 * A = -3 * n)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by simpa [mul_comm] using hA)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inl ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by nlinarith : 5 * A = -3 * n)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by simpa [mul_comm] using hA)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inl ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by nlinarith : 5 * B = -3 * n)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by simpa [mul_comm] using hB)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inl ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by nlinarith : 5 * C = -3 * n)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_neg_three_mul (by simpa [mul_comm] using hC)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inl ?_⟩
       simp only [Perm3]
       omega
   · rcases hexc with h | h | h | h | h | h
     all_goals rcases h with ⟨rfl, rfl, rfl⟩
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by nlinarith : 5 * B = 3 * n)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by simpa [mul_comm] using hB)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inr ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by nlinarith : 5 * C = 3 * n)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by simpa [mul_comm] using hC)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inr ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by nlinarith : 5 * A = 3 * n)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by simpa [mul_comm] using hA)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inr ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by nlinarith : 5 * A = 3 * n)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by simpa [mul_comm] using hA)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inr ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by nlinarith : 5 * B = 3 * n)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by simpa [mul_comm] using hB)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inr ?_⟩
       simp only [Perm3]
       omega
-    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by nlinarith : 5 * C = 3 * n)
+    · have h5n : (5 : ℤ) ∣ n := five_dvd_of_five_mul_eq_three_mul (by simpa [mul_comm] using hC)
       rcases h5n with ⟨q, hq⟩
       refine ⟨q, by omega, Or.inr ?_⟩
       simp only [Perm3]
