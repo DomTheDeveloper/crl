@@ -27,8 +27,11 @@ theorem exists_bad_prime_of_not_dvd_thirty {N : ℕ} (hN : N ≠ 0)
         by_contra hle
         have htwo : 2 ≤ N.factorization p := by omega
         exact hsq ((hp.pow_dvd_iff_le_factorization hN).2 htwo)
-      interval_cases p <;> norm_num at hp
-      all_goals simpa using hfac
+      have hp30 : p ∣ 30 := by
+        interval_cases p <;> norm_num at hp ⊢
+      have hfac30 : 0 < (30 : ℕ).factorization p :=
+        hp.factorization_pos_of_dvd (by norm_num) hp30
+      omega
     · simp [Nat.factorization_eq_zero_of_not_dvd hpd]
   · simp [Nat.factorization_eq_zero_of_not_prime N hp]
 
