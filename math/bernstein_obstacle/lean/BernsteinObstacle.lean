@@ -22,3 +22,4 @@ import BernsteinObstacle.MinimizerConvergence
 import BernsteinObstacle.AssemblyConvergence
 import BernsteinObstacle.CoefficientNorm
 import BernsteinObstacle.EnergyGapConvergence
+import BernsteinObstacle.Uniqueness
