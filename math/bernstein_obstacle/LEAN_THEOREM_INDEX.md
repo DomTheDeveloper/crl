@@ -5,11 +5,12 @@ files. “Verified” means compiled under the pinned toolchain and included in 
 terminal `#print axioms` audit. “Represented” means a related theorem exists,
 but the full paper statement is not formalized.
 
-Latest complete audit: workflow run `29775964944`, commit
-`c42e7faee7df72590122b75c6b125c6478adaff5`.
+Latest complete audit: workflow run `29778234348`, commit
+`e09f5c786ec0f23406616989528f9a876eeb8c16`.
 
-The audit completed all 3,087 `BernsteinObstacle` build jobs, ran all three
-terminal audit entry points, rejected `sorryAx`, and reported only `propext`,
+The audit completed all 3,090 `BernsteinObstacle` build jobs, ran all four
+terminal audit entry points, rejected `sorryAx`, explicitly found the terminal
+Bernstein basis reconstruction theorem, and reported only `propext`,
 `Classical.choice`, and `Quot.sound`.
 
 | Paper result | Lean declaration / file | Status | Missing work |
@@ -55,9 +56,10 @@ terminal audit entry points, rejected `sorryAx`, and reported only `propext`,
 | Exact dimension `#A_n = dim P_n` | `finrank_restrictTotalDegree_eq_card_multiIndex` in `PolynomialDimension.lean` | Verified | None |
 | All-degree simplex-lattice cardinal basis of `P_n` | `affineLatticeCardinalBasis`, `span_affineLatticeCardinalVector_eq_top`, `affineLatticeCardinalBasis_sum_repr` | Verified | None |
 | Nodal evaluation is a linear equivalence and interpolation exists uniquely | `affineNodalEvaluationEquiv_apply`, `polynomial_eq_of_eq_on_simplex_lattice`, `existsUnique_polynomial_with_simplex_lattice_values` | Verified | None |
-| The manuscript's simplicial Bernstein functions are actual affine polynomials in `P_n` | `affineBernsteinPolynomial`, `totalDegree_affineBernsteinPolynomial_le`, `affineBernsteinPolynomial_mem_restrictTotalDegree` in `AffineBernsteinPolynomial.lean` | Verified | None for representation and degree membership |
+| The manuscript's simplicial Bernstein functions are actual affine polynomials in `P_n` | `affineBernsteinPolynomial`, `totalDegree_affineBernsteinPolynomial_le`, `affineBernsteinPolynomial_mem_restrictTotalDegree` in `AffineBernsteinPolynomial.lean` | Verified | None |
 | Affine polynomial evaluation exactly equals `simplexBasis` on the standard simplex | `eval_affineBernsteinPolynomial_eq_simplexBasis` | Verified | None |
-| The affine Bernstein family is a basis of `P_n`; equivalently its full lattice collocation matrix is invertible | Polynomial representation and exact cardinal basis are verified | Partially represented | Prove Bernstein-family linear independence or an explicit invertible change of basis |
+| Positive triangular diagonal and rank separation for affine Bernstein polynomials | `coeff_affineBernsteinPolynomial_at_own_exponent`, `coeff_affineBernsteinPolynomial_eq_zero_of_not_le`, `coeff_affineBernsteinPolynomial_eq_zero_of_rank_lt`, `coeff_affineBernsteinPolynomial_eq_zero_of_rank_eq_of_ne` | Verified | None |
+| The affine Bernstein family is a basis of `P_n` | `affineBernsteinPolynomial_linearIndependent`, `affineBernsteinVector_linearIndependent`, `affineBernsteinBasis`, `span_affineBernsteinVector_eq_top`, `affineBernsteinBasis_sum_repr` in `AffineBernsteinBasis.lean` | Verified | None |
 | Sequential Mosco convergence definition and strong/weak obligations | `MoscoConverges`, `mosco_recovery`, `mosco_weak_limit` in `Mosco.lean` | Verified infrastructure | Must prove the moving Sobolev Bernstein cones satisfy these obligations |
 | Mosco reduction for inner approximations and recovery operators | `mosco_of_recovery_of_subset_of_weaklyClosed`, `mosco_of_recovery_operators_of_subset_of_weaklyClosed` in `MoscoTools.lean` | Verified | Sobolev weak closedness, discrete-set inclusion, and positive recovery remain |
 | Finite nonnegative coefficient cone is weakly sequentially closed and Mosco constant | `coefficientCone_weaklySequentiallyClosed`, `coefficientCone_mosco_const` in `CoefficientMosco.lean` | Verified | This is finite-dimensional, not the moving-mesh PDE theorem |
@@ -84,14 +86,13 @@ coefficient certificates, projection/KKT theory, abstract global assembly,
 orientation-independent complete shared-face trace conformity, boundary traces,
 finite assembled convexity and weak closure, finite Mosco convergence, assembled
 obstacle VI minimization and uniqueness, coercive energy-gap convergence,
-clipped recovery, complete all-degree simplex-lattice unisolvence for `P_n`, and
+clipped recovery, complete all-degree simplex-lattice unisolvence for `P_n`,
 exact affine-polynomial realization of the manuscript's simplicial Bernstein
-basis functions.
+basis functions, and the complete affine Bernstein basis theorem for `P_n`.
 
 The remaining core is the infinite-dimensional and geometric realization:
-prove the affine Bernstein family is a basis of `P_n`, construct concrete
-shape-regular simplicial meshes and their face maps, embed the changing
-coefficient spaces into `H_0^1`, formalize positive Sobolev recovery and weak
-closedness, prove physical assembled coercivity and consistency, and then
-formalize interpolation, free-boundary localization, strip scaling, and the
-sharp `h^r + h_Gamma^(3/2)` rate.
+construct concrete shape-regular simplicial meshes and their face maps, embed
+the changing coefficient spaces into `H_0^1`, formalize positive Sobolev
+recovery and weak closedness, prove physical assembled coercivity and
+consistency, and then formalize interpolation, free-boundary localization,
+strip scaling, and the sharp `h^r + h_Gamma^(3/2)` rate.
