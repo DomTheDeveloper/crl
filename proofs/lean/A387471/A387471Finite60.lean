@@ -108,10 +108,8 @@ lemma coeff_vecPoly60Q (v : Fin 16 → ℤ) (i : Fin 16) :
     (vecPoly60Q v).coeff i.val = (v i : ℚ) := by
   classical
   unfold vecPoly60Q
-  change (Polynomial.lcoeff ℚ i.val)
-      (∑ j : Fin 16, C (v j : ℚ) * X ^ j.val) = (v i : ℚ)
-  rw [map_sum]
-  simp only [Polynomial.lcoeff_apply]
+  change (∑ j in Finset.univ,
+      (C (v j : ℚ) * X ^ j.val).coeff i.val) = (v i : ℚ)
   apply Finset.sum_eq_single i
   · intro j _ hji
     have hval : j.val ≠ i.val := fun h ↦ hji (Fin.ext h)
@@ -166,6 +164,31 @@ def classifiedGrid (a b c : ℤ) : Prop := ordinaryGrid a b c ∨ exceptionalGri
 finite decision procedure is fully kernel-reducible. -/
 def vectorRelationGrid (a b c : Fin 29) : Prop :=
   ∀ i : Fin 16, relationVec60 (angleInt a) (angleInt b) (angleInt c) i = 0
+
+instance perm3IntDecidable (x y z a b c : ℤ) : Decidable (Perm3 x y z a b c) := by
+  unfold Perm3
+  infer_instance
+
+instance admissibleGridDecidable (a b c : Fin 29) : Decidable (admissibleGrid a b c) := by
+  unfold admissibleGrid
+  infer_instance
+
+instance ordinaryGridDecidable (a b c : ℤ) : Decidable (ordinaryGrid a b c) := by
+  unfold ordinaryGrid
+  infer_instance
+
+instance exceptionalGridDecidable (a b c : ℤ) : Decidable (exceptionalGrid a b c) := by
+  unfold exceptionalGrid
+  infer_instance
+
+instance classifiedGridDecidable (a b c : ℤ) : Decidable (classifiedGrid a b c) := by
+  unfold classifiedGrid
+  infer_instance
+
+instance vectorRelationGridDecidable (a b c : Fin 29) :
+    Decidable (vectorRelationGrid a b c) := by
+  unfold vectorRelationGrid
+  infer_instance
 
 set_option maxRecDepth 1000000 in
 set_option maxHeartbeats 0 in
