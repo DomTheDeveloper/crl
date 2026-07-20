@@ -62,14 +62,14 @@ theorem canonicalRoot_pow_divisor {N p : ℕ} (hN : N ≠ 0) (hp : p ≠ 0)
     intro hm
     subst m
     simp at hN
-  have hquot : p * m / p = m := Nat.mul_div_left m (Nat.pos_of_ne_zero hp)
+  have hquot : p * m / p = m := by
+    simpa [Nat.mul_comm] using Nat.mul_div_left m (Nat.pos_of_ne_zero hp)
   rw [hquot]
   unfold canonicalRoot
   rw [← Complex.exp_nat_mul]
   congr 1
   push_cast
   field_simp [hp, hm]
-  ring
 
 /-- The quotient root appearing in the prime-residue decomposition is the
 canonical `p`-th root. -/
@@ -81,14 +81,14 @@ theorem canonicalRoot_pow_quotient {N p : ℕ} (hN : N ≠ 0) (hp : p ≠ 0)
     intro hm
     subst m
     simp at hN
-  have hquot : p * m / p = m := Nat.mul_div_left m (Nat.pos_of_ne_zero hp)
+  have hquot : p * m / p = m := by
+    simpa [Nat.mul_comm] using Nat.mul_div_left m (Nat.pos_of_ne_zero hp)
   rw [hquot]
   unfold canonicalRoot
   rw [← Complex.exp_nat_mul]
   congr 1
   push_cast
   field_simp [hp, hm]
-  ring
 
 /-- The character factor in the DFT is the extra factor introduced by the
 conjugating exponent `1 + (p-t)m`. -/
@@ -100,7 +100,8 @@ theorem canonicalRoot_conjugatingExponent {p m : ℕ} [NeZero p] (hp : p.Prime)
   have hrootm : canonicalRoot (p * m) ^ m = canonicalRoot p := by
     have h := canonicalRoot_pow_quotient (N := p * m) (p := p)
       hN hp.ne_zero (dvd_mul_right p m)
-    have hquot : p * m / p = m := Nat.mul_div_left m hp.pos
+    have hquot : p * m / p = m := by
+      simpa [Nat.mul_comm] using Nat.mul_div_left m hp.pos
     rw [hquot] at h
     exact h
   have hcast :
@@ -142,7 +143,8 @@ theorem canonical_ratio_pow_quotient_eq_one {p m : ℕ} (hp : p.Prime)
   have hrootm : canonicalRoot (p * m) ^ m = canonicalRoot p := by
     have h := canonicalRoot_pow_quotient (N := p * m) (p := p)
       hN hp.ne_zero (dvd_mul_right p m)
-    have hquot : p * m / p = m := Nat.mul_div_left m hp.pos
+    have hquot : p * m / p = m := by
+      simpa [Nat.mul_comm] using Nat.mul_div_left m hp.pos
     rw [hquot] at h
     exact h
   have hx : (canonicalRoot (p * m) ^ x.val) ^ m =
