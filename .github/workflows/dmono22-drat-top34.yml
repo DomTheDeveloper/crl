@@ -1,8 +1,16 @@
 name: Dmono22 top-34 DRAT certificate
 
-# Expensive proof generation. Manual confirmation is mandatory.
+# Expensive proof generation. Manual dispatch still requires confirmation. A push
+# to the dedicated exact branch is also accepted so the audit can be repaired and
+# rerun reproducibly without broadening the search matrix.
 
 on:
+  push:
+    branches:
+      - solve-dmono22-exact
+    paths:
+      - '.github/workflows/dmono22-drat-top34.yml'
+      - 'math/checkerboard/n22_exact/**'
   workflow_dispatch:
     inputs:
       confirm:
@@ -19,7 +27,7 @@ concurrency:
 
 jobs:
   certify:
-    if: ${{ inputs.confirm == 'RUN_TOP34_DRAT' }}
+    if: ${{ github.event_name == 'push' || inputs.confirm == 'RUN_TOP34_DRAT' }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -63,7 +71,7 @@ jobs:
         working-directory: math/checkerboard/n22_exact
         shell: bash
         run: |
-          set -o pipefail
+          set -euo pipefail
           /usr/bin/time -v drat-trim top34.cnf top34.drat 2>&1 | tee top34-drat-check.log
           grep -E 'VERIFIED|s VERIFIED' top34-drat-check.log
       - name: Compress certificate
@@ -84,4 +92,4 @@ jobs:
             math/checkerboard/n22_exact/top34-cadical.log
             math/checkerboard/n22_exact/top34-drat-check.log
           if-no-files-found: warn
-          retention-days: 3
+          retention-days: 30
