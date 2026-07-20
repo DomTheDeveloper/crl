@@ -1,7 +1,8 @@
 import BernsteinObstacle
 
 -- Regression target: finite certificate, projection/KKT, energy, Mosco tools,
--- finite coefficient-cone Mosco convergence, and recovery-to-minimizer transfer.
+-- finite coefficient-cone Mosco convergence, assembled obstacle VI, and
+-- recovery-to-minimizer transfer.
 
 #check BernsteinObstacle.basis_nonneg
 #check BernsteinObstacle.basis_sum_eq_one
@@ -42,6 +43,14 @@ import BernsteinObstacle
 #check BernsteinObstacle.clipped_globalSimplexField_nonneg
 #check BernsteinObstacle.global_noPenetration_after_clipping
 #check BernsteinObstacle.boundary_zero_after_clipping
+#check BernsteinObstacle.clipCoefficients_mem_assemblyFeasibleSet
+#check BernsteinObstacle.assemblyField_nonneg_of_feasible
+#check BernsteinObstacle.assembly_noPenetration_of_feasible
+#check BernsteinObstacle.assembledSolution_noPenetration
+#check BernsteinObstacle.assembledSolution_boundary_zero
+#check BernsteinObstacle.assembledSolution_is_energyMinimizer
+#check BernsteinObstacle.assembledSolution_half_error_le_energyGap
+#check BernsteinObstacle.assembledSolution_coercive_error_le_clippedRecoveryGap
 #check BernsteinObstacle.discreteEnergy_difference_identity
 #check BernsteinObstacle.half_error_energy_le
 #check BernsteinObstacle.coercive_error_le_energy
@@ -100,6 +109,14 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.clipped_globalSimplexField_nonneg
 #print axioms BernsteinObstacle.global_noPenetration_after_clipping
 #print axioms BernsteinObstacle.boundary_zero_after_clipping
+#print axioms BernsteinObstacle.clipCoefficients_mem_assemblyFeasibleSet
+#print axioms BernsteinObstacle.assemblyField_nonneg_of_feasible
+#print axioms BernsteinObstacle.assembly_noPenetration_of_feasible
+#print axioms BernsteinObstacle.assembledSolution_noPenetration
+#print axioms BernsteinObstacle.assembledSolution_boundary_zero
+#print axioms BernsteinObstacle.assembledSolution_is_energyMinimizer
+#print axioms BernsteinObstacle.assembledSolution_half_error_le_energyGap
+#print axioms BernsteinObstacle.assembledSolution_coercive_error_le_clippedRecoveryGap
 #print axioms BernsteinObstacle.discreteEnergy_difference_identity
 #print axioms BernsteinObstacle.half_error_energy_le
 #print axioms BernsteinObstacle.coercive_error_le_energy
