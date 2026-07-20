@@ -15,8 +15,12 @@ This terminal theorem packages the complete abstract endgame:
 4. strong convergence of the corresponding constrained minimizers once the
    variational-inequality/energy recovery bound vanishes;
 5. a sharp three-scale estimate determined by obstacle approximation order,
-   bulk approximation order, coefficient consistency, physical vanishing order,
-   and defect codimension.
+   bulk approximation order, physical vanishing order, and defect codimension.
+
+The terminal same-scale rate theorem is deliberately restricted to the
+saturation regime `q ≤ m`.  When `m < q`, the risky layer has thickness
+`h^(m/q)` and the full analytical theorem uses real powers; that geometric
+input is not disguised as a same-scale natural-power identity here.
 
 The remaining nonformal inputs are exactly the physical Sobolev/FEM and
 free-boundary hypotheses needed to instantiate the data and energy inequalities.
@@ -26,11 +30,12 @@ section GrandTheorem
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
 
-/-- The full abstract Bernstein–Bézier obstacle grand theorem.
+/-- Full abstract Bernstein–Bézier obstacle grand theorem in the consistency
+saturation regime `q ≤ m`.
 
 The rate term is
 
-`h^s + h^r + hGamma^(min(m,q)-1) * sqrt(hGamma^c)`.
+`h^s + h^r + hGamma^(q-1) * sqrt(hGamma^c)`.
 
 Here `s` is the obstacle approximation order, `r` the bulk approximation order,
 `m` the coefficient-consistency order, `q` the physical gap-vanishing order,
@@ -48,14 +53,14 @@ theorem bernsteinBezierObstacleGrandTheorem
         ∀ n, ‖u n - recovery n‖ ≤ solutionErr n)
     (hsolutionErr : Tendsto solutionErr atTop (nhds 0))
     (e alpha P A B h hGamma : ℝ)
-    (s r m q c : ℕ)
+    (s r m q c : ℕ) (hqm : q ≤ m)
     (he : 0 ≤ e) (halpha : 0 < alpha)
     (hP : 0 ≤ P) (hA : 0 ≤ A) (hB : 0 ≤ B)
     (hh : 0 ≤ h) (hGammaNonneg : 0 ≤ hGamma)
     (henergy :
       alpha * e ^ 2 ≤
         P * h ^ (2 * s) + A * h ^ (2 * r) +
-          B * hGamma ^ (2 * (consistencyLimitedOrder m q - 1) + c)) :
+          B * hGamma ^ (2 * (q - 1) + c)) :
     MoscoConverges
         (movingObstacleCone psi_h D.discreteCone)
         (obstacleCone psi D.limitCone) ∧
@@ -68,11 +73,11 @@ theorem bernsteinBezierObstacleGrandTheorem
       psi_h psi hpsi x hx u solutionErr hsolution hsolutionErr
   have hrate :=
     grandSharpRate_of_consistencyLimitedComponents
-      e alpha P A B h hGamma s r m q c
+      e alpha P A B h hGamma s r m q c hqm
       he halpha hP hA hB hh hGammaNonneg henergy
   exact ⟨hconvergence.1, hconvergence.2, hrate⟩
 
-/-- Quadratic-contact codimension-one specialization.  When `m >= 2`, the
+/-- Quadratic-contact codimension-one specialization.  When `m ≥ 2`, the
 interface contribution saturates at `hGamma * sqrt hGamma`, independently of
 higher coefficient consistency. -/
 theorem bernsteinBezierObstacleGrandTheorem_quadraticContact
