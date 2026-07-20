@@ -1,4 +1,5 @@
 import BernsteinObstacle.Core
+import BernsteinObstacle.SimplexPartition
 import BernsteinObstacle.SharpRateAlgebra
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Tactic
@@ -14,8 +15,8 @@ The analytical universal theorem produces two nonnegative squared scales:
 * a contact-measure consistency scale.
 
 This file certifies the coercive square-root transfer for arbitrary scales and
-its first-order specialization. It also connects the Bernstein coefficient
-interval certificate to exact lower/upper obstacles that need not themselves be
+its first-order specialization. It also connects Bernstein coefficient interval
+certificates to exact lower/upper obstacles that need not themselves be
 polynomials.
 -/
 
@@ -38,7 +39,7 @@ def boxApprox
   ψ x + (φ x - ψ x) * curve n c x
 
 /-- Coefficients in `[0,1]` certify exact pointwise lower and upper obstacle
-bounds for the affine physical field. -/
+bounds for the one-dimensional affine physical field. -/
 theorem boxApprox_mem_Icc
     (ψ φ : ℝ → ℝ) (n : ℕ) (c : ℕ → ℝ)
     (hc : ∀ k ∈ Finset.range (n + 1), c k ∈ Set.Icc (0 : ℝ) 1)
@@ -48,6 +49,26 @@ theorem boxApprox_mem_Icc
   unfold boxApprox
   exact affineBox_mem_Icc (ψ x) (φ x) (curve n c x) hψφ
     (curve_mem_Icc n c 0 1 hc hx0 hx1)
+
+/-- The affine physical field obtained from a complete simplicial Bernstein
+field and two possibly nonpolynomial obstacles. -/
+def simplexBoxApproxNat
+    (d n : ℕ) (ψ φ : BarycentricPoint d → ℝ)
+    (c : (Fin (d + 1) → ℕ) → ℝ) (x : BarycentricPoint d) : ℝ :=
+  ψ x + (φ x - ψ x) * simplexFieldNat d n c x
+
+/-- Complete simplicial coefficients in `[0,1]` certify exact pointwise lower
+and upper obstacle bounds throughout the simplex. -/
+theorem simplexBoxApproxNat_mem_Icc
+    (d n : ℕ) (ψ φ : BarycentricPoint d → ℝ)
+    (c : (Fin (d + 1) → ℕ) → ℝ)
+    (hc : ∀ α ∈ Finset.piAntidiag (Finset.univ : Finset (Fin (d + 1))) n,
+      c α ∈ Set.Icc (0 : ℝ) 1)
+    (x : BarycentricPoint d) (hψφ : ψ x ≤ φ x) :
+    simplexBoxApproxNat d n ψ φ c x ∈ Set.Icc (ψ x) (φ x) := by
+  unfold simplexBoxApproxNat
+  exact affineBox_mem_Icc (ψ x) (φ x) (simplexFieldNat d n c x) hψφ
+    (simplexFieldNat_mem_Icc d n c 0 1 hc x)
 
 /-- Two nonnegative squared energy scales imply a norm estimate by the sum of
 the corresponding scales. -/
