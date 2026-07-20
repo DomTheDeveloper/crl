@@ -31,6 +31,7 @@ import BernsteinObstacle.FaceTrace
 import BernsteinObstacle.FaceOrientation
 import BernsteinObstacle.Mosco
 import BernsteinObstacle.MoscoTools
+import BernsteinObstacle.ConvexWeakClosure
 import BernsteinObstacle.CoefficientMosco
 import BernsteinObstacle.AssemblyMosco
 import BernsteinObstacle.MinimizerConvergence
