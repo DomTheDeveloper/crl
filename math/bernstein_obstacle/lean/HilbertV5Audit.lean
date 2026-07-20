@@ -1,0 +1,12 @@
+import BernsteinObstacle
+
+#check BernsteinObstacle.IsHilbertVISolution
+#check BernsteinObstacle.hilbert_vi_pythagorean
+#check BernsteinObstacle.hilbert_vi_unique
+#check BernsteinObstacle.nested_hilbert_vi_recovery_error_sq
+#check BernsteinObstacle.nested_hilbert_vi_strongConvergence_of_recovery
+
+#print axioms BernsteinObstacle.hilbert_vi_pythagorean
+#print axioms BernsteinObstacle.hilbert_vi_unique
+#print axioms BernsteinObstacle.nested_hilbert_vi_recovery_error_sq
+#print axioms BernsteinObstacle.nested_hilbert_vi_strongConvergence_of_recovery
