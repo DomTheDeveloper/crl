@@ -2,7 +2,9 @@
 
 ## Exact scoped claim
 
-For the zero-obstacle problem, assume:
+Let `(T_n)` be a conforming uniformly shape-regular simplicial mesh sequence,
+let `h_n=max_T h_T -> 0`, and fix `r >= 1`. For the zero-obstacle problem,
+assume:
 
 1. the interior free boundary `Gamma` is compact and regular;
 2. `u in C^{1,1}` and `u = grad u = 0` on `Gamma`;
@@ -13,118 +15,261 @@ For the zero-obstacle problem, assume:
 4. a mesh-independent one-sided `H^{r+1}` extension exists near `Gamma`;
 5. outside the risky patch,
    \[
-   \sum_{T\notin\omega_h}|u|_{H^{r+1}(T)}^2\le C_{\rm reg}
+   \sum_{T\not\subset\omega_n}|u|_{H^{r+1}(T)}^2\le C_{\rm reg}
    \]
    uniformly over the mesh family;
 6. the multiplier is a bounded nonnegative density supported on contact;
 7. the risky set is defined using local element size,
    \[
-   \mathcal R_h=\{T:\operatorname{dist}(T,\Gamma)\le\kappa h_T\};
+   \mathcal R_n=\{T:\operatorname{dist}(T,\Gamma)\le\kappa h_T\};
    \]
-8. on its fixed one-ring enlargement `omega_h`,
+8. on its fixed one-ring enlargement `omega_n`, there is a scale
+   `h_{Gamma,n} -> 0` such that
    \[
-   c_mh_\Gamma\le h_T\le C_mh_\Gamma,
-   \qquad |\omega_h|\le C_\Gamma h_\Gamma;
+   c_mh_{\Gamma,n}\le h_T\le C_mh_{\Gamma,n},
+   \qquad |\omega_n|\le C_\Gamma h_{\Gamma,n};
    \]
-9. the physical boundary is separated from the free boundary or positive boundary elements satisfy the stated compatible inward linear-growth condition;
+9. the physical boundary is separated from the free-boundary analysis or
+   positive boundary elements satisfy the stated compatible inward
+   linear-growth condition;
 10. the obstacle is represented exactly after shifting to a zero-gap problem.
 
 Then
+
 \[
-\|u-u_h^B\|_{H^1(\Omega)}
-\le C\bigl(h^r+h_\Gamma^{3/2}\bigr).
+\|u-u_n^B\|_{H^1(\Omega)}
+\le C\bigl(h_n^r+h_{\Gamma,n}^{3/2}\bigr).
 \]
 
-The local-distance hypothesis is deliberate. Shape regularity alone does not allow a strip defined only by a single `h_Gamma` to control larger transition elements.
+The full sequence-indexed derivation and constant ledger are in
+`math/bernstein_obstacle/SOBOLEV_FEM_CLOSURE.md`.
+
+The local-distance hypothesis is deliberate. Shape regularity alone does not
+allow a strip defined only by a single `h_Gamma` to control larger transition
+elements.
 
 ## Dependency map
 
 ### C1. Coefficient-to-value estimate
 
 For barycentric-lattice interpolation,
+
 \[
 |b_{T,\alpha}(I_T^rv)-v(x_{T,\alpha})|
-\le C_{r,\mathrm{shape}}h_T^2\operatorname{Lip}(\nabla v).
+\le C_{r,d,\mathrm{shape}}h_T^2\operatorname{Lip}(\nabla v;T).
 \]
-The fixed reference collocation inverse and exact affine reproduction cancel the constant and linear Taylor terms. All-degree unisolvence is recorded in `UNISOLVENCE_PROOF.md`; exact constants through degree six are verification examples.
 
-**Failure criterion:** find a fixed degree, dimension, or shape-regular simplex for which affine cancellation or `h_T^2` scaling fails.
+The fixed reference collocation inverse and exact affine reproduction cancel
+the constant and linear Taylor terms. All-degree unisolvence is recorded in
+`UNISOLVENCE_PROOF.md`; exact constants through degree six are verification
+examples, not the existence proof.
+
+**Failure criterion:** find a fixed degree, dimension, or shape-regular
+simplex for which affine cancellation or `h_T^2` scaling fails.
 
 ### C2. Local-size localization
 
-For a positive element outside `R_h`, every barycentric node is at distance at least `c kappa h_T` from `Gamma`. Quadratic nondegeneracy gives a positive node value of order `h_T^2`, which dominates the `O(h_T^2)` coefficient error when `kappa` is chosen sufficiently large. Contact-interior elements interpolate zero.
+If a positive element lies outside `R_n`, then every barycentric lattice point
+satisfies
 
-The one-ring assumptions convert the locally defined risky set into an `O(h_Gamma)` patch with volume `O(h_Gamma)`.
+\[
+\operatorname{dist}(x_{T,\alpha},\Gamma)>\kappa h_T.
+\]
 
-**Failure criterion:** construct a negative coefficient outside `R_h`, or a mesh satisfying the stated one-ring assumptions whose risky patch has volume larger than `C h_Gamma`.
+Quadratic nondegeneracy gives
+
+\[
+u(x_{T,\alpha})\ge c_0\kappa^2h_T^2,
+\]
+
+which dominates the coefficient discrepancy once `kappa` is chosen so that
+`c_0 kappa^2` exceeds the uniform collocation/Taylor constant. An element on
+the contact side and outside `R_n` is contained in the contact interior and
+interpolates zero.
+
+The one-ring assumptions convert the locally defined risky set into an
+`O(h_{Gamma,n})` patch with volume `O(h_{Gamma,n})`.
+
+**Failure criterion:** construct a negative coefficient outside `R_n`, or a
+mesh satisfying the stated one-ring assumptions whose risky patch violates the
+volume bound.
 
 ### C3. Physical-boundary split
 
-On a positive boundary element, Bernstein coefficients attached to the boundary face are exactly zero. Every off-face lattice point lies a distance comparable to `h_T` inside the domain, so the inward linear lower bound is `O(h_T)` and dominates the `O(h_T^2)` coefficient discrepancy for small `h_T`.
+On a positive boundary element, Bernstein coefficients attached to the
+boundary face are exactly zero because the degree-`r` interpolated trace has
+zero values at all face lattice nodes. Every off-face lattice point has
+opposite barycentric coordinate at least `1/r`. Uniform shape regularity
+therefore places it at inward distance at least
+`c_face(r,shape) h_T`. The inward linear lower bound is `Omega(h_T)` and
+dominates the `O(h_T^2)` coefficient discrepancy for sufficiently small
+`h_T`.
 
-**Failure criterion:** find an off-face lattice point whose inward distance is not comparable to `h_T` on a uniformly shape-regular simplex, or show that boundary-face coefficients need not vanish.
+**Failure criterion:** find an off-face lattice point whose inward distance is
+not comparable to `h_T` on a uniformly shape-regular simplex, or show that the
+boundary-face coefficients need not vanish.
 
 ### C4. Two-sided risky coefficient amplitude
 
-On `omega_h`, local quasi-uniformity gives `h_T comparable to h_Gamma`. Quadratic upper growth and contact-side vanishing give `|u(x_j)| <= C h_Gamma^2` at every interpolation node. Fixed-degree collocation inversion yields
+Every interpolation node in `omega_n` is at distance
+`O(h_{Gamma,n})` from `Gamma`. Quadratic upper growth on the positive side,
+contact-side vanishing, and fixed-degree collocation inversion yield
+
 \[
-|b_{T,\alpha}(I_h^ru)|\le Ch_\Gamma^2.
+|b_{T,\alpha}(I_n^ru)|\le Ch_{\Gamma,n}^2
+\qquad(T\subset\omega_n).
 \]
 
-**Failure criterion:** show the inverse-collocation constant is not uniform on the stated shape-regular family or that the nodal values need not be `O(h_Gamma^2)`.
+**Failure criterion:** show the inverse-collocation constant is not uniform on
+the stated shape-regular family, the one-ring does not retain the distance
+bound, or the nodal values need not be `O(h_{Gamma,n}^2)`.
 
 ### C5. Global clipping repair
 
-Clip once per shared global degree of freedom:
+Clip once per assembled shared degree of freedom:
+
 \[
 \widetilde b_i=\max\{b_i,0\}.
 \]
-Common-face traces remain identical, boundary zeros remain zero, and the Bernstein convex-hull property gives pointwise feasibility. The algebraic statement is Lean formalized in `GlobalMesh.lean`, `FaceTrace.lean`, `Projection.lean`, and `ProjectionVI.lean`.
 
-**Failure criterion:** give a concrete orientation/indexing configuration in which global clipping breaks conformity or boundary values.
+Common-face traces remain identical, boundary zeros remain zero, and the
+Bernstein convex-hull property gives pointwise feasibility. The algebraic
+statement is Lean formalized in `GlobalMesh.lean`, `FaceTrace.lean`,
+`Projection.lean`, and `ProjectionVI.lean`.
 
-### C6. Three-halves repair scaling
+The correction is supported in the fixed one-ring patch because an assembled
+coefficient changed on a risky element can affect only elements sharing that
+coefficient.
 
-The correction coefficients are `O(h_Gamma^2)` on a patch of volume `O(h_Gamma)`. On one `d`-simplex,
+**Failure criterion:** give a concrete orientation/indexing configuration in
+which global clipping breaks conformity, changes a prescribed boundary zero,
+or propagates beyond the fixed patch.
+
+### C6. Three-halves repair scaling by patch volume
+
+Correction coefficients are `O(h_{Gamma,n}^2)`. Fixed-degree norm equivalence
+and affine scaling give on every affected element
+
 \[
-\|\nabla d_h\|_{L^2(T)}^2=O(h_\Gamma^{d+2}).
+\|d_n\|_{L^2(T)}^2
+\le C|T|h_{\Gamma,n}^4,
 \]
-The patch contains `O(h_Gamma^{-(d-1)})` locally quasi-uniform elements, so
-\[
-\|\nabla d_h\|_{L^2}^2=O(h_\Gamma^3),
-\qquad
-\|d_h\|_{H^1}=O(h_\Gamma^{3/2}).
-\]
-The exponent is independent of ambient dimension because the support is codimension one.
 
-**Failure criterion:** identify an incorrect support-volume bound, element count, inverse estimate, or hidden anisotropy dependence.
+\[
+\|\nabla d_n\|_{L^2(T)}^2
+\le C|T|h_T^{-2}h_{\Gamma,n}^4
+\le C|T|h_{\Gamma,n}^2.
+\]
+
+Summing directly by patch volume avoids an informal dimension-dependent
+element count:
+
+\[
+\|d_n\|_{L^2}^2
+\le Ch_{\Gamma,n}^4|\omega_n|
+\le Ch_{\Gamma,n}^5,
+\]
+
+\[
+\|\nabla d_n\|_{L^2}^2
+\le Ch_{\Gamma,n}^2|\omega_n|
+\le Ch_{\Gamma,n}^3.
+\]
+
+Therefore
+
+\[
+\|d_n\|_{H^1}\le Ch_{\Gamma,n}^{3/2}.
+\]
+
+The exponent is independent of ambient dimension because the entire dimension
+dependence has already been absorbed into the physical patch-volume bound.
+
+**Failure criterion:** identify an incorrect support-volume bound, affine
+scaling factor, hidden anisotropy dependence, or failure of local size
+comparability.
 
 ### C7. Bulk and strip interpolation
 
 The one-sided extension and uniform broken regularity bound give
+
 \[
-\|u-I_h^ru\|_{H^1(\Omega\setminus\omega_h)}\le Ch^r.
+\|u-I_n^ru\|_{H^1(\Omega\setminus\omega_n)}\le Ch_n^r.
 \]
-On `omega_h`, `C^{1,1}` regularity and `|omega_h|=O(h_Gamma)` give the `O(h_Gamma^{3/2})` gradient contribution.
 
-**Failure criterion:** show that the stated broken bound does not imply a mesh-uniform bulk interpolation constant.
+On `omega_n`, fixed-degree affine reproduction and `C^{1,1}` regularity give a
+pointwise gradient error `O(h_{Gamma,n})`. Since
+`|omega_n|^{1/2}=O(h_{Gamma,n}^{1/2})`,
 
-### C8. Multiplier consistency and minimizer transfer
-
-On contact inside `omega_h`, `u=0` and the repaired field is `O(h_Gamma^2)`. Bounded multiplier density and patch volume `O(h_Gamma)` give
 \[
-\langle\lambda,v_h^B-u\rangle=O(h_\Gamma^3).
+\|u-I_n^ru\|_{H^1(\omega_n)}
+\le Ch_{\Gamma,n}^{3/2}.
 \]
-The exact energy identity and discrete minimality yield
-\[
-\alpha\|u_h^B-u\|_{H^1}^2
-\lesssim
-\|v_h^B-u\|_{H^1}^2+
-\langle\lambda,v_h^B-u\rangle.
-\]
-A separate Falk derivation gives the same rate.
 
-**Failure criterion:** locate a sign error, invalid test function, unsupported multiplier regularity, or missing coercivity/continuity assumption.
+Combining interpolation and clipping produces a feasible field `v_n^B` with
+
+\[
+\|u-v_n^B\|_{H^1}
+\le C(h_n^r+h_{\Gamma,n}^{3/2}).
+\]
+
+**Failure criterion:** show that the stated broken bound does not imply a
+mesh-uniform bulk interpolation constant or that `C^{1,1}` does not give the
+stated strip estimate.
+
+### C8. Multiplier consistency and direct minimizer transfer
+
+Define
+
+\[
+\langle\lambda,z\rangle=a(u,z)-F(z).
+\]
+
+On contact outside `omega_n`, the repaired field is zero. On contact inside
+`omega_n`, coefficient stability and the Bernstein convex-hull bound give
+
+\[
+0\le v_n^B\le Ch_{\Gamma,n}^2.
+\]
+
+A bounded multiplier density supported on contact therefore satisfies
+
+\[
+0\le\langle\lambda,v_n^B-u\rangle
+\le C\|\lambda\|_\infty h_{\Gamma,n}^2|\omega_n|
+\le Ch_{\Gamma,n}^3.
+\]
+
+For every feasible `z`,
+
+\[
+J(z)-J(u)
+=\tfrac12a(z-u,z-u)+\langle\lambda,z-u\rangle.
+\]
+
+Since `K_n^B subset K`, discrete minimality gives the direct estimate
+
+\[
+\tfrac12\alpha\|u_n^B-u\|_{H^1}^2
+\le J(u_n^B)-J(u)
+\le J(v_n^B)-J(u)
+\le C(h_n^{2r}+h_{\Gamma,n}^3).
+\]
+
+Taking square roots proves the claimed rate. A separate Falk derivation gives
+the same estimate.
+
+**Failure criterion:** locate a sign error, unsupported multiplier regularity,
+missing support statement, invalid bound on the repaired field over contact,
+or missing coercivity/symmetry assumption.
+
+## Constant ledger
+
+The final constant is mesh-index independent. It may depend on fixed degree,
+dimension, shape regularity, bilinear-form continuity/coercivity, free-boundary
+quadratic-growth constants, tubular geometry, `C^{1,1}` and one-sided
+extension bounds, broken `H^{r+1}` regularity, local grading constants, the
+fixed ring depth, physical-boundary constants, and `||lambda||_infty`.
 
 ## AI-audit result incorporated
 
@@ -134,13 +279,17 @@ The internal AI audit returned `PASS AFTER CORRECTION`:
 - the `3/2` scaling mechanism passed conditionally;
 - the old global-`h_Gamma` localization wording was replaced by C2;
 - the uniform broken regularity requirement was added in C7;
-- the boundary-face/off-face proof was added in C3.
+- the boundary-face/off-face proof was added in C3;
+- the scaling proof is now summed directly by patch volume;
+- the minimizer transfer is now given by a direct inner-cone energy estimate.
 
 ## Required independent verdict
 
-Return `PASS`, `PASS AFTER STATED CORRECTION`, or `FAIL` for C1--C8. Separately state:
+Return `PASS`, `PASS AFTER STATED CORRECTION`, or `FAIL` for C1--C8. Separately
+state:
 
-- whether the local grading assumptions are sufficient and reasonably standard;
+- whether the local grading assumptions are sufficient and reasonably
+  standard;
 - whether the exponent `3/2` is valid in dimensions two and three;
 - whether the physical-boundary split is complete;
 - whether singular or degenerate free-boundary points must remain excluded;
