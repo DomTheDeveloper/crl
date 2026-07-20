@@ -7,10 +7,6 @@ on:
     paths:
       - 'math/bernstein_obstacle/lean/**'
       - '.github/workflows/bernstein-obstacle-lean-audit.yml'
-  pull_request:
-    paths:
-      - 'math/bernstein_obstacle/lean/**'
-      - '.github/workflows/bernstein-obstacle-lean-audit.yml'
   workflow_dispatch:
 
 permissions:
