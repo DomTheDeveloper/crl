@@ -86,7 +86,12 @@ theorem affineBernsteinPolynomial_factor (d n : ℕ)
 @[simp]
 theorem coeff_zero_affineBarycentric_last (d : ℕ) :
     MvPolynomial.coeff 0 (affineBarycentric d (Fin.last d)) = 1 := by
-  simp [affineBarycentric]
+  simp only [affineBarycentric, Fin.snoc_last]
+  rw [MvPolynomial.coeff_sub]
+  rw [MvPolynomial.coeff_C]
+  simp only [if_pos rfl]
+  rw [MvPolynomial.coeff_sum]
+  simp
 
 /-- Every power of the eliminated barycentric coordinate retains constant
 coefficient one. -/
@@ -108,11 +113,17 @@ theorem coeff_affineBernsteinPolynomial_at_own_exponent (d n : ℕ)
       (affineBernsteinPolynomial d n α) =
         affineBernsteinCoefficient d n α := by
   rw [affineBernsteinPolynomial_factor, MvPolynomial.coeff_C_mul]
-  simpa using
-    (MvPolynomial.coeff_monomial_mul
-      (0 : Fin d →₀ ℕ) (affineBernsteinExponent d n α) (1 : ℝ)
-      ((affineBarycentric d (Fin.last d)) ^
-        (α.1 (Fin.last d) : ℕ)))
+  have hinner :
+      MvPolynomial.coeff (affineBernsteinExponent d n α)
+        (MvPolynomial.monomial (affineBernsteinExponent d n α) 1 *
+          (affineBarycentric d (Fin.last d)) ^
+            (α.1 (Fin.last d) : ℕ)) = 1 := by
+    simpa using
+      (MvPolynomial.coeff_monomial_mul
+        (0 : Fin d →₀ ℕ) (affineBernsteinExponent d n α) (1 : ℝ)
+        ((affineBarycentric d (Fin.last d)) ^
+          (α.1 (Fin.last d) : ℕ)))
+  rw [hinner, mul_one]
 
 /-- A Bernstein polynomial cannot contribute to a target monomial whose
 exponent does not dominate its own lowest exponent. -/
