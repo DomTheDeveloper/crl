@@ -1,0 +1,20 @@
+Pinned toolchain: leanprover/lean4:v4.33.0-rc1
+Workflow run: 29755232591
+
+BernsteinObstacle.basis_nonneg (n k : ℕ) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : 0 ≤ BernsteinObstacle.basis n k x
+BernsteinObstacle.basis_sum_eq_one (n : ℕ) (x : ℝ) : ∑ k ∈ Finset.range (n + 1), BernsteinObstacle.basis n k x = 1
+BernsteinObstacle.curve_nonneg (n : ℕ) (c : ℕ → ℝ) (hc : ∀ k ∈ Finset.range (n + 1), 0 ≤ c k) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : 0 ≤ BernsteinObstacle.curve n c x
+BernsteinObstacle.curve_mem_Icc (n : ℕ) (c : ℕ → ℝ) (m M : ℝ) (hc : ∀ k ∈ Finset.range (n + 1), c k ∈ Set.Icc m M) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : BernsteinObstacle.curve n c x ∈ Set.Icc m M
+BernsteinObstacle.curve_le_clipped_curve (n : ℕ) (c : ℕ → ℝ) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : BernsteinObstacle.curve n c x ≤ BernsteinObstacle.curve n (fun k => BernsteinObstacle.clip (c k)) x
+BernsteinObstacle.noPenetration_of_nonnegative_coefficients (ψ : ℝ → ℝ) (n : ℕ) (c : ℕ → ℝ) (hc : ∀ k ∈ Finset.range (n + 1), 0 ≤ c k) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : ψ x ≤ BernsteinObstacle.obstacleApprox ψ n c x
+BernsteinObstacle.noPenetration_after_clipping (ψ : ℝ → ℝ) (n : ℕ) (c : ℕ → ℝ) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : ψ x ≤ BernsteinObstacle.obstacleApprox ψ n (fun k => BernsteinObstacle.clip (c k)) x
+
+'BernsteinObstacle.basis_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'BernsteinObstacle.basis_sum_eq_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'BernsteinObstacle.curve_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'BernsteinObstacle.curve_mem_Icc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'BernsteinObstacle.curve_le_clipped_curve' depends on axioms: [propext, Classical.choice, Quot.sound]
+'BernsteinObstacle.noPenetration_of_nonnegative_coefficients' depends on axioms: [propext, Classical.choice, Quot.sound]
+'BernsteinObstacle.noPenetration_after_clipping' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+No sorryAx was reported.
