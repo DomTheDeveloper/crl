@@ -65,6 +65,8 @@ jobs:
           grep -F 'BernsteinObstacle.noPenetration_after_clipping' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.clippedRecovery_localBoundaryFaceTrace_eq_zero' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexBasis_lastFace_embed' \
+            bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.affineBernsteinBasis_sum_repr' \
