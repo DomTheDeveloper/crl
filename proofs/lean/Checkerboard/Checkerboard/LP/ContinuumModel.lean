@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # Continuum primal and dual for the four-direction checkerboard LP
 
-The primal constraints are stated in their test-function form.  For nonnegative
+The primal constraints are stated in their test-function form. For nonnegative
 measurable test functions this is equivalent to domination of the two paired
 pushforward measures by four times Lebesgue measure on `[0,1]`.
 
@@ -62,15 +62,15 @@ lemma measurable_pairedObstacle {A B : ℝ → ℝ≥0∞}
 /-- Feasibility for the continuum primal.
 
 `projection_bound` is the test-function form of the two paired projection
-constraints.  It is deliberately quantified only over measurable nonnegative
+constraints. It is deliberately quantified only over measurable nonnegative
 functions, because the codomain `ℝ≥0∞` already encodes nonnegativity.
 -/
 structure ContinuumPrimalFeasible (μ : Measure ContinuumPoint) : Prop where
-  support : ∀ᵐ z ∂ μ, z ∈ continuumTriangle
+  support : ∀ᵐ z ∂μ, z ∈ continuumTriangle
   projection_bound :
     ∀ (A B : ℝ → ℝ≥0∞), Measurable A → Measurable B →
-      (∫⁻ z, pairedObstacle A B z ∂ μ) ≤
-        4 * ((∫⁻ t, A t ∂ unitIntervalVolume) + (∫⁻ t, B t ∂ unitIntervalVolume))
+      (∫⁻ z, pairedObstacle A B z ∂μ) ≤
+        4 * ((∫⁻ t, A t ∂unitIntervalVolume) + (∫⁻ t, B t ∂unitIntervalVolume))
 
 /-- Feasibility for the continuum dual obstacle problem. -/
 structure ContinuumDualFeasible (A B : ℝ → ℝ≥0∞) : Prop where
@@ -83,7 +83,7 @@ def continuumPrimalValue (μ : Measure ContinuumPoint) : ℝ≥0∞ := μ Set.un
 
 /-- Objective value of a continuum dual candidate. -/
 def continuumDualValue (A B : ℝ → ℝ≥0∞) : ℝ≥0∞ :=
-  4 * ((∫⁻ t, A t ∂ unitIntervalVolume) + (∫⁻ t, B t ∂ unitIntervalVolume))
+  4 * ((∫⁻ t, A t ∂unitIntervalVolume) + (∫⁻ t, B t ∂unitIntervalVolume))
 
 /-- Weak duality for the exact continuum primal and dual. -/
 theorem continuum_weak_duality
@@ -91,14 +91,14 @@ theorem continuum_weak_duality
     (hμ : ContinuumPrimalFeasible μ) (hAB : ContinuumDualFeasible A B) :
     continuumPrimalValue μ ≤ continuumDualValue A B := by
   calc
-    continuumPrimalValue μ = ∫⁻ _z, (1 : ℝ≥0∞) ∂ μ := by
+    continuumPrimalValue μ = ∫⁻ _z, (1 : ℝ≥0∞) ∂μ := by
       simp [continuumPrimalValue]
-    _ ≤ ∫⁻ z, pairedObstacle A B z ∂ μ := by
+    _ ≤ ∫⁻ z, pairedObstacle A B z ∂μ := by
       apply lintegral_mono_ae
       filter_upwards [hμ.support] with z hz
       exact hAB.obstacle z hz
-    _ ≤ 4 * ((∫⁻ t, A t ∂ unitIntervalVolume) +
-        (∫⁻ t, B t ∂ unitIntervalVolume)) :=
+    _ ≤ 4 * ((∫⁻ t, A t ∂unitIntervalVolume) +
+        (∫⁻ t, B t ∂unitIntervalVolume)) :=
       hμ.projection_bound A B hAB.measurable_A hAB.measurable_B
     _ = continuumDualValue A B := rfl
 
