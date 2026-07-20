@@ -141,12 +141,13 @@ jobs:
           test '${{ steps.compile.outputs.exit_code }}' = '0'
           ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' \
             "green14-fast-${TARGET_T}.log"
-      - name: Upload transcript
+      - name: Upload theorem source and transcript
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: green14-kernel-theorem-${{ matrix.t }}
           path: |
+            ci/lean/Green14Matrix/Green14Fast${{ matrix.t }}.lean
             ci/lean/Green14Matrix/green14-fast-${{ matrix.t }}.log
             ci/lean/Green14Matrix/green14-fast-${{ matrix.t }}-tail.log
             ci/lean/Green14Matrix/green14-fast-${{ matrix.t }}-metadata.txt
