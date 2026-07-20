@@ -48,11 +48,6 @@ theorem localFaceTrace_eq_of_orientation
     (rightEmbed : Element → Face → J → MultiIndex d n)
     (leftWeight : I → Y → ℝ) (rightWeight : J → Y → ℝ)
     (e : I ≃ J)
-    (hDof : ∀ i,
-      A.localDof (Classical.choice inferInstance)
-        (leftEmbed (Classical.choice inferInstance) (Classical.choice inferInstance) i) =
-      A.localDof (Classical.choice inferInstance)
-        (rightEmbed (Classical.choice inferInstance) (Classical.choice inferInstance) (e i)))
     (hWeight : ∀ i y, leftWeight i y = rightWeight (e i) y)
     (c : Dof → ℝ)
     (T U : Element) (F : Face) (y : Y)
