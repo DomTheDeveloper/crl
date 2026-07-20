@@ -68,8 +68,9 @@ theorem residue_constant_of_minimal {ι : Type*} {N p : ℕ}
     exact hmin.2.2 fiber hproper hfiber_nonempty hfiber_vanish
   refine ⟨r₀, ?_⟩
   intro i hi
-  have : i ∈ fiber := hfiber_eq.symm ▸ hi
-  simpa [fiber] using this
+  have hifiber : i ∈ fiber := hfiber_eq.symm ▸ hi
+  change i ∈ s.filter (fun j ↦ exponentResidue (p := p) (a j) = r₀) at hifiber
+  exact (Finset.mem_filter.mp hifiber).2
 
 /-- If `p²` divides the conductor, every prime-residue Fourier coefficient is
 obtained from a coprime Galois conjugate of the original relation. -/
@@ -99,6 +100,7 @@ theorem residueVector_eq_zero_large_prime {ι : Type*} {p m : ℕ}
     (s : Finset ι) (a : ι → Fin (p * m)) (hcard : s.card ≤ 6)
     (hvan : Vanishes s (fun i ↦ canonicalRoot (p * m) ^ (a i).val)) :
     residueVector (N := p * m) (p := p) s a = 0 := by
+  classical
   letI : NeZero p := ⟨hp.ne_zero⟩
   let tag : ι → ZMod p := fun i ↦ exponentResidue (p := p) (a i)
   obtain ⟨r₀, hr₀⟩ := exists_missing_residue hp s tag hcard hp6
