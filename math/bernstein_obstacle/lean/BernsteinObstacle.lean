@@ -64,6 +64,7 @@ import BernsteinObstacle.OptimalGrading
 import BernsteinObstacle.MovingObstacleRate
 import BernsteinObstacle.GrandSaturationRate
 import BernsteinObstacle.GrandTheorem
+import BernsteinObstacle.RealGrandTheorem
 import BernsteinObstacle.HilbertVI
 import BernsteinObstacle.NestedHilbertVI
 import BernsteinObstacle.MovingHilbertVI
