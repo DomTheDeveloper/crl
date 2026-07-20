@@ -41,8 +41,25 @@ jobs:
           from pathlib import Path
           path = Path('.lake/packages/formal_conjectures/WOWII/ZZGraphConjecture314C5Bags.lean')
           text = path.read_text()
-          old = '    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ] <;>\n    decide'
-          new = '    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ] <;>\n    omega'
+          old = '''    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ] <;>
+    decide'''
+          new = '''    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ] <;>
+    first
+    | exact ⟨(0 : Fin 5), by norm_num, by
+        intro y hy
+        fin_cases y <;> norm_num at hy ⊢⟩
+    | exact ⟨(1 : Fin 5), by norm_num, by
+        intro y hy
+        fin_cases y <;> norm_num at hy ⊢⟩
+    | exact ⟨(2 : Fin 5), by norm_num, by
+        intro y hy
+        fin_cases y <;> norm_num at hy ⊢⟩
+    | exact ⟨(3 : Fin 5), by norm_num, by
+        intro y hy
+        fin_cases y <;> norm_num at hy ⊢⟩
+    | exact ⟨(4 : Fin 5), by norm_num, by
+        intro y hy
+        fin_cases y <;> norm_num at hy ⊢⟩'''
           if old not in text:
               raise SystemExit('expected concrete Fin 5 closure not found')
           path.write_text(text.replace(old, new, 1))
