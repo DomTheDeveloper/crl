@@ -12,6 +12,7 @@ import BernsteinObstacle
 #check BernsteinObstacle.repair_norm_le_threeHalves_of_element_bounds
 #check BernsteinObstacle.feasibleRecoveryRate_of_interpolation_and_repair
 #check BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier
+#check BernsteinObstacle.twoScaleRate_of_energy_components
 #check BernsteinObstacle.universalFirstOrderRate_of_energy
 #check BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure
 
@@ -27,5 +28,6 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.repair_norm_le_threeHalves_of_element_bounds
 #print axioms BernsteinObstacle.feasibleRecoveryRate_of_interpolation_and_repair
 #print axioms BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier
+#print axioms BernsteinObstacle.twoScaleRate_of_energy_components
 #print axioms BernsteinObstacle.universalFirstOrderRate_of_energy
 #print axioms BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure
