@@ -1,0 +1,51 @@
+name: Fetch upstream checkerboard certificate source
+
+on:
+  push:
+    branches:
+      - audit/checkerboard-continuum-core
+    paths:
+      - '.github/workflows/checkerboard-fetch-upstream-source.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/checkerboard-fetch-upstream-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checkerboard-fetch-upstream-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download exact arXiv v1 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p fetched/source
+          curl --retry 5 --retry-delay 2 -L --fail \
+            https://arxiv.org/e-print/2605.09215v1 \
+            -o fetched/prellberg-source.tar
+          sha256sum fetched/prellberg-source.tar | tee fetched/source-tar.sha256
+          tar -xf fetched/prellberg-source.tar -C fetched/source
+          find fetched/source -type f -print | sort | tee fetched/file-list.txt
+          test -f fetched/source/odd_fat_certificate/bernstein_coefficients.tsv
+          test -f fetched/source/odd_fat_certificate/constants.tsv
+          test -f fetched/source/odd_fat_certificate/sign_checks.tsv
+          test -f fetched/source/odd_fat_certificate/triangles.tsv
+          test -f fetched/source/odd_fat_certificate/verify_odd_fat_certificate.py
+          python fetched/source/odd_fat_certificate/verify_odd_fat_certificate.py \
+            2>&1 | tee fetched/upstream-verification.log
+      - name: Upload exact source bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: prellberg-odd-fat-source-v1
+          path: fetched
+          if-no-files-found: error
+          retention-days: 30
