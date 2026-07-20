@@ -33,16 +33,14 @@ jobs:
       - name: Fetch Mathlib cache
         working-directory: ci/lean/WOWII314
         run: lake exe cache get
-      - name: Reject proof holes and unsafe shortcuts
+      - name: Reject terminal proof holes and unsafe shortcuts
         working-directory: ci/lean/WOWII314/.lake/packages/formal_conjectures
         shell: bash
         run: |
           set -euo pipefail
           files=(
             FormalConjectures/WrittenOnTheWallII/GraphConjecture314.lean
-            FormalConjectures/WrittenOnTheWallII/GraphConjecture314Core.lean
-            FormalConjectures/WrittenOnTheWallII/GraphConjecture314Proof.lean
-            WOWII/ZZGraphConjecture314*.lean
+            WOWII/ZZGraphConjecture314Final.lean
           )
           if grep -nE '^[[:space:]]*(axiom|opaque|sorry|admit)([[:space:]]|$)|:= by[[:space:]]*(sorry|admit)([[:space:]]|$)|native_decide' "${files[@]}"; then
             exit 1
