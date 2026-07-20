@@ -63,6 +63,7 @@ jobs:
           lake env lean MovingAnalysisAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SharpRateAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean MinkowskiRateAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean GrandTheoremAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           if grep -q 'sorryAx' bernstein-obstacle-axioms.log; then
             echo 'Unexpected sorryAx found' >&2
             exit 1
@@ -113,6 +114,18 @@ jobs:
           grep -F 'BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.sharpRate_of_vanishingCodimension_components' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.affineBox_mem_Icc' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.boxApprox_mem_Icc' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexBoxApproxNat_mem_Icc' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.twoScaleRate_of_energy_components' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.universalFirstOrderRate_of_energy' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure' \
             bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript
