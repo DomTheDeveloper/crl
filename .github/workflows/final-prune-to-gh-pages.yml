@@ -1,0 +1,112 @@
+name: Final prune to gh-pages
+
+on:
+  push:
+    paths:
+      - .github/workflows/final-prune-to-gh-pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/gracious-hamilton-8k6xhz
+          fetch-depth: 1
+      - name: Make gh-pages the sole branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          repo="$GITHUB_REPOSITORY"
+          canonical_pages_sha='c8e745f409811f4d63fa6c9693ef04b0a993e754'
+          pages_backup="branch-cleanup-pages-backup-${GITHUB_RUN_ID}"
+
+          restore_pages() {
+            if gh api "repos/$repo/git/ref/heads/gh-pages" >/dev/null 2>&1; then
+              gh api --method PATCH "repos/$repo/git/refs/heads/gh-pages" \
+                -f sha="$canonical_pages_sha" -F force=true >/dev/null || true
+            else
+              gh api --method POST "repos/$repo/git/refs" \
+                -f ref='refs/heads/gh-pages' -f sha="$canonical_pages_sha" >/dev/null || true
+            fi
+          }
+
+          rollback() {
+            status=$?
+            if [[ $status -ne 0 ]]; then
+              echo 'Cleanup failed; restoring the canonical gh-pages ref.'
+              restore_pages
+            fi
+            exit $status
+          }
+          trap rollback EXIT
+
+          current_branch="$(git branch --show-current)"
+          echo "Checked-out branch: $current_branch"
+          [[ "$current_branch" == 'claude/gracious-hamilton-8k6xhz' ]]
+
+          echo "Renaming existing gh-pages to $pages_backup."
+          gh api --method POST "repos/$repo/branches/gh-pages/rename" \
+            -f new_name="$pages_backup" >/dev/null
+
+          for _ in $(seq 1 30); do
+            if ! gh api "repos/$repo/git/ref/heads/gh-pages" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+
+          if gh api "repos/$repo/git/ref/heads/gh-pages" >/dev/null 2>&1; then
+            echo 'Removing lingering old gh-pages ref after verified backup rename.'
+            gh api --method DELETE "repos/$repo/git/refs/heads/gh-pages"
+          fi
+
+          gh api "repos/$repo/git/ref/heads/$pages_backup" >/dev/null
+
+          echo 'Renaming the checked-out default branch to gh-pages.'
+          gh api --method POST 'repos/{owner}/{repo}/branches/{branch}/rename' \
+            -f new_name='gh-pages' >/dev/null
+
+          for _ in $(seq 1 30); do
+            default_branch="$(gh api "repos/$repo" --jq '.default_branch')"
+            [[ "$default_branch" == 'gh-pages' ]] && break
+            sleep 1
+          done
+          [[ "$(gh api "repos/$repo" --jq '.default_branch')" == 'gh-pages' ]]
+
+          echo 'Restoring canonical Pages content.'
+          gh api --method PATCH "repos/$repo/git/refs/heads/gh-pages" \
+            -f sha="$canonical_pages_sha" -F force=true >/dev/null
+
+          echo 'Deleting every non-gh-pages branch.'
+          mapfile -t branches < <(
+            gh api --paginate "repos/$repo/git/matching-refs/heads/" \
+              --jq '.[].ref | sub("^refs/heads/"; "")'
+          )
+          for branch in "${branches[@]}"; do
+            [[ "$branch" == 'gh-pages' ]] && continue
+            echo "Deleting $branch"
+            gh api --method DELETE "repos/$repo/git/refs/heads/$branch"
+          done
+
+          final_default="$(gh api "repos/$repo" --jq '.default_branch')"
+          mapfile -t final_branches < <(
+            gh api --paginate "repos/$repo/git/matching-refs/heads/" \
+              --jq '.[].ref | sub("^refs/heads/"; "")' | sort
+          )
+
+          echo "Final default branch: $final_default"
+          printf 'Final branches: %s\n' "${final_branches[*]}"
+
+          [[ "$final_default" == 'gh-pages' ]]
+          [[ "${#final_branches[@]}" -eq 1 ]]
+          [[ "${final_branches[0]}" == 'gh-pages' ]]
+
+          trap - EXIT
