@@ -17,10 +17,10 @@ open scoped BigOperators Matrix
 namespace A387471
 
 /-- The explicit 30th cyclotomic polynomial. -/
-def phi30 : ℤ[X] := X ^ 8 + X ^ 7 - X ^ 5 - X ^ 4 - X ^ 3 + X + 1
+noncomputable def phi30 : ℤ[X] := X ^ 8 + X ^ 7 - X ^ 5 - X ^ 4 - X ^ 3 + X + 1
 
 /-- The explicit 60th cyclotomic polynomial. -/
-def phi60 : ℤ[X] := X ^ 16 + X ^ 14 - X ^ 10 - X ^ 8 - X ^ 6 + X ^ 2 + 1
+noncomputable def phi60 : ℤ[X] := X ^ 16 + X ^ 14 - X ^ 10 - X ^ 8 - X ^ 6 + X ^ 2 + 1
 
 lemma cyclotomic_thirty : cyclotomic 30 ℤ = phi30 := by
   apply mul_right_cancel₀ (cyclotomic_ne_zero 6 ℤ)
@@ -92,13 +92,13 @@ lemma evalVec60_zero (z : ℂ) : evalVec60 z 0 = 0 := by
 
 lemma evalVec60_add (z : ℂ) (v w : Fin 16 → ℤ) :
     evalVec60 z (v + w) = evalVec60 z v + evalVec60 z w := by
-  simp [evalVec60, Finset.sum_add_distrib]
-  ring
+  simp only [evalVec60, Pi.add_apply, Int.cast_add, add_mul,
+    Finset.sum_add_distrib]
 
 lemma evalVec60_sub (z : ℂ) (v w : Fin 16 → ℤ) :
     evalVec60 z (v - w) = evalVec60 z v - evalVec60 z w := by
-  simp [evalVec60, Finset.sum_sub_distrib]
-  ring
+  simp only [evalVec60, Pi.sub_apply, Int.cast_sub, sub_mul,
+    Finset.sum_sub_distrib]
 
 lemma aeval_vecPoly60Q (z : ℂ) (v : Fin 16 → ℤ) :
     Polynomial.aeval z (vecPoly60Q v) = evalVec60 z v := by
@@ -107,7 +107,11 @@ lemma aeval_vecPoly60Q (z : ℂ) (v : Fin 16 → ℤ) :
 lemma coeff_vecPoly60Q (v : Fin 16 → ℤ) (i : Fin 16) :
     (vecPoly60Q v).coeff i.val = (v i : ℚ) := by
   classical
-  rw [vecPoly60Q, coeff_sum]
+  unfold vecPoly60Q
+  change (Polynomial.lcoeff ℚ i.val)
+      (∑ j : Fin 16, C (v j : ℚ) * X ^ j.val) = (v i : ℚ)
+  rw [map_sum]
+  simp only [Polynomial.lcoeff_apply]
   apply Finset.sum_eq_single i
   · intro j _ hji
     have hval : j.val ≠ i.val := fun h ↦ hji (Fin.ext h)
@@ -120,9 +124,11 @@ lemma vecPoly60Q_eq_zero_iff (v : Fin 16 → ℤ) : vecPoly60Q v = 0 ↔ v = 0 :
   constructor
   · intro h
     funext i
-    have hi := congrArg (fun p : ℚ[X] ↦ p.coeff i.val) h
-    rw [coeff_vecPoly60Q] at hi
-    simpa using hi
+    have hiQ : (v i : ℚ) = 0 := by
+      rw [← coeff_vecPoly60Q v i, h]
+      simp
+    have hiZ : v i = 0 := by exact_mod_cast hiQ
+    simpa using hiZ
   · rintro rfl
     simp [vecPoly60Q]
 
@@ -156,9 +162,10 @@ def exceptionalGrid (a b c : ℤ) : Prop :=
 /-- Complete target classification on the bounded grid. -/
 def classifiedGrid (a b c : ℤ) : Prop := ordinaryGrid a b c ∨ exceptionalGrid a b c
 
-/-- Exact coefficient-vector vanishing predicate. -/
+/-- Exact coefficient-vector vanishing predicate, stated pointwise so its
+finite decision procedure is fully kernel-reducible. -/
 def vectorRelationGrid (a b c : Fin 29) : Prop :=
-  relationVec60 (angleInt a) (angleInt b) (angleInt c) = 0
+  ∀ i : Fin 16, relationVec60 (angleInt a) (angleInt b) (angleInt c) i = 0
 
 set_option maxRecDepth 1000000 in
 set_option maxHeartbeats 0 in
