@@ -6,6 +6,7 @@ on:
       - audit/checkerboard-continuum-core
     paths:
       - '.github/workflows/checkerboard-continuum-audit.yml'
+      - 'proofs/lean/Checkerboard/**'
   pull_request:
     paths:
       - '.github/workflows/checkerboard-continuum-audit.yml'
@@ -25,6 +26,30 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate exact certificate modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          : > proofs/lean/Checkerboard/generation.log
+          python -m pip install sympy 2>&1 | tee -a proofs/lean/Checkerboard/generation.log
+          for script in \
+            generate_outer_certificate.py \
+            generate_outer_density_certificate.py \
+            generate_outer_support_certificate.py \
+            generate_outer_geometry_certificate.py \
+            generate_outer_marginal_ae_certificate.py \
+            generate_outer_projection_ae_certificate.py \
+            generate_outer_measure_certificate.py \
+            generate_dual_bernstein_certificate.py \
+            generate_dual_function_identities.py \
+            emit_dual_handelman_certificate.py
+          do
+            echo "=== $script ===" | tee -a proofs/lean/Checkerboard/generation.log
+            python "scripts/checkerboard/$script" 2>&1 | tee -a proofs/lean/Checkerboard/generation.log
+          done
       - name: Install pinned Lean
         shell: bash
         run: |
@@ -39,7 +64,7 @@ jobs:
           set -euo pipefail
           lake update
           lake exe cache get
-      - name: Build committed exact continuum primal-dual stack
+      - name: Build exact continuum primal-dual stack
         working-directory: proofs/lean/Checkerboard
         shell: bash
         run: |
@@ -71,10 +96,12 @@ jobs:
             Checkerboard/LP/ContinuumPrimalCertificate.lean \
             Checkerboard/LP/ContinuumDualCertificate.lean \
             Checkerboard/LP/ContinuumOptimum.lean
-      - name: Upload transcript
+      - name: Upload transcripts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: checkerboard-continuum-audit
-          path: proofs/lean/Checkerboard/continuum-audit.log
+          path: |
+            proofs/lean/Checkerboard/generation.log
+            proofs/lean/Checkerboard/continuum-audit.log
           if-no-files-found: warn
