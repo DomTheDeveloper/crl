@@ -1,5 +1,6 @@
 name: Bernstein obstacle Lean audit
 
+# Exact-head gate for the unified grand theorem, including the gradient-modulus bridge.
 on:
   push:
     branches:
