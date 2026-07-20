@@ -110,7 +110,13 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.BilateralBarrierEnvelopeData.grandBarrier_mosco_and_hilbertConvergence' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.SobolevFEMRecoveryData.grandBarrier_hilbertConvergence' \
+            bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.monotoneInnerCone_falk_sq' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.monotoneInnerCone_operator_core' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.monotoneInnerCone_operator_falk_sq' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.threeHalvesContactLaw' \
             bernstein-obstacle-axioms.log
