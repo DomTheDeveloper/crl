@@ -17,11 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - name: Check out archived A387471 proof commit
+      - name: Check out repaired A387471 proof commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/crl
-          ref: 17ffe1b3834dce1b8d66c25b1814a10a91288365
+          ref: cc102db296feb8961dc66036acffd8a6193b0ca1
           path: campaign
 
       - name: Install pinned Lean
