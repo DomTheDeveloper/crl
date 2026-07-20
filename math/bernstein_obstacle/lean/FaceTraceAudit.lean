@@ -1,0 +1,15 @@
+import BernsteinObstacle
+
+#check BernsteinObstacle.localFaceTrace_eq_sharedFaceTrace
+#check BernsteinObstacle.localFaceTrace_eq_of_commonFace
+#check BernsteinObstacle.clipped_localFaceTrace_eq_of_commonFace
+#check BernsteinObstacle.sharedBoundaryFaceTrace_eq_zero
+#check BernsteinObstacle.localBoundaryFaceTrace_eq_zero
+#check BernsteinObstacle.clippedRecovery_localBoundaryFaceTrace_eq_zero
+
+#print axioms BernsteinObstacle.localFaceTrace_eq_sharedFaceTrace
+#print axioms BernsteinObstacle.localFaceTrace_eq_of_commonFace
+#print axioms BernsteinObstacle.clipped_localFaceTrace_eq_of_commonFace
+#print axioms BernsteinObstacle.sharedBoundaryFaceTrace_eq_zero
+#print axioms BernsteinObstacle.localBoundaryFaceTrace_eq_zero
+#print axioms BernsteinObstacle.clippedRecovery_localBoundaryFaceTrace_eq_zero
