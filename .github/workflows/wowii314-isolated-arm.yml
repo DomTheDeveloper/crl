@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: isolated-wowii314-arm-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   audit:
