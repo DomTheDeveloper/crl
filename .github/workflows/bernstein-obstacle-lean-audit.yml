@@ -70,58 +70,37 @@ jobs:
             exit 1
           fi
           grep -F 'BernsteinObstacle.noPenetration_after_clipping' bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.clippedRecovery_localBoundaryFaceTrace_eq_zero' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.simplexField_lastFace_extension' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.simplexField_orientedLastFace_extension' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.simplexSamplingRecovery_nonneg' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.clipped_orientedSimplexFaceTrace_eq_of_sharedDofs' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.affineBernsteinBasis_sum_repr' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.existsUnique_bernsteinCoefficients_with_latticeValues' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.diagonalRecovery_minimizers_strongConvergence' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.SobolevFEMRecoveryData.moscoConverges' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.SobolevFEMRecoveryData.minimizers_strongConvergence' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.local_distance_lt_of_coefficient_neg' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.boundary_offFace_coefficient_nonneg' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.corrected_localization_and_sharp_rate' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.correctedSharpMinimizerRate_of_broken_bulk_and_multiplier' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.optimalBulkRate_of_balanced_interface' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.simplexBoxApproxNat_mem_Icc' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.BilateralBarrierEnvelopeData.moscoConverges' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.BilateralBarrierEnvelopeData.grandBarrier_mosco_and_hilbertConvergence' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.SobolevFEMRecoveryData.grandBarrier_hilbertConvergence' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.monotoneInnerCone_falk_sq' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.monotoneInnerCone_operator_core' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.monotoneInnerCone_operator_falk_sq' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.threeHalvesContactLaw' \
-            bernstein-obstacle-axioms.log
-          grep -F 'BernsteinObstacle.balancedContactOrder_equalizes' \
-            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.clippedRecovery_localBoundaryFaceTrace_eq_zero' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexField_lastFace_extension' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexField_orientedLastFace_extension' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexSamplingRecovery_nonneg' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.clipped_orientedSimplexFaceTrace_eq_of_sharedDofs' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.affineBernsteinBasis_sum_repr' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.existsUnique_bernsteinCoefficients_with_latticeValues' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.diagonalRecovery_minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.scheduledRecovery' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.movingObstacle_moscoConverges' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.movingObstacle_minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.local_distance_lt_of_coefficient_neg' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.boundary_offFace_coefficient_nonneg' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.corrected_localization_and_sharp_rate' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.correctedSharpMinimizerRate_of_broken_bulk_and_multiplier' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.optimalBulkRate_of_balanced_interface' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexBoxApproxNat_mem_Icc' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.BilateralBarrierEnvelopeData.moscoConverges' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.BilateralBarrierEnvelopeData.grandBarrier_mosco_and_hilbertConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.SobolevFEMRecoveryData.grandBarrier_hilbertConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.monotoneInnerCone_falk_sq' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.monotoneInnerCone_operator_core' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.monotoneInnerCone_operator_falk_sq' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.phaseLockedQuadraticSlopeEnergy_lowerBound' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.bernsteinBezierObstacleGrandTheorem' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_quadraticContact' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.threeHalvesContactLaw' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.balancedContactOrder_equalizes' bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript
         if: always()
