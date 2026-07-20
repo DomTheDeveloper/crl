@@ -14,6 +14,7 @@ import BernsteinObstacle
 #check BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier
 #check BernsteinObstacle.affineBox_mem_Icc
 #check BernsteinObstacle.boxApprox_mem_Icc
+#check BernsteinObstacle.simplexBoxApproxNat_mem_Icc
 #check BernsteinObstacle.twoScaleRate_of_energy_components
 #check BernsteinObstacle.universalFirstOrderRate_of_energy
 #check BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure
@@ -32,6 +33,7 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier
 #print axioms BernsteinObstacle.affineBox_mem_Icc
 #print axioms BernsteinObstacle.boxApprox_mem_Icc
+#print axioms BernsteinObstacle.simplexBoxApproxNat_mem_Icc
 #print axioms BernsteinObstacle.twoScaleRate_of_energy_components
 #print axioms BernsteinObstacle.universalFirstOrderRate_of_energy
 #print axioms BernsteinObstacle.universalFirstOrderRate_of_recovery_and_measure
