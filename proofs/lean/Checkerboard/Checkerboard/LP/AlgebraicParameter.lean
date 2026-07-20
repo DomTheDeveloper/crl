@@ -58,10 +58,11 @@ theorem p_root_unique_in_isolating_interval {x y : ℝ}
   have hyu : y ≤ (11 / 50 : ℝ) := hyI.2.trans pUpper_coarse
   have hx0 : 0 ≤ x := by linarith
   have hy0 : 0 ≤ y := by linarith
+  have hu0 : 0 ≤ (11 / 50 : ℝ) := by norm_num
   have hx_sq : x ^ 2 ≤ (11 / 50 : ℝ) ^ 2 := by
-    nlinarith [mul_nonneg (sub_nonneg.mpr hxu) (add_nonneg (by norm_num) hx0)]
+    nlinarith [mul_nonneg (sub_nonneg.mpr hxu) (add_nonneg hu0 hx0)]
   have hy_sq : y ^ 2 ≤ (11 / 50 : ℝ) ^ 2 := by
-    nlinarith [mul_nonneg (sub_nonneg.mpr hyu) (add_nonneg (by norm_num) hy0)]
+    nlinarith [mul_nonneg (sub_nonneg.mpr hyu) (add_nonneg hu0 hy0)]
   have hxy₁ : x * y ≤ (11 / 50 : ℝ) * y := by
     nlinarith [mul_nonneg (sub_nonneg.mpr hxu) hy0]
   have hxy₂ : (11 / 50 : ℝ) * y ≤ (11 / 50 : ℝ) ^ 2 := by
