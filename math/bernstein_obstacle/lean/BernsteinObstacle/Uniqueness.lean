@@ -26,10 +26,12 @@ theorem coefficientNormSq_eq_zero_iff (w : ι → ℝ) :
   constructor
   · intro h
     funext i
+    simp only [Pi.zero_apply]
     have hterm : (w i) ^ 2 = 0 := by
-      have hnonneg : ∀ j, 0 ≤ (w j) ^ 2 := fun j => sq_nonneg (w j)
+      have hnonneg : ∀ j ∈ (Finset.univ : Finset ι), 0 ≤ (w j) ^ 2 :=
+        fun j _ => sq_nonneg (w j)
       exact Finset.sum_eq_zero_iff_of_nonneg hnonneg |>.mp h i (Finset.mem_univ i)
-    nlinarith
+    exact sq_eq_zero_iff.mp hterm
   · intro h
     rw [h]
     simp [coefficientNormSq]
