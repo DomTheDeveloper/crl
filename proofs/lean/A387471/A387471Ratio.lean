@@ -38,8 +38,8 @@ theorem order_dvd_of_canonical_ratio_pow_eq_one {N : ℕ} [NeZero N]
     simpa [nsmul_eq_mul] using hz
   exact (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp hcast
 
-/-- The paired positive/negative labels in the A387471 relation force `n ∣ 5A`. -/
 set_option maxHeartbeats 0 in
+/-- The paired positive/negative labels in the A387471 relation force `n ∣ 5A`. -/
 theorem n_dvd_five_mul_of_paired_ratio {n : ℕ} (hn : 0 < n) (A : ℤ) :
     letI : NeZero (12 * n) := ⟨mul_ne_zero (by norm_num) hn.ne'⟩
     (canonicalRoot (12 * n) ^ (intResidue (12 * n) A).val /
@@ -53,6 +53,7 @@ theorem n_dvd_five_mul_of_paired_ratio {n : ℕ} (hn : 0 < n) (A : ℤ) :
     (N := 12 * n) A (6 * (n : ℤ) - A) 30 h
   rcases hd with ⟨q, hq⟩
   refine ⟨q + 15, ?_⟩
+  push_cast at hq
   nlinarith [hq]
 
 #print axioms order_dvd_of_canonical_ratio_pow_eq_one
