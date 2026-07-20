@@ -1,0 +1,13 @@
+import BernsteinObstacle
+
+#check BernsteinObstacle.IsHilbertVISolution
+#check BernsteinObstacle.IsHilbertSqDistMinimizer
+#check BernsteinObstacle.hilbert_vi_pythagorean
+#check BernsteinObstacle.hilbert_vi_error_sq_le_distance_gap
+#check BernsteinObstacle.hilbert_vi_is_sqDistMinimizer
+#check BernsteinObstacle.hilbert_vi_unique
+
+#print axioms BernsteinObstacle.hilbert_vi_pythagorean
+#print axioms BernsteinObstacle.hilbert_vi_error_sq_le_distance_gap
+#print axioms BernsteinObstacle.hilbert_vi_is_sqDistMinimizer
+#print axioms BernsteinObstacle.hilbert_vi_unique
