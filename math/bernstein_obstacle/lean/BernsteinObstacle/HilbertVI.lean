@@ -42,6 +42,10 @@ theorem hilbert_vi_pythagorean
     ‖v - u‖ ^ 2 + ‖u - z‖ ^ 2 ≤ ‖v - z‖ ^ 2 := by
   have hvz : v - z = (v - u) + (u - z) := by
     abel
+  have hleft : ⟪v - u, v - u⟫_ℝ = ‖v - u‖ ^ 2 := by
+    simpa using (inner_self_eq_norm_sq_to_K (𝕜 := ℝ) (v - u))
+  have hright : ⟪u - z, u - z⟫_ℝ = ‖u - z‖ ^ 2 := by
+    simpa using (inner_self_eq_norm_sq_to_K (𝕜 := ℝ) (u - z))
   have hnorm :
       ‖v - z‖ ^ 2 =
         ‖v - u‖ ^ 2 + 2 * ⟪u - z, v - u⟫_ℝ + ‖u - z‖ ^ 2 := by
@@ -49,10 +53,10 @@ theorem hilbert_vi_pythagorean
       ‖v - z‖ ^ 2 = ‖(v - u) + (u - z)‖ ^ 2 := by rw [hvz]
       _ = ⟪(v - u) + (u - z), (v - u) + (u - z)⟫_ℝ := by
         symm
-        exact inner_self_eq_norm_sq_to_K ((v - u) + (u - z))
+        simpa using
+          (inner_self_eq_norm_sq_to_K (𝕜 := ℝ) ((v - u) + (u - z)))
       _ = ‖v - u‖ ^ 2 + 2 * ⟪u - z, v - u⟫_ℝ + ‖u - z‖ ^ 2 := by
-        rw [real_inner_add_add_self]
-        simp only [inner_self_eq_norm_sq_to_K]
+        rw [real_inner_add_add_self, hleft, hright]
         rw [real_inner_comm (v - u) (u - z)]
   linarith
 
