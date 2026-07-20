@@ -40,8 +40,6 @@ import BernsteinObstacle.SobolevFEMRecovery
 import BernsteinObstacle.TranslatedMosco
 import BernsteinObstacle.MovingObstacleConvergence
 import BernsteinObstacle.MovingObstacleRate
-import BernsteinObstacle.GrandSaturationRate
-import BernsteinObstacle.GrandTheorem
 import BernsteinObstacle.CoefficientMosco
 import BernsteinObstacle.AssemblyMosco
 import BernsteinObstacle.MinimizerConvergence
@@ -56,4 +54,6 @@ import BernsteinObstacle.StripScaling
 import BernsteinObstacle.MinkowskiRate
 import BernsteinObstacle.MinkowskiSaturation
 import BernsteinObstacle.MinkowskiSharpness
+import BernsteinObstacle.GrandSaturationRate
+import BernsteinObstacle.GrandTheorem
 import BernsteinObstacle.RecoveryRate
