@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - agent/bernstein-obstacle-research
+      - formal/bernstein-bezier-grand-canonical
     paths:
       - 'math/bernstein_obstacle/lean/**'
       - '.github/workflows/bernstein-obstacle-lean-audit.yml'
@@ -63,6 +64,7 @@ jobs:
           lake env lean MovingAnalysisAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SharpRateAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean LocalDistanceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean GrandCanonicalAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           if grep -q 'sorryAx' bernstein-obstacle-axioms.log; then
             echo 'Unexpected sorryAx found' >&2
             exit 1
@@ -101,6 +103,18 @@ jobs:
           grep -F 'BernsteinObstacle.correctedSharpMinimizerRate_of_broken_bulk_and_multiplier' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.optimalBulkRate_of_balanced_interface' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexBoxApproxNat_mem_Icc' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.BilateralBarrierEnvelopeData.moscoConverges' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.BilateralBarrierEnvelopeData.grandBarrier_mosco_and_hilbertConvergence' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.monotoneInnerCone_falk_sq' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.threeHalvesContactLaw' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.balancedContactOrder_equalizes' \
             bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript
