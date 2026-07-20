@@ -62,7 +62,9 @@ theorem canonicalRoot_pow_divisor {N p : ℕ} (hN : N ≠ 0) (hp : p ≠ 0)
     intro hm
     subst m
     simp at hN
-  simp only [canonicalRoot, Nat.mul_div_left m (Nat.pos_of_ne_zero hp)]
+  have hquot : p * m / p = m := Nat.mul_div_left m (Nat.pos_of_ne_zero hp)
+  rw [hquot]
+  unfold canonicalRoot
   rw [← Complex.exp_nat_mul]
   congr 1
   push_cast
@@ -79,7 +81,9 @@ theorem canonicalRoot_pow_quotient {N p : ℕ} (hN : N ≠ 0) (hp : p ≠ 0)
     intro hm
     subst m
     simp at hN
-  simp only [canonicalRoot, Nat.mul_div_left m (Nat.pos_of_ne_zero hp)]
+  have hquot : p * m / p = m := Nat.mul_div_left m (Nat.pos_of_ne_zero hp)
+  rw [hquot]
+  unfold canonicalRoot
   rw [← Complex.exp_nat_mul]
   congr 1
   push_cast
@@ -88,20 +92,21 @@ theorem canonicalRoot_pow_quotient {N p : ℕ} (hN : N ≠ 0) (hp : p ≠ 0)
 
 /-- The character factor in the DFT is the extra factor introduced by the
 conjugating exponent `1 + (p-t)m`. -/
-theorem canonicalRoot_conjugatingExponent {p m : ℕ} (hp : p.Prime)
+theorem canonicalRoot_conjugatingExponent {p m : ℕ} [NeZero p] (hp : p.Prime)
     (hm : m ≠ 0) (a : ℕ) (t : ZMod p) :
     canonicalRoot (p * m) ^ (conjugatingExponent p m t * a) =
       ZMod.stdAddChar (-((a : ZMod p) * t)) * canonicalRoot (p * m) ^ a := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
   have hN : p * m ≠ 0 := mul_ne_zero hp.ne_zero hm
   have hrootm : canonicalRoot (p * m) ^ m = canonicalRoot p := by
     have h := canonicalRoot_pow_quotient (N := p * m) (p := p)
       hN hp.ne_zero (dvd_mul_right p m)
-    simpa [Nat.mul_div_left m hp.pos] using h
+    have hquot : p * m / p = m := Nat.mul_div_left m hp.pos
+    rw [hquot] at h
+    exact h
   have hcast :
       (((p - t.val) * a : ℕ) : ZMod p) = -((a : ZMod p) * t) := by
     rw [Nat.cast_mul, Nat.cast_sub (Nat.le_of_lt t.val_lt)]
-    simp [ZMod.natCast_zmod_val]
+    simp
     ring
   have hfactor : canonicalRoot p ^ ((p - t.val) * a) =
       ZMod.stdAddChar (-((a : ZMod p) * t)) := by
@@ -137,7 +142,9 @@ theorem canonical_ratio_pow_quotient_eq_one {p m : ℕ} (hp : p.Prime)
   have hrootm : canonicalRoot (p * m) ^ m = canonicalRoot p := by
     have h := canonicalRoot_pow_quotient (N := p * m) (p := p)
       hN hp.ne_zero (dvd_mul_right p m)
-    simpa [Nat.mul_div_left m hp.pos] using h
+    have hquot : p * m / p = m := Nat.mul_div_left m hp.pos
+    rw [hquot] at h
+    exact h
   have hx : (canonicalRoot (p * m) ^ x.val) ^ m =
       ZMod.stdAddChar (x.val : ZMod p) := by
     calc
