@@ -18,3 +18,4 @@ import BernsteinObstacle.AssemblyMosco
 import BernsteinObstacle.MinimizerConvergence
 import BernsteinObstacle.AssemblyConvergence
 import BernsteinObstacle.CoefficientNorm
+import BernsteinObstacle.EnergyGapConvergence
