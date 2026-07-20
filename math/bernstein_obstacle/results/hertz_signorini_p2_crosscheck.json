@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "iterations": 1288,
+  "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+  "objective_difference": 3.8506684819916703e-11,
+  "displacement_linf_difference": 1.7857737268037882e-06,
+  "minimum_gap_coefficient": 0.0
+}
