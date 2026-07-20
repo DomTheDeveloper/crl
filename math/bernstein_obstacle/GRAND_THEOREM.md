@@ -32,54 +32,79 @@ Consequently, whenever the symmetric coercive variational-inequality/energy
 argument supplies a vanishing solution-to-recovery bound, the corresponding
 discrete minimizers converge strongly to the continuous minimizer.
 
-## Grand rate law
+## Grand rate law: consistency-saturation regime
 
-Assume additionally that the squared energy error satisfies
+Let:
+
+- `s` be the obstacle-approximation order;
+- `r` be the bulk finite-element approximation order;
+- `m` be the coefficient-consistency order;
+- `q` be the physical vanishing order of the gap at the defect/free boundary;
+- `c` be the codimension of that defect set;
+- `hGamma` be the local interface scale.
+
+Assume the **consistency-saturation condition**
+
+```text
+q <= m.
+```
+
+In this regime the coefficient consistency is high enough to resolve the
+physical vanishing order on the same interface scale. If the squared energy
+error satisfies
 
 ```text
 alpha * e_h^2
   <= P * h^(2s)
    + A * h^(2r)
-   + B * hGamma^(2*(min(m,q)-1)+c).
+   + B * hGamma^(2*(q-1)+c),
 ```
 
-Here:
-
-- `s` is the obstacle-approximation order;
-- `r` is the bulk finite-element approximation order;
-- `m` is the coefficient-consistency order;
-- `q` is the physical vanishing order of the gap at the defect/free boundary;
-- `c` is the codimension of that defect set;
-- `hGamma` is the local interface scale.
-
-Then
+then
 
 ```text
 e_h <= C * (
     h^s
   + h^r
-  + hGamma^(min(m,q)-1) * sqrt(hGamma^c)
+  + hGamma^(q-1) * sqrt(hGamma^c)
 ).
 ```
 
-The Lean theorem uses the exact scale
+The Lean theorem writes the final term as
 
 ```text
 consistencyVanishingCodimensionScale hGamma m q c
 ```
 
-rather than fractional real exponents.
+and proves that it equals the physical vanishing-order/codimension scale under
+`q <= m`.
+
+## The unresolved sub-saturation regime
+
+When
+
+```text
+m < q,
+```
+
+one must not simply replace `q` by `min(m,q)` while retaining the same interface
+scale. The coefficient error becomes competitive with the physical gap farther
+from the interface, and the risky layer has thickness of order
+
+```text
+h^(m/q).
+```
+
+The corresponding rate involves real/rational powers and a separately derived
+geometric patch-count estimate. The current terminal Lean grand theorem does
+not disguise this regime as a natural-power identity. Formalizing that
+real-power sub-saturation theorem is a genuine next extension.
 
 ## Quadratic-contact saturation
 
 For regular quadratic contact, `q = 2`. Across a codimension-one interface,
-`c = 1`. Once `m >= 2`,
-
-```text
-min(m,q) = 2
-```
-
-and the interface term is exactly
+`c = 1`. Once `m >= 2`, the consistency-saturation hypothesis holds and the
+interface term is exactly
 
 ```text
 hGamma * sqrt(hGamma) = hGamma^(3/2).
@@ -98,11 +123,15 @@ vanishing order, mesh/interface alignment, or repair mechanism changes.
    approximation contributes an explicit `h^s` term.
 3. **Arbitrary defect codimension.** The repair law is indexed by `c`, not tied
    only to hypersurfaces.
-4. **Arbitrary physical vanishing order.** The repair law is indexed by `q`.
-5. **Consistency saturation.** The effective order is `min(m,q)`, identifying
-   when higher-order polynomial consistency stops improving the contact term.
-6. **One terminal theorem.** Mosco convergence, strong minimizer convergence,
-   and the generalized rate are packaged in
+4. **Arbitrary physical vanishing order in the saturation regime.** The repair
+   law is indexed by `q` whenever `q <= m`.
+5. **A rigorous saturation barrier.** Quadratic contact remains limited by the
+   codimension-one `3/2` interface exponent once consistency reaches order two.
+6. **A newly isolated frontier.** The sub-saturation case `m < q` is identified
+   as a different real-power geometric regime rather than being folded into an
+   unjustified `min(m,q)` formula.
+7. **One terminal theorem.** Mosco convergence, strong minimizer convergence,
+   and the generalized saturation-regime rate are packaged in
    `bernsteinBezierObstacleGrandTheorem`, with a quadratic-contact
    specialization.
 
@@ -129,6 +158,7 @@ independently validate:
 - affine pullback and physical Bernstein sampling estimates;
 - the local free-boundary geometry and multiplier estimates that produce the
   energy bound;
+- the real-power sub-saturation theorem for `m < q`;
 - external novelty or correctness review.
 
 For a physical nonzero obstacle, `psi_h` must be an admissible discrete obstacle
