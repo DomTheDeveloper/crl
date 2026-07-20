@@ -1,3 +1,4 @@
+# Trigger: rewrite Gaussian zero before NNReal coercion.
 name: One-shot Voronovskaja exact audit
 
 on:
