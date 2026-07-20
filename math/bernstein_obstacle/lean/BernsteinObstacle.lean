@@ -48,4 +48,5 @@ import BernsteinObstacle.Uniqueness
 import BernsteinObstacle.CoefficientLocalization
 import BernsteinObstacle.SharpRateAlgebra
 import BernsteinObstacle.StripScaling
+import BernsteinObstacle.MinkowskiRate
 import BernsteinObstacle.RecoveryRate
