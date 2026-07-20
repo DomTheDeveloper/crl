@@ -119,3 +119,5 @@ jobs:
           [[ "${final_branches[0]}" == "gh-pages" ]]
 
           trap - EXIT
+
+# PR trigger
