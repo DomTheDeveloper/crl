@@ -1,6 +1,7 @@
 import BernsteinObstacle.Core
 import BernsteinObstacle.CoefficientCone
 import BernsteinObstacle.Projection
+import BernsteinObstacle.ProjectionVI
 import BernsteinObstacle.Tensor
 import BernsteinObstacle.Simplex
 import BernsteinObstacle.SimplexPartition
@@ -8,3 +9,4 @@ import BernsteinObstacle.GlobalMesh
 import BernsteinObstacle.Energy
 import BernsteinObstacle.FiniteObstacle
 import BernsteinObstacle.Mosco
+import BernsteinObstacle.MoscoTools
