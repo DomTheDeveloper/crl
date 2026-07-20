@@ -66,7 +66,7 @@ theorem stronglyConverges_zero_of_coefficientNormSq_tendsto_zero
     change Tendsto
       ((fun x : ℝ => Real.sqrt x) ∘ (fun k => coefficientNormSq (w k)))
       atTop (nhds 0)
-    exact h
+    simpa only [Real.sqrt_zero] using h
   unfold StronglyConverges
   exact squeeze_zero_norm
     (fun k => norm_le_sqrt_coefficientNormSq (w k)) hSqrt
