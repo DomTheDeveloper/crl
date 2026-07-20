@@ -172,7 +172,8 @@ private theorem labeled_triple_sorted_impossible {n : ℕ} (hn : 0 < n) {A B C :
     (r s t : Fin 6) (hrs : r < s) (hst : s < t)
     (h : sixRoot n A B C r + sixRoot n A B C s + sixRoot n A B C t = 0) : False := by
   fin_cases r <;> fin_cases s <;> fin_cases t
-  all_goals try omega
+  all_goals try { norm_num at hrs }
+  all_goals try { norm_num at hst }
   all_goals simp only [sixRoot] at h
   · exact positive_angular_triple_impossible hn hA hB hC h
   · exact two_positive_one_negative_impossible (A := B) (B := A) (C := A)
