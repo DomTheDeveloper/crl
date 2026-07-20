@@ -24,28 +24,83 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Download exact arXiv v1 source
+      - name: Download exact arXiv v1 source with mirrors
+        id: download
         shell: bash
         run: |
-          set -euo pipefail
-          mkdir -p fetched/source
-          curl --retry 5 --retry-delay 2 -L --fail \
-            https://arxiv.org/e-print/2605.09215v1 \
-            -o fetched/prellberg-source.tar
-          sha256sum fetched/prellberg-source.tar | tee fetched/source-tar.sha256
-          tar -xf fetched/prellberg-source.tar -C fetched/source
-          find fetched/source -type f -print | sort | tee fetched/file-list.txt
-          test -f fetched/source/odd_fat_certificate/bernstein_coefficients.tsv
-          test -f fetched/source/odd_fat_certificate/constants.tsv
-          test -f fetched/source/odd_fat_certificate/sign_checks.tsv
-          test -f fetched/source/odd_fat_certificate/triangles.tsv
-          test -f fetched/source/odd_fat_certificate/verify_odd_fat_certificate.py
-          python fetched/source/odd_fat_certificate/verify_odd_fat_certificate.py \
-            2>&1 | tee fetched/upstream-verification.log
-      - name: Upload exact source bundle
+          set +e
+          mkdir -p fetched/source fetched/downloads
+          : > fetched/download.log
+          urls=(
+            'https://arxiv.org/e-print/2605.09215v1'
+            'https://export.arxiv.org/e-print/2605.09215v1'
+            'https://arxiv.org/src/2605.09215v1'
+            'https://export.arxiv.org/src/2605.09215v1'
+          )
+          code=1
+          for i in "${!urls[@]}"; do
+            url="${urls[$i]}"
+            out="fetched/downloads/source-$i.bin"
+            headers="fetched/downloads/source-$i.headers"
+            echo "=== $url ===" | tee -a fetched/download.log
+            curl -A 'Mozilla/5.0 formal-proof-audit/1.0' \
+              --connect-timeout 30 --max-time 300 \
+              --retry 5 --retry-all-errors --retry-delay 3 \
+              -L -D "$headers" -w '\nhttp_code=%{http_code}\ncontent_type=%{content_type}\nsize_download=%{size_download}\nurl_effective=%{url_effective}\n' \
+              "$url" -o "$out" >> fetched/download.log 2>&1
+            curl_code=$?
+            echo "curl_exit=$curl_code" | tee -a fetched/download.log
+            file "$out" | tee -a fetched/download.log
+            if [[ "$curl_code" = 0 && -s "$out" ]]; then
+              rm -rf fetched/source
+              mkdir -p fetched/source
+              if tar -xf "$out" -C fetched/source >> fetched/download.log 2>&1; then
+                if find fetched/source -type f | grep -q .; then
+                  cp "$out" fetched/prellberg-source.tar
+                  echo "$url" > fetched/source-url.txt
+                  code=0
+                  break
+                fi
+              fi
+            fi
+          done
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          tail -n 200 fetched/download.log
+          exit 0
+      - name: Validate exact ancillary files
+        id: validate
+        shell: bash
+        run: |
+          set +e
+          code=0
+          if [[ '${{ steps.download.outputs.exit_code }}' != '0' ]]; then
+            code=1
+          else
+            sha256sum fetched/prellberg-source.tar | tee fetched/source-tar.sha256
+            find fetched/source -type f -print | sort | tee fetched/file-list.txt
+            root='fetched/source/odd_fat_certificate'
+            for f in bernstein_coefficients.tsv constants.tsv sign_checks.tsv triangles.tsv verify_odd_fat_certificate.py; do
+              test -f "$root/$f" || { echo "missing $root/$f" | tee -a fetched/validation.log; code=1; }
+            done
+            if [[ "$code" = 0 ]]; then
+              python "$root/verify_odd_fat_certificate.py" \
+                > fetched/upstream-verification.log 2>&1
+              code=$?
+              tail -n 100 fetched/upstream-verification.log
+            fi
+          fi
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Upload exact source and diagnostics
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: prellberg-odd-fat-source-v1
           path: fetched
           if-no-files-found: error
           retention-days: 30
+      - name: Enforce successful source verification
+        shell: bash
+        run: |
+          test '${{ steps.download.outputs.exit_code }}' = '0'
+          test '${{ steps.validate.outputs.exit_code }}' = '0'
