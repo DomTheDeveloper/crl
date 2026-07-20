@@ -1,124 +1,144 @@
-# Grand theorem candidate: universal Bernstein obstacle rate
+# Grand theorem candidate: universal Bernstein obstacle rates
 
-## 1. The enlargement
+## 1. Two tiers, not one fragile theorem
 
-The regular-interface theorem proves
+The regular-interface analysis gives the refined estimate
 
 \[
 \|u-u_h^B\|_{H^1(\Omega)}
 \le C\bigl(h^r+h_\Gamma^{3/2}\bigr)
 \]
 
-under a regular interior free boundary, quadratic nondegeneracy, local interface
-quasi-uniformity, bounded multiplier density, and additional one-sided
-regularity.
+when the free boundary is regular and the mesh, multiplier, obstacle, and
+one-sided regularity satisfy the stated sharp-rate hypotheses.
 
-There is a broader theorem underneath it. The positive Bernstein sampling
-operator is already a feasible recovery. It gives a quantitative rate without:
+A more robust theorem lies underneath it.  The positive Bernstein sampling
+operator is already a feasible comparison function.  It gives a quantitative
+rate without assuming:
 
-- any manifold, smoothness, or nondegeneracy assumption on the free boundary;
-- separation of the free boundary from the physical boundary;
-- a strip-volume estimate;
+- that the free boundary is a manifold;
+- nondegeneracy of the gap;
+- separation of the active-set closure from the physical boundary;
+- a tubular strip or strip-volume estimate;
 - local interface quasi-uniformity;
 - an `L^infinity` multiplier density;
-- symmetry of the elliptic operator;
+- symmetry of the coercive operator;
 - polynomial representation of the obstacle.
 
-The multiplier may be a finite nonnegative Radon measure. The contact set may be
-singular, disconnected, degenerate, or boundary-touching. The gradient of the
-exact gap needs only a modulus of continuity.
+The resulting theory has two complementary tiers:
 
-The final theory is therefore two-tiered:
+1. a universal gradient-modulus/contact-measure rate for arbitrary interior
+   contact topology;
+2. the higher-order `h^r+h_Gamma^(3/2)` rate when regular-interface geometry
+   permits localization and clipping repair.
 
-1. a universal modulus-of-continuity rate for arbitrary contact topology;
-2. the sharper `h^r+h_Gamma^(3/2)` theorem when regular-interface geometry
-   permits localization and high-order clipping repair.
+The word “boundary-touching” below means that the closure of the active set may
+reach `partial Omega`.  The multiplier is a Radon measure on the open domain
+`Omega`; no boundary measure is included in the theorem.
 
 ---
 
-## 2. Exact shifted obstacle cone
+## 2. Exact affine obstacle shift
 
-After the usual boundary lifting, let
+Perform the standard essential-boundary lifting first.  Set
 
 \[
-V=H_0^1(\Omega),
-\qquad
-K_\psi=\{\psi+z:z\in V,\ z\ge0\text{ a.e.}\}.
+V=H_0^1(\Omega)
 \]
 
-The obstacle `psi` need not be a finite-element polynomial. Define
+and assume that the lifted obstacle `psi` belongs to `V` and has a pointwise
+representative.  Define
+
+\[
+K_\psi=\{v\in V:v\ge\psi\text{ a.e.}\}.
+\]
+
+For a conforming fixed-degree simplicial space `V_h^r subset V`, define the
+affine Bernstein cone
 
 \[
 K_{h,\psi}^B
 =
-\{\psi+z_h:z_h\in V_h^r,
-\ b_{T,\alpha}(z_h)\ge0\text{ for all }T,\alpha\}.
+\left\{
+\psi+z_h:
+ z_h\in V_h^r,
+\ b_{T,\alpha}(z_h)\ge0
+\text{ for every }T,\alpha
+\right\}.
 \]
 
-Every member of this affine finite-dimensional set satisfies
+This is a finite-dimensional closed convex affine subset of `V`; it need not be
+a subset of `V_h^r` when `psi` is nonpolynomial.  Nevertheless, every member
+satisfies
 
 \[
 \psi+z_h\ge\psi
 \]
 
-pointwise on every complete element. The finite unknown is the shifted gap
-`z_h`; `psi` remains a fixed known function.
+pointwise on each complete element.  Thus the physical obstacle is represented
+exactly rather than interpolated.
 
-Write
+Write the exact solution as
 
 \[
 u=\psi+g,
 \qquad g\ge0,
+\qquad g\in H_0^1(\Omega).
 \]
-
-and assume that `g` has homogeneous trace after boundary lifting.
 
 ---
 
-## 3. Local gradient modulus
+## 3. Local gradient and contact scales
 
-For each simplex `T`, define the local gradient modulus
+For every closed simplex `bar T`, define
 
 \[
 \omega_T(\rho)
 =
 \sup\left\{
 |\nabla g(x)-\nabla g(y)|:
- x,y\in T,\ |x-y|\le\rho
+ x,y\in\overline T,
+\ |x-y|\le\rho
 \right\}.
 \]
 
-Set
+Let
 
 \[
 \eta_h^2
 =
-\sum_{T\in\mathcal T_h}|T|\,\omega_T(h_T)^2,
+\sum_{T\in\mathcal T_h}|T|\,\omega_T(h_T)^2.
 \]
 
-and, on the contact set `C={g=0}`,
+The interior contact set is
+
+\[
+C=\{x\in\Omega:g(x)=0\}.
+\]
+
+For `x in C`, define
 
 \[
 q_h(x)
 =
-\max_{T\ni x}h_T\omega_T(h_T),
+\max_{x\in\overline T}h_T\omega_T(h_T),
 \qquad
-\mu_h=\int_C q_h(x)\,d\lambda(x).
+\mu_h=\int_C q_h\,d\lambda.
 \]
 
-The maximum over incident elements makes the definition unambiguous when the
-multiplier charges a mesh face or lower-dimensional skeleton.
+Using the maximum over incident elements makes `q_h` unambiguous when the
+measure charges an interior mesh face or lower-dimensional skeleton.
 
 ---
 
-## 4. Universal theorem
+## 4. Universal arbitrary-contact theorem
 
-### Theorem U: arbitrary contact, measure multiplier, nonsymmetric operator
+### Theorem U
 
-Let `Omega` be a bounded polyhedral Lipschitz domain in `R^d`. Let
-`{T_h}` be conforming uniformly shape-regular simplicial meshes. Fix a degree
-`r>=1`, and let `V_h^r` be the conforming piecewise-`P_r` gap space with
-homogeneous trace.
+Let `Omega` be a bounded polyhedral Lipschitz domain in `R^d`.  Let
+`{mathcal T_h}` be conforming uniformly shape-regular simplicial meshes and fix
+`r>=1`.  Let `V_h^r subset H_0^1(Omega)` be the conforming piecewise-`P_r`
+spaces.
 
 Let
 
@@ -136,19 +156,19 @@ a(v,v)\ge\alpha\|v\|_V^2.
 
 Assume:
 
-1. `g in C^1(closure Omega) cap H_0^1(Omega)`, `g>=0`, and `grad g` is
-   uniformly continuous;
-2. the multiplier
+1. `g in C^1(bar Omega) cap H_0^1(Omega)`, `g>=0`, and `grad g` is uniformly
+   continuous;
+2. the residual
    \[
    \lambda(\varphi)=a(u,\varphi)-\ell(\varphi)
    \]
-   belongs to `V*`, extends to a finite nonnegative Radon measure on `Omega`,
-   and is supported on `C={g=0}`;
-3. the positive Bernstein sampling operator uses the same fixed degree on both
-   sides of every face.
+   lies in `V*`, extends to a finite nonnegative Radon measure on the open
+   domain `Omega`, and is supported on `C`;
+3. the positive Bernstein sampling recovery uses one fixed degree across every
+   shared face.
 
-Then the coefficient-feasible discrete variational inequality has a unique
-solution and
+Then the variational inequality over `K_{h,psi}^B` has a unique solution `u_h`
+and
 
 \[
 \boxed{
@@ -157,7 +177,7 @@ solution and
 }
 \]
 
-Equivalently,
+Consequently,
 
 \[
 \boxed{
@@ -166,83 +186,17 @@ Equivalently,
 }
 \]
 
-The constant depends only on coercivity, continuity, dimension, fixed degree,
-Poincare's constant, and mesh shape regularity.
-
-No regularity of the contact-set boundary is used.
-
----
-
-## 5. Global modulus corollary
-
-Suppose
-
-\[
-|\nabla g(x)-\nabla g(y)|\le\omega(|x-y|)
-\]
-
-throughout `Omega`, where `omega` is a modulus of continuity. With
-
-\[
-h=\max_T h_T,
-\]
-
-the local theorem gives
-
-\[
-\boxed{
-\|u-u_h\|_{H^1}
-\le
-C\left[
-|\Omega|^{1/2}\omega(h)
-+
-\sqrt{h\,\omega(h)\,\lambda(\Omega)}
-\right].
-}
-\]
-
-### Holder-gradient corollary
-
-If `g in C^{1,beta}` for `0<beta<=1`, then
-
-\[
-\omega(h)\le Lh^\beta.
-\]
-
-Therefore
-
-\[
-\|u-u_h\|_{H^1}
-\le
-C\left(h^\beta+h^{(1+\beta)/2}\right).
-\]
-
-For `0<h<=1` and `beta<=1`, the first term dominates, so
-
-\[
-\boxed{
-\|u-u_h\|_{H^1}=O(h^\beta).
-}
-\]
-
-In particular, `C^{1,1}` regularity gives the universal first-order result
-
-\[
-\boxed{
-\|u-u_h\|_{H^1}=O(h).
-}
-\]
-
-This first-order estimate permits an arbitrary contact topology and a finite
-measure multiplier.
+The constant depends only on `M`, `alpha`, dimension, fixed degree, the
+Poincare constant, and mesh shape regularity.  It does not depend on a
+parametrization, smoothness, or nondegeneracy of the boundary of `C`.
 
 ---
 
-## 6. Proof
+## 5. Proof
 
 ### U1. Positive conforming recovery
 
-For each simplex `T`, set
+On each simplex define
 
 \[
 (\mathcal B_{T,r}g)(x)
@@ -250,58 +204,51 @@ For each simplex `T`, set
 \sum_{|\alpha|=r}g(x_{T,\alpha})B_{T,\alpha}(x).
 \]
 
-Every coefficient is nonnegative, so the polynomial is nonnegative on the
-entire simplex. Shared-face lattice values are intrinsic to the face, hence the
-assembled traces agree after orientation permutations. Boundary-face samples
-vanish because `g` has zero trace. Thus
+Because `g>=0`, all coefficients are nonnegative, hence
+`mathcal B_{T,r}g>=0` throughout `T`.  Shared-face samples are intrinsic to the
+face, so the local traces agree under the face permutation.  Since the
+continuous representative of `g` vanishes on the physical boundary, every
+boundary-face sample is zero.  Therefore the assembled function
 
 \[
 g_h^+=\mathcal B_h^r g
 \]
 
-is conforming, has homogeneous trace, and belongs to the coefficient cone. The
-shifted comparison field
+belongs to `V_h^r`, has nonnegative Bernstein coefficients, and has homogeneous
+trace.  Thus
 
 \[
-v_h=\psi+g_h^+
+v_h=\psi+g_h^+\in K_{h,\psi}^B.
 \]
 
-belongs to `K_{h,psi}^B`.
+### U2. Gradient-modulus approximation
 
-### U2. Approximation from the gradient modulus
-
-Fix an affine Taylor function `p_T` on `T`. Since the Bernstein operator
-reproduces affine functions,
+Fix an affine Taylor polynomial `p_T` on `T`.  Affine reproduction gives
 
 \[
 g-\mathcal B_{T,r}g
-=
-(g-p_T)-\mathcal B_{T,r}(g-p_T).
+=(g-p_T)-\mathcal B_{T,r}(g-p_T).
 \]
 
-The first-order Taylor remainder satisfies
+The first-order remainder obeys
 
 \[
 \|g-p_T\|_{L^\infty(T)}
 \le Ch_T\omega_T(h_T),
-\]
-
-\[
+\qquad
 \|\nabla(g-p_T)\|_{L^\infty(T)}
 \le C\omega_T(h_T).
 \]
 
-Fixed-degree reference-element norm equivalence and affine scaling therefore
-give
+Fixed-degree reference-element norm equivalence and affine scaling yield
 
 \[
 \|\nabla(g-\mathcal B_{T,r}g)\|_{L^2(T)}
 \le C|T|^{1/2}\omega_T(h_T).
 \]
 
-Because both `g` and `g_h^+` have homogeneous trace, their difference lies in
-`H_0^1(Omega)`. Poincare's inequality absorbs the global `L^2` contribution,
-so
+Because `g-g_h^+ in H_0^1(Omega)`, Poincare's inequality controls the full
+`H^1` norm.  Summing gives
 
 \[
 \|u-v_h\|_{H^1}^2
@@ -310,33 +257,32 @@ so
 \le C\eta_h^2.
 \]
 
-### U3. Contact estimate without interface geometry
+### U3. Contact-measure consistency without interface geometry
 
-Let `x in C cap T`. Since `g>=0`, `g(x)=0`, and `g` is differentiable,
+Take `x in C`.  Since `x` is an interior point of `Omega`, `g>=0`, `g(x)=0`,
+and `g` is differentiable, `x` is an unconstrained local minimum and
 
 \[
 \nabla g(x)=0.
 \]
 
-For every Bernstein lattice point `x_{T,alpha}`, integrate the gradient along
-the segment inside `T`:
+For every lattice point in an incident simplex, integration along the segment
+inside that simplex gives
 
 \[
 0\le g(x_{T,\alpha})
 \le
 |x_{T,\alpha}-x|\,\omega_T(h_T)
-\le
-h_T\omega_T(h_T).
+\le h_T\omega_T(h_T).
 \]
 
-The Bernstein basis is a nonnegative partition of unity, hence
+The nonnegative Bernstein partition of unity therefore gives
 
 \[
-0\le g_h^+(x)\le Cq_h(x)
-\quad\text{for }x\in C.
+0\le g_h^+(x)\le Cq_h(x).
 \]
 
-Since the multiplier is supported on contact,
+Since `lambda` is supported on `C`,
 
 \[
 0\le
@@ -346,21 +292,17 @@ Since the multiplier is supported on contact,
 \le C\mu_h.
 \]
 
-This step uses no free-boundary parametrization, nondegeneracy lower bound,
-strip measure, or multiplier density.
+No free-boundary parametrization, quadratic lower growth, strip estimate, or
+multiplier density is used.
 
 ### U4. Nonsymmetric Falk transfer
 
-Let `e=u-u_h`. Coercivity gives
+Let `e=u-u_h`.  Coercivity and the feasible comparison `v_h` give
 
 \[
-\alpha\|e\|_V^2\le a(e,e).
-\]
-
-Using the feasible comparison `v_h`,
-
-\[
-a(e,e)=a(e,u-v_h)+a(e,v_h-u_h).
+\alpha\|e\|_V^2
+\le a(e,e)
+=a(e,u-v_h)+a(e,v_h-u_h).
 \]
 
 The discrete variational inequality implies
@@ -375,25 +317,16 @@ The continuous variational inequality with test `u_h` gives
 \lambda(u_h-u)\ge0,
 \]
 
-so
+hence
 
 \[
 \lambda(v_h-u_h)
 =
 \lambda(v_h-u)-\lambda(u_h-u)
-\le
-\lambda(v_h-u).
+\le\lambda(v_h-u).
 \]
 
-Therefore
-
-\[
-\alpha\|e\|_V^2
-\le
-M\|e\|_V\|u-v_h\|_V+\lambda(v_h-u).
-\]
-
-Young's inequality yields
+Continuity and Young's inequality now give
 
 \[
 \|e\|_V^2
@@ -403,18 +336,68 @@ Young's inequality yields
 \frac{2}{\alpha}\lambda(v_h-u).
 \]
 
-Insert U2 and U3 to obtain
+Insert U2 and U3 to prove Theorem U.
+
+---
+
+## 6. Global modulus and Holder corollaries
+
+Suppose
 
 \[
-\|u-u_h\|_{H^1}^2\le C(\eta_h^2+\mu_h).
+|\nabla g(x)-\nabla g(y)|
+\le\omega(|x-y|)
+\]
+
+on `bar Omega`, and let `h=max_T h_T`.  Then
+
+\[
+\eta_h\le |\Omega|^{1/2}\omega(h),
+\qquad
+\mu_h\le h\omega(h)\lambda(\Omega).
+\]
+
+Therefore
+
+\[
+\boxed{
+\|u-u_h\|_{H^1}
+\le
+C\left[
+|\Omega|^{1/2}\omega(h)
++
+\sqrt{h\omega(h)\lambda(\Omega)}
+\right].
+}
+\]
+
+If `g in C^{1,beta}(bar Omega)` for `0<beta<=1`, then
+
+\[
+\omega(h)\le Lh^\beta
+\]
+
+and
+
+\[
+\|u-u_h\|_{H^1}
+\le C\left(h^\beta+h^{(1+\beta)/2}\right)
+=O(h^\beta).
+\]
+
+The last equality uses `0<h<=1` and `beta<=1`.  In particular,
+
+\[
+g\in C^{1,1}
+\quad\Longrightarrow\quad
+\boxed{\|u-u_h\|_{H^1}=O(h)}.
 \]
 
 ---
 
-## 7. Minimal adaptive refinement principle
+## 7. Minimal refinement principle
 
-Global refinement `max_T h_T -> 0` is sufficient but not necessary. The theorem
-only requires
+Global refinement is sufficient but not necessary.  The theorem only requires
 
 \[
 \eta_h\to0,
@@ -422,33 +405,30 @@ only requires
 \mu_h\to0.
 \]
 
-Thus an element may remain coarse when the gap is locally affine and no contact
-measure is present. Refinement is mathematically required only where the gap's
-gradient varies or where the multiplier is supported.
-
-This is a solution-dependent convergence criterion, not yet a computable a
-posteriori estimator. A separate estimator theorem would require reconstructing
-or bounding the unknown curvature and multiplier terms.
+An element may remain coarse if the exact gap is locally affine and no contact
+measure is present there.  This is a solution-dependent convergence criterion,
+not yet a computable a posteriori estimator; computability requires separate
+reconstruction or upper bounds for the unknown modulus and multiplier.
 
 ---
 
 ## 8. Two-tier grand theorem
 
-When only the universal assumptions hold,
+Under the universal assumptions,
 
 \[
 \|u-u_h^B\|_{H^1}
-\le C(\eta_h+\sqrt{\mu_h}).
+\le C_1(\eta_h+\sqrt{\mu_h}).
 \]
 
-When the regular-interface assumptions also hold,
+Under the regular-interface assumptions,
 
 \[
 \|u-u_h^B\|_{H^1}
-\le C(h^r+h_\Gamma^{3/2}).
+\le C_2(h^r+h_\Gamma^{3/2}).
 \]
 
-When both estimates apply to the same shifted coefficient-cone method,
+When both estimates apply to the same shifted Bernstein method,
 
 \[
 \boxed{
@@ -461,38 +441,28 @@ C_2(h^r+h_\Gamma^{3/2})
 }
 \]
 
-The first branch is topologically robust and permits measure multipliers and
-nonsymmetric operators. The second branch captures high-order accuracy from
-regular free-boundary geometry.
+The first branch is topologically robust; the second captures higher-order
+accuracy from regular free-boundary geometry.
 
 ---
 
-## 9. Novelty boundary
+## 9. Trust and novelty boundary
 
-This is an internal theorem candidate, not an external novelty verdict.
-Classical obstacle FEM already has first-order estimates. Higher-order mixed,
-proximal Galerkin, and hp-adaptive obstacle methods are established. A 2026
-hp/spectral paper proves an `O(h/p)` estimate using constraints at transformed
-GLL points.
+This is a complete internal proof candidate, not yet an independent theorem or
+novelty verdict.  Classical first-order obstacle estimates, nonsymmetric and
+hp-adaptive obstacle FEM, proximal Galerkin methods, bounds-constrained
+Bernstein approximation, and a 2026 GLL-constrained `O(h/p)` hp/spectral result
+must all be compared carefully.
 
-The candidate new combination requiring an adversarial prior-art audit is:
+The candidate contribution requiring independent audit is the combination of:
 
-- exact whole-element feasibility from nonnegative Bernstein coefficients;
+- exact whole-element Bernstein feasibility;
 - exact affine shifting by a nonpolynomial obstacle;
-- a gradient-modulus rate for arbitrary contact topology;
+- a local gradient-modulus/contact-measure estimate;
+- arbitrary interior contact topology whose closure may meet the boundary;
 - finite Radon measure multipliers;
 - nonsymmetric continuous coercive operators;
-- the local curvature/contact-measure convergence criterion;
-- a Lean-checked finite and abstract convergence bridge.
+- a Lean-checked finite and abstract convergence/rate bridge.
 
-## 10. Required comparisons
-
-- Falk, variational-inequality approximation estimates, 1974.
-- Brezzi--Hager--Raviart, primal FEM estimates, 1977.
-- Nochetto--Otarola--Salgado, obstacle convergence rates, 2015.
-- Banz and collaborators, higher-order and hp-adaptive obstacle FEM.
-- Keith--Surowiec and Papadopoulos, proximal and hierarchical hp Galerkin
-  methods with pointwise inequality constraints.
-- Allen--Kirby, bounds-constrained Bernstein approximation.
-- Bekhouche--Benchettah, hp/spectral obstacle/free-boundary methods with an
-  `O(h/p)` estimate and GLL constraints, 2026.
+Audit panel E is issue #122.  A counterexample, missing hypothesis, narrower
+valid theorem, or prior-art collision counts as a successful audit outcome.
