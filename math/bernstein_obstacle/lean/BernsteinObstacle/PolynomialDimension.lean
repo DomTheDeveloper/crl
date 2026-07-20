@@ -89,6 +89,8 @@ theorem finrank_restrictTotalDegree_eq_card_restrictedMonomialIndex
     (d n : ℕ) :
     Module.finrank ℝ (MvPolynomial.restrictTotalDegree (Fin d) ℝ n) =
       Fintype.card (RestrictedMonomialIndex d n) := by
+  letI : Fintype {s : Fin d →₀ ℕ // s.sum (fun _ e => e) ≤ n} :=
+    restrictedMonomialIndexFintype d n
   change Module.finrank ℝ
       (MvPolynomial.restrictSupport ℝ
         {s : Fin d →₀ ℕ | s.sum (fun _ e => e) ≤ n}) =
