@@ -1,4 +1,4 @@
-name: Diagnose A387471 minimal branch
+name: Diagnose A387471 nonminimal branch
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: diagnose-a387471-minimal
+  group: diagnose-a387471-nonminimal
   cancel-in-progress: true
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/crl
-          ref: 0df59b7bc14e3c823eb9713930a52ded2063f462
+          ref: 83d6b0b9497a7bbdd62bcaa7a3e329574ca01bbf
           path: campaign
       - name: Install pinned Lean
         shell: bash
@@ -33,29 +33,29 @@ jobs:
       - name: Download Mathlib cache
         working-directory: campaign/proofs/lean/A387471
         run: lake exe cache get
-      - name: Build finite prerequisites
+      - name: Build shared prerequisites
         working-directory: campaign/proofs/lean/A387471
-        run: lake build A387471SixRoots A387471Finite60 A387471FiniteBridge
-      - name: Build ratio
+        run: lake build A387471Ratio A387471AngleBounds A387471SixRoots A387471SineCancel
+      - name: Build three-root module
         working-directory: campaign/proofs/lean/A387471
-        run: lake build A387471Ratio 2>&1 | tee ../../../../a387471-ratio.log
-      - name: Build grid lift
+        run: lake build A387471ThreeRoots 2>&1 | tee ../../../../a387471-three-roots.log
+      - name: Build pair module
         working-directory: campaign/proofs/lean/A387471
-        run: lake build A387471GridLift 2>&1 | tee ../../../../a387471-grid-lift.log
-      - name: Build bounds
+        run: lake build A387471Pairs 2>&1 | tee ../../../../a387471-pairs.log
+      - name: Build labeled branches
         working-directory: campaign/proofs/lean/A387471
-        run: lake build A387471Bounds 2>&1 | tee ../../../../a387471-bounds.log
-      - name: Build minimal theorem
+        run: lake build A387471PairLabels A387471TripleLabels 2>&1 | tee ../../../../a387471-labels.log
+      - name: Build nonminimal theorem
         working-directory: campaign/proofs/lean/A387471
-        run: lake build A387471Minimal 2>&1 | tee ../../../../a387471-minimal-only.log
+        run: lake build A387471Nonminimal 2>&1 | tee ../../../../a387471-nonminimal-only.log
       - name: Upload diagnostic transcripts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: a387471-minimal-diagnostic
+          name: a387471-nonminimal-diagnostic
           path: |
-            a387471-ratio.log
-            a387471-grid-lift.log
-            a387471-bounds.log
-            a387471-minimal-only.log
+            a387471-three-roots.log
+            a387471-pairs.log
+            a387471-labels.log
+            a387471-nonminimal-only.log
           if-no-files-found: warn
