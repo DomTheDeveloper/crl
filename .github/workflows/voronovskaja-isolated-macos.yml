@@ -1,7 +1,13 @@
-name: Isolated Voronovskaja compatibility audit
+name: Isolated Voronovskaja final kernel audit
 
 on:
   pull_request:
+    paths:
+      - 'ci/lean/Voronovskaja/**'
+      - '.github/workflows/voronovskaja-isolated-macos.yml'
+  push:
+    branches:
+      - audit/voronovskaja-crl-isolated
     paths:
       - 'ci/lean/Voronovskaja/**'
       - '.github/workflows/voronovskaja-isolated-macos.yml'
@@ -11,12 +17,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: isolated-voronovskaja-macos-${{ github.ref }}
+  group: isolated-voronovskaja-final-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
@@ -33,307 +39,34 @@ jobs:
       - name: Fetch Mathlib cache
         working-directory: ci/lean/Voronovskaja
         run: lake exe cache get
-      - name: Apply Lean 4.27 moment-layer repairs
+      - name: Reject unfinished proof markers
         working-directory: ci/lean/Voronovskaja/.lake/packages/formal_conjectures
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          def replace_once(path: Path, old: str, new: str, label: str) -> None:
-              text = path.read_text()
-              count = text.count(old)
-              if count != 1:
-                  raise SystemExit(f"{label}: expected one occurrence, found {count}")
-              path.write_text(text.replace(old, new, 1))
-
-          moments = Path('FormalConjecturesForMathlib/Probability/Distributions/PoweredBinomialMoments.lean')
-          replace_once(moments,
-          """  rw [standardizedBernoulliSubgaussianParameter]
-            simp only [hwidth]
-            positivity
-          """,
-          """  rw [standardizedBernoulliSubgaussianParameter]
-            simp only [hwidth]
-            have hinv : 0 < 1 / bernoulliStdDev p := one_div_pos.mpr hs
-            positivity
-          """, 'moments parameter positivity')
-          replace_once(moments,
-          """    have hpow := hbase.rpow_const (.inr hα.le)
-              have hfinal := tendsto_const_nhds.sub hpow
-          """,
-          """    have hpow := hbase.rpow_const (.inr hα.le)
-              have hfinal : Tendsto
-                  (fun n ↦ 1 - (1 - cdf (standardizedBinomialMeasure n p) (-t)) ^ α)
-                  atTop
-                  (𝓝 (1 - (1 - cdf (gaussianReal 0 1) (-t)) ^ α)) :=
-                tendsto_const_nhds.sub hpow
-          """, 'moments left-tail limit type')
-          replace_once(moments,
-              "  convert hright.sub hleft using 1 <;> ring\n",
-              "  convert hright.sub hleft using 1 <;> ring_nf\n",
-              'moments terminal normalization')
-          replace_once(moments,
-          """private lemma exp_rpow_tail_eq
-              {c α t : ℝ} (hc : c ≠ 0) :
-              (exp (-t ^ 2 / (2 * c))) ^ α =
-                exp (-(α / (2 * c)) * t ^ 2) := by
-            rw [← Real.exp_mul]
-            congr 1
-            field_simp [hc]
-            ring
-          """,
-          """private lemma exp_rpow_tail_eq
-              {c α t : ℝ} (hc : c ≠ 0) :
-              (exp (-t ^ 2 / (2 * c))) ^ α =
-                exp (-(α / (2 * c)) * t ^ 2) := by
-            rw [← Real.exp_mul]
-            congr 1
-            field_simp [hc]
-          """, 'moments exponential identity')
-          replace_once(moments,
-              "        _ = g t := by rw [heq]; simp [g]\n",
-              "        _ = g t := by rw [heq]; simp [g]; ring\n",
-              'moments alpha-le-one envelope')
-          replace_once(moments,
-          """      have hq1 : q ≤ 1 := by
-                rw [q, exp_le_one_iff]
-                positivity
-          """,
-          """      have hq1 : q ≤ 1 := by
-                dsimp [q]
-                rw [exp_le_one_iff]
-                positivity
-          """, 'moments q upper bound')
-          replace_once(moments,
-          """      have heq : exp (-t ^ 2 / (2 * c)) = exp (-b * t ^ 2) := by
-                congr 1
-                field_simp [hc0]
-                ring
-          """,
-          """      have heq : exp (-t ^ 2 / (2 * c)) = exp (-b * t ^ 2) := by
-                congr 1
-                dsimp [b]
-                field_simp [hc0]
-          """, 'moments alpha-ge-one exponential identity')
-          replace_once(moments,
-              "        _ = g t := by rw [q, heq]; simp [g]; ring\n",
-              "        _ = g t := by dsimp [q]; rw [heq]; simp [g]; ring\n",
-              'moments alpha-ge-one envelope')
-
-          second = Path('FormalConjecturesForMathlib/Probability/Distributions/PoweredBinomialSecondMoment.lean')
-          replace_once(second,
-          """  rw [standardizedBernoulliSubgaussianParameter]
-            simp only [hwidth]
-            positivity
-          """,
-          """  rw [standardizedBernoulliSubgaussianParameter]
-            simp only [hwidth]
-            have hinv : 0 < 1 / bernoulliStdDev p := one_div_pos.mpr hs
-            positivity
-          """, 'second parameter positivity')
-          replace_once(second,
-          """  by_cases hright : Real.sqrt t < z
-            · exact Or.inl hright
-            · right
-              have hzle : z ≤ Real.sqrt t := le_of_not_gt hright
-              have hsqrt : 0 ≤ Real.sqrt t := Real.sqrt_nonneg t
-              have hsquare : (Real.sqrt t) ^ 2 = t := Real.sq_sqrt ht
-              nlinarith
-          """,
-          """  by_cases hright : Real.sqrt t < z
-            · exact Or.inl hright
-            · by_cases hleft : z ≤ -Real.sqrt t
-              · exact Or.inr hleft
-              · have hzle : z ≤ Real.sqrt t := le_of_not_gt hright
-                have hleft' : -Real.sqrt t < z := lt_of_not_ge hleft
-                have hsquare : (Real.sqrt t) ^ 2 = t := Real.sq_sqrt ht
-                exfalso
-                nlinarith
-          """, 'second event split')
-          replace_once(second,
-          """private lemma exp_rpow_secondTail_eq
-              {c α t : ℝ} (hc : c ≠ 0) :
-              (exp (-t / (2 * c))) ^ α = exp (-(α / (2 * c)) * t) := by
-            rw [← Real.exp_mul]
-            congr 1
-            field_simp [hc]
-            ring
-          """,
-          """private lemma exp_rpow_secondTail_eq
-              {c α t : ℝ} (hc : c ≠ 0) :
-              (exp (-t / (2 * c))) ^ α = exp (-(α / (2 * c)) * t) := by
-            rw [← Real.exp_mul]
-            congr 1
-            field_simp [hc]
-          """, 'second exponential identity')
-          replace_once(second,
-          """  have hq1 : q ≤ 1 := by
-              rw [q, exp_le_one_iff]
-              positivity
-          """,
-          """  have hq1 : q ≤ 1 := by
-              dsimp [q]
-              rw [exp_le_one_iff]
-              positivity
-          """, 'second q upper bound')
-          replace_once(second,
-              "    _ ≤ q + α * q := add_le_add hright (by simpa [q, c, hsquare] using hleft)\n    _ = (1 + α) * exp (-(1 / (2 * c)) * t) := by rw [q]; ring_nf\n",
-              "    _ ≤ q + α * q := add_le_add hright (by simpa [q, c, hsquare] using hleft)\n    _ = (1 + α) * exp (-(1 / (2 * c)) * t) := by dsimp [q]; ring_nf\n",
-              'second q envelope')
-
-          text = second.read_text()
-          first_pattern = re.compile(r"    let g : ℝ → ℝ := fun t ↦ 2 \* exp \(-b \* t\)\n.*?    · exact ae_of_all _ hpoint\n  · let b : ℝ := 1 /", re.S)
-          first_replacement = """    let g : ℝ → ℝ := fun t ↦ 2 * exp (-b * t)
-              have hg : Integrable g (volume.restrict (Ioi 0)) := by
-                simpa [g] using (integrableOn_exp_neg_mul_linear hb).const_mul 2
-              have hmeas : ∀ᶠ n : ℕ in atTop,
-                  AEStronglyMeasurable
-                    (fun t : ℝ ↦ (Real.sqrt n)⁻¹ *
-                      poweredStandardizedBinomialSecondMomentTail n p α hα t)
-                    (volume.restrict (Ioi 0)) :=
-                Eventually.of_forall fun n ↦
-                  ((measurable_const.mul
-                    (measurable_poweredStandardizedBinomialSecondMomentTail n p α hα))).aestronglyMeasurable
-              have hbound : ∀ᶠ n : ℕ in atTop, ∀ᵐ t ∂volume.restrict (Ioi 0),
-                  ‖(Real.sqrt n)⁻¹ * poweredStandardizedBinomialSecondMomentTail n p α hα t‖ ≤ g t := by
-                refine eventually_atTop.2 ⟨1, fun n hn ↦ ?_⟩
-                filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with t ht
-                have hn0 : 0 < n := hn
-                have ht0 : 0 ≤ t := le_of_lt ht
-                have hsqrt_one : 1 ≤ Real.sqrt (n : ℝ) := by
-                  rw [← Real.sqrt_one]
-                  gcongr
-                  exact_mod_cast hn
-                have hinv_one : (Real.sqrt (n : ℝ))⁻¹ ≤ 1 :=
-                  inv_le_one_of_one_le₀ hsqrt_one
-                rw [Real.norm_eq_abs, abs_of_nonneg
-                  (mul_nonneg (inv_nonneg.mpr (Real.sqrt_nonneg n)) measureReal_nonneg)]
-                calc
-                  (Real.sqrt n)⁻¹ * poweredStandardizedBinomialSecondMomentTail n p α hα t ≤
-                      poweredStandardizedBinomialSecondMomentTail n p α hα t := by
-                    have htail0 : 0 ≤ poweredStandardizedBinomialSecondMomentTail n p α hα t :=
-                      measureReal_nonneg
-                    simpa only [one_mul] using mul_le_mul_of_nonneg_right hinv_one htail0
-                  _ ≤ 2 * exp (-b * t) := by
-                    simpa [b] using
-                      secondMomentTail_le_exp_of_alpha_le_one
-                        n hn0 p hp0 hp1 α hα hα1 t ht0
-                  _ = g t := rfl
-              have hlim : ∀ᵐ t ∂volume.restrict (Ioi 0), Tendsto
-                  (fun n : ℕ ↦ (Real.sqrt n)⁻¹ *
-                    poweredStandardizedBinomialSecondMomentTail n p α hα t)
-                  atTop (𝓝 0) := ae_of_all _ hpoint
-              simpa using
-                (tendsto_integral_filter_of_dominated_convergence
-                  (l := atTop)
-                  (F := fun n : ℕ ↦ fun t : ℝ ↦ (Real.sqrt n)⁻¹ *
-                    poweredStandardizedBinomialSecondMomentTail n p α hα t)
-                  (f := fun _ : ℝ ↦ 0)
-                  (μ := volume.restrict (Ioi 0))
-                  g hmeas hbound hg hlim)
-            · let b : ℝ := 1 /"""
-          text, count = first_pattern.subn(first_replacement, text, count=1)
-          if count != 1:
-              raise SystemExit(f'second first DCT block: expected one replacement, found {count}')
-          second.write_text(text)
-
-          text = second.read_text()
-          second_pattern = re.compile(r"    let g : ℝ → ℝ := fun t ↦ \(1 \+ α\) \* exp \(-b \* t\)\n.*?    · exact ae_of_all _ hpoint\n\nend ProbabilityTheory", re.S)
-          second_replacement = """    let g : ℝ → ℝ := fun t ↦ (1 + α) * exp (-b * t)
-              have hg : Integrable g (volume.restrict (Ioi 0)) := by
-                simpa [g] using (integrableOn_exp_neg_mul_linear hb).const_mul (1 + α)
-              have hmeas : ∀ᶠ n : ℕ in atTop,
-                  AEStronglyMeasurable
-                    (fun t : ℝ ↦ (Real.sqrt n)⁻¹ *
-                      poweredStandardizedBinomialSecondMomentTail n p α hα t)
-                    (volume.restrict (Ioi 0)) :=
-                Eventually.of_forall fun n ↦
-                  ((measurable_const.mul
-                    (measurable_poweredStandardizedBinomialSecondMomentTail n p α hα))).aestronglyMeasurable
-              have hbound : ∀ᶠ n : ℕ in atTop, ∀ᵐ t ∂volume.restrict (Ioi 0),
-                  ‖(Real.sqrt n)⁻¹ * poweredStandardizedBinomialSecondMomentTail n p α hα t‖ ≤ g t := by
-                refine eventually_atTop.2 ⟨1, fun n hn ↦ ?_⟩
-                filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with t ht
-                have hn0 : 0 < n := hn
-                have ht0 : 0 ≤ t := le_of_lt ht
-                have hsqrt_one : 1 ≤ Real.sqrt (n : ℝ) := by
-                  rw [← Real.sqrt_one]
-                  gcongr
-                  exact_mod_cast hn
-                have hinv_one : (Real.sqrt (n : ℝ))⁻¹ ≤ 1 :=
-                  inv_le_one_of_one_le₀ hsqrt_one
-                rw [Real.norm_eq_abs, abs_of_nonneg
-                  (mul_nonneg (inv_nonneg.mpr (Real.sqrt_nonneg n)) measureReal_nonneg)]
-                calc
-                  (Real.sqrt n)⁻¹ * poweredStandardizedBinomialSecondMomentTail n p α hα t ≤
-                      poweredStandardizedBinomialSecondMomentTail n p α hα t := by
-                    have htail0 : 0 ≤ poweredStandardizedBinomialSecondMomentTail n p α hα t :=
-                      measureReal_nonneg
-                    simpa only [one_mul] using mul_le_mul_of_nonneg_right hinv_one htail0
-                  _ ≤ (1 + α) * exp (-b * t) := by
-                    simpa [b] using
-                      secondMomentTail_le_exp_of_one_le_alpha
-                        n hn0 p hp0 hp1 α hα h1α t ht0
-                  _ = g t := rfl
-              have hlim : ∀ᵐ t ∂volume.restrict (Ioi 0), Tendsto
-                  (fun n : ℕ ↦ (Real.sqrt n)⁻¹ *
-                    poweredStandardizedBinomialSecondMomentTail n p α hα t)
-                  atTop (𝓝 0) := ae_of_all _ hpoint
-              simpa using
-                (tendsto_integral_filter_of_dominated_convergence
-                  (l := atTop)
-                  (F := fun n : ℕ ↦ fun t : ℝ ↦ (Real.sqrt n)⁻¹ *
-                    poweredStandardizedBinomialSecondMomentTail n p α hα t)
-                  (f := fun _ : ℝ ↦ 0)
-                  (μ := volume.restrict (Ioi 0))
-                  g hmeas hbound hg hlim)
-
-          end ProbabilityTheory"""
-          text, count = second_pattern.subn(second_replacement, text, count=1)
-          if count != 1:
-              raise SystemExit(f'second second DCT block: expected one replacement, found {count}')
-          second.write_text(text)
-          PY
-      - name: Compile repaired moment modules
-        working-directory: ci/lean/Voronovskaja
-        shell: bash
-        run: |
-          set +e
-          : > moment-status.txt
-          for target in \
-            FormalConjecturesForMathlib.Probability.Distributions.PoweredBinomialMoments \
-            FormalConjecturesForMathlib.Probability.Distributions.PoweredBinomialSecondMoment; do
-            safe=${target//./_}
-            lake build "@formal_conjectures/+${target}" > "${safe}.log" 2>&1
-            code=$?
-            echo "$target $code" | tee -a moment-status.txt
-            cat "${safe}.log"
-          done
-          exit 0
-      - name: Build full exact theorem stack when moment modules pass
-        working-directory: ci/lean/Voronovskaja
-        shell: bash
-        run: |
-          set +e
-          if grep -qv ' 0$' moment-status.txt; then
-            printf '1\n' > audit.status
-            exit 0
+          if grep -R -nE '(^|[^[:alnum:]_])(sorry|admit)([^[:alnum:]_]|$)|^[[:space:]]*axiom[[:space:]]' \
+              FormalConjectures/Paper/Voronovskaja*.lean \
+              FormalConjecturesForMathlib/Probability/CentralLimitTheorem.lean \
+              FormalConjecturesForMathlib/Probability/CDFConvergence.lean \
+              FormalConjecturesForMathlib/Probability/Distributions/Bernoulli.lean \
+              FormalConjecturesForMathlib/Probability/Distributions/Binomial.lean \
+              FormalConjecturesForMathlib/Probability/Distributions/StandardizedBinomial*.lean \
+              FormalConjecturesForMathlib/Probability/Distributions/PoweredGaussian.lean \
+              FormalConjecturesForMathlib/Probability/Distributions/PoweredBinomial*.lean; then
+            exit 1
           fi
-          lake build '@formal_conjectures/+FormalConjectures.Paper.VoronovskajaTypeFormula' > audit.log 2>&1
-          status=$?
-          cat audit.log
-          printf '%s\n' "$status" > audit.status
-          exit 0
-      - name: Compile and audit exact catalog theorem
+      - name: Build exact theorem and dependencies
+        working-directory: ci/lean/Voronovskaja
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build '@formal_conjectures/+FormalConjectures.Paper.VoronovskajaTypeFormula' \
+            2>&1 | tee audit.log
+      - name: Compile and audit catalog theorem
         working-directory: ci/lean/Voronovskaja
         shell: bash
         run: |
           set -euo pipefail
-          status=$(cat audit.status)
-          if [[ "$status" != 0 ]]; then exit "$status"; fi
           lake env lean Audit.lean 2>&1 | tee -a audit.log
           if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' audit.log; then
             exit 1
@@ -342,11 +75,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: voronovskaja-isolated-macos
-          path: |
-            ci/lean/Voronovskaja/moment-status.txt
-            ci/lean/Voronovskaja/*PoweredBinomialMoments.log
-            ci/lean/Voronovskaja/*PoweredBinomialSecondMoment.log
-            ci/lean/Voronovskaja/audit.log
-            ci/lean/Voronovskaja/audit.status
+          name: voronovskaja-final-kernel-audit
+          path: ci/lean/Voronovskaja/audit.log
           if-no-files-found: warn
