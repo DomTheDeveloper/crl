@@ -1,3 +1,4 @@
+# Trigger: Gaussian singleton coercion repair.
 name: One-shot Voronovskaja exact audit
 
 on:
