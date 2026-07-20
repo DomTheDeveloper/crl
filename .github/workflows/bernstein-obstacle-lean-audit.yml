@@ -113,6 +113,10 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.grandSharpRate_quadraticContact_saturation' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.bernsteinBezierObstacleGrandTheorem' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_quadraticContact' \
+            bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.sharpMinimizerRate_of_recovery_and_multiplier' \
