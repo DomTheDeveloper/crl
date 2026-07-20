@@ -52,4 +52,5 @@ import BernsteinObstacle.CoefficientLocalization
 import BernsteinObstacle.SharpRateAlgebra
 import BernsteinObstacle.StripScaling
 import BernsteinObstacle.MinkowskiRate
+import BernsteinObstacle.MinkowskiSaturation
 import BernsteinObstacle.RecoveryRate
