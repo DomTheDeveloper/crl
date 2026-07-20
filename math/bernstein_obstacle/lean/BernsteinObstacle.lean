@@ -39,3 +39,4 @@ import BernsteinObstacle.AssemblyConvergence
 import BernsteinObstacle.CoefficientNorm
 import BernsteinObstacle.EnergyGapConvergence
 import BernsteinObstacle.Uniqueness
+import BernsteinObstacle.SharpRateAlgebra
