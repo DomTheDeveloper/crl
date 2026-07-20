@@ -107,16 +107,7 @@ lemma aeval_vecPoly60Q (z : ℂ) (v : Fin 16 → ℤ) :
 lemma coeff_vecPoly60Q (v : Fin 16 → ℤ) (i : Fin 16) :
     (vecPoly60Q v).coeff i.val = (v i : ℚ) := by
   classical
-  unfold vecPoly60Q
-  change Finset.univ.sum (fun j : Fin 16 ↦
-      (C (v j : ℚ) * X ^ j.val).coeff i.val) = (v i : ℚ)
-  apply Finset.sum_eq_single i
-  · intro j _ hji
-    have hval : j.val ≠ i.val := fun h ↦ hji (Fin.ext h)
-    simp [hval]
-  · intro hi
-    simp at hi
-  · simp
+  simp [vecPoly60Q]
 
 lemma vecPoly60Q_eq_zero_iff (v : Fin 16 → ℤ) : vecPoly60Q v = 0 ↔ v = 0 := by
   constructor
