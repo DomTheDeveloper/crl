@@ -1,5 +1,5 @@
 name: Isolated WOWII 314 ARM64 audit
-# Exact audit revision: explicit ten-center C5 classification and corrected bag uniqueness orientation.
+# Exact audit revision: two surviving C5 cases and corrected bag uniqueness orientation.
 
 on:
   pull_request:
@@ -52,7 +52,7 @@ jobs:
               r"    simp_all \[Fin\.forall_fin_succ, Fin\.exists_fin_succ\] <;>\n"
               r"    decide"
           )
-          witness_order = [1, 4, 2, 0, 1, 3, 4, 2, 0, 3]
+          witness_order = [4, 2]
           lines = ["    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ]"]
           for k in witness_order:
               lines.extend([
