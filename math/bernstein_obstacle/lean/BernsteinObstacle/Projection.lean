@@ -14,7 +14,7 @@ orthant.  This is the precise finite-dimensional optimization statement used
 by active-set and clipping arguments.
 -/
 
-/-- Scalar clipping minimizes squared distance among all nonnegative major
+/-- Scalar clipping minimizes squared distance among all nonnegative
 candidates. -/
 theorem clip_sqDist_le_of_nonneg (a b : ℝ) (hb : 0 ≤ b) :
     (clip a - a) ^ 2 ≤ (b - a) ^ 2 := by
@@ -22,7 +22,7 @@ theorem clip_sqDist_le_of_nonneg (a b : ℝ) (hb : 0 ≤ b) :
   · have hclip : clip a = a := by
       simp [clip, max_eq_left ha]
     rw [hclip]
-    positivity
+    nlinarith [sq_nonneg (b - a)]
   · have ha0 : a ≤ 0 := le_of_not_ge ha
     have hclip : clip a = 0 := by
       simp [clip, max_eq_right ha0]
@@ -55,8 +55,7 @@ theorem clipCoefficients_sqDist_minimal {ι : Type*} [Fintype ι]
 theorem clipCoefficients_eq_self_iff {ι : Type*} (c : ι → ℝ) :
     clipCoefficients c = c ↔ c ∈ coefficientCone ι := by
   constructor
-  · intro h
-    intro i
+  · intro h i
     have hi := congrFun h i
     rw [clipCoefficients] at hi
     exact hi ▸ clip_nonneg (c i)
@@ -73,10 +72,11 @@ theorem coefficientSqDist_clip_eq_zero_iff {ι : Type*} [Fintype ι]
   · intro h
     have hterm : ∀ i, (clipCoefficients c i - c i) ^ 2 = 0 := by
       intro i
-      have hnonneg : ∀ j, 0 ≤ (clipCoefficients c j - c j) ^ 2 :=
-        fun j => sq_nonneg _
-      have hi := Finset.sum_eq_zero_iff_of_nonneg hnonneg |>.mp h i (Finset.mem_univ i)
-      exact hi
+      have hzero :=
+        (Finset.sum_eq_zero_iff_of_nonneg
+          (fun j (_hj : j ∈ (Finset.univ : Finset ι)) =>
+            sq_nonneg (clipCoefficients c j - c j))).mp h
+      exact hzero i (Finset.mem_univ i)
     apply (clipCoefficients_eq_self_iff c).mp
     funext i
     have hi := hterm i
