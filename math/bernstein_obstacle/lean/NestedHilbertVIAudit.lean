@@ -1,0 +1,7 @@
+import BernsteinObstacle
+
+#check BernsteinObstacle.nested_hilbert_vi_recovery_error_sq
+#check BernsteinObstacle.nested_hilbert_vi_distance_sq_le_recovery
+
+#print axioms BernsteinObstacle.nested_hilbert_vi_recovery_error_sq
+#print axioms BernsteinObstacle.nested_hilbert_vi_distance_sq_le_recovery
