@@ -46,6 +46,7 @@ import BernsteinObstacle.EnergyGapConvergence
 import BernsteinObstacle.Uniqueness
 import BernsteinObstacle.CoefficientLocalization
 import BernsteinObstacle.LocalDistanceLocalization
+import BernsteinObstacle.BoundaryCoefficientLocalization
 import BernsteinObstacle.SharpRateAlgebra
 import BernsteinObstacle.StripScaling
 import BernsteinObstacle.RecoveryRate
