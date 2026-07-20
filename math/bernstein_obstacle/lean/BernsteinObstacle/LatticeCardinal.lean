@@ -64,9 +64,7 @@ theorem exists_coord_lt_of_sum_eq_of_ne
     ∃ i, β i < α i := by
   by_contra hnone
   push_neg at hnone
-  have hle : ∀ i, α i ≤ β i := by
-    intro i
-    exact Nat.le_of_not_gt (hnone i)
+  have hle : ∀ i, α i ≤ β i := hnone
   have hexists : ∃ i, α i ≠ β i := by
     by_contra hall
     push_neg at hall
