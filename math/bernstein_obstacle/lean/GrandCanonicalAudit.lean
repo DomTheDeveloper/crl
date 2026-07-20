@@ -5,8 +5,12 @@ import BernsteinObstacle
 #check BernsteinObstacle.affineBox_mem_Icc
 #check BernsteinObstacle.boxApprox_mem_Icc
 #check BernsteinObstacle.simplexBoxApproxNat_mem_Icc
+#check BernsteinObstacle.scheduledStage_tendsto_atTop
+#check BernsteinObstacle.mosco_of_scheduledRecovery_of_subset_closedConvex
 #check BernsteinObstacle.translatedSet
 #check BernsteinObstacle.moscoConverges_translated
+#check BernsteinObstacle.movingObstacleCone
+#check BernsteinObstacle.ThresholdSobolevFEMRecoveryData.movingObstacle_moscoConverges
 #check BernsteinObstacle.BilateralBarrierEnvelopeData.moscoConverges
 #check BernsteinObstacle.BilateralBarrierEnvelopeData.inner_and_mosco
 #check BernsteinObstacle.hilbert_vi_pythagorean
@@ -23,14 +27,24 @@ import BernsteinObstacle
 #check BernsteinObstacle.IsOperatorVISolution
 #check BernsteinObstacle.monotoneInnerCone_operator_core
 #check BernsteinObstacle.monotoneInnerCone_operator_falk_sq
+#check BernsteinObstacle.vanishingCodimensionScale_sq
+#check BernsteinObstacle.strip_sum_energy_le_vanishingCodimension
+#check BernsteinObstacle.repair_norm_le_vanishingCodimension_of_element_bounds
+#check BernsteinObstacle.sharpRate_of_vanishingCodimension_components
+#check BernsteinObstacle.quadraticContact_codimOne_saturation
+#check BernsteinObstacle.phaseLockedQuadraticMiddleCoefficient_neg
 #check BernsteinObstacle.threeHalvesContactLaw
 #check BernsteinObstacle.balancedContactOrder_equalizes
 
 #print axioms BernsteinObstacle.affineBox_mem_Icc
 #print axioms BernsteinObstacle.boxApprox_mem_Icc
 #print axioms BernsteinObstacle.simplexBoxApproxNat_mem_Icc
+#print axioms BernsteinObstacle.scheduledStage_tendsto_atTop
+#print axioms BernsteinObstacle.mosco_of_scheduledRecovery_of_subset_closedConvex
 #print axioms BernsteinObstacle.translatedSet
 #print axioms BernsteinObstacle.moscoConverges_translated
+#print axioms BernsteinObstacle.movingObstacleCone
+#print axioms BernsteinObstacle.ThresholdSobolevFEMRecoveryData.movingObstacle_moscoConverges
 #print axioms BernsteinObstacle.BilateralBarrierEnvelopeData.moscoConverges
 #print axioms BernsteinObstacle.BilateralBarrierEnvelopeData.inner_and_mosco
 #print axioms BernsteinObstacle.hilbert_vi_pythagorean
@@ -47,5 +61,11 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.IsOperatorVISolution
 #print axioms BernsteinObstacle.monotoneInnerCone_operator_core
 #print axioms BernsteinObstacle.monotoneInnerCone_operator_falk_sq
+#print axioms BernsteinObstacle.vanishingCodimensionScale_sq
+#print axioms BernsteinObstacle.strip_sum_energy_le_vanishingCodimension
+#print axioms BernsteinObstacle.repair_norm_le_vanishingCodimension_of_element_bounds
+#print axioms BernsteinObstacle.sharpRate_of_vanishingCodimension_components
+#print axioms BernsteinObstacle.quadraticContact_codimOne_saturation
+#print axioms BernsteinObstacle.phaseLockedQuadraticMiddleCoefficient_neg
 #print axioms BernsteinObstacle.threeHalvesContactLaw
 #print axioms BernsteinObstacle.balancedContactOrder_equalizes
