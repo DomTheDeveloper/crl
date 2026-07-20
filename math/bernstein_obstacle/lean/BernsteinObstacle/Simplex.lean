@@ -5,15 +5,19 @@ open scoped BigOperators
 
 namespace BernsteinObstacle
 
+noncomputable section
+
 /-- A point of the standard `d`-simplex, represented by nonnegative barycentric
 coordinates whose sum is one. -/
-def BarycentricPoint (d : ℕ) :=
-  {λ : Fin (d + 1) → ℝ // (∀ i, 0 ≤ λ i) ∧ (∑ i, λ i) = 1}
+abbrev BarycentricPoint (d : ℕ) :=
+  {coord : Fin (d + 1) → ℝ //
+    (∀ i, 0 ≤ coord i) ∧ (∑ i, coord i) = 1}
 
 /-- A degree-`n` multi-index on a `d`-simplex. Each component is automatically
 bounded by `n`, and the component sum is exactly `n`. -/
-def MultiIndex (d n : ℕ) :=
-  {α : Fin (d + 1) → Fin (n + 1) // ∑ i, (α i : ℕ) = n}
+abbrev MultiIndex (d n : ℕ) :=
+  {α : Fin (d + 1) → Fin (n + 1) //
+    ∑ i, (α i : ℕ) = n}
 
 /-- The simplicial Bernstein basis weight associated with a multi-index. -/
 def simplexBasis (d n : ℕ) (α : MultiIndex d n)
@@ -88,5 +92,7 @@ theorem simplex_noPenetration_after_clipping
     ψ x ≤ simplexObstacleApprox d n ψ (clipSimplex d n c) x := by
   exact simplex_noPenetration_of_nonnegative_coefficients d n ψ
     (clipSimplex d n c) (fun α => clip_nonneg (c α)) x
+
+end
 
 end BernsteinObstacle
