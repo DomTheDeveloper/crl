@@ -30,8 +30,10 @@ jobs:
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Resolve exact proof dependency
         working-directory: ci/lean/WOWII314
+        shell: bash
         run: |
           set -euo pipefail
+          exec > >(tee resolve-arm.log) 2>&1
           lake update
           cat >> .lake/packages/formal_conjectures/lakefile.toml <<'EOF'
 
@@ -40,14 +42,16 @@ jobs:
           EOF
           python3 - <<'PY'
           from pathlib import Path
+          import re
+
           root = Path('.lake/packages/formal_conjectures')
 
           path = root / 'WOWII/ZZGraphConjecture314C5Bags.lean'
           text = path.read_text()
-          old = "\n".join([
-              "    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ] <;>",
-              "    decide",
-          ])
+          pattern = re.compile(
+              r"    simp_all \[Fin\.forall_fin_succ, Fin\.exists_fin_succ\] <;>\n"
+              r"    decide"
+          )
           witness_order = [1, 4, 2, 0, 1, 3, 4, 2, 0, 3]
           lines = ["    simp_all [Fin.forall_fin_succ, Fin.exists_fin_succ]"]
           for k in witness_order:
@@ -56,21 +60,27 @@ jobs:
                   "    intro y hy",
                   "    fin_cases y <;> simp_all at hy ⊢",
               ])
-          if old not in text:
-              raise SystemExit('expected concrete Fin 5 closure not found')
-          path.write_text(text.replace(old, "\n".join(lines), 1))
+          text, count = pattern.subn("\n".join(lines), text, count=1)
+          print(f'C5 finite-pattern replacements: {count}')
+          if count != 1:
+              raise SystemExit('expected exactly one concrete Fin 5 closure')
+          path.write_text(text)
 
           path = root / 'WOWII/ZZGraphConjecture314C5BlowupClassification.lean'
           text = path.read_text()
-          old = """    exact (Classical.choose_spec
-            (existsUnique_C5BagSpec G hG hTriFree hNoP5 c hc x)).2 i hi
-          """
-          new = """    exact ((Classical.choose_spec
-            (existsUnique_C5BagSpec G hG hTriFree hNoP5 c hc x)).2 i hi).symm
-          """
-          if old not in text:
-              raise SystemExit('expected bag uniqueness orientation site not found')
-          path.write_text(text.replace(old, new, 1))
+          pattern = re.compile(
+              r"    exact \(Classical\.choose_spec\s*\n"
+              r"\s*\(existsUnique_C5BagSpec G hG hTriFree hNoP5 c hc x\)\)\.2 i hi"
+          )
+          replacement = (
+              "    exact ((Classical.choose_spec\n"
+              "      (existsUnique_C5BagSpec G hG hTriFree hNoP5 c hc x)).2 i hi).symm"
+          )
+          text, count = pattern.subn(replacement, text, count=1)
+          print(f'bag-uniqueness orientation replacements: {count}')
+          if count != 1:
+              raise SystemExit('expected exactly one bag uniqueness orientation site')
+          path.write_text(text)
           PY
       - name: Fetch Mathlib cache
         working-directory: ci/lean/WOWII314
@@ -109,6 +119,7 @@ jobs:
         with:
           name: wowii314-isolated-arm
           path: |
+            ci/lean/WOWII314/resolve-arm.log
             ci/lean/WOWII314/build-arm.log
             ci/lean/WOWII314/audit-arm.log
           if-no-files-found: warn
