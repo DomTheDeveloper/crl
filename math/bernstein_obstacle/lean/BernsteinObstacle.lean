@@ -1,2 +1,3 @@
 import BernsteinObstacle.Core
 import BernsteinObstacle.Tensor
+import BernsteinObstacle.Simplex
