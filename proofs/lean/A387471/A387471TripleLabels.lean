@@ -61,29 +61,44 @@ theorem positive_angular_triple_impossible {n : ℕ} (hn : 0 < n) {A B C : ℤ}
   by_cases hqAz : qA = 0
   · have hAC : A = C := by nlinarith
     subst A
-    have hnormC := canonical_power_norm_one (mul_ne_zero (by norm_num) hn.ne') c.val
-    have hnormB := canonical_power_norm_one (mul_ne_zero (by norm_num) hn.ne') b.val
+    have hnormC := canonical_power_norm_one (N := 12 * n)
+      (mul_ne_zero (by norm_num) hn.ne') c.val
+    have hnormB := canonical_power_norm_one (N := 12 * n)
+      (mul_ne_zero (by norm_num) hn.ne') b.val
     exact equal_first_two_impossible hnormC hnormB
       (by simpa [a, c, add_assoc, add_left_comm, add_comm] using hcan)
   by_cases hqBz : qB = 0
   · have hBC : B = C := by nlinarith
     subst B
-    have hnormC := canonical_power_norm_one (mul_ne_zero (by norm_num) hn.ne') c.val
-    have hnormA := canonical_power_norm_one (mul_ne_zero (by norm_num) hn.ne') a.val
+    have hnormC := canonical_power_norm_one (N := 12 * n)
+      (mul_ne_zero (by norm_num) hn.ne') c.val
+    have hnormA := canonical_power_norm_one (N := 12 * n)
+      (mul_ne_zero (by norm_num) hn.ne') a.val
     exact equal_first_two_impossible hnormC hnormA
       (by simpa [b, c, add_assoc, add_left_comm, add_comm] using hcan)
   by_cases hqeq : qA = qB
   · have hABeq : A = B := by nlinarith
     subst B
-    have hnormA := canonical_power_norm_one (mul_ne_zero (by norm_num) hn.ne') a.val
-    have hnormC := canonical_power_norm_one (mul_ne_zero (by norm_num) hn.ne') c.val
+    have hnormA := canonical_power_norm_one (N := 12 * n)
+      (mul_ne_zero (by norm_num) hn.ne') a.val
+    have hnormC := canonical_power_norm_one (N := 12 * n)
+      (mul_ne_zero (by norm_num) hn.ne') c.val
     exact equal_first_two_impossible hnormA hnormC
       (by simpa [a, b] using hcan)
-  have hqopp : qA = -qB := by omega
   have hdiff : A - B = 4 * (n : ℤ) * (qA - qB) := by nlinarith
   have hdifflo : -6 * (n : ℤ) < A - B := by omega
   have hdiffhi : A - B < 6 * (n : ℤ) := by omega
-  omega
+  have hqA_cases : qA = -1 ∨ qA = 1 := by omega
+  have hqB_cases : qB = -1 ∨ qB = 1 := by omega
+  rcases hqA_cases with hqAneg | hqApos
+  · rcases hqB_cases with hqBneg | hqBpos
+    · exact hqeq (by omega)
+    · have hdiffEq : A - B = -8 * (n : ℤ) := by nlinarith
+      omega
+  · rcases hqB_cases with hqBneg | hqBpos
+    · have hdiffEq : A - B = 8 * (n : ℤ) := by nlinarith
+      omega
+    · exact hqeq (by omega)
 
 /-- Three negative-side angular roots cannot vanish. -/
 theorem negative_angular_triple_impossible {n : ℕ} (hn : 0 < n) {A B C : ℤ}
@@ -157,7 +172,7 @@ private theorem labeled_triple_sorted_impossible {n : ℕ} (hn : 0 < n) {A B C :
     (r s t : Fin 6) (hrs : r < s) (hst : s < t)
     (h : sixRoot n A B C r + sixRoot n A B C s + sixRoot n A B C t = 0) : False := by
   fin_cases r <;> fin_cases s <;> fin_cases t
-  all_goals norm_num at hrs hst
+  all_goals try omega
   all_goals simp only [sixRoot] at h
   · exact positive_angular_triple_impossible hn hA hB hC h
   · exact two_positive_one_negative_impossible (A := B) (B := A) (C := A)
