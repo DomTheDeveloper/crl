@@ -1,11 +1,13 @@
 name: Bernstein obstacle full reproduction
 
 on:
-  workflow_dispatch:
-  pull_request:
+  push:
+    branches:
+      - agent/bernstein-obstacle-research
     paths:
       - 'math/bernstein_obstacle/reproduction/**'
       - '.github/workflows/bernstein-obstacle-reproduction.yml'
+  workflow_dispatch:
 
 concurrency:
   group: bernstein-obstacle-reproduction-${{ github.ref }}
