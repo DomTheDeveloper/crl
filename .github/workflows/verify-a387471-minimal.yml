@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/crl
-          ref: a1f88a9cebf3cf18f2f0d47c3a494ae4df41c6f8
+          ref: e5a7a9147bd31bac9cc8adc8b2dbd44c77a2f36a
           path: campaign
       - name: Install pinned Lean
         shell: bash
