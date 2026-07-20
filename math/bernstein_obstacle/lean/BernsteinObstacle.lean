@@ -35,6 +35,7 @@ import BernsteinObstacle.ConvexWeakClosure
 import BernsteinObstacle.CoefficientMosco
 import BernsteinObstacle.AssemblyMosco
 import BernsteinObstacle.MinimizerConvergence
+import BernsteinObstacle.MovingConeConvergence
 import BernsteinObstacle.AssemblyConvergence
 import BernsteinObstacle.CoefficientNorm
 import BernsteinObstacle.EnergyGapConvergence
