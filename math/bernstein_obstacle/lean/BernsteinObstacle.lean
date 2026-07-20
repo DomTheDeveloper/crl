@@ -4,6 +4,7 @@ import BernsteinObstacle.Projection
 import BernsteinObstacle.ProjectionVI
 import BernsteinObstacle.Tensor
 import BernsteinObstacle.Simplex
+import BernsteinObstacle.SimplexPermutation
 import BernsteinObstacle.SimplexFace
 import BernsteinObstacle.SimplexFaceField
 import BernsteinObstacle.SimplexPartition
