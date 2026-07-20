@@ -15,13 +15,13 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 180
     steps:
       - name: Check out repaired A387471 proof commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/crl
-          ref: 788767fa3cea30413684b0882d72b73c6840a339
+          ref: 7c72dbd2a338e2f83438865e1da192daa2285bc8
           path: campaign
 
       - name: Install pinned Lean
@@ -45,6 +45,13 @@ jobs:
         shell: bash
         working-directory: campaign/proofs/lean/A387471
         run: lake exe cache get
+
+      - name: Build repaired bottleneck modules
+        shell: bash
+        working-directory: campaign/proofs/lean/A387471
+        run: |
+          set -euo pipefail
+          lake build A387471SixRoots A387471Finite60 2>&1 | tee ../../../../a387471-bottlenecks.log
 
       - name: Build exact theorem and dependencies
         shell: bash
@@ -77,6 +84,7 @@ jobs:
         with:
           name: a387471-exact-audit
           path: |
+            a387471-bottlenecks.log
             a387471-build.log
             a387471-axioms.log
           if-no-files-found: warn
