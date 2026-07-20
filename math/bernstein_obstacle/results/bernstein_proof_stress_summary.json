@@ -1,0 +1,36 @@
+[
+  {
+    "test": "random_simplex_positivity",
+    "cases": 96000,
+    "worst_margin": 0.005886197092002986,
+    "passed": true
+  },
+  {
+    "test": "shared_face_clipping_conformity",
+    "cases": 8008,
+    "worst_before": 4.440892098500626e-16,
+    "worst_after": 4.440892098500626e-16,
+    "passed": true
+  },
+  {
+    "test": "coefficient_projection_kkt",
+    "cases": 5000,
+    "minimum_kkt": 0.0,
+    "minimum_pythagorean_slack": 0.0,
+    "minimum_nonexpansive_slack": 0.0,
+    "passed": true
+  },
+  {
+    "test": "codimension_one_strip_h1_scaling",
+    "cases": 12,
+    "fitted_rate": 1.5001805955894776,
+    "last_step_rate": 1.5000000026872276,
+    "passed": true
+  },
+  {
+    "test": "cut_element_negative_coefficient_O_h2",
+    "cases": 1092,
+    "maximum_negative_over_h2": 0.43388137755101985,
+    "passed": true
+  }
+]
