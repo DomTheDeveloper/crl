@@ -39,6 +39,7 @@ import BernsteinObstacle.ScheduledRecovery
 import BernsteinObstacle.SobolevFEMRecovery
 import BernsteinObstacle.TranslatedMosco
 import BernsteinObstacle.MovingObstacleConvergence
+import BernsteinObstacle.MovingObstacleRate
 import BernsteinObstacle.CoefficientMosco
 import BernsteinObstacle.AssemblyMosco
 import BernsteinObstacle.MinimizerConvergence
