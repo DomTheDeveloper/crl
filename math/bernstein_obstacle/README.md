@@ -1,8 +1,8 @@
 # Bernstein–Bézier Obstacle Variational Inequalities
 
-Research project on high-order finite-element obstacle methods whose local
-Bernstein coefficient constraints guarantee pointwise nonpenetration over the
-entire element.
+Research project on high-order finite-element obstacle and contact methods whose
+local Bernstein coefficient constraints guarantee pointwise nonpenetration over
+the complete constrained entity.
 
 ## Verification layers
 
@@ -36,21 +36,21 @@ shape-regular mesh family, the coefficient-feasible cones Mosco-converge to
 K=H_0^1(\Omega)\cap\{v\ge0\}.
 \]
 
-Consequently, minimizers of symmetric continuous coercive obstacle energies
+Consequently, solutions of the certified discrete variational inequalities
 converge strongly in `H^1`. The complete moving-space analytical argument is in
 `GENERAL_MOSCO_PUBLICATION_PROOF.md`; it includes nonnegative smooth density,
 the conforming positive Bernstein recovery operator, a dimension-safe
 `W^{2,infinity}` estimate, the diagonal sequence, weak closure, and the direct
-energy proof of strong minimizer convergence.
+strong-convergence argument.
 
 The theorem needs no free-boundary regularity and is valid in every fixed finite
 dimension. The abstract finite/Hilbert reductions are machine checked, but the
 concrete moving Sobolev/FEM realization has not yet been formalized in Lean or
 independently endorsed.
 
-### Scoped sharp theorem
+### Scoped sharp scalar theorem
 
-The intended mechanics theorem is stated for `d = 2` or `d = 3` and fixed
+The scalar obstacle theorem is stated for `d = 2` or `d = 3` and fixed
 polynomial degree `r >= 1`. More generally, it applies when the pointwise
 barycentric interpolation is well defined, for example under `r + 1 > d/2`.
 Under a compact regular interior free boundary, quadratic gap growth, a
@@ -64,15 +64,58 @@ collar with inward linear growth,
 \le C(h^r+h_\Gamma^{3/2}).
 \]
 
-The full scoped argument is in `SHARP_RATE_PUBLICATION_PROOF.md`. It writes out
-the coefficient-to-grid-value estimate, local-size localization, the separate
-far-interior and physical-boundary cases, the two-sided risky coefficient
-bound, shared-global-coefficient clipping, codimension-one repair scaling,
-strip interpolation, multiplier consistency, and the exact energy transfer.
+The full scoped argument is in `SHARP_RATE_PUBLICATION_PROOF.md`.
 
-Independent energy-identity and Falk routes give the minimizer estimate. This
-analytical theorem has passed an internal adversarial audit but still awaits
-external expert review.
+## Grand theorem: nonlinear certified inner approximation
+
+`BERNSTEIN_GRAND_THEOREM.md` proves the abstract estimate
+
+\[
+\|u-u_h\|_V^2
+\le
+\frac{L^2}{\alpha^2}\|u-v_h\|_V^2
++\frac{2}{\alpha}\langle F(u),v_h-u\rangle
+\qquad(v_h\in K_h\subset K)
+\]
+
+for every Lipschitz, strongly monotone operator `F`. The operator may be
+nonlinear, nonsymmetric, and nonpotential. Therefore the certified convergence
+and sharp recovery mechanism do not fundamentally depend on a quadratic energy.
+
+The same note proves a geometric repair law for a unilateral constraint imposed
+on a manifold of ambient codimension `c`:
+
+\[
+\|d_h\|_V=O\bigl(h_\Sigma^{(c+3)/2}\bigr).
+\]
+
+A bounded multiplier on the active transition strip contributes
+
+\[
+\langle F(u),v_h-u\rangle=O(h_\Sigma^3),
+\]
+
+independently of `c`. Consequently both
+
+- a scalar interior obstacle (`c=0`), and
+- planar frictionless Signorini contact (`c=1`)
+
+obey the common final estimate
+
+\[
+\boxed{
+\|u-u_h^B\|_V
+\le C(h^r+h_\Sigma^{3/2}).
+}
+\]
+
+The planar-contact corollary uses a constant contact normal and a stable global
+normal-control-point lifting. Conservative one-sided obstacle and clearance
+approximations are included with explicit additive consistency terms.
+
+This is an internally proved analytical theorem package. Its exact novelty,
+contact lifting assumptions, and literature position remain under independent
+review; see `GRAND_THEOREM_PRIOR_ART_MAP.md`.
 
 ## Mechanics validation
 
@@ -137,10 +180,11 @@ Dependencies: Python 3.11+, NumPy, SciPy, SymPy, pandas, Matplotlib.
 
 ## Scope warning
 
-The sharp rate does not claim singular or degenerate free boundaries,
-boundary-touching free boundaries, nodal interpolation outside the stated
-dimension/regularity regime, arbitrary inexact obstacles, physical-boundary
-positivity without the stated collar hypotheses, measure-valued multipliers,
-nonsymmetric operators, or optimal adaptive complexity without a specified
-refinement-closure theorem. The general Mosco and strong-minimizer convergence
-theorems are broader but remain analytical rather than fully Lean-formalized.
+The current grand theorem does not claim singular or degenerate active-set
+interfaces, contact transitions meeting incompatible essential boundaries,
+curved contact with changing normals without a stable gap lifting, Coulomb
+friction, merely monotone operators, nodal interpolation outside the stated
+dimension/regularity regime, nonconservative obstacle or clearance errors,
+measure-valued multipliers, anisotropic interface patches without a new scaling
+audit, or optimal adaptive complexity. The moving Sobolev/FEM and nonlinear
+physical realizations remain analytical rather than fully Lean-formalized.
