@@ -1,13 +1,16 @@
 name: Dmono22 top-34 DRAT certificate
 
-# Expensive proof generation. Manual dispatch still requires confirmation. A push
-# to the dedicated exact branch is also accepted so the audit can be repaired and
-# rerun reproducibly without broadening the search matrix.
+# Expensive proof generation. Manual dispatch still requires confirmation. Push
+# and pull-request events are restricted to the dedicated exact branch/files.
 
 on:
   push:
     branches:
       - solve-dmono22-exact
+    paths:
+      - '.github/workflows/dmono22-drat-top34.yml'
+      - 'math/checkerboard/n22_exact/**'
+  pull_request:
     paths:
       - '.github/workflows/dmono22-drat-top34.yml'
       - 'math/checkerboard/n22_exact/**'
@@ -22,12 +25,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: dmono22-drat-top34
+  group: dmono22-drat-top34-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   certify:
-    if: ${{ github.event_name == 'push' || inputs.confirm == 'RUN_TOP34_DRAT' }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.confirm == 'RUN_TOP34_DRAT' }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
