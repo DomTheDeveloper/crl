@@ -1,5 +1,9 @@
 import BernsteinObstacle
 
+#check BernsteinObstacle.zero_mem_assemblyFeasibleSet
+#check BernsteinObstacle.assemblyFeasibleSet_convex
+#check BernsteinObstacle.clipCoefficients_sqDist_minimal_assembly
+#check BernsteinObstacle.clipCoefficients_projection_inequality_assembly
 #check BernsteinObstacle.localFaceTrace_eq_sharedFaceTrace
 #check BernsteinObstacle.localFaceTrace_eq_of_commonFace
 #check BernsteinObstacle.clipped_localFaceTrace_eq_of_commonFace
@@ -7,6 +11,10 @@ import BernsteinObstacle
 #check BernsteinObstacle.localBoundaryFaceTrace_eq_zero
 #check BernsteinObstacle.clippedRecovery_localBoundaryFaceTrace_eq_zero
 
+#print axioms BernsteinObstacle.zero_mem_assemblyFeasibleSet
+#print axioms BernsteinObstacle.assemblyFeasibleSet_convex
+#print axioms BernsteinObstacle.clipCoefficients_sqDist_minimal_assembly
+#print axioms BernsteinObstacle.clipCoefficients_projection_inequality_assembly
 #print axioms BernsteinObstacle.localFaceTrace_eq_sharedFaceTrace
 #print axioms BernsteinObstacle.localFaceTrace_eq_of_commonFace
 #print axioms BernsteinObstacle.clipped_localFaceTrace_eq_of_commonFace
