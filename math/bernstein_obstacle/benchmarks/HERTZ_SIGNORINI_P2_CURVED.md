@@ -42,19 +42,19 @@ For 20,193 displacement unknowns:
 
 The polygonal P2 run at the same unknown count had pressure `L2` error about `2.05e-1`; curved geometry reduces that diagnostic by approximately 57% while retaining the same pointwise Bernstein gap certificate.
 
-## Mesh-phase sensitivity correction
+## Fixed-radial neighboring-mesh sensitivity sweep
 
-The selected 160-interval mesh has an unusually small bracketed contact-width error because its last active edge lands close to the exact Hertz radius. Neighboring curved meshes give:
+The selected 160-interval mesh has an unusually small bracketed contact-width error because its last active edge lands close to the exact Hertz radius. To isolate angular mesh phase, all rows below use 16 radial intervals and vary only the angular resolution:
 
-| Angular intervals | Unknowns | Bracketed-width error | Pressure-fitted error | Pressure `L2` error |
-|---:|---:|---:|---:|---:|
-| 145 | 15,979 | `3.055e-3` | `3.544e-4` | `1.305e-1` |
-| 155 | 19,563 | `2.346e-3` | `8.385e-4` | `9.735e-2` |
-| 160 | 20,193 | `1.011e-4` | `9.419e-4` | `8.818e-2` |
-| 165 | 20,823 | `2.400e-3` | `2.712e-5` | `9.074e-2` |
-| 170 | 22,815 | `4.289e-5` | `1.551e-3` | `1.256e-1` |
+| Angular intervals | Unknowns | Bracketed-width error | Pressure-fitted error | Pressure `L2` error | Reaction error |
+|---:|---:|---:|---:|---:|---:|
+| 145 | 18,303 | `3.055e-3` | `3.544e-4` | `1.103e-1` | `1.18e-11` |
+| 155 | 19,563 | `2.346e-3` | `8.385e-4` | `9.735e-2` | `1.17e-11` |
+| 160 | 20,193 | `1.011e-4` | `9.419e-4` | `8.818e-2` | `1.02e-11` |
+| 165 | 20,823 | `2.400e-3` | `2.712e-5` | `9.074e-2` | `6.69e-12` |
+| 170 | 21,453 | `4.289e-5` | `1.832e-3` | `1.381e-1` | `1.62e-11` |
 
-Therefore the previously quoted approximately `48.9×` comparison is only a selected-mesh observation, not a uniform accuracy factor. The robust validation metrics are:
+Every rerun retained minimum gap coefficient zero. Therefore the previously quoted approximately `48.9×` comparison is only a selected-mesh observation, not a uniform accuracy factor. The robust validation metrics are:
 
 - exact coefficientwise feasibility;
 - KKT residual and complementarity;
@@ -75,4 +75,4 @@ A separate scikit-fem implementation independently assembles the elasticity oper
 
 ## Reproduction
 
-Run `hertz_signorini_p2_curved_bernstein.py` beside `hertz_signorini_p2_bernstein.py`. The script emits the CSV table, optimizer cross-check JSON, pressure profile, convergence plot, and geometry-error plot. The neighboring-mesh phase-sensitivity data must also be reported whenever contact-width improvement factors are discussed.
+Run `hertz_signorini_p2_curved_bernstein.py` beside `hertz_signorini_p2_bernstein.py`. The script emits the CSV table, optimizer cross-check JSON, pressure profile, convergence plot, and geometry-error plot. The fixed-radial neighboring-mesh sweep is stored in `results/hertz_phase_sensitivity.csv` and must accompany any contact-width comparison.
