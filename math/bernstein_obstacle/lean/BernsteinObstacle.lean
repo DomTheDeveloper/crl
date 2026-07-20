@@ -5,6 +5,7 @@ import BernsteinObstacle.ProjectionVI
 import BernsteinObstacle.Tensor
 import BernsteinObstacle.Simplex
 import BernsteinObstacle.SimplexFace
+import BernsteinObstacle.SimplexFaceField
 import BernsteinObstacle.SimplexPartition
 import BernsteinObstacle.AffineLattice
 import BernsteinObstacle.LatticeCardinal
