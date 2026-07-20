@@ -68,11 +68,14 @@ lemma sum_sixRoot (n : ℕ) (A B C : ℤ) :
           Complex.exp (-(latticeAngle n C : ℂ) * Complex.I)) := by
             norm_num [Fin.sum_univ_succ, sixRoot]
             ring
+    _ = 2 * ((Real.sin (latticeAngle n A) : ℂ) +
+          (Real.sin (latticeAngle n B) : ℂ) +
+          (Real.sin (latticeAngle n C) : ℂ)) * Complex.I := by
+            rw [hA, hB, hC]
+            ring
     _ = 2 * ((Real.sin (latticeAngle n A) + Real.sin (latticeAngle n B) +
           Real.sin (latticeAngle n C) : ℝ) : ℂ) * Complex.I := by
-            rw [hA, hB, hC]
-            push_cast
-            ring
+            norm_num
 
 /-- A reduced sine equation is a vanishing sum of the six labeled roots. -/
 lemma sixRoot_vanishes_of_sines {n : ℕ} {A B C : ℤ}
