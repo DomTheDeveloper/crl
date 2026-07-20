@@ -1,4 +1,4 @@
-name: Green14 optimized kernel matrix v2
+name: Green14 optimized kernel theorem matrix
 
 on:
   push:
@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   certificate:
-    name: Green14 kernel t=${{ matrix.t }}
+    name: Green14 kernel theorem t=${{ matrix.t }}
     strategy:
       fail-fast: false
       max-parallel: 20
@@ -42,14 +42,14 @@ jobs:
       - name: Resolve pinned Green14 source
         working-directory: ci/lean/Green14Matrix
         run: lake update
-      - name: Fetch Mathlib cache and build core
+      - name: Fetch Mathlib cache and build reflection bridge
         working-directory: ci/lean/Green14Matrix
         shell: bash
         run: |
           set -euo pipefail
           lake exe cache get
-          lake build formal_conjectures:FormalConjectures.GreensOpenProblems.Green14Core
-      - name: Generate optimized direct-array checker
+          lake build '@formal_conjectures/+FormalConjectures.GreensOpenProblems.Green14ArrayCertificateBridge'
+      - name: Generate optimized direct-array theorem
         working-directory: ci/lean/Green14Matrix
         shell: bash
         env:
@@ -60,6 +60,7 @@ jobs:
           import ast
           import os
           import re
+          import textwrap
           from pathlib import Path
 
           t = int(os.environ['TARGET_T'])
@@ -86,7 +87,7 @@ jobs:
           for start in range(0, len(values), 24):
               rows.append('    ' + ', '.join(values[start:start + 24]))
           array_literal = '#[\n' + ',\n'.join(rows) + '\n  ]'
-          lean = f'''import FormalConjectures.GreensOpenProblems.Green14Core
+          lean = f'''import FormalConjectures.GreensOpenProblems.Green14ArrayCertificateBridge
 
           set_option maxHeartbeats 0
           set_option maxRecDepth 10000000
@@ -95,32 +96,27 @@ jobs:
 
           private def colors : Array Bool := {array_literal}
 
-          private def colorAt (colors : Array Bool) (i : Nat) : Bool :=
-            colors[i]!
-
-          private def hasAP (N k : Nat) (colors : Array Bool) (color : Bool) : Bool :=
-            (List.range N).any fun a =>
-              (List.range ((N - 1 - a) / (k - 1))).any fun d0 =>
-                let d := d0 + 1
-                (List.range k).all fun i => colorAt colors (a + i * d) == color
+          open Green14.ArrayCertificateBridge
 
           theorem valid :
               hasAP {N} 3 colors false = false ∧
                 hasAP {N} {t} colors true = false := by
             decide
 
+          theorem lower : Green14.W 3 {t} ≥ {N + 1} := by
+            exact W_ge_succ_of_checks (N := {N}) (r := {t}) (by omega) valid
+
           #print axioms Green14.FastKernel{t}.valid
+          #print axioms Green14.FastKernel{t}.lower
 
           end Green14.FastKernel{t}
           '''
-          # Remove the indentation introduced by the YAML here-document.
-          import textwrap
           Path(f'Green14Fast{t}.lean').write_text(textwrap.dedent(lean))
           Path(f'green14-fast-{t}-metadata.txt').write_text(
-              f't={t}\nN={N}\nzeros={len(zeros)}\narray={len(values)}\n'
+              f't={t}\nN={N}\nbound={N + 1}\nzeros={len(zeros)}\narray={len(values)}\n'
           )
           PY
-      - name: Compile kernel-only certificate
+      - name: Compile kernel-only theorem
         working-directory: ci/lean/Green14Matrix
         id: compile
         shell: bash
@@ -131,7 +127,7 @@ jobs:
           /usr/bin/time -v lake env lean "Green14Fast${TARGET_T}.lean" \
             > "green14-fast-${TARGET_T}.log" 2>&1
           code=$?
-          tail -n 160 "green14-fast-${TARGET_T}.log" > "green14-fast-${TARGET_T}-tail.log"
+          tail -n 200 "green14-fast-${TARGET_T}.log" > "green14-fast-${TARGET_T}-tail.log"
           cat "green14-fast-${TARGET_T}-tail.log"
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
           exit 0
@@ -149,7 +145,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: green14-kernel-${{ matrix.t }}
+          name: green14-kernel-theorem-${{ matrix.t }}
           path: |
             ci/lean/Green14Matrix/green14-fast-${{ matrix.t }}.log
             ci/lean/Green14Matrix/green14-fast-${{ matrix.t }}-tail.log
