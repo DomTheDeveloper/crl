@@ -1,6 +1,6 @@
 import BernsteinObstacle
 
--- Focused final-five-percent recovery closure audit.
+-- Focused final-five-percent recovery and physical-bridge closure audit.
 
 #check BernsteinObstacle.eventually_norm_lt_clearance
 #check BernsteinObstacle.ClearanceSobolevFEMRecoveryData.toAsymptoticData
@@ -14,6 +14,11 @@ import BernsteinObstacle
 #check BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_quadraticContact
 #check BernsteinObstacle.ClearanceSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem
 #check BernsteinObstacle.ClearanceSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_quadraticContact
+#check BernsteinObstacle.simplexBasisNat_firstMoment
+#check BernsteinObstacle.simplexFieldNat_affine_reproduction
+#check BernsteinObstacle.coefficient_nonneg_of_quadratic_growth
+#check BernsteinObstacle.distance_lt_stripWidth_of_coefficient_neg
+#check BernsteinObstacle.abs_clip_sub_le_of_value_and_error
 
 #print axioms BernsteinObstacle.eventually_norm_lt_clearance
 #print axioms BernsteinObstacle.ClearanceSobolevFEMRecoveryData.toAsymptoticData
@@ -27,3 +32,8 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_quadraticContact
 #print axioms BernsteinObstacle.ClearanceSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem
 #print axioms BernsteinObstacle.ClearanceSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_quadraticContact
+#print axioms BernsteinObstacle.simplexBasisNat_firstMoment
+#print axioms BernsteinObstacle.simplexFieldNat_affine_reproduction
+#print axioms BernsteinObstacle.coefficient_nonneg_of_quadratic_growth
+#print axioms BernsteinObstacle.distance_lt_stripWidth_of_coefficient_neg
+#print axioms BernsteinObstacle.abs_clip_sub_le_of_value_and_error
