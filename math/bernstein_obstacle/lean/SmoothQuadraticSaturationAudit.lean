@@ -1,0 +1,5 @@
+import BernsteinObstacle.SmoothQuadraticSaturation
+
+#print axioms BernsteinObstacle.centeredQuadratic_eq_cubicBernsteinCurve
+#print axioms BernsteinObstacle.centeredQuadraticCubicCoeff_not_nonnegative
+#print axioms BernsteinObstacle.cubicCenteredRepair_exact
