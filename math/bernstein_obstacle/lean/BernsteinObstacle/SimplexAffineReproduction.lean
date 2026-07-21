@@ -132,7 +132,7 @@ theorem simplexBasisNat_firstMoment_unnormalized
   rw [pderiv_sum_X_pow] at hpoly
   have heval := congrArg (MvPolynomial.eval x.1) hpoly
   simpa [simplexBasisNat, eval_fullSimplexMonomial, x.2.2,
-    mul_assoc, mul_left_comm, mul_comm] using heval
+    mul_assoc, mul_left_comm, mul_comm] using heval.symm
 
 end
 
