@@ -1,6 +1,6 @@
 import BernsteinObstacle
 
--- Convex-target and multiplier-vanishing grand-theorem regression targets.
+-- Convex-target, metric-projection, and multiplier-vanishing regression targets.
 
 #check BernsteinObstacle.smul_mem_convex_of_zero_mem
 #check BernsteinObstacle.convex_pointwiseConvexConstraint
@@ -9,6 +9,11 @@ import BernsteinObstacle
 #check BernsteinObstacle.convex_convexCoefficientSet
 #check BernsteinObstacle.repaired_simplexVectorFieldNat_mem_convex
 #check BernsteinObstacle.repaired_simplexVectorFieldNat_pointwise_feasible
+#check BernsteinObstacle.convexMetricProjection
+#check BernsteinObstacle.convexMetricProjection_mem
+#check BernsteinObstacle.convexMetricProjection_norm_eq_iInf
+#check BernsteinObstacle.convexMetricProjection_inner_le_zero
+#check BernsteinObstacle.metricProjected_simplexVectorFieldNat_pointwise_feasible
 #check BernsteinObstacle.multiplierVanishingExponent
 #check BernsteinObstacle.grandInterfaceVanishingExponent
 #check BernsteinObstacle.threeHalvesContactLaw_with_zero_multiplierVanishing
@@ -23,6 +28,11 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.convex_convexCoefficientSet
 #print axioms BernsteinObstacle.repaired_simplexVectorFieldNat_mem_convex
 #print axioms BernsteinObstacle.repaired_simplexVectorFieldNat_pointwise_feasible
+#print axioms BernsteinObstacle.convexMetricProjection
+#print axioms BernsteinObstacle.convexMetricProjection_mem
+#print axioms BernsteinObstacle.convexMetricProjection_norm_eq_iInf
+#print axioms BernsteinObstacle.convexMetricProjection_inner_le_zero
+#print axioms BernsteinObstacle.metricProjected_simplexVectorFieldNat_pointwise_feasible
 #print axioms BernsteinObstacle.multiplierVanishingExponent
 #print axioms BernsteinObstacle.grandInterfaceVanishingExponent
 #print axioms BernsteinObstacle.threeHalvesContactLaw_with_zero_multiplierVanishing
