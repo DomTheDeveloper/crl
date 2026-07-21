@@ -19,7 +19,7 @@ bound.
 /-- Explicit local squared-energy constant produced by a mapped transverse
 prism with Jacobian lower bound `J0`, hinge amplitude `amplitude`, phase margin
 `eta`, and tangential-mass constant `M`. -/
-def mappedQuadraticHingeLocalConstant
+noncomputable def mappedQuadraticHingeLocalConstant
     (J0 amplitude eta M : ℝ) : ℝ :=
   J0 * (((4 : ℝ) / 3) * amplitude ^ 2 * eta ^ 6 * M)
 
