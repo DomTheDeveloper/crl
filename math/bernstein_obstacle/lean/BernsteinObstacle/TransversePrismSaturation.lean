@@ -1,4 +1,5 @@
 import BernsteinObstacle.QuadraticHingeProjection
+import BernsteinObstacle.QuadraticLineRestriction
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 import Mathlib.Tactic
 
@@ -111,6 +112,41 @@ theorem transversePrism_localEnergy_lowerBound
     _ ≤ ∫ y, scaledQuadraticHingeAffineDerivativeErrorSq
         amplitude h theta (alpha y) (beta y) ∂μ := hfiber
     _ ≤ localEnergy := hLocalDominates
+
+/-- Specialization of the prism lower bound to an actual coordinate-free
+quadratic polynomial. The fiber slope and intercept are derived from the
+quadratic restriction theorem rather than supplied as unrelated functions. -/
+theorem transversePrism_quadraticPolynomial_localEnergy_lowerBound
+    {E : Type*} [AddCommGroup E] [Module ℝ E]
+    (μ : Measure Y) [IsFiniteMeasure μ]
+    (q : QuadraticPolynomialData E)
+    (base : Y → E) (direction : E)
+    (amplitude h theta eta M localEnergy : ℝ)
+    (d : ℕ)
+    (hd : 1 ≤ d)
+    (hh : 0 ≤ h)
+    (heta : 0 ≤ eta)
+    (hM : 0 ≤ M)
+    (hleft : eta ≤ theta)
+    (hright : theta ≤ 1 - eta)
+    (hMass : M * h ^ (d - 1) ≤ μ.real Set.univ)
+    (hIntegrable : Integrable
+      (fun y => scaledQuadraticHingeAffineDerivativeErrorSq
+        amplitude h theta
+        (q.lineDerivativeSlope direction)
+        (q.lineDerivativeIntercept (base y) direction)) μ)
+    (hLocalDominates :
+      (∫ y, scaledQuadraticHingeAffineDerivativeErrorSq
+        amplitude h theta
+        (q.lineDerivativeSlope direction)
+        (q.lineDerivativeIntercept (base y) direction) ∂μ) ≤ localEnergy) :
+    (((4 : ℝ) / 3) * amplitude ^ 2 * eta ^ 6 * M) *
+        h ^ (d + 2) ≤ localEnergy := by
+  exact transversePrism_localEnergy_lowerBound
+    μ amplitude h theta eta M localEnergy d
+    (fun _ => q.lineDerivativeSlope direction)
+    (fun y => q.lineDerivativeIntercept (base y) direction)
+    hd hh heta hM hleft hright hMass hIntegrable hLocalDominates
 
 end TransversePrism
 
