@@ -40,13 +40,13 @@ theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity
     exact phaseLockedQuadraticSlopeEnergyDensity_expand h theta x
   have hIconst :
       IntervalIntegrable (fun _ : ℝ => h ^ 2) volume 0 h :=
-    continuous_const.intervalIntegrable
+    (by fun_prop : Continuous (fun _ : ℝ => h ^ 2)).intervalIntegrable 0 h
   have hIlin :
       IntervalIntegrable (fun x : ℝ => (4 * h) * x) volume 0 h :=
-    (continuous_const.mul continuous_id).intervalIntegrable
+    (by fun_prop : Continuous (fun x : ℝ => (4 * h) * x)).intervalIntegrable 0 h
   have hIquad :
       IntervalIntegrable (fun x : ℝ => 4 * x ^ 2) volume 0 h :=
-    (continuous_const.mul (continuous_id.pow 2)).intervalIntegrable
+    (by fun_prop : Continuous (fun x : ℝ => 4 * x ^ 2)).intervalIntegrable 0 h
   have hpoly :
       (∫ x in (0 : ℝ)..h, h ^ 2 - 4 * h * x + 4 * x ^ 2) =
         (∫ _ in (0 : ℝ)..h, h ^ 2) -
