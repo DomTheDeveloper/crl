@@ -1,0 +1,9 @@
+import BernsteinObstacle
+
+#check BernsteinObstacle.simplexAffineBarycentricValue
+#check BernsteinObstacle.simplexAffineNaturalSamplingCoefficient
+#check BernsteinObstacle.simplexFieldNat_affine_reproduction
+
+#print axioms BernsteinObstacle.simplexAffineBarycentricValue
+#print axioms BernsteinObstacle.simplexAffineNaturalSamplingCoefficient
+#print axioms BernsteinObstacle.simplexFieldNat_affine_reproduction
