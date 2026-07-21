@@ -1,0 +1,67 @@
+name: Bernstein quadratic hinge Lean audit
+
+on:
+  push:
+    branches:
+      - formal/bernstein-quadratic-hinge-projection-v2
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-quadratic-hinge-audit.yml'
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-quadratic-hinge-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-quadratic-hinge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+
+      - name: Build full library
+        working-directory: math/bernstein_obstacle/lean
+        run: lake build BernsteinObstacle
+
+      - name: Audit quadratic-hinge endpoints
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean QuadraticHingeProjectionAudit.lean 2>&1 | tee quadratic-hinge-axioms.log
+          if grep -q 'sorryAx' quadratic-hinge-axioms.log; then
+            echo 'Unexpected sorryAx found' >&2
+            exit 1
+          fi
+          grep -F 'BernsteinObstacle.intervalIntegral_quadraticPolynomial' quadratic-hinge-axioms.log
+          grep -F 'BernsteinObstacle.quadraticHingeAffineDerivativeErrorSq_identity' quadratic-hinge-axioms.log
+          grep -F 'BernsteinObstacle.scaledQuadraticHingeAffineDerivativeErrorSq_identity' quadratic-hinge-axioms.log
+          grep -F 'BernsteinObstacle.scaledQuadraticHinge_fullSpace_threeHalvesLowerBound' quadratic-hinge-axioms.log
+
+      - name: Upload audit transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-quadratic-hinge-audit
+          path: math/bernstein_obstacle/lean/quadratic-hinge-axioms.log
+          if-no-files-found: warn
