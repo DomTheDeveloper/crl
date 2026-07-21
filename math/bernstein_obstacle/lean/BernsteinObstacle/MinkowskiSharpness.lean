@@ -35,7 +35,7 @@ theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity
   rw [intervalIntegral.integral_const_mul]
   simp [intervalIntegral.integral_add, intervalIntegral.integral_sub,
     intervalIntegral.integral_const_mul, intervalIntegral.integral_mul_const,
-    intervalIntegral.integral_pow]
+    integral_pow]
   ring
 
 theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity_eq_scale_sq
@@ -47,7 +47,7 @@ theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity_eq_scale_sq
   have hsqrt3 : (Real.sqrt 3) ^ 2 = 3 := by norm_num
   have hscale : (h * Real.sqrt h) ^ 2 = h ^ 3 :=
     threeHalvesScale_sq h hh
-  rw [div_mul_eq_mul_div, mul_pow, div_pow, hsqrt3, hscale]
+  rw [mul_pow, div_pow, hsqrt3, hscale]
   ring
 
 theorem phaseLockedQuadraticSlopeEnergy_lowerBound
@@ -76,10 +76,9 @@ theorem phaseLockedQuadraticSlopeEnergy_lowerBound
       threeHalvesScale_sq h hh
     rw [mul_pow, div_pow, hsqrt3, hscale]
     have hh3 : 0 ≤ h ^ 3 := pow_nonneg hh _
-    calc
-      delta ^ 4 / 3 * h ^ 3 ≤ (1 - theta) ^ 4 / 3 * h ^ 3 := by
-        gcongr
-      _ = (1 - theta) ^ 4 * h ^ 3 / 3 := by ring
+    have hmul : delta ^ 4 * h ^ 3 ≤ (1 - theta) ^ 4 * h ^ 3 :=
+      mul_le_mul_of_nonneg_right hpow hh3
+    nlinarith
   nlinarith
 
 end BernsteinObstacle
