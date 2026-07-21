@@ -54,4 +54,5 @@ import BernsteinObstacle.CoefficientLocalization
 import BernsteinObstacle.FreeBoundaryQuadraticLocalization
 import BernsteinObstacle.SharpRateAlgebra
 import BernsteinObstacle.StripScaling
+import BernsteinObstacle.ElementCorrectionScaling
 import BernsteinObstacle.RecoveryRate
