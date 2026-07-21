@@ -25,12 +25,21 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
+      - name: Restore pinned Lean environment
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            math/wowii145/.lake
+          key: wowii145-v4.27.0-${{ hashFiles('math/wowii145/lean-toolchain', 'math/wowii145/lakefile.toml') }}
       - name: Install pinned Lean
         shell: bash
         run: |
           set -euo pipefail
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
-            | sh -s -- -y --default-toolchain none
+          if [ ! -x "$HOME/.elan/bin/elan" ]; then
+            curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+              | sh -s -- -y --default-toolchain none
+          fi
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Resolve dependencies and fetch cache
         working-directory: math/wowii145
