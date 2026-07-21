@@ -13,24 +13,19 @@ noncomputable section
 
 For positive curvature bound `K` and transverse half-width factor `c`, the
 concrete threshold `h₀ = 1 / (2 K c)` guarantees both the phase margin and the
-Jacobian lower bound.  At that threshold the mapped transverse-prism theorem
+Jacobian lower bound. At that threshold the mapped transverse-prism theorem
 has the explicit local coefficient `a² M / 6144`.
 -/
 
-/-- Explicit small-mesh threshold for a tubular prism of half-width `c h`. -/
 def curvedMeshThreshold (K c : ℝ) : ℝ :=
   1 / (2 * K * c)
 
-/-- The explicit threshold is positive when the curvature and width constants
-are positive. -/
 theorem curvedMeshThreshold_pos
     (K c : ℝ) (hK : 0 < K) (hc : 0 < c) :
     0 < curvedMeshThreshold K c := by
   unfold curvedMeshThreshold
   positivity
 
-/-- Mesh sizes below the explicit threshold satisfy the Jacobian smallness
-condition `K c h ≤ 1/2`. -/
 theorem curvedMeshThreshold_implies_smallness
     (K c h : ℝ) (hK : 0 < K) (hc : 0 < c)
     (hh : 0 ≤ h) (hthreshold : h ≤ curvedMeshThreshold K c) :
@@ -43,8 +38,6 @@ theorem curvedMeshThreshold_implies_smallness
       unfold curvedMeshThreshold
       field_simp [ne_of_gt hK, ne_of_gt hc]
 
-/-- One explicit threshold simultaneously gives the uniform phase interval and
-positive tubular Jacobian. -/
 theorem curvedMeshThreshold_phase_and_jacobian
     (K c h delta k t : ℝ)
     (hK : 0 < K) (hc : 0 < c) (hh : 0 < h)
@@ -63,10 +56,7 @@ theorem curvedMeshThreshold_phase_and_jacobian
   ⟩
 
 /-- At the explicit threshold, a curved mapped prism has the exact local ideal
-energy coefficient `a² M / 6144`.
-
-The crossing phase is generated from the curvature displacement `delta`; the
-Jacobian is the tubular factor `1 - t(y) k(y)`. -/
+energy coefficient `a² M / 6144`. -/
 theorem curvedWeightedPrism_integral_lowerBound_explicit
     {Y : Type*} [MeasurableSpace Y]
     (μ : Measure Y) [IsFiniteMeasure μ]
@@ -89,15 +79,11 @@ theorem curvedWeightedPrism_integral_lowerBound_explicit
         scaledQuadraticHingeAffineDerivativeErrorSq
           amplitude h ((delta + c * h) / (2 * c * h))
           (alpha y) (beta y) ∂μ := by
-  have hpackage := curvedMeshThreshold_phase_and_jacobian
-    K c h delta (k Classical.choice inferInstance) (t Classical.choice inferInstance)
-    hK hc hh hthreshold hdelta
-    (hk _) (ht _)
-  have hphase :
-      (1 / 4 : ℝ) ≤ (delta + c * h) / (2 * c * h) ∧
-        (delta + c * h) / (2 * c * h) ≤ 3 / 4 := hpackage.1
   have hsmallHalf := curvedMeshThreshold_implies_smallness
     K c h hK hc hh.le hthreshold
+  have hsmallOne : K * c * h ≤ 1 := hsmallHalf.trans (by norm_num)
+  have hphase := curvedFiber_phase_bounds
+    K c h delta hK.le hc hh hsmallOne hdelta
   have hJacobian : ∀ y, (1 / 2 : ℝ) ≤ 1 - t y * k y := by
     intro y
     exact (curvedFiber_jacobian_bounds
@@ -110,9 +96,7 @@ theorem curvedWeightedPrism_integral_lowerBound_explicit
     hMass hJacobian hIntegrable
   convert hlower using 1 <;> norm_num <;> ring
 
-/-- Physical local-energy form: if the mapped transverse integral is contained
-in the element energy, the same explicit `a² M / 6144` coefficient holds for
-the full curved element. -/
+/-- Physical local-energy form of the explicit curved coefficient. -/
 theorem curvedWeightedPrism_localEnergy_lowerBound_explicit
     {Y : Type*} [MeasurableSpace Y]
     (μ : Measure Y) [IsFiniteMeasure μ]
