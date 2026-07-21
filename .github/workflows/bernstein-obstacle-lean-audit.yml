@@ -79,6 +79,10 @@ jobs:
           grep -F 'BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.affineBernsteinBasis_sum_repr' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.existsUnique_bernsteinCoefficients_with_latticeValues' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexVectorFieldNat_mem_convex' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexVectorFieldNat_pointwise_feasible' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.convex_convexCoefficientSet' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.repaired_simplexVectorFieldNat_pointwise_feasible' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.diagonalRecovery_minimizers_strongConvergence' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.scheduledRecovery' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.moscoConverges' bernstein-obstacle-axioms.log
