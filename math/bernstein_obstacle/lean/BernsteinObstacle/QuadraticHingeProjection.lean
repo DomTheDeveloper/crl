@@ -1,5 +1,5 @@
 import BernsteinObstacle.MinkowskiSaturation
-import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
+import BernsteinObstacle.QuadraticIntegral
 import Mathlib.Tactic
 
 open scoped Interval
@@ -10,12 +10,12 @@ namespace BernsteinObstacle
 # Exact quadratic-hinge projection lower bound
 
 This file proves the sharp one-dimensional kernel needed for the full-space
-saturation theorem.  The target derivative is the broken affine function
+saturation theorem. The target derivative is the broken affine function
 
 `0` on `[0, theta]`, and `2 * (x - theta)` on `[theta, 1]`.
 
-Every quadratic polynomial has an affine derivative `alpha * x + beta`.  The
-squared derivative error admits an exact completed-square decomposition.  A
+Every quadratic polynomial has an affine derivative `alpha * x + beta`. The
+squared derivative error admits an exact completed-square decomposition. A
 scaled version on `[0, h]` then gives the sharp `h^3` energy law and the
 corresponding `h * sqrt h` seminorm lower bound, uniformly when the cut phase
 stays away from the endpoints.
@@ -33,7 +33,7 @@ def quadraticHingeOptimalIntercept (theta : ℝ) : ℝ :=
 
 /-- Squared derivative error between the normalized quadratic hinge and an
 arbitrary quadratic polynomial with derivative `alpha * x + beta`. -/
-def quadraticHingeAffineDerivativeErrorSq
+noncomputable def quadraticHingeAffineDerivativeErrorSq
     (theta alpha beta : ℝ) : ℝ :=
   (∫ x in (0 : ℝ)..theta, (alpha * x + beta) ^ 2) +
     ∫ x in theta..1, (2 * (x - theta) - (alpha * x + beta)) ^ 2
@@ -61,12 +61,26 @@ theorem quadraticHingeAffineDerivativeErrorSq_identity
         ((beta - quadraticHingeOptimalIntercept theta) +
           (alpha - quadraticHingeOptimalSlope theta) / 2) ^ 2 +
         (alpha - quadraticHingeOptimalSlope theta) ^ 2 / 12 := by
+  have hleft :
+      (∫ x in (0 : ℝ)..theta, (alpha * x + beta) ^ 2) =
+        alpha ^ 2 * (theta ^ 3 - 0 ^ 3) / 3 +
+          (2 * alpha * beta) * (theta ^ 2 - 0 ^ 2) / 2 +
+          beta ^ 2 * (theta - 0) := by
+    convert intervalIntegral_quadraticPolynomial
+      (alpha ^ 2) (2 * alpha * beta) (beta ^ 2) 0 theta using 1 <;> ring
+  have hright :
+      (∫ x in theta..1, (2 * (x - theta) - (alpha * x + beta)) ^ 2) =
+        (2 - alpha) ^ 2 * (1 ^ 3 - theta ^ 3) / 3 +
+          (-2 * (2 - alpha) * (2 * theta + beta)) *
+            (1 ^ 2 - theta ^ 2) / 2 +
+          (2 * theta + beta) ^ 2 * (1 - theta) := by
+    convert intervalIntegral_quadraticPolynomial
+      ((2 - alpha) ^ 2)
+      (-2 * (2 - alpha) * (2 * theta + beta))
+      ((2 * theta + beta) ^ 2) theta 1 using 1 <;> ring
   unfold quadraticHingeAffineDerivativeErrorSq
-  simp_rw [quadraticHinge_leftError_expand, quadraticHinge_rightError_expand]
-  simp [intervalIntegral.integral_add, intervalIntegral.integral_sub,
-    intervalIntegral.integral_const_mul, intervalIntegral.integral_mul_const,
-    integral_pow, quadraticHingeOptimalSlope,
-    quadraticHingeOptimalIntercept]
+  rw [hleft, hright]
+  simp [quadraticHingeOptimalSlope, quadraticHingeOptimalIntercept]
   ring
 
 /-- The explicit affine derivative attains the sharp normalized error. -/
@@ -131,7 +145,7 @@ def scaledQuadraticHingeOptimalIntercept
 /-- Squared derivative error for
 `amplitude * (x - theta * h)₊²` on `[0, h]` against an arbitrary quadratic
 polynomial with derivative `alpha * x + beta`. -/
-def scaledQuadraticHingeAffineDerivativeErrorSq
+noncomputable def scaledQuadraticHingeAffineDerivativeErrorSq
     (amplitude h theta alpha beta : ℝ) : ℝ :=
   (∫ x in (0 : ℝ)..theta * h, (alpha * x + beta) ^ 2) +
     ∫ x in theta * h..h,
@@ -146,7 +160,7 @@ theorem scaledQuadraticHinge_rightError_expand
           (2 * amplitude * theta * h + beta) ^ 2 := by
   ring
 
-/-- Exact scaled completed-square identity.  Its first term is the sharp best
+/-- Exact scaled completed-square identity. Its first term is the sharp best
 quadratic squared `H¹`-seminorm error. -/
 theorem scaledQuadraticHingeAffineDerivativeErrorSq_identity
     (amplitude h theta alpha beta : ℝ) :
@@ -159,14 +173,33 @@ theorem scaledQuadraticHingeAffineDerivativeErrorSq_identity
             h * (alpha - scaledQuadraticHingeOptimalSlope amplitude theta) / 2) ^ 2 +
         h ^ 3 *
           (alpha - scaledQuadraticHingeOptimalSlope amplitude theta) ^ 2 / 12 := by
+  have hleft :
+      (∫ x in (0 : ℝ)..theta * h, (alpha * x + beta) ^ 2) =
+        alpha ^ 2 * ((theta * h) ^ 3 - 0 ^ 3) / 3 +
+          (2 * alpha * beta) * ((theta * h) ^ 2 - 0 ^ 2) / 2 +
+          beta ^ 2 * (theta * h - 0) := by
+    convert intervalIntegral_quadraticPolynomial
+      (alpha ^ 2) (2 * alpha * beta) (beta ^ 2) 0 (theta * h) using 1 <;> ring
+  have hright :
+      (∫ x in theta * h..h,
+        (2 * amplitude * (x - theta * h) - (alpha * x + beta)) ^ 2) =
+        (2 * amplitude - alpha) ^ 2 * (h ^ 3 - (theta * h) ^ 3) / 3 +
+          (-2 * (2 * amplitude - alpha) *
+            (2 * amplitude * theta * h + beta)) *
+              (h ^ 2 - (theta * h) ^ 2) / 2 +
+          (2 * amplitude * theta * h + beta) ^ 2 *
+            (h - theta * h) := by
+    convert intervalIntegral_quadraticPolynomial
+      ((2 * amplitude - alpha) ^ 2)
+      (-2 * (2 * amplitude - alpha) *
+        (2 * amplitude * theta * h + beta))
+      ((2 * amplitude * theta * h + beta) ^ 2)
+      (theta * h) h using 1 <;> ring
   unfold scaledQuadraticHingeAffineDerivativeErrorSq
-  simp_rw [quadraticHinge_leftError_expand,
-    scaledQuadraticHinge_rightError_expand]
-  simp [intervalIntegral.integral_add, intervalIntegral.integral_sub,
-    intervalIntegral.integral_const_mul, intervalIntegral.integral_mul_const,
-    integral_pow, scaledQuadraticHingeOptimalSlope,
-    scaledQuadraticHingeOptimalIntercept, quadraticHingeOptimalSlope,
-    quadraticHingeOptimalIntercept]
+  rw [hleft, hright]
+  simp [scaledQuadraticHingeOptimalSlope,
+    scaledQuadraticHingeOptimalIntercept,
+    quadraticHingeOptimalSlope, quadraticHingeOptimalIntercept]
   ring
 
 /-- The scaled explicit affine derivative attains the sharp energy. -/
@@ -195,7 +228,6 @@ theorem scaledQuadraticHingeAffineDerivativeErrorSq_lowerBound
         ((beta - scaledQuadraticHingeOptimalIntercept amplitude h theta) +
           h * (alpha - scaledQuadraticHingeOptimalSlope amplitude theta) / 2) ^ 2 :=
     mul_nonneg hh (sq_nonneg _)
-  have hh3 : 0 ≤ h ^ 3 := pow_nonneg hh 3
   have hsecond :
       0 ≤ h ^ 3 *
         (alpha - scaledQuadraticHingeOptimalSlope amplitude theta) ^ 2 / 12 := by
@@ -240,7 +272,7 @@ theorem scaledQuadraticHingeAffineDerivativeErrorSq_uniformLowerBound
       scaledQuadraticHingeAffineDerivativeErrorSq_lowerBound
         amplitude h theta alpha beta hh
 
-/-- Square-root form of the uniform sharp lower bound.  This is the exact
+/-- Square-root form of the uniform sharp lower bound. This is the exact
 one-dimensional `h^(3/2)` obstruction for the full quadratic polynomial space,
 not merely for a particular clipping operator. -/
 theorem scaledQuadraticHinge_fullSpace_threeHalvesLowerBound
