@@ -1,0 +1,66 @@
+name: Bernstein physical saturation Lean audit
+
+on:
+  push:
+    branches:
+      - formal/bernstein-interface-cover-count-v1
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-physical-saturation-audit.yml'
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-physical-saturation-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-physical-saturation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+
+      - name: Build full library
+        working-directory: math/bernstein_obstacle/lean
+        run: lake build BernsteinObstacle
+
+      - name: Audit physical saturation endpoints
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean PhysicalSaturationCompositionAudit.lean 2>&1 | tee physical-saturation-axioms.log
+          if grep -q 'sorryAx' physical-saturation-axioms.log; then
+            echo 'Unexpected sorryAx found' >&2
+            exit 1
+          fi
+          grep -F 'BernsteinObstacle.interfaceCover_card_lowerBound' physical-saturation-axioms.log
+          grep -F 'BernsteinObstacle.physicalCutPatch_threeHalvesLowerBound_of_interfaceCover_and_remainder' physical-saturation-axioms.log
+          grep -F 'BernsteinObstacle.physicalMappedQuadraticHinge_threeHalvesLowerBound' physical-saturation-axioms.log
+
+      - name: Upload audit transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-physical-saturation-audit
+          path: math/bernstein_obstacle/lean/physical-saturation-axioms.log
+          if-no-files-found: warn
