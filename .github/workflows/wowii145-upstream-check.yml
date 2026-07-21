@@ -1,0 +1,95 @@
+name: WOWII 145 upstream branch check
+
+on:
+  push:
+    branches: [solve-wowii-145]
+    paths:
+      - 'math/wowii145-upstream-check/**'
+      - '.github/workflows/wowii145-upstream-check.yml'
+  pull_request:
+    paths:
+      - 'math/wowii145-upstream-check/**'
+      - '.github/workflows/wowii145-upstream-check.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: wowii145-upstream-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore pinned Lean environment
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            math/wowii145-upstream-check/.lake
+          key: wowii145-upstream-v4.27.0-${{ hashFiles('math/wowii145-upstream-check/lean-toolchain', 'math/wowii145-upstream-check/lakefile.toml') }}
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -x "$HOME/.elan/bin/elan" ]; then
+            curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+              | sh -s -- -y --default-toolchain none
+          fi
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies and fetch cache
+        working-directory: math/wowii145-upstream-check
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile exact submission branch
+        id: lean
+        working-directory: math/wowii145-upstream-check
+        shell: bash
+        run: |
+          set +e
+          lake build > wowii145-upstream-audit.log 2>&1
+          status=$?
+          lake env lean Check.lean >> wowii145-upstream-audit.log 2>&1
+          lean_status=$?
+          if [ "$status" -eq 0 ]; then status=$lean_status; fi
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Post diagnostic tail
+        if: always() && github.event_name == 'pull_request'
+        working-directory: math/wowii145-upstream-check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          {
+            echo '<!-- wowii145-upstream-branch-audit -->'
+            if [ '${{ steps.lean.outputs.status }}' = '0' ]; then
+              echo '### Exact upstream branch audit: PASS'
+            else
+              echo '### Exact upstream branch audit: FAIL'
+            fi
+            echo
+            echo '```text'
+            tail -n 160 wowii145-upstream-audit.log
+            echo '```'
+          } > /tmp/wowii145-upstream-comment.md
+          gh pr comment "$PR_NUMBER" --body-file /tmp/wowii145-upstream-comment.md
+      - name: Enforce result
+        if: always()
+        shell: bash
+        run: test '${{ steps.lean.outputs.status }}' = '0'
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wowii145-upstream-branch-audit
+          path: math/wowii145-upstream-check/wowii145-upstream-audit.log
+          if-no-files-found: warn
