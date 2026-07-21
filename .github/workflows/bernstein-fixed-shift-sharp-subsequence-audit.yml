@@ -1,0 +1,65 @@
+name: Bernstein fixed shift sharp subsequence Lean audit
+
+on:
+  push:
+    branches:
+      - formal/bernstein-fixed-shift-sharp-subsequence-v2
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-fixed-shift-sharp-subsequence-audit.yml'
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-fixed-shift-sharp-subsequence-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-fixed-shift-sharp-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+      - name: Build fixed shift sharp subsequence endpoint
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build BernsteinObstacle.GenericShiftSharpSubsequence 2>&1 | tee fixed-shift-sharp-build.log
+          lake build BernsteinObstacle 2>&1 | tee -a fixed-shift-sharp-build.log
+      - name: Audit fixed shift sharp endpoint
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > FixedShiftSharpAudit.lean <<'EOF'
+          import BernsteinObstacle.GenericShiftSharpSubsequence
+          #print axioms BernsteinObstacle.exists_fixedTranslation_sharp_subsequence
+          EOF
+          lake env lean FixedShiftSharpAudit.lean 2>&1 | tee fixed-shift-sharp-axioms.log
+          if grep -q 'sorryAx' fixed-shift-sharp-axioms.log; then exit 1; fi
+          grep -F 'BernsteinObstacle.exists_fixedTranslation_sharp_subsequence' fixed-shift-sharp-axioms.log
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-fixed-shift-sharp-subsequence-audit
+          path: |
+            math/bernstein_obstacle/lean/fixed-shift-sharp-build.log
+            math/bernstein_obstacle/lean/fixed-shift-sharp-axioms.log
+          if-no-files-found: warn
