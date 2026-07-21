@@ -92,13 +92,15 @@ theorem AsymptoticSobolevFEMRecoveryData.exists_threshold
     intro m
     let err : ℕ → E := fun n => D.femRecovery x m n - D.smoothApprox x m
     have hnorm :
-        Tendsto ((fun y : E => ‖y‖) ∘ err) atTop (nhds 0) :=
-      tendsto_norm.comp (D.recovery_tendsto x hx m)
+        Tendsto ((fun y : E => ‖y‖) ∘ err) atTop (nhds ‖(0 : E)‖) := by
+      simpa only [err] using tendsto_norm.comp (D.recovery_tendsto x hx m)
     have heps : 0 < (((m : ℝ) + 1)⁻¹) := by positivity
+    have hzeroEps : ‖(0 : E)‖ < (((m : ℝ) + 1)⁻¹) := by
+      simpa using heps
     have hclose' :
         ∀ᶠ n in atTop,
           ((fun y : E => ‖y‖) ∘ err) n ≤ (((m : ℝ) + 1)⁻¹) := by
-      exact ((tendsto_order.1 hnorm).2 _ heps).mono fun _ hn => hn.le
+      exact ((tendsto_order.1 hnorm).2 _ hzeroEps).mono fun _ hn => hn.le
     have hclose :
         ∀ᶠ n in atTop,
           ‖D.femRecovery x m n - D.smoothApprox x m‖ ≤
