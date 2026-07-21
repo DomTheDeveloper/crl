@@ -18,18 +18,14 @@ section AbstractRepair
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
 
-/-- Convex repair of an unconstrained approximation `v` toward a feasible
-anchor `z`. -/
 def convexRepair (ε : ℝ) (v z : E) : E :=
   (1 - ε) • v + ε • z
 
-/-- The repair is the base approximation plus a scaled correction. -/
 theorem convexRepair_eq_base_add (ε : ℝ) (v z : E) :
     convexRepair ε v z = v + ε • (z - v) := by
   unfold convexRepair
   module
 
-/-- Abstract corrected recovery estimate. -/
 theorem convexRepair_error_bound
     (u v z : E) (ε : ℝ) :
     ‖u - convexRepair ε v z‖ ≤
@@ -43,8 +39,6 @@ theorem convexRepair_error_bound
     _ = ‖u - v‖ + |ε| * ‖z - v‖ := by
       rw [norm_smul, Real.norm_eq_abs]
 
-/-- If interpolation contributes `A h^p` and coefficient repair contributes
-`η D`, then the repaired approximation has the sum of those errors. -/
 theorem correctedRecovery_error_bound
     (u v z : E) (ε A h η D : ℝ) (p : ℕ)
     (hInterp : ‖u - v‖ ≤ A * h ^ p)
@@ -59,8 +53,6 @@ theorem correctedRecovery_error_bound
       convexRepair_error_bound u v z ε
     _ ≤ A * h ^ p + η * D := add_le_add hInterp hprod
 
-/-- A coefficient defect of contact order `q` yields an `h^p + h^q` recovery
-estimate. -/
 theorem correctedRecovery_contactOrder_bound
     (u v z : E) (ε A B D h : ℝ) (p q : ℕ)
     (hInterp : ‖u - v‖ ≤ A * h ^ p)
@@ -75,7 +67,6 @@ theorem correctedRecovery_contactOrder_bound
     ‖u - convexRepair ε v z‖ ≤ A * h ^ p + (B * h ^ q) * D := hbase
     _ = A * h ^ p + (B * D) * h ^ q := by ring
 
-/-- Second-order coefficient repair is the quadratic-contact specialization. -/
 theorem correctedRecovery_secondOrder_bound
     (u v z : E) (ε A B D h : ℝ) (p : ℕ)
     (hInterp : ‖u - v‖ ≤ A * h ^ p)
@@ -92,11 +83,9 @@ section CoefficientRepair
 
 variable {ι : Type*}
 
-/-- Apply the scalar inward repair coefficientwise. -/
 def inwardRepairCoefficients (d : ℝ) (c : ι → ℝ) : ι → ℝ :=
   fun i => inwardBlend d (c i)
 
-/-- Coefficientwise repair maps the enlarged box `[-d,1]` into `[0,1]`. -/
 theorem inwardRepairCoefficients_mem_Icc
     (d : ℝ) (c : ι → ℝ) (hd : 0 ≤ d)
     (hc : ∀ i, c i ∈ Set.Icc (-d) 1) :
@@ -104,7 +93,6 @@ theorem inwardRepairCoefficients_mem_Icc
   intro i
   exact inwardBlend_mem_Icc d (c i) hd (hc i)
 
-/-- Coefficients already equal to the feasible anchor `1` are fixed exactly. -/
 theorem inwardRepairCoefficients_eq_one
     (d : ℝ) (c : ι → ℝ) (i : ι) (hi : c i = 1) :
     inwardRepairCoefficients d c i = 1 := by
@@ -114,18 +102,15 @@ end CoefficientRepair
 
 section AlignedContact
 
-/-- Canonical coefficients of the aligned quadratic profile `a h² t²`. -/
 def alignedQuadraticCoeff (p : ℕ) (a h : ℝ) (k : ℕ) : ℝ :=
   a * h ^ 2 * quadraticMonomialCoeff p k
 
-/-- The monomial coefficients are nonnegative in every degree `p ≥ 2`. -/
 theorem quadraticMonomialCoeff_nonneg
     (p k : ℕ) (hp : 2 ≤ p) :
     0 ≤ quadraticMonomialCoeff p k := by
   unfold quadraticMonomialCoeff
   exact div_nonneg (by positivity) (quadraticMomentDenominator_pos p hp).le
 
-/-- Aligned quadratic-contact coefficients are nonnegative. -/
 theorem alignedQuadraticCoeff_nonneg
     (p k : ℕ) (a h : ℝ) (hp : 2 ≤ p) (ha : 0 ≤ a) :
     0 ≤ alignedQuadraticCoeff p a h k := by
@@ -133,7 +118,6 @@ theorem alignedQuadraticCoeff_nonneg
   exact mul_nonneg (mul_nonneg ha (sq_nonneg h))
     (quadraticMonomialCoeff_nonneg p k hp)
 
-/-- Exact representation of an aligned quadratic contact profile. -/
 theorem alignedQuadraticContact_exact
     (p : ℕ) (hp : 2 ≤ p) (a h t : ℝ) :
     curve p (alignedQuadraticCoeff p a h) t = a * (h * t) ^ 2 := by
@@ -149,13 +133,13 @@ theorem alignedQuadraticContact_exact
       intro k hk
       ring
     _ = (a * h ^ 2) * t ^ 2 := by
-      have hquad := quadraticMonomial_eq_bernsteinCurve p hp t
-      simpa [curve] using congrArg (fun y : ℝ => (a * h ^ 2) * y) hquad
+      have hquad :
+          (∑ k ∈ Finset.range (p + 1),
+            quadraticMonomialCoeff p k * basis p k t) = t ^ 2 := by
+        simpa [curve] using quadraticMonomial_eq_bernsteinCurve p hp t
+      rw [hquad]
     _ = a * (h * t) ^ 2 := by ring
 
-/-- Inserting the contact point as a vertex eliminates the quadratic
-coefficient obstruction on each adjacent element: the exact target is already
-coefficient-feasible. -/
 theorem alignedQuadraticContact_exact_and_nonnegative
     (p : ℕ) (hp : 2 ≤ p) (a h : ℝ) (ha : 0 ≤ a) :
     (∀ k, 0 ≤ alignedQuadraticCoeff p a h k) ∧
