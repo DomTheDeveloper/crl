@@ -1,0 +1,11 @@
+name = "wowii145_upstream_check"
+version = "0.1.0"
+defaultTargets = ["Check"]
+
+[[require]]
+name = "formal_conjectures"
+git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
+rev = "39297c37f51d2af2142af316f40d95f13c359e84"
+
+[[lean_lib]]
+name = "Check"
