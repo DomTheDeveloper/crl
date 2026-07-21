@@ -32,9 +32,10 @@ theorem threshold_scheduledStage_le
     (threshold : ℕ → ℕ) (hzero : threshold 0 = 0) (n : ℕ) :
     threshold (scheduledStage threshold n) ≤ n := by
   unfold scheduledStage
-  exact Nat.findGreatest_spec (m := 0) (Nat.zero_le n) (by
-    rw [hzero]
-    exact Nat.zero_le n)
+  exact Nat.findGreatest_spec
+    (P := fun m => threshold m ≤ n) (m := 0) (Nat.zero_le n) (by
+      rw [hzero]
+      exact Nat.zero_le n)
 
 /-- If a stage's threshold is at least the stage itself, the scheduled stage
 necessarily tends to infinity with the mesh index. -/
