@@ -108,6 +108,69 @@ theorem coefficient_mem_Icc_const_of_margin_of_norm_sub_lt
     (fun _ => lower) (fun _ => upper) target candidate delta
     hdelta hlower hupper hclose
 
+/-- A positive margin is required only on movable coefficients.  Coefficients
+outside `free` may be trace-fixed or otherwise certified separately.  This is
+the physically relevant unilateral clearance theorem for conforming elements
+with exact boundary coefficients. -/
+theorem mem_coefficientCone_of_margin_on_free_of_norm_sub_lt
+    (free : Set ι) (target candidate : ι → ℝ) (delta : ℝ)
+    (hdelta : 0 < delta)
+    (hmargin : ∀ i, i ∈ free → delta ≤ target i)
+    (hfixed : ∀ i, i ∉ free → 0 ≤ candidate i)
+    (hclose : ‖candidate - target‖ < delta) :
+    candidate ∈ coefficientCone ι := by
+  intro i
+  by_cases hi : i ∈ free
+  · have hcoord : |candidate i - target i| < delta := by
+      have hnorm : ‖(candidate - target) i‖ < delta :=
+        (pi_norm_lt_iff hdelta).1 hclose i
+      simpa [Real.norm_eq_abs] using hnorm
+    have hlower : -delta < candidate i - target i :=
+      (abs_lt.mp hcoord).1
+    linarith [hmargin i hi]
+  · exact hfixed i hi
+
+/-- Bilateral free coefficients need strict lower and upper margins, while
+trace-fixed or otherwise protected coefficients outside `free` may be certified
+separately. -/
+theorem coefficient_mem_Icc_of_margin_on_free_of_norm_sub_lt
+    (free : Set ι) (lower upper target candidate : ι → ℝ) (delta : ℝ)
+    (hdelta : 0 < delta)
+    (hlower : ∀ i, i ∈ free → lower i + delta ≤ target i)
+    (hupper : ∀ i, i ∈ free → target i + delta ≤ upper i)
+    (hfixed : ∀ i, i ∉ free → candidate i ∈ Set.Icc (lower i) (upper i))
+    (hclose : ‖candidate - target‖ < delta) :
+    ∀ i, candidate i ∈ Set.Icc (lower i) (upper i) := by
+  intro i
+  by_cases hi : i ∈ free
+  · have hcoord : |candidate i - target i| < delta := by
+      have hnorm : ‖(candidate - target) i‖ < delta :=
+        (pi_norm_lt_iff hdelta).1 hclose i
+      simpa [Real.norm_eq_abs] using hnorm
+    have hneg : -delta < candidate i - target i :=
+      (abs_lt.mp hcoord).1
+    have hpos : candidate i - target i < delta :=
+      (abs_lt.mp hcoord).2
+    constructor <;> linarith [hlower i hi, hupper i hi]
+  · exact hfixed i hi
+
+/-- Exact preservation of nonnegative trace-fixed coefficients discharges the
+non-free side of the unilateral free-coefficient theorem. -/
+theorem mem_coefficientCone_of_margin_on_free_of_fixed_eq
+    (free : Set ι) (target candidate : ι → ℝ) (delta : ℝ)
+    (hdelta : 0 < delta)
+    (hmargin : ∀ i, i ∈ free → delta ≤ target i)
+    (htargetFixed : ∀ i, i ∉ free → 0 ≤ target i)
+    (hfixed : ∀ i, i ∉ free → candidate i = target i)
+    (hclose : ‖candidate - target‖ < delta) :
+    candidate ∈ coefficientCone ι := by
+  apply mem_coefficientCone_of_margin_on_free_of_norm_sub_lt
+    free target candidate delta hdelta hmargin
+  · intro i hi
+    rw [hfixed i hi]
+    exact htargetFixed i hi
+  · exact hclose
+
 end FiniteCoefficientClearance
 
 end BernsteinObstacle
