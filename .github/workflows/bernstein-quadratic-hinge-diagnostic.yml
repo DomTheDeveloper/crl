@@ -1,0 +1,101 @@
+name: Bernstein quadratic hinge diagnostic
+
+on:
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/QuadraticIntegral.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/QuadraticHingeProjection.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/QuadraticHingeBestApproximation.lean'
+      - 'math/bernstein_obstacle/lean/QuadraticHingeProjectionAudit.lean'
+      - '.github/workflows/bernstein-quadratic-hinge-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: bernstein-quadratic-hinge-diagnostic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+
+      - name: Compile sharpness modules and preserve diagnostics
+        id: compile
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set +e
+          {
+            echo '=== QuadraticIntegral ==='
+            lake env lean BernsteinObstacle/QuadraticIntegral.lean
+            c1=$?
+            echo '=== QuadraticHingeProjection ==='
+            lake env lean BernsteinObstacle/QuadraticHingeProjection.lean
+            c2=$?
+            echo '=== QuadraticHingeBestApproximation ==='
+            lake env lean BernsteinObstacle/QuadraticHingeBestApproximation.lean
+            c3=$?
+            echo '=== Endpoint audit ==='
+            lake env lean QuadraticHingeProjectionAudit.lean
+            c4=$?
+            echo "codes=$c1,$c2,$c3,$c4"
+            if [ "$c1" -ne 0 ] || [ "$c2" -ne 0 ] || [ "$c3" -ne 0 ] || [ "$c4" -ne 0 ]; then
+              exit 1
+            fi
+          } 2>&1 | tee hinge-diagnostic.log
+          code=${PIPESTATUS[0]}
+          set -e
+          exit "$code"
+
+      - name: Post concise failure diagnostic
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          {
+            echo '### Exact quadratic-hinge Lean diagnostic'
+            echo
+            echo '```text'
+            grep -E -B 2 -A 5 'error:|unknown constant|application type mismatch|unsolved goals' hinge-diagnostic.log | head -n 160 || tail -n 120 hinge-diagnostic.log
+            echo '```'
+            echo
+            echo "Head: \`${GITHUB_SHA}\`"
+          } > hinge-diagnostic-comment.md
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file hinge-diagnostic-comment.md
+
+      - name: Post success marker
+        if: success() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" \
+            --body "Exact quadratic-hinge modules and endpoint audit compile successfully on head \`${GITHUB_SHA}\`."
+
+      - name: Upload diagnostic transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-quadratic-hinge-diagnostic
+          path: math/bernstein_obstacle/lean/hinge-diagnostic.log
+          if-no-files-found: warn
