@@ -21,6 +21,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: WOWII 143
+            ref: 693e9aa206a5c6c98598aa4e6e5f3db0994a79b7
+            file: FormalConjectures/WrittenOnTheWallII/Proofs/GraphConjecture143.lean
+            module: FormalConjectures.WrittenOnTheWallII.Proofs.GraphConjecture143
+            theorem: WrittenOnTheWallII.GraphConjecture143.conjecture143_fork_proof
+          - name: BMO 4
+            ref: d066c838271c16d3e219e89579f9574dc0b1ee75
+            file: FormalConjectures/Other/Proofs/BeaverMathOlympiad4.lean
+            module: FormalConjectures.Other.Proofs.BeaverMathOlympiad4
+            theorem: BeaverMathOlympiad.beaver_math_olympiad_problem_4_proof
           - name: WOWII 322 corrected
             ref: 24bf0e034072c8ee86f7804be2c7af8cc8e0aae0
             file: FormalConjectures/WrittenOnTheWallII/GraphConjecture322.lean
