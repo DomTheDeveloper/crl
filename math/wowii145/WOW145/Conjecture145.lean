@@ -16,26 +16,9 @@ variable {α : Type*} [Fintype α] [DecidableEq α] [Nontrivial α]
 
 private lemma exists_localIndependenceMin_eq (H : SimpleGraph α) :
     ∃ v : α, indepNeighborsCard H v = localIndependenceMin H := by
-  let vals : Finset ℕ := Finset.univ.image (indepNeighborsCard H)
-  have hvals : vals.Nonempty := by
-    exact Finset.image_nonempty.mpr Finset.univ_nonempty
-  let m : ℕ := vals.min' hvals
-  have hm_mem : m ∈ vals := by
-    exact vals.min'_mem hvals
-  obtain ⟨v, hv, hvm⟩ := Finset.mem_image.mp hm_mem
-  have hlocal_le : localIndependenceMin H ≤ m := by
-    rw [← hvm]
-    unfold localIndependenceMin
-    apply Finset.inf'_le
-    exact hv
-  have hm_le : m ≤ localIndependenceMin H := by
-    unfold localIndependenceMin
-    apply Finset.le_inf'
-    intro w hw
-    have hmem : indepNeighborsCard H w ∈ vals :=
-      Finset.mem_image.mpr ⟨w, hw, rfl⟩
-    simpa [m] using vals.min'_le (indepNeighborsCard H w) hmem
-  exact ⟨v, hvm.trans (le_antisymm hlocal_le hm_le).symm⟩
+  obtain ⟨v, _, hv⟩ :=
+    Finset.exists_mem_eq_inf' Finset.univ_nonempty (indepNeighborsCard H)
+  exact ⟨v, hv.symm⟩
 
 private lemma nonadjacent_nonneighbors_of_indepNeighborsCard_compl_eq_one
     (G : SimpleGraph α) [DecidableRel G.Adj] {v : α}
@@ -144,7 +127,9 @@ theorem conjecture145_proved (G : SimpleGraph α) [DecidableRel G.Adj] (hG : G.C
       have hdlower : G.diam ≤ 2 * G.radius.toNat := diam_le_two_mul_radius_toNat hG
       have hr2 : G.radius.toNat = 2 := by omega
       have hsix : 6 ≤ t := by
-        simpa [t, p, hp3] using WOW146.exceptional_case G hG hr2 hd4 (by simpa [p] using hp3)
+        have hpraw : eccSet G (maxEccentricityVertices G : Set α) = 3 := by
+          simpa [p] using hp3
+        simpa [t] using WOW146.exceptional_case G hG hr2 hd4 hpraw
       omega
   change 2 * p ≤ t * m
   simpa [hm] using hgoal
