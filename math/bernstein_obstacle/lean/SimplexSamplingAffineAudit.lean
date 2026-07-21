@@ -1,0 +1,11 @@
+import BernsteinObstacle
+
+#check BernsteinObstacle.naturalizeSimplexCoefficients_on_index
+#check BernsteinObstacle.simplexField_eq_simplexFieldNat_naturalize
+#check BernsteinObstacle.naturalize_simplexAffineSamplingCoefficients
+#check BernsteinObstacle.simplexSamplingRecovery_affine_reproduction
+
+#print axioms BernsteinObstacle.naturalizeSimplexCoefficients_on_index
+#print axioms BernsteinObstacle.simplexField_eq_simplexFieldNat_naturalize
+#print axioms BernsteinObstacle.naturalize_simplexAffineSamplingCoefficients
+#print axioms BernsteinObstacle.simplexSamplingRecovery_affine_reproduction
