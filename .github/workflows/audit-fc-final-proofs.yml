@@ -16,7 +16,7 @@ jobs:
   verify:
     name: Verify ${{ matrix.name }}
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -62,14 +62,23 @@ jobs:
         working-directory: formal-conjectures
         run: lake exe cache get
 
-      - name: Compile exact proof file
+      - name: Build exact proof module
+        shell: bash
+        working-directory: formal-conjectures
+        env:
+          MODULE: ${{ matrix.module }}
+        run: |
+          set -euo pipefail
+          lake build "$MODULE" 2>&1 | tee ../proof-build.log
+
+      - name: Compile exact proof file with warnings as errors
         shell: bash
         working-directory: formal-conjectures
         env:
           PROOF_FILE: ${{ matrix.file }}
         run: |
           set -euo pipefail
-          lake env lean -DwarningAsError=true "$PROOF_FILE" 2>&1 | tee ../proof-build.log
+          lake env lean -DwarningAsError=true "$PROOF_FILE" 2>&1 | tee -a ../proof-build.log
 
       - name: Audit theorem axioms
         shell: bash
