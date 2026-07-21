@@ -24,13 +24,17 @@ theorem coefficient_square_sum_le_card_mul
       (Fintype.card I : ℝ) * (M * h ^ 2) ^ 2 := by
   have hbound : 0 ≤ M * h ^ 2 :=
     mul_nonneg hM (sq_nonneg h)
-  apply sum_le_card_mul_of_le Finset.univ (fun i => c i ^ 2)
-    ((M * h ^ 2) ^ 2)
-  intro i hi
-  have hiabs := hcoeff i
-  have hibounds : -(M * h ^ 2) ≤ c i ∧ c i ≤ M * h ^ 2 :=
-    (abs_le).mp hiabs
-  nlinarith
+  have hfinite :
+      ∑ i ∈ (Finset.univ : Finset I), c i ^ 2 ≤
+        ((Finset.univ : Finset I).card : ℝ) * (M * h ^ 2) ^ 2 := by
+    apply sum_le_card_mul_of_le (Finset.univ : Finset I)
+      (fun i => c i ^ 2) ((M * h ^ 2) ^ 2)
+    intro i hi
+    have hiabs := hcoeff i
+    have hibounds : -(M * h ^ 2) ≤ c i ∧ c i ≤ M * h ^ 2 :=
+      (abs_le).mp hiabs
+    nlinarith
+  simpa using hfinite
 
 /-- A reference inverse estimate and `O(h^2)` coefficients give the physical
 per-element `O(h^(d+2))` squared-energy estimate. -/
@@ -46,10 +50,9 @@ theorem element_correction_energy_le
   have hsum := coefficient_square_sum_le_card_mul c M h hM hh hcoeff
   have hfactor : 0 ≤ A * h ^ (d - 2) :=
     mul_nonneg hA (pow_nonneg hh _)
+  have hexp : (d - 2) + 4 = d + 2 := by omega
   have hpow : h ^ (d - 2) * h ^ 4 = h ^ (d + 2) := by
-    rw [← pow_add]
-    congr 1
-    omega
+    simpa [hexp] using (pow_add h (d - 2) 4).symm
   calc
     energySq ≤ A * h ^ (d - 2) * (∑ i : I, c i ^ 2) := henergy
     _ ≤ A * h ^ (d - 2) *
