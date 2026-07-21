@@ -107,6 +107,10 @@ jobs:
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.nested_hilbert_vi_strongConvergence_of_recovery' \
             bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.hilbertVISolutions_strongConvergence' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.mosco_and_hilbertVISolutions_strongConvergence' \
+            bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.operator_vi_innerCone_falk' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.operator_vi_error_sq_scaled' \
