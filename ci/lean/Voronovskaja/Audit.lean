@@ -1,4 +1,4 @@
--- Final child-PR audit trigger for remainder fixes at 47d64ef.
+-- Final child-PR audit trigger for remainder fixes at 8d53f50.
 import FormalConjectures.Paper.VoronovskajaTypeFormula
 
 #check VoronovskajaTypeFormula.voronovskaja_theorem.bernstein_operators
