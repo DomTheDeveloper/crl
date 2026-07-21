@@ -1,3 +1,0 @@
-import BernsteinObstacle
-import BernsteinObstacle.NormedPhysicalSaturation
-import BernsteinObstacle.SharpQuadraticSaturation
