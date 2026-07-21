@@ -30,6 +30,7 @@ theorem univ_sum_ofReal_eq_of_real_sum
     (hf : ∀ i, 0 ≤ f i)
     (hsum : ∑ i, f i = c) :
     ∑ i, ENNReal.ofReal (f i) = ENNReal.ofReal c := by
+  classical
   simpa using sum_ofReal_eq_of_real_sum Finset.univ f c
     (fun i _ => hf i) hsum
 
