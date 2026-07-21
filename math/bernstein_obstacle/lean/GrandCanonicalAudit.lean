@@ -5,6 +5,10 @@ import BernsteinObstacle
 #check BernsteinObstacle.affineBox_mem_Icc
 #check BernsteinObstacle.boxApprox_mem_Icc
 #check BernsteinObstacle.simplexBoxApproxNat_mem_Icc
+#check BernsteinObstacle.simplexVectorFieldNat_mem_convex
+#check BernsteinObstacle.simplexVectorFieldNat_pointwise_feasible
+#check BernsteinObstacle.convex_convexCoefficientSet
+#check BernsteinObstacle.repaired_simplexVectorFieldNat_pointwise_feasible
 #check BernsteinObstacle.scheduledStage_tendsto_atTop
 #check BernsteinObstacle.exists_scheduledDiagonalRecovery
 #check BernsteinObstacle.mosco_of_scheduledRecovery_of_subset_closedConvex
@@ -55,6 +59,10 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.affineBox_mem_Icc
 #print axioms BernsteinObstacle.boxApprox_mem_Icc
 #print axioms BernsteinObstacle.simplexBoxApproxNat_mem_Icc
+#print axioms BernsteinObstacle.simplexVectorFieldNat_mem_convex
+#print axioms BernsteinObstacle.simplexVectorFieldNat_pointwise_feasible
+#print axioms BernsteinObstacle.convex_convexCoefficientSet
+#print axioms BernsteinObstacle.repaired_simplexVectorFieldNat_pointwise_feasible
 #print axioms BernsteinObstacle.scheduledStage_tendsto_atTop
 #print axioms BernsteinObstacle.exists_scheduledDiagonalRecovery
 #print axioms BernsteinObstacle.mosco_of_scheduledRecovery_of_subset_closedConvex
