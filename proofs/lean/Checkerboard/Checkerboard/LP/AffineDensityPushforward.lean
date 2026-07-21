@@ -93,7 +93,7 @@ theorem map_volume_restrict_Icc_affine_neg
         rw [Measure.map_map (by fun_prop) (by fun_prop)]
         congr 1
         funext x
-        ring
+        ring_nf
       _ = Measure.map (fun y : ℝ => a + y)
           (ENNReal.ofReal |(-s)⁻¹| • volume) := by
         rw [Real.map_volume_mul_left hs0]
@@ -128,12 +128,10 @@ theorem map_intervalDensity_affine
   rw [Measure.map_smul]
   rw [map_volume_restrict_Icc_affine a lo hi hs]
   rw [volume_withDensity_intervalDensity]
-  have hs0 : 0 ≤ s⁻¹ := inv_nonneg.mpr hs.le
   have hmul :
       ENNReal.ofReal c * ENNReal.ofReal s⁻¹ = ENNReal.ofReal (c / s) := by
     rw [← ENNReal.ofReal_mul hc]
     congr 1
-    field_simp [ne_of_gt hs]
   rw [smul_smul, hmul]
 
 /-- Reversed affine transport of a constant interval density. -/
@@ -147,12 +145,10 @@ theorem map_intervalDensity_affine_neg
   rw [Measure.map_smul]
   rw [map_volume_restrict_Icc_affine_neg a lo hi hs]
   rw [volume_withDensity_intervalDensity]
-  have hs0 : 0 ≤ s⁻¹ := inv_nonneg.mpr hs.le
   have hmul :
       ENNReal.ofReal c * ENNReal.ofReal s⁻¹ = ENNReal.ofReal (c / s) := by
     rw [← ENNReal.ofReal_mul hc]
     congr 1
-    field_simp [ne_of_gt hs]
   rw [smul_smul, hmul]
 
 end
