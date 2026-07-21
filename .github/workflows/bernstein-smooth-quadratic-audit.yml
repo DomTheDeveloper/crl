@@ -1,0 +1,69 @@
+name: Bernstein smooth quadratic saturation audit
+
+on:
+  push:
+    branches:
+      - formal/bernstein-second-order-saturation-v1
+    paths:
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/SmoothQuadraticSaturation.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/ContactAwareRecovery.lean'
+      - 'math/bernstein_obstacle/lean/SmoothQuadraticSaturationAudit.lean'
+      - '.github/workflows/bernstein-smooth-quadratic-audit.yml'
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/SmoothQuadraticSaturation.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/ContactAwareRecovery.lean'
+      - 'math/bernstein_obstacle/lean/SmoothQuadraticSaturationAudit.lean'
+      - '.github/workflows/bernstein-smooth-quadratic-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-smooth-quadratic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+      - name: Compile smooth-contact modules
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean BernsteinObstacle/SmoothQuadraticSaturation.lean 2>&1 | tee smooth-quadratic-build.log
+          if [ -f BernsteinObstacle/ContactAwareRecovery.lean ]; then
+            lake env lean BernsteinObstacle/ContactAwareRecovery.lean 2>&1 | tee -a smooth-quadratic-build.log
+          fi
+      - name: Audit theorem axioms
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean SmoothQuadraticSaturationAudit.lean 2>&1 | tee smooth-quadratic-axioms.log
+          if grep -q 'sorryAx' smooth-quadratic-axioms.log; then exit 1; fi
+          grep -F 'BernsteinObstacle.centeredQuadratic_eq_cubicBernsteinCurve' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.centeredQuadraticCubicCoeff_not_nonnegative' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.cubicCenteredRepair_exact' smooth-quadratic-axioms.log
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-smooth-quadratic-audit
+          path: |
+            math/bernstein_obstacle/lean/smooth-quadratic-build.log
+            math/bernstein_obstacle/lean/smooth-quadratic-axioms.log
+          if-no-files-found: warn
