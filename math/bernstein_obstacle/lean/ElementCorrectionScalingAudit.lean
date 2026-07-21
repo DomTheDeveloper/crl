@@ -1,0 +1,9 @@
+import BernsteinObstacle
+
+#check BernsteinObstacle.coefficient_square_sum_le_card_mul
+#check BernsteinObstacle.element_correction_energy_le
+#check BernsteinObstacle.element_correction_energy_bound_for_strip
+
+#print axioms BernsteinObstacle.coefficient_square_sum_le_card_mul
+#print axioms BernsteinObstacle.element_correction_energy_le
+#print axioms BernsteinObstacle.element_correction_energy_bound_for_strip
