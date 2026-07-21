@@ -17,7 +17,7 @@ theorem consistencyLimitedOrder_eq_vanishingOrder
     consistencyLimitedOrder m q = q := by
   simp [consistencyLimitedOrder, Nat.min_eq_right hqm]
 
-def consistencyVanishingCodimensionScale
+noncomputable def consistencyVanishingCodimensionScale
     (h : ℝ) (m q c : ℕ) : ℝ :=
   vanishingCodimensionScale h (consistencyLimitedOrder m q) c
 
@@ -35,7 +35,7 @@ theorem quadraticContact_codimOne_saturation
   rw [consistencyVanishingCodimensionScale_of_q_le_m h m 2 1 hm]
   exact vanishingCodimensionScale_quadratic_codimOne h
 
-def phaseLockedQuadraticMiddleCoefficient (h theta : ℝ) : ℝ :=
+noncomputable def phaseLockedQuadraticMiddleCoefficient (h theta : ℝ) : ℝ :=
   -((1 : ℝ) / 2) * (1 - theta) ^ 2 * h ^ 2
 
 theorem phaseLockedQuadraticMiddleCoefficient_neg

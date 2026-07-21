@@ -1,5 +1,6 @@
 import BernsteinObstacle.Core
 import BernsteinObstacle.CoefficientCone
+import BernsteinObstacle.CoefficientClearance
 import BernsteinObstacle.Projection
 import BernsteinObstacle.ProjectionVI
 import BernsteinObstacle.Tensor
@@ -9,6 +10,8 @@ import BernsteinObstacle.SimplexFace
 import BernsteinObstacle.SimplexFaceField
 import BernsteinObstacle.SimplexOrientedFace
 import BernsteinObstacle.SimplexRecovery
+import BernsteinObstacle.SimplexAffineReproduction
+import BernsteinObstacle.SimplexAffineField
 import BernsteinObstacle.SimplexPartition
 import BernsteinObstacle.AffineLattice
 import BernsteinObstacle.LatticeCardinal
@@ -40,6 +43,8 @@ import BernsteinObstacle.TranslatedMosco
 import BernsteinObstacle.MovingObstacleConvergence
 import BernsteinObstacle.SobolevFEMRecovery
 import BernsteinObstacle.AsymptoticRecovery
+import BernsteinObstacle.ClearanceRecovery
+import BernsteinObstacle.SobolevH01Port
 import BernsteinObstacle.CoefficientMosco
 import BernsteinObstacle.AssemblyMosco
 import BernsteinObstacle.MinimizerConvergence
@@ -49,6 +54,7 @@ import BernsteinObstacle.CoefficientNorm
 import BernsteinObstacle.EnergyGapConvergence
 import BernsteinObstacle.Uniqueness
 import BernsteinObstacle.CoefficientLocalization
+import BernsteinObstacle.FreeBoundaryQuadraticLocalization
 import BernsteinObstacle.LocalDistanceLocalization
 import BernsteinObstacle.BoundaryCoefficientLocalization
 import BernsteinObstacle.SharpRateAlgebra
@@ -63,6 +69,8 @@ import BernsteinObstacle.OptimalGrading
 import BernsteinObstacle.MovingObstacleRate
 import BernsteinObstacle.GrandSaturationRate
 import BernsteinObstacle.GrandTheorem
+import BernsteinObstacle.AsymptoticGrandTheorem
+import BernsteinObstacle.AssembledGrandTheorem
 import BernsteinObstacle.HilbertVI
 import BernsteinObstacle.NestedHilbertVI
 import BernsteinObstacle.MovingHilbertVI

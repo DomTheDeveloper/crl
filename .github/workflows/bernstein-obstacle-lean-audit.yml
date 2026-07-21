@@ -6,6 +6,7 @@ on:
     branches:
       - agent/bernstein-obstacle-research
       - formal/bernstein-bezier-grand-canonical
+      - formal/bernstein-final-five-percent-v2
     paths:
       - 'math/bernstein_obstacle/lean/**'
       - '.github/workflows/bernstein-obstacle-lean-audit.yml'
@@ -19,8 +20,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: bernstein-obstacle-lean-${{ github.ref }}-${{ github.run_id }}
-  cancel-in-progress: false
+  group: bernstein-obstacle-lean-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify:
@@ -60,12 +61,18 @@ jobs:
           lake env lean FaceTraceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SimplexFaceFieldAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean GeometryRecoveryAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean SimplexAffineReproductionAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean SimplexAffineFieldAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean FreeBoundaryQuadraticLocalizationAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean AffineBernsteinAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean ConvergenceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean MovingAnalysisAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SharpRateAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean LocalDistanceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean GrandCanonicalAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean FinalFivePercentAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean CoefficientClearanceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean SobolevAssembledAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           if grep -q 'sorryAx' bernstein-obstacle-axioms.log; then
             echo 'Unexpected sorryAx found' >&2
             exit 1
@@ -75,6 +82,11 @@ jobs:
           grep -F 'BernsteinObstacle.simplexField_lastFace_extension' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.simplexField_orientedLastFace_extension' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.simplexSamplingRecovery_nonneg' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexBasisNat_firstMoment' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexFieldNat_affine_reproduction' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.coefficient_nonneg_of_quadratic_growth' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.distance_lt_stripWidth_of_coefficient_neg' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.abs_clip_sub_le_of_value_and_error' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.clipped_orientedSimplexFaceTrace_eq_of_sharedDofs' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.affineBernsteinBasis_sum_repr' bernstein-obstacle-axioms.log
@@ -83,6 +95,23 @@ jobs:
           grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.scheduledRecovery' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.moscoConverges' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.eventually_norm_lt_clearance' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.toAsymptoticData' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.moscoConverges' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.mem_coefficientCone_of_margin_of_abs_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.coefficient_mem_Icc_of_margin_of_abs_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.coefficient_mem_Icc_const_of_margin_of_abs_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.mem_coefficientCone_of_margin_of_norm_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.coefficient_mem_Icc_of_margin_of_norm_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.coefficient_mem_Icc_const_of_margin_of_norm_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.mem_coefficientCone_of_margin_on_free_of_norm_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.coefficient_mem_Icc_of_margin_on_free_of_norm_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.mem_coefficientCone_of_margin_on_free_of_fixed_eq' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.movingObstacle_moscoConverges' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.movingObstacle_minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.movingObstacle_moscoConverges' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.movingObstacle_minimizers_strongConvergence' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.movingObstacle_moscoConverges' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.movingObstacle_minimizers_strongConvergence' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap' bernstein-obstacle-axioms.log
@@ -102,6 +131,20 @@ jobs:
           grep -F 'BernsteinObstacle.phaseLockedQuadraticSlopeEnergy_lowerBound' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.bernsteinBezierObstacleGrandTheorem' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_quadraticContact' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_quadraticContact' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_quadraticContact' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.SobolevH01Port.smoothApproxData_of_memH01' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.SobolevH01Port.indicator_component_memLp' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.SobolevH01Port.positivePartGrad_component_memLp' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.SobolevH01Port.NonnegativeH01ApproximationWitness.memH01' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.AssembledFreeCoefficientRecoveryData.recovery_mem_of_norm_lt_clearance' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.AssembledFreeCoefficientRecoveryData.moscoConverges' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.AssembledFreeCoefficientRecoveryData.minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.AssembledFreeCoefficientRecoveryData.movingObstacle_moscoConverges' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.AssembledFreeCoefficientRecoveryData.bernsteinBezierObstacleGrandTheorem' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.AssembledFreeCoefficientRecoveryData.bernsteinBezierObstacleGrandTheorem_quadraticContact' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.threeHalvesContactLaw' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.balancedContactOrder_equalizes' bernstein-obstacle-axioms.log
 

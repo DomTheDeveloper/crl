@@ -2,6 +2,7 @@ import BernsteinObstacle.MinkowskiSaturation
 import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
 import Mathlib.Tactic
 
+open MeasureTheory
 open scoped Interval
 
 namespace BernsteinObstacle
@@ -31,11 +32,29 @@ theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity
     (∫ x in (0 : ℝ)..h,
       phaseLockedQuadraticSlopeEnergyDensity h theta x) =
         (1 - theta) ^ 4 * h ^ 3 / 3 := by
-  simp_rw [phaseLockedQuadraticSlopeEnergyDensity_expand]
-  rw [intervalIntegral.integral_const_mul]
-  simp [intervalIntegral.integral_add, intervalIntegral.integral_sub,
-    intervalIntegral.integral_const_mul, intervalIntegral.integral_mul_const,
-    intervalIntegral.integral_pow]
+  have hdensity :
+      (fun x : ℝ => phaseLockedQuadraticSlopeEnergyDensity h theta x) =
+        fun x : ℝ => (1 - theta) ^ 4 *
+          (h ^ 2 - 4 * h * x + 4 * x ^ 2) := by
+    funext x
+    exact phaseLockedQuadraticSlopeEnergyDensity_expand h theta x
+  have hconst :
+      IntervalIntegrable (fun _ : ℝ => h ^ 2) volume 0 h :=
+    intervalIntegrable_const
+  have hlin :
+      IntervalIntegrable (fun x : ℝ => 4 * h * x) volume 0 h := by
+    exact (intervalIntegral.intervalIntegrable_id
+      (μ := volume) (a := (0 : ℝ)) (b := h)).const_mul (4 * h)
+  have hquad :
+      IntervalIntegrable (fun x : ℝ => 4 * x ^ 2) volume 0 h := by
+    exact (intervalIntegral.intervalIntegrable_pow
+      (μ := volume) (a := (0 : ℝ)) (b := h) 2).const_mul 4
+  rw [hdensity, intervalIntegral.integral_const_mul]
+  rw [intervalIntegral.integral_add (hconst.sub hlin) hquad]
+  rw [intervalIntegral.integral_sub hconst hlin]
+  rw [intervalIntegral.integral_const_mul, intervalIntegral.integral_const_mul]
+  rw [intervalIntegral.integral_const, integral_id, integral_pow]
+  norm_num
   ring
 
 theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity_eq_scale_sq
@@ -47,7 +66,7 @@ theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity_eq_scale_sq
   have hsqrt3 : (Real.sqrt 3) ^ 2 = 3 := by norm_num
   have hscale : (h * Real.sqrt h) ^ 2 = h ^ 3 :=
     threeHalvesScale_sq h hh
-  rw [div_mul_eq_mul_div, mul_pow, div_pow, hsqrt3, hscale]
+  rw [mul_pow, div_pow, hsqrt3, hscale]
   ring
 
 theorem phaseLockedQuadraticSlopeEnergy_lowerBound
@@ -76,10 +95,9 @@ theorem phaseLockedQuadraticSlopeEnergy_lowerBound
       threeHalvesScale_sq h hh
     rw [mul_pow, div_pow, hsqrt3, hscale]
     have hh3 : 0 ≤ h ^ 3 := pow_nonneg hh _
-    calc
-      delta ^ 4 / 3 * h ^ 3 ≤ (1 - theta) ^ 4 / 3 * h ^ 3 := by
-        gcongr
-      _ = (1 - theta) ^ 4 * h ^ 3 / 3 := by ring
+    have hmul : delta ^ 4 * h ^ 3 ≤ (1 - theta) ^ 4 * h ^ 3 :=
+      mul_le_mul_of_nonneg_right hpow hh3
+    nlinarith
   nlinarith
 
 end BernsteinObstacle
