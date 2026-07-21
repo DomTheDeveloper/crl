@@ -14,9 +14,9 @@ interface. This file turns that geometric cover estimate into the exact lower
 cardinality hypothesis used by `CutPatchSaturation`.
 -/
 
-/-- If every summand is at most `q`, then their finite sum is at most
-`card(S) * q`. -/
-theorem sum_le_card_mul_of_le
+/-- If every interface-mass summand is at most `q`, then their finite sum is at
+most `card(S) * q`. -/
+theorem interface_sum_le_card_mul_of_le
     {ι : Type*} (S : Finset ι) (mass : ι → ℝ) (q : ℝ)
     (hmass : ∀ i ∈ S, mass i ≤ q) :
     (∑ i ∈ S, mass i) ≤ (S.card : ℝ) * q := by
@@ -41,7 +41,8 @@ theorem interfaceCover_card_lowerBound
   have hsum :
       (∑ i ∈ S, interfaceMass i) ≤
         (S.card : ℝ) * (C * h ^ (d - 1)) :=
-    sum_le_card_mul_of_le S interfaceMass (C * h ^ (d - 1)) hlocal
+    interface_sum_le_card_mul_of_le
+      S interfaceMass (C * h ^ (d - 1)) hlocal
   have hscaled :
       C * N ≤ C * ((S.card : ℝ) * h ^ (d - 1)) := by
     calc
@@ -49,8 +50,8 @@ theorem interfaceCover_card_lowerBound
       _ ≤ ∑ i ∈ S, interfaceMass i := hcover
       _ ≤ (S.card : ℝ) * (C * h ^ (d - 1)) := hsum
       _ = C * ((S.card : ℝ) * h ^ (d - 1)) := by ring
-  have hcount : N ≤ (S.card : ℝ) * h ^ (d - 1) :=
-    (mul_le_mul_left hC).mp hscaled
+  have hcount : N ≤ (S.card : ℝ) * h ^ (d - 1) := by
+    nlinarith
   exact (div_le_iff₀ hpow).2 hcount
 
 /-- Interface coverage supplies the lower-cardinality premise when the global
