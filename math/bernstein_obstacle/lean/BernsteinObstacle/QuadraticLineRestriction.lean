@@ -1,3 +1,6 @@
+import Mathlib.Analysis.Calculus.Deriv.Add
+import Mathlib.Analysis.Calculus.Deriv.Mul
+import Mathlib.Analysis.Calculus.Deriv.Pow
 import Mathlib.LinearAlgebra.Basic
 import Mathlib.Tactic
 
@@ -7,9 +10,9 @@ namespace BernsteinObstacle
 # Quadratic polynomial restriction to an affine line
 
 A degree-two scalar polynomial is represented coordinate-free by a constant, a
-linear form, and a bilinear form.  Its restriction to `base + t • direction`
-is an ordinary scalar quadratic in `t`; consequently its formal line derivative
-is affine.  This supplies the `alpha` and `beta` fiber coefficients used by the
+linear form, and a bilinear form. Its restriction to `base + t • direction`
+is an ordinary scalar quadratic in `t`; consequently its actual derivative is
+affine. This supplies the `alpha` and `beta` fiber coefficients used by the
 transverse-prism saturation theorem.
 -/
 
@@ -70,11 +73,47 @@ def QuadraticPolynomialData.lineDerivativeIntercept
     (q : QuadraticPolynomialData E) (base direction : E) : ℝ :=
   q.lineLinearCoefficient base direction
 
-/-- The formal derivative polynomial of the line restriction. -/
+/-- The affine derivative polynomial of the line restriction. -/
 def QuadraticPolynomialData.lineDerivative
     (q : QuadraticPolynomialData E) (base direction : E) (t : ℝ) : ℝ :=
   q.lineDerivativeSlope direction * t +
     q.lineDerivativeIntercept base direction
+
+/-- Elementary derivative formula for a scalar quadratic polynomial. -/
+theorem hasDerivAt_quadraticPolynomial
+    (A B C t : ℝ) :
+    HasDerivAt (fun s : ℝ => A * s ^ 2 + B * s + C)
+      (2 * A * t + B) t := by
+  have hsq : HasDerivAt (fun s : ℝ => s ^ 2) (2 * t) t := by
+    convert (hasDerivAt_id' t).pow 2 using 1 <;> ring
+  have hA : HasDerivAt (fun s : ℝ => A * s ^ 2) (A * (2 * t)) t :=
+    hsq.const_mul A
+  have hB : HasDerivAt (fun s : ℝ => B * s) B t := by
+    simpa using (hasDerivAt_id' t).const_mul B
+  convert (hA.add hB).add_const C using 1 <;> ring
+
+/-- The restriction of a coordinate-free quadratic to an affine line has the
+claimed affine derivative at every scalar parameter. -/
+theorem QuadraticPolynomialData.hasDerivAt_eval_affineLine
+    (q : QuadraticPolynomialData E) (base direction : E) (t : ℝ) :
+    HasDerivAt (fun s : ℝ => q.eval (base + s • direction))
+      (q.lineDerivative base direction t) t := by
+  have hfun :
+      (fun s : ℝ => q.eval (base + s • direction)) =
+        (fun s : ℝ =>
+          q.lineQuadraticCoefficient direction * s ^ 2 +
+            q.lineLinearCoefficient base direction * s +
+            q.lineConstantCoefficient base) := by
+    funext s
+    exact q.eval_affineLine base direction s
+  rw [hfun]
+  simpa [QuadraticPolynomialData.lineDerivative,
+    QuadraticPolynomialData.lineDerivativeSlope,
+    QuadraticPolynomialData.lineDerivativeIntercept] using
+    hasDerivAt_quadraticPolynomial
+      (q.lineQuadraticCoefficient direction)
+      (q.lineLinearCoefficient base direction)
+      (q.lineConstantCoefficient base) t
 
 /-- The normal derivative supplied by a quadratic restriction is affine with
 explicit slope and intercept. -/
