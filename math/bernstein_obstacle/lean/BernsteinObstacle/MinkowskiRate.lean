@@ -15,7 +15,7 @@ around a codimension-`c` set contains `O(h^(-(d-c)))` elements. Consequently
 the global squared repair cost is `O(h^(2*(q-1)+c))`.
 -/
 
-def vanishingCodimensionScale (h : ℝ) (q c : ℕ) : ℝ :=
+noncomputable def vanishingCodimensionScale (h : ℝ) (q c : ℕ) : ℝ :=
   h ^ (q - 1) * Real.sqrt (h ^ c)
 
 theorem vanishingCodimensionScale_nonneg (h : ℝ) (q c : ℕ) (hh : 0 ≤ h) :

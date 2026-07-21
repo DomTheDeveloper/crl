@@ -3,6 +3,8 @@ import Mathlib.Tactic
 
 namespace BernsteinObstacle
 
+noncomputable section
+
 /-!
 # Consistency-limited vanishing order and quadratic-contact saturation
 
@@ -57,5 +59,7 @@ theorem phaseLockedQuadraticCorrection_slope_identity
     (1 - theta) ^ 2 * (h - 2 * x) =
       (1 - theta) ^ 2 * (h - x) - (1 - theta) ^ 2 * x := by
   ring
+
+end
 
 end BernsteinObstacle

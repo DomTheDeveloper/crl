@@ -17,14 +17,14 @@ and Sobolev estimates that provide those parameters.
 -/
 
 /-- Exponent produced by the coefficient clipping repair. -/
-def repairExponent (q β κ : ℝ) : ℝ := β - 1 + κ / q
+noncomputable def repairExponent (q β κ : ℝ) : ℝ := β - 1 + κ / q
 
 /-- Exponent produced after taking the `q`-root of multiplier consistency. -/
-def multiplierExponent (q β κ : ℝ) : ℝ := (β + κ) / q
+noncomputable def multiplierExponent (q β κ : ℝ) : ℝ := (β + κ) / q
 
 /-- The interface rate is governed by the slower of repair and multiplier
 consistency. -/
-def grandInterfaceExponent (q β κ : ℝ) : ℝ :=
+noncomputable def grandInterfaceExponent (q β κ : ℝ) : ℝ :=
   min (repairExponent q β κ) (multiplierExponent q β κ)
 
 /-- Quadratic contact on a codimension-one patch has repair exponent `3/2` in
@@ -45,7 +45,7 @@ theorem threeHalvesContactLaw :
   norm_num [grandInterfaceExponent, repairExponent, multiplierExponent]
 
 /-- The contact-growth order that balances repair and multiplier mechanisms. -/
-def balancedContactOrder (q : ℝ) : ℝ := q / (q - 1)
+noncomputable def balancedContactOrder (q : ℝ) : ℝ := q / (q - 1)
 
 /-- **Balanced Contact Exponent Principle.** For `q ≠ 0,1`, the order
 `β = q/(q-1)` makes the geometric repair and multiplier exponents coincide. -/
