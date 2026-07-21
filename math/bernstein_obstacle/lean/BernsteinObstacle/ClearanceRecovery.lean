@@ -14,7 +14,7 @@ facts:
 2. the finite-element recovery converges to that smooth target.
 
 Once the recovery error is smaller than the clearance, discrete feasibility is
-a deterministic consequence.  This file formalizes that standard implication
+a deterministic consequence. This file formalizes that standard implication
 and packages it into `AsymptoticSobolevFEMRecoveryData`, so eventual feasibility
 no longer has to be postulated separately.
 -/
@@ -62,8 +62,10 @@ theorem eventually_norm_lt_clearance
     (hdelta : 0 < delta)
     (herr : Tendsto err atTop (nhds 0)) :
     ∀ᶠ n in atTop, ‖err n‖ < delta := by
-  have hnorm : Tendsto (fun n => ‖err n‖) atTop (nhds 0) :=
-    tendsto_norm.comp herr
+  have hnormRaw := tendsto_norm.comp herr
+  change Tendsto (fun n => ‖err n‖) atTop (nhds ‖(0 : E)‖) at hnormRaw
+  have hnorm : Tendsto (fun n => ‖err n‖) atTop (nhds 0) := by
+    simpa using hnormRaw
   exact (tendsto_order.1 hnorm).2 delta hdelta
 
 /-- Strict stagewise clearance converts quantitative FEM convergence into the
