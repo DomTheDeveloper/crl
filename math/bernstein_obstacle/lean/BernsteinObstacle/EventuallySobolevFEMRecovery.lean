@@ -108,7 +108,7 @@ theorem EventuallySobolevFEMRecoveryData.recovery_close_after_threshold
     ‖D.femRecovery x m n - D.smoothApprox x m‖ ≤ (((m : ℝ) + 1)⁻¹) := by
   by_cases hm : m = 0
   · subst m
-    exact D.stageZero_close x hx n
+    simpa using D.stageZero_close x hx n
   · have hindex :
         eventualIndex (D.recovery_eventually x hx m) ≤ n := by
       apply le_trans (le_max_right m _)
@@ -119,31 +119,35 @@ theorem EventuallySobolevFEMRecoveryData.recovery_close_after_threshold
 package used by the verified scheduled Mosco theorem. -/
 def EventuallySobolevFEMRecoveryData.toThresholdData
     (D : EventuallySobolevFEMRecoveryData E) :
-    ThresholdSobolevFEMRecoveryData E where
-  discreteCone := D.discreteCone
-  limitCone := D.limitCone
-  smoothApprox := D.smoothApprox
-  femRecovery := D.femRecovery
-  threshold := fun x m => if hx : x ∈ D.limitCone then D.threshold x hx m else m
-  smooth_converges := D.smooth_converges
-  threshold_zero := by
-    intro x hx
+    ThresholdSobolevFEMRecoveryData E := by
+  classical
+  refine
+    { discreteCone := D.discreteCone
+      limitCone := D.limitCone
+      smoothApprox := D.smoothApprox
+      femRecovery := D.femRecovery
+      threshold := fun x m =>
+        if hx : x ∈ D.limitCone then D.threshold x hx m else m
+      smooth_converges := D.smooth_converges
+      threshold_zero := ?_
+      threshold_self := ?_
+      recovery_mem := ?_
+      recovery_close := ?_
+      inner := D.inner
+      limit_convex := D.limit_convex
+      limit_closed := D.limit_closed }
+  · intro x hx
     simp [hx]
-  threshold_self := by
-    intro x hx m
-    simp only [hx, ↓reduceDIte]
-    exact D.stage_le_threshold x hx m
-  recovery_mem := by
-    intro x hx m n hn
-    simp only [hx, ↓reduceDIte] at hn
-    exact D.recovery_mem_after_threshold x hx m n hn
-  recovery_close := by
-    intro x hx m n hn
-    simp only [hx, ↓reduceDIte] at hn
-    exact D.recovery_close_after_threshold x hx m n hn
-  inner := D.inner
-  limit_convex := D.limit_convex
-  limit_closed := D.limit_closed
+  · intro x hx m
+    simpa [hx] using D.stage_le_threshold x hx m
+  · intro x hx m n hn
+    have hn' : D.threshold x hx m ≤ n := by
+      simpa [hx] using hn
+    exact D.recovery_mem_after_threshold x hx m n hn'
+  · intro x hx m n hn
+    have hn' : D.threshold x hx m ≤ n := by
+      simpa [hx] using hn
+    exact D.recovery_close_after_threshold x hx m n hn'
 
 /-- Eventual meshwise recovery estimates imply Mosco convergence directly. -/
 theorem EventuallySobolevFEMRecoveryData.moscoConverges
