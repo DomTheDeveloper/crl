@@ -3,7 +3,7 @@ name: Bernstein quadratic hinge Lean audit
 on:
   push:
     branches:
-      - formal/bernstein-quadratic-hinge-projection-v2
+      - formal/bernstein-quadratic-hinge-projection-v4
     paths:
       - 'math/bernstein_obstacle/lean/**'
       - '.github/workflows/bernstein-quadratic-hinge-audit.yml'
@@ -41,7 +41,13 @@ jobs:
 
       - name: Build full library
         working-directory: math/bernstein_obstacle/lean
-        run: lake build BernsteinObstacle
+        shell: bash
+        run: |
+          set +e
+          lake build BernsteinObstacle 2>&1 | tee quadratic-hinge-build.log
+          code=${PIPESTATUS[0]}
+          set -e
+          exit "$code"
 
       - name: Audit quadratic-hinge endpoints
         working-directory: math/bernstein_obstacle/lean
@@ -55,13 +61,17 @@ jobs:
           fi
           grep -F 'BernsteinObstacle.intervalIntegral_quadraticPolynomial' quadratic-hinge-axioms.log
           grep -F 'BernsteinObstacle.quadraticHingeAffineDerivativeErrorSq_identity' quadratic-hinge-axioms.log
+          grep -F 'BernsteinObstacle.quadraticHingeAffineDerivativeErrorSq_isGLB' quadratic-hinge-axioms.log
           grep -F 'BernsteinObstacle.scaledQuadraticHingeAffineDerivativeErrorSq_identity' quadratic-hinge-axioms.log
+          grep -F 'BernsteinObstacle.scaledQuadraticHingeAffineDerivativeErrorSq_isGLB' quadratic-hinge-axioms.log
           grep -F 'BernsteinObstacle.scaledQuadraticHinge_fullSpace_threeHalvesLowerBound' quadratic-hinge-axioms.log
 
-      - name: Upload audit transcript
+      - name: Upload exact-head audit evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bernstein-quadratic-hinge-audit
-          path: math/bernstein_obstacle/lean/quadratic-hinge-axioms.log
+          path: |
+            math/bernstein_obstacle/lean/quadratic-hinge-build.log
+            math/bernstein_obstacle/lean/quadratic-hinge-axioms.log
           if-no-files-found: warn
