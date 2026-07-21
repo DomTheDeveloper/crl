@@ -1,10 +1,12 @@
 import BernsteinObstacle
 
+-- Exact-head audit trigger for the fully consolidated clearance + real-power stack.
 #check BernsteinObstacle.realRiskThickness
 #check BernsteinObstacle.realVIExponent_eq_classification
 #check BernsteinObstacle.realVIExponent_of_q_le_m
 #check BernsteinObstacle.realVIExponent_of_m_le_q
 #check BernsteinObstacle.realVIExponent_quadratic_codimOne
+#check BernsteinObstacle.realVIRateScale_quadratic_codimOne
 #check BernsteinObstacle.grandSharpRate_of_realMinkowskiComponents
 #check BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_realMinkowski
 #check BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_consistencyLimited
@@ -18,6 +20,7 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.realVIExponent_of_q_le_m
 #print axioms BernsteinObstacle.realVIExponent_of_m_le_q
 #print axioms BernsteinObstacle.realVIExponent_quadratic_codimOne
+#print axioms BernsteinObstacle.realVIRateScale_quadratic_codimOne
 #print axioms BernsteinObstacle.grandSharpRate_of_realMinkowskiComponents
 #print axioms BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_realMinkowski
 #print axioms BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_consistencyLimited
