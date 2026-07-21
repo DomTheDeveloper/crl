@@ -44,7 +44,7 @@ theorem operator_vi_reverse_direction_nonpos
   rw [hneg, inner_neg_right]
   linarith
 
-/-- Exact inner-cone Falk estimate.  Strong monotonicity and Lipschitz control
+/-- Exact inner-cone Falk estimate. Strong monotonicity and Lipschitz control
 are supplied in the precise pairings needed by the proof, allowing this lemma
 to be reused for linear, nonlinear, symmetric, and nonsymmetric operators. -/
 theorem operator_vi_innerCone_falk
@@ -68,20 +68,32 @@ theorem operator_vi_innerCone_falk
     operator_vi_reverse_direction_nonpos Kh A f uh vh huh hvh
   have he : uh - u = (uh - vh) + (vh - u) := by abel
   have hA : A uh - A u = (A uh - f) - (A u - f) := by abel
-  have hid :
+  have hsum : A uh - f = (A uh - A u) + (A u - f) := by abel
+  have hdiff :
       ⟪A uh - A u, uh - u⟫_ℝ =
-        ⟪A uh - f, uh - vh⟫_ℝ
-          + ⟪A uh - A u, vh - u⟫_ℝ
-          + ⟪A u - f, vh - u⟫_ℝ
-          - ⟪A u - f, uh - u⟫_ℝ := by
-    rw [he, hA]
-    simp only [inner_sub_left, inner_add_right]
-    ring
-  rw [hid] at hmono
-  linarith
+        ⟪A uh - f, uh - u⟫_ℝ - ⟪A u - f, uh - u⟫_ℝ := by
+    rw [hA, inner_sub_left]
+  have hsplit :
+      ⟪A uh - f, uh - u⟫_ℝ =
+        ⟪A uh - f, uh - vh⟫_ℝ + ⟪A uh - f, vh - u⟫_ℝ := by
+    rw [he, inner_add_right]
+  have hresplit :
+      ⟪A uh - f, vh - u⟫_ℝ =
+        ⟪A uh - A u, vh - u⟫_ℝ + ⟪A u - f, vh - u⟫_ℝ := by
+    rw [hsum, inner_add_left]
+  calc
+    alpha * ‖uh - u‖ ^ 2
+        ≤ ⟪A uh - A u, uh - u⟫_ℝ := hmono
+    _ = ⟪A uh - f, uh - u⟫_ℝ - ⟪A u - f, uh - u⟫_ℝ := hdiff
+    _ ≤ ⟪A uh - f, uh - u⟫_ℝ := by linarith
+    _ = ⟪A uh - f, uh - vh⟫_ℝ + ⟪A uh - f, vh - u⟫_ℝ := hsplit
+    _ ≤ ⟪A uh - f, vh - u⟫_ℝ := by linarith
+    _ = ⟪A uh - A u, vh - u⟫_ℝ + ⟪A u - f, vh - u⟫_ℝ := hresplit
+    _ ≤ L * ‖uh - u‖ * ‖vh - u‖ + ⟪A u - f, vh - u⟫_ℝ := by
+      linarith
 
 /-- Denominator-free squared-error form of Young's inequality applied to the
-Falk estimate.  This is the stable form used by subsequent rate composition. -/
+Falk estimate. This is the stable form used by subsequent rate composition. -/
 theorem operator_vi_error_sq_scaled
     (alpha L err app residual : ℝ)
     (halpha : 0 ≤ alpha)
@@ -102,9 +114,15 @@ theorem operator_vi_rate_compose_scaled
     (hfalk : alpha * err ^ 2 ≤ L * err * app + residual) :
     alpha ^ 2 * err ^ 2
       ≤ (L ^ 2 * Capp ^ 2 + 2 * alpha * Cres) * rho ^ 2 := by
-  have hbase := operator_vi_error_sq_scaled alpha L err app residual halpha hfalk
-  have hLsq : 0 ≤ L ^ 2 := sq_nonneg L
-  have hα2 : 0 ≤ 2 * alpha := by positivity
+  have hbase :=
+    operator_vi_error_sq_scaled alpha L err app residual halpha hfalk
+  have happScaled :
+      L ^ 2 * app ^ 2 ≤ L ^ 2 * (Capp ^ 2 * rho ^ 2) :=
+    mul_le_mul_of_nonneg_left happ (sq_nonneg L)
+  have htwoAlpha : 0 ≤ 2 * alpha := by linarith
+  have hresScaled :
+      (2 * alpha) * residual ≤ (2 * alpha) * (Cres * rho ^ 2) :=
+    mul_le_mul_of_nonneg_left hres htwoAlpha
   nlinarith
 
 /-- Same-cone perturbation estimate in squared, denominator-free form. -/
