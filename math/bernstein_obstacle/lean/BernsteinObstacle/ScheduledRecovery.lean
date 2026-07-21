@@ -25,10 +25,9 @@ theorem threshold_scheduledStage_le
     (threshold : ℕ → ℕ) (hzero : threshold 0 = 0) (n : ℕ) :
     threshold (scheduledStage threshold n) ≤ n := by
   unfold scheduledStage
-  apply Nat.findGreatest_spec (m := 0) (Nat.zero_le n)
-  calc
-    threshold 0 = 0 := hzero
-    _ ≤ n := Nat.zero_le n
+  exact Nat.findGreatest_spec
+    (P := fun m => threshold m ≤ n) (m := 0)
+    (Nat.zero_le n) (by simpa [hzero] using (Nat.zero_le n))
 
 theorem scheduledStage_tendsto_atTop
     (threshold : ℕ → ℕ)
