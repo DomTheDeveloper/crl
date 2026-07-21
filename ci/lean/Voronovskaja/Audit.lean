@@ -1,4 +1,4 @@
--- Final child-PR audit trigger for closure commit 65918b1; corrected diagnostics path.
+-- Final direct-source kernel audit for closure commit 65918b1.
 import FormalConjectures.Paper.VoronovskajaTypeFormula
 
 #check VoronovskajaTypeFormula.voronovskaja_theorem.bernstein_operators
