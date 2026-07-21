@@ -26,7 +26,10 @@ theorem coefficient_nonneg_of_quadratic_growth
     (hdominates : errorConstant ≤ growthConstant * kappa ^ 2) :
     0 ≤ b := by
   have hscale : 0 ≤ h ^ 2 := sq_nonneg h
+  have hkappaH : 0 ≤ kappa * h := mul_nonneg hkappa hh
   have hdistSq : (kappa * h) ^ 2 ≤ dist ^ 2 := by
+    have hproduct : 0 ≤ (dist - kappa * h) * (dist + kappa * h) :=
+      mul_nonneg (sub_nonneg.mpr houtside) (add_nonneg hdist hkappaH)
     nlinarith
   have hconstantScale :
       errorConstant * h ^ 2 ≤ (growthConstant * kappa ^ 2) * h ^ 2 :=
@@ -75,7 +78,7 @@ theorem abs_clip_sub_le_abs (b : ℝ) :
 /-- A risky coefficient of quadratic amplitude produces a clipping correction
 of quadratic amplitude. -/
 theorem abs_clip_sub_le_quadratic_scale
-    (b M h : ℝ) (hM : 0 ≤ M) (hh : 0 ≤ h)
+    (b M h : ℝ) (_hM : 0 ≤ M) (_hh : 0 ≤ h)
     (hb : |b| ≤ M * h ^ 2) :
     |clip b - b| ≤ M * h ^ 2 :=
   (abs_clip_sub_le_abs b).trans hb
