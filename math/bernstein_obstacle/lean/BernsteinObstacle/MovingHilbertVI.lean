@@ -82,7 +82,8 @@ theorem nested_hilbert_vi_strongConvergence_of_recovery
     simpa [gap] using hsquare.sub hconst
   let err : ℕ → ℝ := (fun x : ℝ => Real.sqrt x) ∘ gap
   have herr : Tendsto err atTop (nhds 0) := by
-    exact Real.continuous_sqrt.continuousAt.tendsto.comp hgap
+    change Tendsto ((fun x : ℝ => Real.sqrt x) ∘ gap) atTop (nhds 0)
+    simpa using Real.continuous_sqrt.continuousAt.tendsto.comp hgap
   exact stronglyConverges_of_recovery_closeness
     udisc (fun _ => u) u err tendsto_const_nhds
     (fun k => by
