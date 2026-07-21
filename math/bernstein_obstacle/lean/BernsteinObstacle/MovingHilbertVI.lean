@@ -41,9 +41,12 @@ theorem nested_hilbert_vi_error_sq_tendsto_zero_of_recovery
   have hsquare :
       Tendsto (fun k => ‖r k - z‖ ^ 2) atTop (nhds (‖u - z‖ ^ 2)) :=
     hnorm.pow 2
+  have hconst :
+      Tendsto (fun _ : ℕ => ‖u - z‖ ^ 2) atTop (nhds (‖u - z‖ ^ 2)) :=
+    tendsto_const_nhds
   have hgap :
       Tendsto (fun k => ‖r k - z‖ ^ 2 - ‖u - z‖ ^ 2) atTop (nhds 0) := by
-    simpa using hsquare.sub tendsto_const_nhds
+    simpa using hsquare.sub hconst
   exact squeeze_zero'
     (Eventually.of_forall (fun k => sq_nonneg ‖udisc k - u‖))
     (Eventually.of_forall (fun k =>
@@ -63,13 +66,32 @@ theorem nested_hilbert_vi_strongConvergence_of_recovery
     (hrmem : ∀ k, r k ∈ Kdisc k)
     (hr : StronglyConverges r u) :
     StronglyConverges udisc u := by
-  have hsquare := nested_hilbert_vi_error_sq_tendsto_zero_of_recovery
-    Kdisc K z u udisc r hsubset hu hudisc hrmem hr
-  have hnorm : Tendsto (fun k => ‖udisc k - u‖) atTop (nhds 0) := by
-    have hsqrt := Real.continuousAt_sqrt.tendsto.comp hsquare
-    simpa using hsqrt
-  unfold StronglyConverges
-  exact tendsto_iff_norm_tendsto_zero.mpr hnorm
+  unfold StronglyConverges at hr
+  have hsub : Tendsto (fun k => r k - z) atTop (nhds (u - z)) :=
+    hr.sub tendsto_const_nhds
+  have hnorm : Tendsto (fun k => ‖r k - z‖) atTop (nhds ‖u - z‖) :=
+    hsub.norm
+  have hsquare :
+      Tendsto (fun k => ‖r k - z‖ ^ 2) atTop (nhds (‖u - z‖ ^ 2)) :=
+    hnorm.pow 2
+  have hconst :
+      Tendsto (fun _ : ℕ => ‖u - z‖ ^ 2) atTop (nhds (‖u - z‖ ^ 2)) :=
+    tendsto_const_nhds
+  let gap : ℕ → ℝ := fun k => ‖r k - z‖ ^ 2 - ‖u - z‖ ^ 2
+  have hgap : Tendsto gap atTop (nhds 0) := by
+    simpa [gap] using hsquare.sub hconst
+  let err : ℕ → ℝ := fun k => Real.sqrt (gap k)
+  have herr : Tendsto err atTop (nhds 0) := by
+    have hsqrt := Real.continuous_sqrt.continuousAt.tendsto.comp hgap
+    simpa [err] using hsqrt
+  exact stronglyConverges_of_recovery_closeness
+    udisc (fun _ => u) u err tendsto_const_nhds
+    (fun k => by
+      apply Real.le_sqrt_of_sq_le
+      exact nested_hilbert_vi_recovery_error_sq
+        (Kdisc k) K z (udisc k) u (r k)
+        (hsubset k) hu (hudisc k) (hrmem k))
+    herr
 
 /-- The threshold-form Sobolev/FEM recovery package is sufficient by itself to
 prove strong convergence of nested projection-form obstacle VI solutions. No
