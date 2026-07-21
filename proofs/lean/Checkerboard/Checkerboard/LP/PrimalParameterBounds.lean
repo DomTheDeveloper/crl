@@ -4,8 +4,8 @@ import Checkerboard.LP.PrimalParameters
 /-!
 # Reduced cubic-field formulas and strict breakpoint ordering
 
-The raw certificate definitions contain rational functions in `p`.  Modulo the
-defining cubic they reduce to small coefficient triples.  These reductions and
+The raw certificate definitions contain rational functions in `p`. Modulo the
+defining cubic they reduce to small coefficient triples. These reductions and
 all strict interval-order facts are checked here from the rational isolating
 interval, with no decimal arithmetic.
 -/
@@ -22,11 +22,11 @@ theorem primal_denominator_pos :
     · norm_num
     · norm_num [pUpper]
     · norm_num [quadraticAt, pUpper]
-  simpa [evalAtCheckerboardP, quadraticAt, add_comm, add_left_comm, add_assoc] using h
+  convert h using 1 <;> simp [evalAtCheckerboardP, quadraticAt] <;> ring
 
 lemma primal_denominator_ne :
     2 * (71 * checkerboardP ^ 2 - 66 * checkerboardP + 11) ≠ 0 := by
-  positivity
+  exact mul_ne_zero (by norm_num) (ne_of_gt primal_denominator_pos)
 
 /-- Reduced representative of `c` in the basis `1,p,p²`. -/
 theorem primalC_reduced :
@@ -43,7 +43,7 @@ theorem primalC_reduced :
   simp only [mul_zero] at hid
   unfold primalC
   apply (div_eq_iff primal_denominator_ne).2
-  nlinarith
+  exact sub_eq_zero.mp hid
 
 /-- All remaining unnormalized parameters reduce by linear algebra from `c`. -/
 theorem primalD_reduced :
@@ -84,7 +84,7 @@ theorem outerLength_pos : 0 < outerLength := by
     · norm_num
     · norm_num [quadraticAt, pLower]
     · norm_num [quadraticAt, pUpper]
-  simpa [evalAtCheckerboardP, quadraticAt] using h
+  convert h using 1 <;> simp [evalAtCheckerboardP, quadraticAt] <;> ring
 
 theorem middleLength_pos : 0 < middleLength := by
   rw [middleLength_reduced]
@@ -93,7 +93,7 @@ theorem middleLength_pos : 0 < middleLength := by
     · norm_num
     · norm_num [pUpper]
     · norm_num [quadraticAt, pUpper]
-  simpa [evalAtCheckerboardP, quadraticAt] using h
+  convert h using 1 <;> simp [evalAtCheckerboardP, quadraticAt] <;> ring
 
 lemma outerLength_ne : outerLength ≠ 0 := ne_of_gt outerLength_pos
 lemma middleLength_ne : middleLength ≠ 0 := ne_of_gt middleLength_pos
@@ -161,7 +161,7 @@ private theorem gap0_certificate : 0 < outerQ := by
     · norm_num
     · norm_num [quadraticAt, pLower]
     · norm_num [quadraticAt, pUpper]
-  simpa [evalAtCheckerboardP, quadraticAt] using h
+  convert h using 1 <;> simp [evalAtCheckerboardP, quadraticAt] <;> ring
 
 private theorem gap1_certificate : 0 < (1 - outerR) - outerQ := by
   have h : 0 < evalAtCheckerboardP (181 / 152 : ℚ) (-775 / 114) (5213 / 456) := by
