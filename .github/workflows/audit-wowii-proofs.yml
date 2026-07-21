@@ -40,11 +40,11 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p formal-conjectures/WOWII
-          cp math/wowii/65/proof/GraphConjecture65Proof.lean formal-conjectures/WOWII/
+          cp math/wowii/65/proof/65.lean formal-conjectures/WOWII/
           cp math/wowii/143/proof/WOWII/*.lean formal-conjectures/WOWII/
 
           cat > formal-conjectures/WOWII/Audit.lean <<'EOF'
-          import WOWII.GraphConjecture65Proof
+          import WOWII.«65»
           import WOWII.GraphConjecture143ZZFinal
 
           namespace WrittenOnTheWallII.GraphConjecture65
@@ -93,7 +93,7 @@ jobs:
       - name: Compile CRL-hosted WOWII 65 proof
         shell: bash
         working-directory: formal-conjectures
-        run: lake env lean WOWII/GraphConjecture65Proof.lean
+        run: lake env lean WOWII/65.lean
 
       - name: Compile full six-module WOWII 143 proof
         shell: bash

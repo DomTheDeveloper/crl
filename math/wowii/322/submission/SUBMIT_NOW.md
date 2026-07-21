@@ -28,10 +28,10 @@ https://github.com/google-deepmind/formal-conjectures/compare/main...DomTheDevel
 
 - Base: `google-deepmind/formal-conjectures : main`
 - Head: `DomTheDeveloper/formal-conjectures : wowii322-solved`
-- Diff: `FormalConjectures/WrittenOnTheWallII/GraphConjecture322.lean`, +64/−2.
+- Diff: `FormalConjectures/WrittenOnTheWallII/322.lean`, +64/−2.
 
 Paste the title/body from `PR.md` and add `Resolves #<issue-number>` from Step 1.
 
 **Fallback (identical result via the web editor):**
-https://github.com/google-deepmind/formal-conjectures/edit/main/FormalConjectures/WrittenOnTheWallII/GraphConjecture322.lean
-Replace the file contents with `GraphConjecture322.SOLVED.lean` from this folder.
+https://github.com/google-deepmind/formal-conjectures/edit/main/FormalConjectures/WrittenOnTheWallII/322.lean
+Replace the file contents with `322.lean` from this folder.

@@ -5,7 +5,7 @@
 
 **Upstream status.** `@[category research open, AMS 5]`, body `:= by sorry`
 (verify live:
-<https://raw.githubusercontent.com/google-deepmind/formal-conjectures/main/FormalConjectures/WrittenOnTheWallII/GraphConjecture322.lean>).
+<https://raw.githubusercontent.com/google-deepmind/formal-conjectures/main/FormalConjectures/WrittenOnTheWallII/322.lean>).
 
 **Our contribution.** A complete Lean 4 proof of the **same statement**, flipping the
 tag to `@[category research solved, AMS 5]`.
@@ -15,7 +15,7 @@ tag to `@[category research solved, AMS 5]`.
 | Check | Result | How to reproduce |
 |---|---|---|
 | Statement is faithful (byte-identical signature) | ✅ | `diff` the four signature lines vs. the upstream file — identical. |
-| Only the category tag and the proof body change | ✅ | `diff GraphConjecture322_upstream_open.lean submission/GraphConjecture322.SOLVED.lean` → exactly `open→solved` and `sorry→proof`. |
+| Only the category tag and the proof body change | ✅ | `diff upstream/322.lean submission/322.lean` → exactly `open→solved` and `sorry→proof`. |
 | No proof-cheating tokens | ✅ | `grep -nE '\bsorry\b\|\badmit\b\|native_decide'` over the proof (everything before `-- Sanity checks`) → 0 hits. |
 | Uses only the library's own definitions | ✅ | `IsWellTotallyDominated`, `IsTotalDominatingSet`, `indepNeighborsCard`, `indepNum` are the upstream `FormalConjecturesForMathlib` definitions (copied here under `proof/…_util.lean`). |
 
@@ -25,9 +25,9 @@ The kernel re-check and axiom audit run in CI, because they need the full librar
 Mathlib toolchain (not available in a browser/sandbox):
 
 - Workflow: [`.github/workflows/verify-wowii322.yml`](../../../../.github/workflows/verify-wowii322.yml).
-  It builds the module `FormalConjectures.WrittenOnTheWallII.GraphConjecture322`
+  It builds `FormalConjectures/WrittenOnTheWallII/322.lean`
   (the Formal Conjectures library with the completed proof) against real Mathlib via
-  `lake exe cache get && lake build`, then audits `#print axioms conjecture322` and
+  `lake exe cache get && lake env lean`, then audits `#print axioms conjecture322` and
   fails on any `sorryAx` or proof hole (`sorry`/`admit`/`native_decide`/`axiom`).
 - Expected axiom footprint: `[propext, Classical.choice, Quot.sound]` (the three
   standard Mathlib axioms), no `sorryAx`.
@@ -42,11 +42,11 @@ Mathlib toolchain (not available in a browser/sandbox):
 ```bash
 git clone https://github.com/google-deepmind/formal-conjectures && cd formal-conjectures
 # overwrite the open conjecture with the completed proof:
-cp /path/to/GraphConjecture322.SOLVED.lean \
-   FormalConjectures/WrittenOnTheWallII/GraphConjecture322.lean
+cp /path/to/322.lean \
+   FormalConjectures/WrittenOnTheWallII/322.lean
 lake exe cache get
-lake build FormalConjectures.WrittenOnTheWallII.GraphConjecture322
-# optional: add `#print axioms conjecture322` inside the namespace to see the audit
+lake env lean FormalConjectures/WrittenOnTheWallII/322.lean
+# optional: import FormalConjectures.WrittenOnTheWallII.«322» and print axioms
 ```
 
 ## The mathematics

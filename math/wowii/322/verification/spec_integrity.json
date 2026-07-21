@@ -1,7 +1,7 @@
 {
   "target": "WrittenOnTheWallII.GraphConjecture322.conjecture322",
   "repo": "google-deepmind/formal-conjectures",
-  "path": "FormalConjectures/WrittenOnTheWallII/GraphConjecture322.lean",
+  "path": "FormalConjectures/WrittenOnTheWallII/322.lean",
   "upstream_branch": "main",
   "upstream_category": "research open",
   "our_category": "research solved",

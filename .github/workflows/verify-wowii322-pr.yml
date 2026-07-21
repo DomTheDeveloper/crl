@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 3e2c489b934446b5ff7ae30bf5604d7d95460d72
+          ref: 012f8ab26f9a577751a0bfa31b45d9e0455b4d42
           path: formal-conjectures
 
       - name: Install pinned Lean
@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          file=formal-conjectures/FormalConjectures/WrittenOnTheWallII/GraphConjecture322.lean
+          file=formal-conjectures/FormalConjectures/WrittenOnTheWallII/322.lean
           if grep -InE '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|native_decide|^[[:space:]]*opaque[[:space:]]' "$file"; then
             exit 1
           fi
@@ -51,7 +51,7 @@ jobs:
         working-directory: formal-conjectures
         run: |
           set -euo pipefail
-          lake build FormalConjectures.WrittenOnTheWallII.GraphConjecture322 2>&1 \
+          lake env lean FormalConjectures/WrittenOnTheWallII/322.lean 2>&1 \
             | tee ../wowii322-build.log
 
       - name: Audit exact theorem axioms
@@ -60,7 +60,7 @@ jobs:
         run: |
           set -euo pipefail
           cat > AuditWOWII322.lean <<'EOF'
-          import FormalConjectures.WrittenOnTheWallII.GraphConjecture322
+          import FormalConjectures.WrittenOnTheWallII.«322»
           #check WrittenOnTheWallII.GraphConjecture322.conjecture322
           #print axioms WrittenOnTheWallII.GraphConjecture322.conjecture322
           EOF

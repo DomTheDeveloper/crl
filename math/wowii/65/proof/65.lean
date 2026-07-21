@@ -1,4 +1,4 @@
-import FormalConjectures.WrittenOnTheWallII.GraphConjecture65
+import FormalConjectures.WrittenOnTheWallII.«65»
 
 /-!
 A direct proof of Written on the Wall II Graph Conjecture 65.
