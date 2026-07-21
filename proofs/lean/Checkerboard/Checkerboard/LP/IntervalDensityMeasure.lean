@@ -52,10 +52,10 @@ theorem withDensity_finset_sum
       have hfs : ∀ i ∈ s, Measurable (f i) := by
         intro i hi
         exact hf i (by simp [hi])
-      rw [Finset.sum_insert ha, Finset.sum_insert ha]
-      change volume.withDensity (f a + fun x => ∑ i ∈ s, f i x) = _
-      rw [withDensity_add_left hfa]
-      rw [ih hfs]
+      simp only [Finset.sum_insert ha]
+      change volume.withDensity (f a + fun x => ∑ i ∈ s, f i x) =
+        volume.withDensity (f a) + ∑ i ∈ s, volume.withDensity (f i)
+      rw [withDensity_add_left hfa, ih hfs]
 
 /-- Pushforward distributes over a finite sum of measures. -/
 theorem map_finset_sum
@@ -107,7 +107,6 @@ theorem weighted_map_centered_interval_affine
   congr 1
   rw [← ENNReal.ofReal_mul hw]
   congr 1
-  field_simp
 
 /-- The reversed affine orientation has the same interval pushforward. -/
 theorem weighted_map_centered_interval_affine_neg
@@ -121,7 +120,6 @@ theorem weighted_map_centered_interval_affine_neg
   congr 1
   rw [← ENNReal.ofReal_mul hw]
   congr 1
-  field_simp
 
 /-- Almost-everywhere equality of finite density sums gives equality of the
 corresponding measures. -/
