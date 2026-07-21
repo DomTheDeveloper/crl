@@ -62,8 +62,10 @@ jobs:
           lake env lean SimplexAffineReproductionAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SimplexAffineFieldAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SimplexIndexBridgeAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean SimplexSamplingAffineAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean EventuallySobolevFEMRecoveryAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean FreeBoundaryQuadraticLocalizationAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean ElementCorrectionScalingAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean AffineBernsteinAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean ConvergenceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean MovingAnalysisAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
@@ -80,8 +82,10 @@ jobs:
           grep -F 'BernsteinObstacle.simplexBasisNat_firstMoment' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.simplexFieldNat_affine_reproduction' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.simplexBasis_eq_simplexBasisNat' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexSamplingRecovery_affine_reproduction' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.EventuallySobolevFEMRecoveryData.minimizers_strongConvergence' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.distance_lt_stripWidth_of_coefficient_neg' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.element_correction_energy_bound_for_strip' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.clipped_orientedSimplexFaceTrace_eq_of_sharedDofs' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.affineBernsteinBasis_sum_repr' bernstein-obstacle-axioms.log
