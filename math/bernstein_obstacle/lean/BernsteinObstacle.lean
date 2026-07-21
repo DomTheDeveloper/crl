@@ -74,6 +74,8 @@ import BernsteinObstacle.RemainderPatchScaling
 import BernsteinObstacle.CutPatchSaturation
 import BernsteinObstacle.InterfaceCoverCount
 import BernsteinObstacle.PhysicalSaturationComposition
+import BernsteinObstacle.CompleteMeshTheorems
+import BernsteinObstacle.FlatInterfaceGlobal
 import BernsteinObstacle.RecoveryRate
 import BernsteinObstacle.CorrectedSharpRate
 import BernsteinObstacle.BulkMultiplierRate
