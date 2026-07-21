@@ -19,11 +19,7 @@ hinge obstruction.
 /-- Casted falling-factorial identity used by the Bernstein second moment. -/
 @[simp] theorem natCast_mul_pred (n : ℕ) :
     (((n * (n - 1) : ℕ) : ℝ)) = (n : ℝ) * ((n : ℝ) - 1) := by
-  cases n with
-  | zero => simp
-  | succ n =>
-      simp
-      ring
+  cases n <;> simp <;> ring
 
 /-- The denominator in the degree-`p` quadratic Bernstein coefficients. -/
 def quadraticMomentDenominator (p : ℕ) : ℝ :=
@@ -47,6 +43,7 @@ theorem quadraticMomentDenominator_pos (p : ℕ) (hp : 2 ≤ p) :
 theorem basis_firstMoment (p : ℕ) (x : ℝ) :
     (∑ k ∈ Finset.range (p + 1), (k : ℝ) * basis p k x) = (p : ℝ) * x := by
   have h := congrArg (Polynomial.eval x) (bernsteinPolynomial.sum_smul ℝ p)
+  rw [Polynomial.eval_finsetSum] at h
   simpa [basis_eq_eval, nsmul_eq_mul] using h
 
 /-- Second factorial Bernstein moment on the unit interval. -/
@@ -55,6 +52,7 @@ theorem basis_secondFactorialMoment (p : ℕ) (x : ℝ) :
         ((k * (k - 1) : ℕ) : ℝ) * basis p k x) =
       quadraticMomentDenominator p * x ^ 2 := by
   have h := congrArg (Polynomial.eval x) (bernsteinPolynomial.sum_mul_smul ℝ p)
+  rw [Polynomial.eval_finsetSum] at h
   simpa [basis_eq_eval, nsmul_eq_mul, quadraticMomentDenominator] using h
 
 /-- Every degree at least two reproduces the monomial `x^2` with the canonical
@@ -119,12 +117,13 @@ theorem centeredQuadratic_eq_bernsteinCurve
 theorem centeredQuadraticCoeff_even_center
     (m : ℕ) (hm : 1 ≤ m) :
     centeredQuadraticCoeff (2 * m) m =
-      -1 / (4 * ((2 * m : ℕ) : ℝ - 1)) := by
+      -1 / (4 * (((2 * m : ℕ) : ℝ) - 1)) := by
   have hmR : (0 : ℝ) < (m : ℝ) := by exact_mod_cast (show 0 < m by omega)
-  have htwoM : (2 * (m : ℝ)) ≠ 0 := by positivity
+  have htwoM : 2 * (m : ℝ) ≠ 0 := by positivity
   have hpred : 2 * (m : ℝ) - 1 ≠ 0 := by nlinarith
-  simp [centeredQuadraticCoeff, quadraticMonomialCoeff,
-    quadraticMomentDenominator, natCast_mul_pred]
+  unfold centeredQuadraticCoeff quadraticMonomialCoeff quadraticMomentDenominator
+  rw [natCast_mul_pred m, natCast_mul_pred (2 * m)]
+  push_cast
   field_simp [htwoM, hpred]
   ring
 
@@ -134,7 +133,10 @@ theorem centeredQuadraticCoeff_even_center_neg
     centeredQuadraticCoeff (2 * m) m < 0 := by
   rw [centeredQuadraticCoeff_even_center m hm]
   have hmR : (0 : ℝ) < (m : ℝ) := by exact_mod_cast (show 0 < m by omega)
-  positivity
+  have hden : 0 < 4 * (((2 * m : ℕ) : ℝ) - 1) := by
+    push_cast
+    positivity
+  exact div_neg_of_neg_of_pos (by norm_num) hden
 
 /-- Exact central coefficient for an odd degree `p = 2m+1`. -/
 theorem centeredQuadraticCoeff_odd_center
@@ -144,8 +146,9 @@ theorem centeredQuadraticCoeff_odd_center
   have hmR : (0 : ℝ) < (m : ℝ) := by exact_mod_cast (show 0 < m by omega)
   have hp : 2 * (m : ℝ) + 1 ≠ 0 := by positivity
   have hpred : 2 * (m : ℝ) ≠ 0 := by positivity
-  simp [centeredQuadraticCoeff, quadraticMonomialCoeff,
-    quadraticMomentDenominator, natCast_mul_pred]
+  unfold centeredQuadraticCoeff quadraticMonomialCoeff quadraticMomentDenominator
+  rw [natCast_mul_pred m, natCast_mul_pred (2 * m + 1)]
+  push_cast
   field_simp [hp, hpred]
   ring
 
@@ -154,7 +157,8 @@ theorem centeredQuadraticCoeff_odd_center_neg
     (m : ℕ) (hm : 1 ≤ m) :
     centeredQuadraticCoeff (2 * m + 1) m < 0 := by
   rw [centeredQuadraticCoeff_odd_center m hm]
-  positivity
+  have hden : 0 < 4 * ((2 * m + 1 : ℕ) : ℝ) := by positivity
+  exact div_neg_of_neg_of_pos (by norm_num) hden
 
 /-- Canonical cubic Bernstein coefficients of `(x - 1/2)^2`. -/
 def centeredQuadraticCubicCoeff : ℕ → ℝ
@@ -208,7 +212,7 @@ theorem coefficientDefect_div_opNorm_le_norm
     (hL : 0 < ‖L‖) (hdefect : d ≤ |L e|) :
     d / ‖L‖ ≤ ‖e‖ := by
   apply (div_le_iff₀ hL).2
-  exact coefficientDefect_le_opNorm_mul_norm L e d hdefect
+  simpa [mul_comm] using coefficientDefect_le_opNorm_mul_norm L e d hdefect
 
 /-- Convex inward-repair weight for a coefficient defect `d`. -/
 def inwardRepairWeight (d : ℝ) : ℝ := d / (1 + d)
