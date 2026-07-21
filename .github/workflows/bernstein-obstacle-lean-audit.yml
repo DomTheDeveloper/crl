@@ -7,6 +7,7 @@ on:
       - agent/bernstein-obstacle-research
       - formal/bernstein-bezier-grand-canonical
       - formal/bernstein-final-five-percent-v2
+      - formal/bernstein-quadratic-hinge-projection-v1
     paths:
       - 'math/bernstein_obstacle/lean/**'
       - '.github/workflows/bernstein-obstacle-lean-audit.yml'
@@ -73,6 +74,7 @@ jobs:
           lake env lean FinalFivePercentAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean CoefficientClearanceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SobolevAssembledAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean QuadraticHingeProjectionAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           if grep -q 'sorryAx' bernstein-obstacle-axioms.log; then
             echo 'Unexpected sorryAx found' >&2
             exit 1
@@ -147,6 +149,15 @@ jobs:
           grep -F 'BernsteinObstacle.AssembledFreeCoefficientRecoveryData.bernsteinBezierObstacleGrandTheorem_quadraticContact' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.threeHalvesContactLaw' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.balancedContactOrder_equalizes' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.quadraticHingeAffineDerivativeErrorSq_identity' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.quadraticHingeAffineDerivativeErrorSq_at_optimal' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.quadraticHingeAffineDerivativeErrorSq_lowerBound' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.quadraticHingeAffineDerivativeErrorSq_uniformLowerBound' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.scaledQuadraticHingeAffineDerivativeErrorSq_identity' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.scaledQuadraticHingeAffineDerivativeErrorSq_at_optimal' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.scaledQuadraticHingeAffineDerivativeErrorSq_lowerBound' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.scaledQuadraticHingeAffineDerivativeErrorSq_uniformLowerBound' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.scaledQuadraticHinge_fullSpace_threeHalvesLowerBound' bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript
         if: always()
