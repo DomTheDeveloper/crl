@@ -84,8 +84,14 @@ jobs:
           grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.scheduledRecovery' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.moscoConverges' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.eventually_norm_lt_clearance' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.toAsymptoticData' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.moscoConverges' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.minimizers_strongConvergence' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.movingObstacle_moscoConverges' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.movingObstacle_minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.movingObstacle_moscoConverges' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.movingObstacle_minimizers_strongConvergence' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.movingObstacle_moscoConverges' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.movingObstacle_minimizers_strongConvergence' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.assembledVISolutions_strongConvergence_of_clippedRecoveryEnergyGap' bernstein-obstacle-axioms.log
@@ -107,6 +113,8 @@ jobs:
           grep -F 'BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_quadraticContact' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_quadraticContact' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_quadraticContact' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.threeHalvesContactLaw' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.balancedContactOrder_equalizes' bernstein-obstacle-axioms.log
 
