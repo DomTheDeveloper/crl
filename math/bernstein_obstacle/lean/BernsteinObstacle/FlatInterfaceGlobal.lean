@@ -41,7 +41,6 @@ theorem flatInterface_squareEnergies_lowerSq
     a ^ 2 * W * h ^ 3 / 768 =
         (W / h) * (a ^ 2 * h ^ 4 / 768) := by
       field_simp [ne_of_gt hh]
-      ring
     _ ≤ (S.card : ℝ) * (a ^ 2 * h ^ 4 / 768) := hcardScaled
     _ ≤ ∑ i ∈ S, energy i := hsumLower
     _ ≤ error ^ 2 := hsumSq
