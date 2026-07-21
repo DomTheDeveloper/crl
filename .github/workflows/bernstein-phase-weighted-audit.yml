@@ -70,6 +70,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python -m pip install --disable-pip-version-check numpy
           python experiments/shifted_triangle_core_experiment.py \
             --samples 1000 --translations 100 --segment-length 20
 
