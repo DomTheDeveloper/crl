@@ -1,5 +1,6 @@
 import BernsteinObstacle
 
+-- Terminal axiom audit for the operator-valued V6 bridge.
 #print axioms BernsteinObstacle.operator_vi_residual_nonneg
 #print axioms BernsteinObstacle.operator_vi_reverse_direction_nonpos
 #print axioms BernsteinObstacle.operator_vi_innerCone_falk
