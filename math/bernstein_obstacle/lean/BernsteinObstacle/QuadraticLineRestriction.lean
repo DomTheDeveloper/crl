@@ -1,7 +1,6 @@
 import Mathlib.Analysis.Calculus.Deriv.Add
 import Mathlib.Analysis.Calculus.Deriv.Mul
 import Mathlib.Analysis.Calculus.Deriv.Pow
-import Mathlib.LinearAlgebra.Basic
 import Mathlib.Tactic
 
 namespace BernsteinObstacle
