@@ -11,6 +11,7 @@ import BernsteinObstacle.SimplexOrientedFace
 import BernsteinObstacle.SimplexRecovery
 import BernsteinObstacle.SimplexPartition
 import BernsteinObstacle.ConvexConstraint
+import BernsteinObstacle.ConvexMetricProjection
 import BernsteinObstacle.AffineLattice
 import BernsteinObstacle.LatticeCardinal
 import BernsteinObstacle.LatticeInterpolation
