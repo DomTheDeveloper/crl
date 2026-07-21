@@ -172,7 +172,7 @@ def composeUnivariate (a b c : CubicRep) (L : CubicLinearRep) : CubicQuadraticRe
       a.eval + b.eval * L.eval u v + c.eval * (L.eval u v) ^ 2 := by
   simp [composeUnivariate, ofLinear, eval, CubicLinearRep.eval,
     CubicLinearRep.add, CubicLinearRep.scale]
-  ring
+  ring_nf
 
 /-- Coefficientwise extensionality is convenient for generated exact checks. -/
 @[ext] theorem ext {Q R : CubicQuadraticRep}
