@@ -93,6 +93,9 @@ jobs:
           grep -F 'BernsteinObstacle.mem_coefficientCone_of_margin_of_abs_sub_lt' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.coefficient_mem_Icc_of_margin_of_abs_sub_lt' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.coefficient_mem_Icc_const_of_margin_of_abs_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.mem_coefficientCone_of_margin_of_norm_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.coefficient_mem_Icc_of_margin_of_norm_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.coefficient_mem_Icc_const_of_margin_of_norm_sub_lt' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.movingObstacle_moscoConverges' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.movingObstacle_minimizers_strongConvergence' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.movingObstacle_moscoConverges' bernstein-obstacle-axioms.log
