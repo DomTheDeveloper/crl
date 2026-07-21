@@ -70,6 +70,7 @@ import BernsteinObstacle.TransversePrismSaturation
 import BernsteinObstacle.ReferencePrismSaturation
 import BernsteinObstacle.WeightedPrismSaturation
 import BernsteinObstacle.FreeBoundaryRemainderSaturation
+import BernsteinObstacle.CutPatchSaturation
 import BernsteinObstacle.RecoveryRate
 import BernsteinObstacle.CorrectedSharpRate
 import BernsteinObstacle.BulkMultiplierRate
