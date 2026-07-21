@@ -1,0 +1,99 @@
+name: Audit final Formal Conjectures proof links
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/audit-fc-final-proofs.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-fc-final-proofs-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: WOWII 322 corrected
+            ref: 24bf0e034072c8ee86f7804be2c7af8cc8e0aae0
+            file: FormalConjectures/WrittenOnTheWallII/GraphConjecture322.lean
+            module: FormalConjectures.WrittenOnTheWallII.GraphConjecture322
+            theorem: WrittenOnTheWallII.GraphConjecture322.conjecture322
+          - name: Erdos 602 countable
+            ref: 1162835f092ed6cd910cd32d40424df69cfa96be
+            file: FormalConjectures/ErdosProblems/Proofs/602.lean
+            module: FormalConjectures.ErdosProblems.Proofs.«602»
+            theorem: Erdos602.countable_index_proof
+    steps:
+      - name: Check out exact proof commit
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: ${{ matrix.ref }}
+          path: formal-conjectures
+
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Download Mathlib cache
+        shell: bash
+        working-directory: formal-conjectures
+        run: lake exe cache get
+
+      - name: Compile exact proof file
+        shell: bash
+        working-directory: formal-conjectures
+        env:
+          PROOF_FILE: ${{ matrix.file }}
+        run: |
+          set -euo pipefail
+          lake env lean -DwarningAsError=true "$PROOF_FILE" 2>&1 | tee ../proof-build.log
+
+      - name: Audit theorem axioms
+        shell: bash
+        working-directory: formal-conjectures
+        env:
+          MODULE: ${{ matrix.module }}
+          THEOREM: ${{ matrix.theorem }}
+        run: |
+          set -euo pipefail
+          printf 'import %s\n#print axioms %s\n' "$MODULE" "$THEOREM" > AuditFinal.lean
+          lake env lean AuditFinal.lean 2>&1 | tee ../proof-axioms.log
+          if grep -q sorryAx ../proof-axioms.log; then
+            echo "$THEOREM depends on sorryAx" >&2
+            exit 1
+          fi
+          grep -F "$THEOREM" ../proof-axioms.log
+
+      - name: Reject proof holes and unsafe shortcuts
+        shell: bash
+        working-directory: formal-conjectures
+        env:
+          PROOF_FILE: ${{ matrix.file }}
+        run: |
+          set -euo pipefail
+          if grep -InE '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|native_decide|^[[:space:]]*opaque[[:space:]]' "$PROOF_FILE"; then
+            exit 1
+          fi
+
+      - name: Upload verification transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}-audit
+          path: |
+            proof-build.log
+            proof-axioms.log
+          if-no-files-found: warn
