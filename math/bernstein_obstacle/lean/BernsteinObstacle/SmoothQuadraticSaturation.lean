@@ -127,7 +127,6 @@ theorem centeredQuadraticCoeff_even_center
   rw [natCast_mul_pred m, natCast_mul_pred (2 * m)]
   push_cast
   field_simp [htwoM, hpred]
-  field_simp [hpred]
   ring
 
 /-- The even-degree central coefficient is strictly negative. -/
@@ -152,7 +151,6 @@ theorem centeredQuadraticCoeff_odd_center
   unfold centeredQuadraticCoeff quadraticMonomialCoeff quadraticMomentDenominator
   rw [natCast_mul_pred m, natCast_mul_pred (2 * m + 1)]
   push_cast
-  field_simp [hp, hpred]
   field_simp [hp, hpred]
   ring
 
