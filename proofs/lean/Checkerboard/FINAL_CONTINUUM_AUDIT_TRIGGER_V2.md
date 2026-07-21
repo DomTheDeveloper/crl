@@ -1,6 +1,7 @@
 # Consolidated final continuum audit trigger
 
 This audit-only child branch is based after the direct ARM and independent
-Windows audits were installed. The rerun includes the finite-density,
-concave-endpoint, and composed-quadratic Lean 4.32 compatibility repairs, plus
-UTF-8 Windows certificate output. It changes no theorem statement.
+Windows audits were installed. The current rerun includes the finite-density,
+affine-pushforward, cubic-interval, bivariate-evaluation, and exact primal
+parameter repairs through base commit `71a228a67680b43cd1fe48f9437139069378c912`.
+It changes no theorem statement.
