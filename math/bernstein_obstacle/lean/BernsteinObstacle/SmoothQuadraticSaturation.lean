@@ -19,7 +19,9 @@ hinge obstruction.
 /-- Casted falling-factorial identity used by the Bernstein second moment. -/
 @[simp] theorem natCast_mul_pred (n : ℕ) :
     (((n * (n - 1) : ℕ) : ℝ)) = (n : ℝ) * ((n : ℝ) - 1) := by
-  cases n <;> simp <;> ring
+  cases n with
+  | zero => norm_num
+  | succ n => simp [Nat.cast_succ]
 
 /-- The denominator in the degree-`p` quadratic Bernstein coefficients. -/
 def quadraticMomentDenominator (p : ℕ) : ℝ :=
@@ -118,13 +120,14 @@ theorem centeredQuadraticCoeff_even_center
     (m : ℕ) (hm : 1 ≤ m) :
     centeredQuadraticCoeff (2 * m) m =
       -1 / (4 * (((2 * m : ℕ) : ℝ) - 1)) := by
-  have hmR : (0 : ℝ) < (m : ℝ) := by exact_mod_cast (show 0 < m by omega)
+  have hmR1 : (1 : ℝ) ≤ (m : ℝ) := by exact_mod_cast hm
   have htwoM : 2 * (m : ℝ) ≠ 0 := by positivity
   have hpred : 2 * (m : ℝ) - 1 ≠ 0 := by nlinarith
   unfold centeredQuadraticCoeff quadraticMonomialCoeff quadraticMomentDenominator
   rw [natCast_mul_pred m, natCast_mul_pred (2 * m)]
   push_cast
   field_simp [htwoM, hpred]
+  field_simp [hpred]
   ring
 
 /-- The even-degree central coefficient is strictly negative. -/
@@ -132,10 +135,10 @@ theorem centeredQuadraticCoeff_even_center_neg
     (m : ℕ) (hm : 1 ≤ m) :
     centeredQuadraticCoeff (2 * m) m < 0 := by
   rw [centeredQuadraticCoeff_even_center m hm]
-  have hmR : (0 : ℝ) < (m : ℝ) := by exact_mod_cast (show 0 < m by omega)
+  have hmR1 : (1 : ℝ) ≤ (m : ℝ) := by exact_mod_cast hm
   have hden : 0 < 4 * (((2 * m : ℕ) : ℝ) - 1) := by
     push_cast
-    positivity
+    nlinarith
   exact div_neg_of_neg_of_pos (by norm_num) hden
 
 /-- Exact central coefficient for an odd degree `p = 2m+1`. -/
@@ -149,6 +152,7 @@ theorem centeredQuadraticCoeff_odd_center
   unfold centeredQuadraticCoeff quadraticMonomialCoeff quadraticMomentDenominator
   rw [natCast_mul_pred m, natCast_mul_pred (2 * m + 1)]
   push_cast
+  field_simp [hp, hpred]
   field_simp [hp, hpred]
   ring
 
