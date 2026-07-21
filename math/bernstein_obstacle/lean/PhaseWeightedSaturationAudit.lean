@@ -1,0 +1,9 @@
+import BernsteinObstacle.PhaseWeightedSaturation
+
+#check BernsteinObstacle.weighted_sum_local_lowerBound
+#check BernsteinObstacle.phaseWeighted_sum_energy_ge_cubic
+#check BernsteinObstacle.phaseWeighted_error_ge_threeHalves_of_sum_le_sq
+
+#print axioms BernsteinObstacle.weighted_sum_local_lowerBound
+#print axioms BernsteinObstacle.phaseWeighted_sum_energy_ge_cubic
+#print axioms BernsteinObstacle.phaseWeighted_error_ge_threeHalves_of_sum_le_sq
