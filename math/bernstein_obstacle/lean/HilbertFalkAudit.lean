@@ -1,0 +1,5 @@
+import BernsteinObstacle.HilbertFalk
+
+#print axioms BernsteinObstacle.hilbert_falk_error_sq
+#print axioms BernsteinObstacle.flatInterface_hilbertVI_upperSq
+#print axioms BernsteinObstacle.flatInterface_hilbertVI_sharp

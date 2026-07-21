@@ -1,0 +1,62 @@
+name: Bernstein Hilbert Falk Lean audit
+
+on:
+  push:
+    branches:
+      - formal/bernstein-hilbert-falk-flat-v1
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-hilbert-falk-audit.yml'
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-hilbert-falk-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-hilbert-falk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+      - name: Build Hilbert Falk endpoint
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build BernsteinObstacle.HilbertFalk 2>&1 | tee hilbert-falk-build.log
+          lake build BernsteinObstacle 2>&1 | tee -a hilbert-falk-build.log
+      - name: Audit Hilbert Falk endpoints
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean HilbertFalkAudit.lean 2>&1 | tee hilbert-falk-axioms.log
+          if grep -q 'sorryAx' hilbert-falk-axioms.log; then exit 1; fi
+          grep -F 'BernsteinObstacle.hilbert_falk_error_sq' hilbert-falk-axioms.log
+          grep -F 'BernsteinObstacle.flatInterface_hilbertVI_sharp' hilbert-falk-axioms.log
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-hilbert-falk-audit
+          path: |
+            math/bernstein_obstacle/lean/hilbert-falk-build.log
+            math/bernstein_obstacle/lean/hilbert-falk-axioms.log
+          if-no-files-found: warn
