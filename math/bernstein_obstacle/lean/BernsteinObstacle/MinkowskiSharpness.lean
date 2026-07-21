@@ -1,5 +1,5 @@
 import BernsteinObstacle.MinkowskiSaturation
-import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
+import BernsteinObstacle.QuadraticIntegral
 import Mathlib.Tactic
 
 open scoped Interval
@@ -31,16 +31,16 @@ theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity
     (∫ x in (0 : ℝ)..h,
       phaseLockedQuadraticSlopeEnergyDensity h theta x) =
         (1 - theta) ^ 4 * h ^ 3 / 3 := by
-  have hdensity :
+  let c : ℝ := (1 - theta) ^ 4
+  have hintegrand :
       (fun x : ℝ => phaseLockedQuadraticSlopeEnergyDensity h theta x) =
-        fun x : ℝ => (1 - theta) ^ 4 *
-          (h ^ 2 - 4 * h * x + 4 * x ^ 2) := by
+        (fun x : ℝ =>
+          (4 * c) * x ^ 2 + (-4 * c * h) * x + c * h ^ 2) := by
     funext x
-    exact phaseLockedQuadraticSlopeEnergyDensity_expand h theta x
-  rw [hdensity, intervalIntegral.integral_const_mul]
-  simp [intervalIntegral.integral_add, intervalIntegral.integral_sub,
-    intervalIntegral.integral_const_mul, intervalIntegral.integral_mul_const,
-    integral_pow]
+    simp [c, phaseLockedQuadraticSlopeEnergyDensity_expand]
+    ring
+  rw [hintegrand, intervalIntegral_quadraticPolynomial]
+  simp [c]
   ring
 
 theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity_eq_scale_sq
