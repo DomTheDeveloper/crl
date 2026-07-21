@@ -1,0 +1,8 @@
+import BernsteinObstacle
+
+#print axioms BernsteinObstacle.operator_vi_residual_nonneg
+#print axioms BernsteinObstacle.operator_vi_reverse_direction_nonpos
+#print axioms BernsteinObstacle.operator_vi_innerCone_falk
+#print axioms BernsteinObstacle.operator_vi_error_sq_scaled
+#print axioms BernsteinObstacle.operator_vi_rate_compose_scaled
+#print axioms BernsteinObstacle.operator_vi_sameCone_perturbation_scaled
