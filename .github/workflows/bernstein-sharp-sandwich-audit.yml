@@ -1,0 +1,71 @@
+name: Bernstein sharp sandwich Lean audit
+
+on:
+  push:
+    branches:
+      - formal/bernstein-sharp-sandwich-v1
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-sharp-sandwich-audit.yml'
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-sharp-sandwich-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-sharp-sandwich-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+
+      - name: Build full library and sharp endpoint
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build BernsteinObstacle 2>&1 | tee sharp-sandwich-build.log
+          lake env lean BernsteinObstacle/SharpQuadraticSaturation.lean 2>&1 | tee -a sharp-sandwich-build.log
+
+      - name: Audit sharp saturation endpoints
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean SharpQuadraticSaturationAudit.lean 2>&1 | tee sharp-sandwich-axioms.log
+          if grep -q 'sorryAx' sharp-sandwich-axioms.log; then
+            echo 'Unexpected sorryAx found' >&2
+            exit 1
+          fi
+          grep -F 'BernsteinObstacle.quadraticScale_le_threeHalvesScale' sharp-sandwich-axioms.log
+          grep -F 'BernsteinObstacle.bernsteinBezier_quadraticContact_fullSpace_threeHalvesSaturation' sharp-sandwich-axioms.log
+
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-sharp-sandwich-audit
+          path: |
+            math/bernstein_obstacle/lean/sharp-sandwich-build.log
+            math/bernstein_obstacle/lean/sharp-sandwich-axioms.log
+          if-no-files-found: warn
