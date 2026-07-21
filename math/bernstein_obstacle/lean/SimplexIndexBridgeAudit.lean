@@ -1,0 +1,13 @@
+import BernsteinObstacle
+
+#check BernsteinObstacle.multiIndexToNatSimplexIndex
+#check BernsteinObstacle.natSimplexIndexToMultiIndex
+#check BernsteinObstacle.multiIndexNatEquiv
+#check BernsteinObstacle.simplexFactorialRatio_eq_multinomial
+#check BernsteinObstacle.simplexBasis_eq_simplexBasisNat
+
+#print axioms BernsteinObstacle.multiIndexToNatSimplexIndex
+#print axioms BernsteinObstacle.natSimplexIndexToMultiIndex
+#print axioms BernsteinObstacle.multiIndexNatEquiv
+#print axioms BernsteinObstacle.simplexFactorialRatio_eq_multinomial
+#print axioms BernsteinObstacle.simplexBasis_eq_simplexBasisNat
