@@ -10,6 +10,8 @@ import BernsteinObstacle.SimplexFace
 import BernsteinObstacle.SimplexFaceField
 import BernsteinObstacle.SimplexOrientedFace
 import BernsteinObstacle.SimplexRecovery
+import BernsteinObstacle.SimplexAffineReproduction
+import BernsteinObstacle.SimplexAffineField
 import BernsteinObstacle.SimplexPartition
 import BernsteinObstacle.AffineLattice
 import BernsteinObstacle.LatticeCardinal
@@ -51,6 +53,7 @@ import BernsteinObstacle.CoefficientNorm
 import BernsteinObstacle.EnergyGapConvergence
 import BernsteinObstacle.Uniqueness
 import BernsteinObstacle.CoefficientLocalization
+import BernsteinObstacle.FreeBoundaryQuadraticLocalization
 import BernsteinObstacle.LocalDistanceLocalization
 import BernsteinObstacle.BoundaryCoefficientLocalization
 import BernsteinObstacle.SharpRateAlgebra
