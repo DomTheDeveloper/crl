@@ -68,7 +68,7 @@ theorem naturalize_simplexAffineSamplingCoefficients
     (hα : α ∈ Finset.piAntidiag
       (Finset.univ : Finset (Fin (d + 1))) n) :
     naturalizeSimplexCoefficients d n
-        (simplexSamplingCoefficients d n
+        (simplexSamplingCoefficients d n hn
           (simplexAffineBarycentricValue d a)) α =
       simplexAffineNaturalSamplingCoefficient d n a α := by
   unfold naturalizeSimplexCoefficients simplexSamplingCoefficients
@@ -83,14 +83,14 @@ reproduces every affine barycentric function. -/
 theorem simplexSamplingRecovery_affine_reproduction
     (d n : ℕ) (hn : 0 < n)
     (a : Fin (d + 1) → ℝ) (x : BarycentricPoint d) :
-    simplexSamplingRecovery d n (simplexAffineBarycentricValue d a) x =
+    simplexSamplingRecovery d n hn (simplexAffineBarycentricValue d a) x =
       simplexAffineBarycentricValue d a x := by
   unfold simplexSamplingRecovery
   rw [simplexField_eq_simplexFieldNat_naturalize]
   calc
     simplexFieldNat d n
         (naturalizeSimplexCoefficients d n
-          (simplexSamplingCoefficients d n
+          (simplexSamplingCoefficients d n hn
             (simplexAffineBarycentricValue d a))) x =
       simplexFieldNat d n
         (simplexAffineNaturalSamplingCoefficient d n a) x := by
