@@ -23,7 +23,7 @@ concurrency:
 jobs:
   audit:
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 180
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
       - name: Install pinned Lean
@@ -36,6 +36,14 @@ jobs:
       - name: Resolve exact proof dependency
         working-directory: ci/lean/Voronovskaja
         run: lake update
+      - name: Materialize canonical Lean 4.27 migrations
+        working-directory: ci/lean/Voronovskaja/.lake/packages/formal_conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .github/voronovskaja_migrate.py
+          python3 .github/voronovskaja_migrate_round2.py
+          python3 .github/voronovskaja_migrate_round5.py
       - name: Fetch Mathlib cache
         working-directory: ci/lean/Voronovskaja
         run: lake exe cache get
@@ -71,10 +79,18 @@ jobs:
           if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' audit.log; then
             exit 1
           fi
-      - name: Upload transcript
+      - name: Upload transcript and migrated source snapshot
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: voronovskaja-final-kernel-audit
-          path: ci/lean/Voronovskaja/audit.log
+          path: |
+            ci/lean/Voronovskaja/audit.log
+            ci/lean/Voronovskaja/.lake/packages/formal_conjectures/FormalConjectures/Paper/VoronovskajaDiscreteLaw.lean
+            ci/lean/Voronovskaja/.lake/packages/formal_conjectures/FormalConjectures/Paper/VoronovskajaProof.lean
+            ci/lean/Voronovskaja/.lake/packages/formal_conjectures/FormalConjectures/Paper/VoronovskajaExpectation.lean
+            ci/lean/Voronovskaja/.lake/packages/formal_conjectures/FormalConjectures/Paper/VoronovskajaMomentLimit.lean
+            ci/lean/Voronovskaja/.lake/packages/formal_conjectures/FormalConjecturesForMathlib/Probability/Distributions/PoweredBinomialMoments.lean
+            ci/lean/Voronovskaja/.lake/packages/formal_conjectures/FormalConjecturesForMathlib/Probability/Distributions/PoweredBinomialSecondMoment.lean
+            ci/lean/Voronovskaja/.lake/packages/formal_conjectures/FormalConjecturesForMathlib/Probability/Distributions/PoweredBinomialTailIntegrability.lean
           if-no-files-found: warn
