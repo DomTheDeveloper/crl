@@ -1,12 +1,13 @@
 name: Bernstein obstacle Lean audit
 
-# Canonical exact-head audit trigger; theorem sources are unchanged by this commit.
+# Exact-head audit for the consolidated Bernstein grand-theorem stack.
 on:
   push:
     branches:
       - agent/bernstein-obstacle-research
       - formal/bernstein-bezier-grand-canonical
       - formal/bernstein-final-five-percent-v2
+      - agent/bernstein-grand-full-formalization-v2
     paths:
       - 'math/bernstein_obstacle/lean/**'
       - '.github/workflows/bernstein-obstacle-lean-audit.yml'
@@ -73,6 +74,7 @@ jobs:
           lake env lean FinalFivePercentAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean CoefficientClearanceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SobolevAssembledAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean FullGrandFormalizationAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           if grep -q 'sorryAx' bernstein-obstacle-axioms.log; then
             echo 'Unexpected sorryAx found' >&2
             exit 1
@@ -147,6 +149,15 @@ jobs:
           grep -F 'BernsteinObstacle.AssembledFreeCoefficientRecoveryData.bernsteinBezierObstacleGrandTheorem_quadraticContact' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.threeHalvesContactLaw' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.balancedContactOrder_equalizes' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.realVIExponent_eq_classification' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.realVIExponent_of_m_le_q' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.realVIExponent_quadratic_codimOne' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_realMinkowski' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.bernsteinBezierObstacleGrandTheorem_consistencyLimited' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_realMinkowski' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_consistencyLimited' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_realMinkowski' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_consistencyLimited' bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript
         if: always()
