@@ -33,7 +33,11 @@ private lemma nonadjacent_nonneighbors_of_indepNeighborsCard_compl_eq_one
     exact congrArg Subtype.val h
   have hind : ((Gᶜ).induce ((Gᶜ).neighborSet v)).IsIndepSet
       ({x', y'} : Finset ((Gᶜ).neighborSet v)) := by
-    simp [SimpleGraph.IsIndepSet, x', y', hxy]
+    rw [SimpleGraph.isIndepSet_iff, Set.pairwise_pair]
+    intro _
+    constructor
+    · simpa [x', y'] using hxy
+    · simpa [x', y'] using hxy.symm
   have hle := hind.card_le_indepNum
   have htwo : 2 ≤ indepNeighborsCard Gᶜ v := by
     simpa [indepNeighborsCard, Finset.card_pair hxy'] using hle
@@ -52,8 +56,9 @@ private lemma exists_center_dist_le_two_of_localIndependenceMin_compl_eq_one
     simp
   by_cases hvx : G.Adj v x
   · exact (G.dist_le hvx.toWalk).trans (by norm_num)
+  have hvne : v ≠ x := Ne.symm hxv
   have hcvx : Gᶜ.Adj v x := by
-    simp [hxv.symm, hvx]
+    simp [hvne, hvx]
   have hxs : x ∈ G.support := by
     rw [hG.preconnected.support_eq_univ]
     simp
@@ -64,8 +69,9 @@ private lemma exists_center_dist_le_two_of_localIndependenceMin_compl_eq_one
       intro hzv
       subst z
       exact hvx hxz.symm
+    have hvz_ne : v ≠ z := Ne.symm hzv
     have hcvz : Gᶜ.Adj v z := by
-      simp [hzv.symm, hn]
+      simp [hvz_ne, hn]
     exact (hnon hcvx hcvz) hxz
   exact WOW146.dist_le_two_of_adj_adj G hvz hxz.symm
 
