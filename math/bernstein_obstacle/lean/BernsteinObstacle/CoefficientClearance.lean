@@ -1,4 +1,5 @@
 import BernsteinObstacle.CoefficientCone
+import Mathlib.Analysis.Normed.Group.Constructions
 import Mathlib.Tactic
 
 namespace BernsteinObstacle
@@ -59,5 +60,54 @@ theorem coefficient_mem_Icc_const_of_margin_of_abs_sub_lt
     hlower hupper hclose
 
 end CoefficientClearance
+
+section FiniteCoefficientClearance
+
+variable {ι : Type*} [Fintype ι]
+
+/-- For a finite Bernstein coefficient vector, a strict sup-norm recovery bound
+below the positive coefficient margin certifies exact nonnegativity. -/
+theorem mem_coefficientCone_of_margin_of_norm_sub_lt
+    (target candidate : ι → ℝ) (delta : ℝ)
+    (hdelta : 0 < delta)
+    (hmargin : ∀ i, delta ≤ target i)
+    (hclose : ‖candidate - target‖ < delta) :
+    candidate ∈ coefficientCone ι := by
+  apply mem_coefficientCone_of_margin_of_abs_sub_lt target candidate delta hmargin
+  intro i
+  have hi : ‖(candidate - target) i‖ < delta :=
+    (pi_norm_lt_iff hdelta).1 hclose i
+  simpa [Real.norm_eq_abs] using hi
+
+/-- For finite coefficient vectors, a strict sup-norm recovery bound below a
+two-sided margin certifies every bilateral coefficient box constraint. -/
+theorem coefficient_mem_Icc_of_margin_of_norm_sub_lt
+    (lower upper target candidate : ι → ℝ) (delta : ℝ)
+    (hdelta : 0 < delta)
+    (hlower : ∀ i, lower i + delta ≤ target i)
+    (hupper : ∀ i, target i + delta ≤ upper i)
+    (hclose : ‖candidate - target‖ < delta) :
+    ∀ i, candidate i ∈ Set.Icc (lower i) (upper i) := by
+  apply coefficient_mem_Icc_of_margin_of_abs_sub_lt
+    lower upper target candidate delta hlower hupper
+  intro i
+  have hi : ‖(candidate - target) i‖ < delta :=
+    (pi_norm_lt_iff hdelta).1 hclose i
+  simpa [Real.norm_eq_abs] using hi
+
+/-- Constant bilateral Bernstein boxes are preserved whenever the finite
+coefficient-vector sup-norm error is smaller than the strict interior margin. -/
+theorem coefficient_mem_Icc_const_of_margin_of_norm_sub_lt
+    (lower upper : ℝ) (target candidate : ι → ℝ) (delta : ℝ)
+    (hdelta : 0 < delta)
+    (hlower : ∀ i, lower + delta ≤ target i)
+    (hupper : ∀ i, target i + delta ≤ upper)
+    (hclose : ‖candidate - target‖ < delta) :
+    ∀ i, candidate i ∈ Set.Icc lower upper := by
+  exact coefficient_mem_Icc_of_margin_of_norm_sub_lt
+    (fun _ => lower) (fun _ => upper) target candidate delta
+    hdelta hlower hupper hclose
+
+end FiniteCoefficientClearance
 
 end BernsteinObstacle
