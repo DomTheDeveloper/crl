@@ -44,6 +44,7 @@ import BernsteinObstacle.MovingObstacleConvergence
 import BernsteinObstacle.SobolevFEMRecovery
 import BernsteinObstacle.AsymptoticRecovery
 import BernsteinObstacle.ClearanceRecovery
+import BernsteinObstacle.SobolevH01Port
 import BernsteinObstacle.CoefficientMosco
 import BernsteinObstacle.AssemblyMosco
 import BernsteinObstacle.MinimizerConvergence
@@ -69,6 +70,7 @@ import BernsteinObstacle.MovingObstacleRate
 import BernsteinObstacle.GrandSaturationRate
 import BernsteinObstacle.GrandTheorem
 import BernsteinObstacle.AsymptoticGrandTheorem
+import BernsteinObstacle.AssembledGrandTheorem
 import BernsteinObstacle.HilbertVI
 import BernsteinObstacle.NestedHilbertVI
 import BernsteinObstacle.MovingHilbertVI
