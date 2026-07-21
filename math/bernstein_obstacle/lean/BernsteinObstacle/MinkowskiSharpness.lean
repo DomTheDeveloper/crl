@@ -31,8 +31,13 @@ theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity
     (∫ x in (0 : ℝ)..h,
       phaseLockedQuadraticSlopeEnergyDensity h theta x) =
         (1 - theta) ^ 4 * h ^ 3 / 3 := by
-  simp_rw [phaseLockedQuadraticSlopeEnergyDensity_expand]
-  rw [intervalIntegral.integral_const_mul]
+  have hdensity :
+      (fun x : ℝ => phaseLockedQuadraticSlopeEnergyDensity h theta x) =
+        fun x : ℝ => (1 - theta) ^ 4 *
+          (h ^ 2 - 4 * h * x + 4 * x ^ 2) := by
+    funext x
+    exact phaseLockedQuadraticSlopeEnergyDensity_expand h theta x
+  rw [hdensity, intervalIntegral.integral_const_mul]
   simp [intervalIntegral.integral_add, intervalIntegral.integral_sub,
     intervalIntegral.integral_const_mul, intervalIntegral.integral_mul_const,
     integral_pow]
