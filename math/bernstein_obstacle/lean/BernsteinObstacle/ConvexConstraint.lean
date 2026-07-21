@@ -40,6 +40,28 @@ def pointwiseConvexConstraint (C : Set E) (d : ℕ) :
     Set (BarycentricPoint d → E) :=
   {v | ∀ x, v x ∈ C}
 
+/-- Scaling a feasible point by a cutoff in `[0,1]` preserves a convex target
+containing the origin. This is the finite-dimensional algebraic core of the
+cutoff step in the Sobolev recovery construction. -/
+theorem smul_mem_convex_of_zero_mem
+    (C : Set E) (hC : Convex ℝ C) (hzero : (0 : E) ∈ C)
+    {t : ℝ} (ht : t ∈ Set.Icc (0 : ℝ) 1)
+    {y : E} (hy : y ∈ C) :
+    t • y ∈ C := by
+  have hleft : 0 ≤ 1 - t := sub_nonneg.mpr ht.2
+  have hsum : (1 - t) + t = 1 := by ring
+  have hmem := hC hzero hy hleft ht.1 hsum
+  simpa using hmem
+
+/-- Pointwise constraints inherit convexity from their target set. -/
+theorem convex_pointwiseConvexConstraint
+    (C : Set E) (hC : Convex ℝ C) (d : ℕ) :
+    Convex ℝ (pointwiseConvexConstraint C d) := by
+  intro u hu v hv a b ha hb hab
+  intro x
+  change a • u x + b • v x ∈ C
+  exact hC (hu x) (hv x) ha hb hab
+
 /-- Coefficients in a convex set certify pointwise membership of the complete
 vector-valued Bernstein field in that same set. -/
 theorem simplexVectorFieldNat_mem_convex
