@@ -1,5 +1,9 @@
-import BernsteinObstacle.SmoothQuadraticSaturation
+import BernsteinObstacle.ContactAwareRecovery
 
-#print axioms BernsteinObstacle.centeredQuadratic_eq_cubicBernsteinCurve
-#print axioms BernsteinObstacle.centeredQuadraticCubicCoeff_not_nonnegative
-#print axioms BernsteinObstacle.cubicCenteredRepair_exact
+#print axioms BernsteinObstacle.centeredQuadratic_eq_bernsteinCurve
+#print axioms BernsteinObstacle.centeredQuadraticCoeff_even_center
+#print axioms BernsteinObstacle.centeredQuadraticCoeff_odd_center
+#print axioms BernsteinObstacle.coefficientDefect_div_opNorm_le_norm
+#print axioms BernsteinObstacle.inwardBlend_mem_Icc
+#print axioms BernsteinObstacle.correctedRecovery_secondOrder_bound
+#print axioms BernsteinObstacle.alignedQuadraticContact_exact_and_nonnegative
