@@ -82,3 +82,4 @@ import BernsteinObstacle.MonotoneInnerConeVI
 import BernsteinObstacle.GrandBarrier
 import BernsteinObstacle.SobolevGrandBarrier
 import BernsteinObstacle.SmoothQuadraticSaturation
+import BernsteinObstacle.ContactAwareRecovery
