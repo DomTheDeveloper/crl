@@ -1,0 +1,72 @@
+name: Bernstein complete mesh theorems Lean audit
+
+on:
+  push:
+    branches:
+      - formal/bernstein-complete-mesh-theorems-v1
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-complete-mesh-theorems-audit.yml'
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-complete-mesh-theorems-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-complete-mesh-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+      - name: Compile new mesh modules
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build BernsteinObstacle.FlatInterfaceBenchmark 2>&1 | tee mesh-theorems-build.log
+          lake build BernsteinObstacle.GenericShiftAveraging 2>&1 | tee -a mesh-theorems-build.log
+          lake build BernsteinObstacle.DesignedTubularMesh 2>&1 | tee -a mesh-theorems-build.log
+          lake build BernsteinObstacle.AlignedMeshObstruction 2>&1 | tee -a mesh-theorems-build.log
+          lake build BernsteinObstacle.PhaseWeightedSaturation 2>&1 | tee -a mesh-theorems-build.log
+          lake build BernsteinObstacle.MeshTheoremCompositions 2>&1 | tee -a mesh-theorems-build.log
+      - name: Build complete inherited library
+        working-directory: math/bernstein_obstacle/lean
+        run: lake build BernsteinObstacle 2>&1 | tee -a mesh-theorems-build.log
+      - name: Audit all mesh-instantiation endpoints
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean MeshInstantiationAudit.lean 2>&1 | tee mesh-theorems-axioms.log
+          if grep -q 'sorryAx' mesh-theorems-axioms.log; then exit 1; fi
+          grep -F 'BernsteinObstacle.flatInterface_discreteError_sharp' mesh-theorems-axioms.log
+          grep -F 'BernsteinObstacle.genericShift_goodMeasure_and_retainedCount' mesh-theorems-axioms.log
+          grep -F 'BernsteinObstacle.genericShift_positiveMeasure_sharpFamily' mesh-theorems-axioms.log
+          grep -F 'BernsteinObstacle.designedTubularMesh_uniformPackage' mesh-theorems-axioms.log
+          grep -F 'BernsteinObstacle.arbitraryMesh_obstruction_and_phaseWeighted_replacement' mesh-theorems-axioms.log
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-complete-mesh-theorems-audit
+          path: |
+            math/bernstein_obstacle/lean/mesh-theorems-build.log
+            math/bernstein_obstacle/lean/mesh-theorems-axioms.log
+          if-no-files-found: warn
