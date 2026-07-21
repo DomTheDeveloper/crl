@@ -62,7 +62,10 @@ theorem hasDerivAt_quadraticPolynomial
     HasDerivAt (fun s : ℝ => A * s ^ 2 + B * s + C)
       (2 * A * t + B) t := by
   have hsq : HasDerivAt (fun s : ℝ => s ^ 2) (2 * t) t := by
-    simpa only [Pi.pow_apply] using (hasDerivAt_id' t).pow 2
+    convert (hasDerivAt_id' t).pow 2 using 1
+    · funext s
+      rfl
+    · norm_num
   have hA : HasDerivAt (fun s : ℝ => A * s ^ 2) (A * (2 * t)) t :=
     hsq.const_mul A
   have hB : HasDerivAt (fun s : ℝ => B * s) B t := by
