@@ -8,6 +8,7 @@ import BernsteinObstacle.TransversePrismSaturation
 #check BernsteinObstacle.QuadraticPolynomialData.lineDerivative_explicit
 #check BernsteinObstacle.transversePrism_fiberIntegral_lowerBound
 #check BernsteinObstacle.transversePrism_localEnergy_lowerBound
+#check BernsteinObstacle.transversePrism_quadraticPolynomial_localEnergy_lowerBound
 
 #print axioms BernsteinObstacle.QuadraticPolynomialData.eval_affineLine
 #print axioms BernsteinObstacle.hasDerivAt_quadraticPolynomial
@@ -16,3 +17,4 @@ import BernsteinObstacle.TransversePrismSaturation
 #print axioms BernsteinObstacle.QuadraticPolynomialData.lineDerivative_explicit
 #print axioms BernsteinObstacle.transversePrism_fiberIntegral_lowerBound
 #print axioms BernsteinObstacle.transversePrism_localEnergy_lowerBound
+#print axioms BernsteinObstacle.transversePrism_quadraticPolynomial_localEnergy_lowerBound
