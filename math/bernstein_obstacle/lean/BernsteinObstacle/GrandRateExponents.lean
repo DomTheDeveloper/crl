@@ -3,6 +3,8 @@ import Mathlib.Tactic
 
 namespace BernsteinObstacle
 
+noncomputable section
+
 /-!
 # Codimension–growth and balanced-contact exponent algebra
 
@@ -62,5 +64,7 @@ theorem balancedContactOrder_equalizes
 theorem balancedContactOrder_two :
     balancedContactOrder 2 = (2 : ℝ) := by
   norm_num [balancedContactOrder]
+
+end
 
 end BernsteinObstacle
