@@ -1,0 +1,62 @@
+name: Bernstein flat global theorem check
+
+on:
+  push:
+    branches:
+      - formal/bernstein-flat-global-prism-v1
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-flat-global-check.yml'
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-flat-global-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-flat-global-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+      - name: Build flat global endpoint and library
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build BernsteinObstacle.FlatInterfaceGlobal 2>&1 | tee flat-global-build.log
+          lake build BernsteinObstacle 2>&1 | tee -a flat-global-build.log
+      - name: Check flat global endpoints
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean FlatGlobalCheck.lean 2>&1 | tee flat-global-axioms.log
+          if grep -q 'sorryAx' flat-global-axioms.log; then exit 1; fi
+          grep -F 'BernsteinObstacle.flatInterface_squareEnergies_lowerSq' flat-global-axioms.log
+          grep -F 'BernsteinObstacle.flatInterface_hilbertVI_sharp_of_squareEnergies' flat-global-axioms.log
+      - name: Upload check evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-flat-global-check
+          path: |
+            math/bernstein_obstacle/lean/flat-global-build.log
+            math/bernstein_obstacle/lean/flat-global-axioms.log
+          if-no-files-found: warn
