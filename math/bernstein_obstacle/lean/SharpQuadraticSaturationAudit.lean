@@ -1,0 +1,7 @@
+import BernsteinObstacle.SharpQuadraticSaturation
+
+#check BernsteinObstacle.quadraticScale_le_threeHalvesScale
+#check BernsteinObstacle.bernsteinBezier_quadraticContact_fullSpace_threeHalvesSaturation
+
+#print axioms BernsteinObstacle.quadraticScale_le_threeHalvesScale
+#print axioms BernsteinObstacle.bernsteinBezier_quadraticContact_fullSpace_threeHalvesSaturation
