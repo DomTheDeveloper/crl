@@ -76,6 +76,17 @@ theorem pderiv_sum_X_eq_one (d : ℕ) (j : Fin (d + 1)) :
           (MvPolynomial.X i : MvPolynomial (Fin (d + 1)) ℝ)) = 1 := by
   simp
 
+/-- Formal differentiation of a power of the barycentric coordinate sum. -/
+theorem pderiv_sum_X_pow (d n : ℕ) (j : Fin (d + 1)) :
+    MvPolynomial.pderiv j
+        ((∑ i : Fin (d + 1),
+            (MvPolynomial.X i : MvPolynomial (Fin (d + 1)) ℝ)) ^ n) =
+      (n : MvPolynomial (Fin (d + 1)) ℝ) *
+        (∑ i : Fin (d + 1),
+          (MvPolynomial.X i : MvPolynomial (Fin (d + 1)) ℝ)) ^ (n - 1) := by
+  rw [MvPolynomial.pderiv_pow, pderiv_sum_X_eq_one]
+  simp
+
 /-- Differentiating the multinomial expansion and multiplying by `X_j`
 weights every monomial by its `j`-th exponent. -/
 theorem X_mul_pderiv_simplexMultinomialExpansion
@@ -108,6 +119,19 @@ theorem X_mul_pderiv_simplexMultinomialExpansion
     _ = MvPolynomial.C (Nat.multinomial Finset.univ α : ℝ) *
           ((α j) • MvPolynomial.monomial (fullSimplexExponent d α) 1) := by
       simp
+
+/-- The unnormalized first moment of the natural simplicial Bernstein weights
+is `n x_j`. -/
+theorem simplexBasisNat_firstMoment_unnormalized
+    (d n : ℕ) (j : Fin (d + 1)) (x : BarycentricPoint d) :
+    (∑ α ∈ Finset.piAntidiag (Finset.univ : Finset (Fin (d + 1))) n,
+      (α j : ℝ) * simplexBasisNat d n α x) =
+      (n : ℝ) * x.1 j := by
+  have hpoly := X_mul_pderiv_simplexMultinomialExpansion d n j
+  rw [pderiv_sum_X_pow] at hpoly
+  have heval := congrArg (MvPolynomial.eval x.1) hpoly
+  simpa [simplexBasisNat, eval_fullSimplexMonomial, x.2.2,
+    mul_assoc, mul_left_comm, mul_comm] using heval
 
 end
 
