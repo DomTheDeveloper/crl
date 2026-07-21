@@ -61,6 +61,9 @@ jobs:
           lake env lean FaceTraceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SimplexFaceFieldAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean GeometryRecoveryAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean SimplexAffineReproductionAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean SimplexAffineFieldAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean FreeBoundaryQuadraticLocalizationAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean AffineBernsteinAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean ConvergenceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean MovingAnalysisAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
@@ -78,6 +81,11 @@ jobs:
           grep -F 'BernsteinObstacle.simplexField_lastFace_extension' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.simplexField_orientedLastFace_extension' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.simplexSamplingRecovery_nonneg' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexBasisNat_firstMoment' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexFieldNat_affine_reproduction' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.coefficient_nonneg_of_quadratic_growth' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.distance_lt_stripWidth_of_coefficient_neg' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.abs_clip_sub_le_of_value_and_error' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.clipped_orientedSimplexFaceTrace_eq_of_sharedDofs' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.eval_affineBernsteinPolynomial_eq_simplexBasis' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.affineBernsteinBasis_sum_repr' bernstein-obstacle-axioms.log
