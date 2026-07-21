@@ -1,4 +1,5 @@
 import BernsteinObstacle.SimplexRecovery
+import BernsteinObstacle.SimplexPartition
 import Mathlib.Algebra.BigOperators.Finsupp.Basic
 import Mathlib.Algebra.MvPolynomial.PDeriv
 import Mathlib.Data.Nat.Choose.Multinomial
