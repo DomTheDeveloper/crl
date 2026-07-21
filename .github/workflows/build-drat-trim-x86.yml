@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build official drat-trim
+      - name: Build official drat-trim for sandbox replay
         shell: bash
         run: |
           set -euo pipefail
