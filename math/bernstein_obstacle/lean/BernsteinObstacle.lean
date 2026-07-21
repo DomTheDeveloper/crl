@@ -78,6 +78,7 @@ import BernsteinObstacle.AssembledGrandTheorem
 import BernsteinObstacle.HilbertVI
 import BernsteinObstacle.NestedHilbertVI
 import BernsteinObstacle.MovingHilbertVI
+import BernsteinObstacle.AssembledHilbertTransfer
 import BernsteinObstacle.UniversalRate
 import BernsteinObstacle.BarrierEnvelopeMosco
 import BernsteinObstacle.GrandRateExponents
