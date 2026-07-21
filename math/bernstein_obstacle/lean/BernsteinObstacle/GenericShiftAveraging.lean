@@ -10,25 +10,11 @@ noncomputable section
 
 /-!
 # Generic-shift averaging
-
-This file formalizes the measure-theoretic averaging step behind the translated
-periodic-mesh construction.  If a bounded nonnegative random variable `X` has
-mean `p L`, then the translations for which `X ≥ p L / 2` occupy at least the
-fraction `p / (2-p)` of translation space.
-
-For the geometric application, `X τ` is the arclength of the free boundary lying
-inside the eroded cores of the triangles of the mesh translated by `τ`.
 -/
 
-/-- Translations retaining at least half of the mean core length. -/
 def goodTranslationSet {Ω : Type*} (X : Ω → ℝ) (p L : ℝ) : Set Ω :=
   {ω | p * L / 2 ≤ X ω}
 
-/-- Reverse averaging bound used by the generic-translation theorem.
-
-On a probability space, a nonnegative random variable bounded by `L` and having
-mean `p L` must exceed `p L / 2` on a set of probability at least
-`p / (2-p)`. -/
 theorem goodTranslationSet_measure_lowerBound
     {Ω : Type*} [MeasurableSpace Ω]
     (μ : Measure Ω) [IsProbabilityMeasure μ]
@@ -44,7 +30,6 @@ theorem goodTranslationSet_measure_lowerBound
   have hG : MeasurableSet G := by
     dsimp [G, goodTranslationSet]
     exact measurableSet_le measurable_const hXmeas
-  have hthreshold : 0 ≤ p * L / 2 := by positivity
   have hgoodNonneg : 0 ≤ ∫ ω in G, X ω ∂μ :=
     setIntegral_nonneg hG fun ω _ => hX0 ω
   have hbadNonneg : 0 ≤ ∫ ω in Gᶜ, X ω ∂μ :=
@@ -93,21 +78,17 @@ theorem goodTranslationSet_measure_lowerBound
       intro ω
       change p * L / 2 ≤ X ω
       simpa [hLzero] using hX0 ω
+    change p / (2 - p) ≤ μ.real G
     rw [hGuniv, probReal_univ]
     have hden : 0 < 2 - p := by linarith
     exact (div_le_iff₀ hden).2 (by nlinarith)
 
-/-- Inradius of either right-isosceles triangle in the unit diagonal-square
-triangulation. -/
 def diagonalTriangleInradius : ℝ :=
   1 - 1 / Real.sqrt 2
 
-/-- Exact area fraction of the union of the two radius-`r` eroded triangle cores
-inside one unit square. -/
 def diagonalCoreFraction (r : ℝ) : ℝ :=
   ((diagonalTriangleInradius - r) / diagonalTriangleInradius) ^ 2
 
-/-- The reference inradius is strictly positive. -/
 theorem diagonalTriangleInradius_pos : 0 < diagonalTriangleInradius := by
   have hsqrt2 : 1 < Real.sqrt 2 := by
     rw [Real.lt_sqrt (by norm_num : 0 ≤ (1 : ℝ))]
@@ -117,24 +98,19 @@ theorem diagonalTriangleInradius_pos : 0 < diagonalTriangleInradius := by
   rw [sub_pos, div_lt_one hsqrt2pos]
   exact hsqrt2
 
-/-- Every nonempty erosion radius gives a strictly positive core fraction. -/
 theorem diagonalCoreFraction_pos
-    (r : ℝ) (hr0 : 0 ≤ r) (hrR : r < diagonalTriangleInradius) :
+    (r : ℝ) (_hr0 : 0 ≤ r) (hrR : r < diagonalTriangleInradius) :
     0 < diagonalCoreFraction r := by
   have hR := diagonalTriangleInradius_pos
   dsimp [diagonalCoreFraction]
   positivity
 
-/-- The corresponding lower fraction of good translations is positive. -/
 theorem goodTranslationFraction_pos
     (p : ℝ) (hp0 : 0 < p) (hp1 : p ≤ 1) :
     0 < p / (2 - p) := by
   have hden : 0 < 2 - p := by linarith
   positivity
 
-/-- Algebraic packing transfer.  If a good subset of a curve of length `goodLength`
-is covered by `m` arclength intervals of radius `D h`, then `m` is at least
-`goodLength / (2 D h)`. -/
 theorem retainedCount_of_arclength_cover
     (goodLength D h m : ℝ)
     (hD : 0 < D) (hh : 0 < h)
@@ -143,10 +119,9 @@ theorem retainedCount_of_arclength_cover
   have hden : 0 < 2 * D * h := by positivity
   exact (div_le_iff₀ hden).2 (by nlinarith)
 
-/-- Explicit retained-element count used after the averaging theorem. -/
 theorem retainedCount_of_goodTranslation
     (p L D h m : ℝ)
-    (hp : 0 ≤ p) (hL : 0 ≤ L)
+    (_hp : 0 ≤ p) (_hL : 0 ≤ L)
     (hD : 0 < D) (hh : 0 < h)
     (hgood : p * L / 2 ≤ 2 * D * h * m) :
     p * L / (4 * D * h) ≤ m := by
