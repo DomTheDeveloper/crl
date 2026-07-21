@@ -41,7 +41,13 @@ jobs:
 
       - name: Build full library
         working-directory: math/bernstein_obstacle/lean
-        run: lake build BernsteinObstacle
+        shell: bash
+        run: |
+          set +e
+          lake build BernsteinObstacle 2>&1 | tee transverse-prism-build.log
+          code=${PIPESTATUS[0]}
+          set -e
+          exit "$code"
 
       - name: Audit transverse-prism and lower-strip endpoints
         working-directory: math/bernstein_obstacle/lean
@@ -65,5 +71,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bernstein-transverse-prism-audit
-          path: math/bernstein_obstacle/lean/transverse-prism-axioms.log
+          path: |
+            math/bernstein_obstacle/lean/transverse-prism-build.log
+            math/bernstein_obstacle/lean/transverse-prism-axioms.log
           if-no-files-found: warn
