@@ -67,7 +67,7 @@ theorem quadraticHingeAffineDerivativeErrorSq_identity
           (2 * alpha * beta) * (theta ^ 2 - 0 ^ 2) / 2 +
           beta ^ 2 * (theta - 0) := by
     convert intervalIntegral_quadraticPolynomial
-      (alpha ^ 2) (2 * alpha * beta) (beta ^ 2) 0 theta using 1 <;> ring
+      (alpha ^ 2) (2 * alpha * beta) (beta ^ 2) 0 theta using 1 <;> ring_nf
   have hright :
       (∫ x in theta..1, (2 * (x - theta) - (alpha * x + beta)) ^ 2) =
         (2 - alpha) ^ 2 * (1 ^ 3 - theta ^ 3) / 3 +
@@ -77,7 +77,7 @@ theorem quadraticHingeAffineDerivativeErrorSq_identity
     convert intervalIntegral_quadraticPolynomial
       ((2 - alpha) ^ 2)
       (-2 * (2 - alpha) * (2 * theta + beta))
-      ((2 * theta + beta) ^ 2) theta 1 using 1 <;> ring
+      ((2 * theta + beta) ^ 2) theta 1 using 1 <;> ring_nf
   unfold quadraticHingeAffineDerivativeErrorSq
   rw [hleft, hright]
   simp [quadraticHingeOptimalSlope, quadraticHingeOptimalIntercept]
@@ -179,7 +179,7 @@ theorem scaledQuadraticHingeAffineDerivativeErrorSq_identity
           (2 * alpha * beta) * ((theta * h) ^ 2 - 0 ^ 2) / 2 +
           beta ^ 2 * (theta * h - 0) := by
     convert intervalIntegral_quadraticPolynomial
-      (alpha ^ 2) (2 * alpha * beta) (beta ^ 2) 0 (theta * h) using 1 <;> ring
+      (alpha ^ 2) (2 * alpha * beta) (beta ^ 2) 0 (theta * h) using 1 <;> ring_nf
   have hright :
       (∫ x in theta * h..h,
         (2 * amplitude * (x - theta * h) - (alpha * x + beta)) ^ 2) =
@@ -194,7 +194,7 @@ theorem scaledQuadraticHingeAffineDerivativeErrorSq_identity
       (-2 * (2 * amplitude - alpha) *
         (2 * amplitude * theta * h + beta))
       ((2 * amplitude * theta * h + beta) ^ 2)
-      (theta * h) h using 1 <;> ring
+      (theta * h) h using 1 <;> ring_nf
   unfold scaledQuadraticHingeAffineDerivativeErrorSq
   rw [hleft, hright]
   simp [scaledQuadraticHingeOptimalSlope,
