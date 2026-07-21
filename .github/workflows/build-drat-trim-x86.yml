@@ -1,0 +1,40 @@
+name: Build drat-trim x86 checker
+
+on:
+  push:
+    branches:
+      - audit/build-drat-trim-local
+    paths:
+      - '.github/workflows/build-drat-trim-x86.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/build-drat-trim-x86.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build official drat-trim
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 https://github.com/marijnheule/drat-trim.git /tmp/drat-trim
+          make -C /tmp/drat-trim
+          install -m 0755 /tmp/drat-trim/drat-trim ./drat-trim
+          ./drat-trim 2>&1 | head -40 | tee drat-trim-help.txt || true
+          sha256sum drat-trim | tee drat-trim.sha256
+          file drat-trim | tee drat-trim-file.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drat-trim-linux-x86_64
+          path: |
+            drat-trim
+            drat-trim.sha256
+            drat-trim-file.txt
+            drat-trim-help.txt
+          retention-days: 30
