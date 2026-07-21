@@ -66,6 +66,7 @@ import BernsteinObstacle.QuadraticIntegral
 import BernsteinObstacle.QuadraticHingeProjection
 import BernsteinObstacle.QuadraticLineRestriction
 import BernsteinObstacle.TransversePrismSaturation
+import BernsteinObstacle.ReferencePrismSaturation
 import BernsteinObstacle.RecoveryRate
 import BernsteinObstacle.CorrectedSharpRate
 import BernsteinObstacle.BulkMultiplierRate
