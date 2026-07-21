@@ -1,5 +1,0 @@
-import BernsteinObstacle.FlatGlobalPrism
-
-#print axioms BernsteinObstacle.flatInterface_prismPatch_lowerSq
-#print axioms BernsteinObstacle.flatInterface_hilbertVI_sharp_from_prismPatch
-#print axioms BernsteinObstacle.flatInterface_hilbertVI_sharp_of_finPatch
