@@ -36,17 +36,15 @@ theorem goodTranslationSet_measure_lowerBound
     setIntegral_nonneg hG.compl fun ω _ => hX0 ω
   have hgoodNorm :
       ‖∫ ω in G, X ω ∂μ‖ ≤ L * μ.real G := by
-    apply norm_setIntegral_le_of_norm_le_const'
+    apply norm_setIntegral_le_of_norm_le_const
     · finiteness
-    · exact hG
-    · intro ω hω
+    · intro ω _hω
       rw [Real.norm_eq_abs, abs_of_nonneg (hX0 ω)]
       exact hXL ω
   have hbadNorm :
       ‖∫ ω in Gᶜ, X ω ∂μ‖ ≤ (p * L / 2) * μ.real Gᶜ := by
-    apply norm_setIntegral_le_of_norm_le_const'
+    apply norm_setIntegral_le_of_norm_le_const
     · finiteness
-    · exact hG.compl
     · intro ω hω
       rw [Real.norm_eq_abs, abs_of_nonneg (hX0 ω)]
       have hnot : ¬ p * L / 2 ≤ X ω := by
