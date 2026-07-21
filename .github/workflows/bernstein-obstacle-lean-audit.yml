@@ -68,6 +68,7 @@ jobs:
           lake env lean LocalDistanceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean GrandCanonicalAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean FinalFivePercentAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean CoefficientClearanceAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           if grep -q 'sorryAx' bernstein-obstacle-axioms.log; then
             echo 'Unexpected sorryAx found' >&2
             exit 1
@@ -89,6 +90,9 @@ jobs:
           grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.toAsymptoticData' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.moscoConverges' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.minimizers_strongConvergence' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.mem_coefficientCone_of_margin_of_abs_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.coefficient_mem_Icc_of_margin_of_abs_sub_lt' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.coefficient_mem_Icc_const_of_margin_of_abs_sub_lt' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.movingObstacle_moscoConverges' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.AsymptoticSobolevFEMRecoveryData.movingObstacle_minimizers_strongConvergence' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.ClearanceSobolevFEMRecoveryData.movingObstacle_moscoConverges' bernstein-obstacle-axioms.log
