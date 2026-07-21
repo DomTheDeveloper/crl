@@ -6,6 +6,8 @@ open scoped Interval
 
 namespace BernsteinObstacle
 
+noncomputable section
+
 /-!
 # Explicit flat-interface benchmark
 
@@ -96,7 +98,7 @@ theorem flatComparison_noncontact_energy (a h : ℝ) :
     (fun y : ℝ =>
       (flatExactDerivative a y - flatComparisonDerivative a h y) ^ 2) =
       (fun y : ℝ =>
-        (9 * a ^ 2 / 4) * y ^ 2 - (3 * a ^ 2 * h / 4) * y +
+        (9 * a ^ 2 / 4) * y ^ 2 + (-(3 * a ^ 2 * h / 4)) * y +
           a ^ 2 * h ^ 2 / 16) by
       funext y
       simp [flatExactDerivative, flatComparisonDerivative]
@@ -182,5 +184,7 @@ theorem flatBenchmark_sharp_sandwich
   constructor
   · nlinarith [hlowerSq]
   · nlinarith [hupperSq]
+
+end
 
 end BernsteinObstacle
