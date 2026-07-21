@@ -2,6 +2,8 @@
 
 Date opened: 2026-07-20
 
+Public review request: GitHub issue #152
+
 | Panel | Requested | Reviewer | Verdict | Report |
 |---|---:|---|---|---|
 | Numerical analysis / Mosco | yes | unassigned | pending | — |
@@ -11,4 +13,5 @@ Date opened: 2026-07-20
 | Third-party numerical reproduction | yes | unassigned | pending | — |
 
 Internal AI red-team review is available separately and does not count as an
-independent report.
+independent report. No external verdict may be inferred from the existence of
+the review request.
