@@ -1,0 +1,7 @@
+import FormalConjectures.WrittenOnTheWallII.GraphConjecture145
+
+open Classical SimpleGraph
+open WrittenOnTheWallII.GraphConjecture145
+
+#check conjecture145
+#check localIndependenceMin
