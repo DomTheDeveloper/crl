@@ -46,7 +46,7 @@ theorem correctedSharpMinimizerRate_of_local_strip
     calc
       recoverySq ≤ A * h ^ (2 * r) + repairEnergy := hrecovery
       _ ≤ A * h ^ (2 * r) + C * N * g ^ 3 :=
-        add_le_add_left hrepairCubic _
+        add_le_add (le_refl _) hrepairCubic
   exact sharpMinimizerRate_of_recovery_and_multiplier
     e recoverySq multiplier α A (C * N) D h g r
     he hα hA hCN hD hh (le_of_lt hg)
