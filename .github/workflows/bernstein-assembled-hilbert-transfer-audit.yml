@@ -1,0 +1,65 @@
+name: Bernstein assembled Hilbert transfer Lean audit
+
+on:
+  push:
+    branches:
+      - formal/bernstein-assembled-hilbert-transfer-v1
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-assembled-hilbert-transfer-audit.yml'
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-assembled-hilbert-transfer-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-assembled-hilbert-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+
+      - name: Build full library
+        working-directory: math/bernstein_obstacle/lean
+        run: lake build BernsteinObstacle
+
+      - name: Audit direct assembled Hilbert endpoints
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean AssembledHilbertTransferAudit.lean 2>&1 | tee assembled-hilbert-axioms.log
+          if grep -q 'sorryAx' assembled-hilbert-axioms.log; then
+            echo 'Unexpected sorryAx found' >&2
+            exit 1
+          fi
+          grep -F 'BernsteinObstacle.AssembledFreeCoefficientRecoveryData.hilbertVISolutions_strongConvergence' assembled-hilbert-axioms.log
+          grep -F 'BernsteinObstacle.AssembledFreeCoefficientRecoveryData.mosco_and_hilbertVISolutions_strongConvergence' assembled-hilbert-axioms.log
+
+      - name: Upload audit transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-assembled-hilbert-transfer-audit
+          path: math/bernstein_obstacle/lean/assembled-hilbert-axioms.log
+          if-no-files-found: warn
