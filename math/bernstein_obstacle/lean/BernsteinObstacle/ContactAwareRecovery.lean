@@ -59,7 +59,23 @@ theorem correctedRecovery_error_bound
       convexRepair_error_bound u v z ε
     _ ≤ A * h ^ p + η * D := add_le_add hInterp hprod
 
-/-- Second-order coefficient repair yields the corrected `h^p + h^2` bound. -/
+/-- A coefficient defect of contact order `q` yields an `h^p + h^q` recovery
+estimate. -/
+theorem correctedRecovery_contactOrder_bound
+    (u v z : E) (ε A B D h : ℝ) (p q : ℕ)
+    (hInterp : ‖u - v‖ ≤ A * h ^ p)
+    (hWeight : |ε| ≤ B * h ^ q)
+    (hAnchor : ‖z - v‖ ≤ D)
+    (hB : 0 ≤ B) (hh : 0 ≤ h) :
+    ‖u - convexRepair ε v z‖ ≤ A * h ^ p + (B * D) * h ^ q := by
+  have hη : 0 ≤ B * h ^ q := mul_nonneg hB (pow_nonneg hh q)
+  have hbase := correctedRecovery_error_bound
+    u v z ε A h (B * h ^ q) D p hInterp hWeight hAnchor hη
+  calc
+    ‖u - convexRepair ε v z‖ ≤ A * h ^ p + (B * h ^ q) * D := hbase
+    _ = A * h ^ p + (B * D) * h ^ q := by ring
+
+/-- Second-order coefficient repair is the quadratic-contact specialization. -/
 theorem correctedRecovery_secondOrder_bound
     (u v z : E) (ε A B D h : ℝ) (p : ℕ)
     (hInterp : ‖u - v‖ ≤ A * h ^ p)
@@ -67,12 +83,8 @@ theorem correctedRecovery_secondOrder_bound
     (hAnchor : ‖z - v‖ ≤ D)
     (hB : 0 ≤ B) (hh : 0 ≤ h) :
     ‖u - convexRepair ε v z‖ ≤ A * h ^ p + (B * D) * h ^ 2 := by
-  have hη : 0 ≤ B * h ^ 2 := mul_nonneg hB (sq_nonneg h)
-  have hbase := correctedRecovery_error_bound
-    u v z ε A h (B * h ^ 2) D p hInterp hWeight hAnchor hη
-  calc
-    ‖u - convexRepair ε v z‖ ≤ A * h ^ p + (B * h ^ 2) * D := hbase
-    _ = A * h ^ p + (B * D) * h ^ 2 := by ring
+  exact correctedRecovery_contactOrder_bound
+    u v z ε A B D h p 2 hInterp hWeight hAnchor hB hh
 
 end AbstractRepair
 
@@ -137,7 +149,8 @@ theorem alignedQuadraticContact_exact
       intro k hk
       ring
     _ = (a * h ^ 2) * t ^ 2 := by
-      rw [quadraticMonomial_eq_bernsteinCurve p hp t]
+      have hquad := quadraticMonomial_eq_bernsteinCurve p hp t
+      simpa [curve] using congrArg (fun y : ℝ => (a * h ^ 2) * y) hquad
     _ = a * (h * t) ^ 2 := by ring
 
 /-- Inserting the contact point as a vertex eliminates the quadratic
