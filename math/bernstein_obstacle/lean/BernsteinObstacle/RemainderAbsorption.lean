@@ -1,4 +1,5 @@
 import BernsteinObstacle.LowerStripSaturation
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Tactic
 
 namespace BernsteinObstacle
@@ -13,7 +14,7 @@ higher-order remainder.
 -/
 
 /-- A model lower bound `A * h^(3/2)` survives a remainder bounded by
-`B * h^κ * h^(3/2)` whenever `B * h^κ ≤ A / 2`. -/
+`B * h^κ * h^(3/2)` whenever `B * h^κ ≤ A / 2`, for an integer excess order. -/
 theorem threeHalvesLowerBound_stable_under_higherOrderRemainder
     (modelError trueError remainderError A B h : ℝ) (κ : ℕ)
     (hmodelError : 0 ≤ modelError)
@@ -25,6 +26,28 @@ theorem threeHalvesLowerBound_stable_under_higherOrderRemainder
       (B * h ^ κ) * (h * Real.sqrt h))
     (htriangle : modelError ≤ trueError + remainderError)
     (hsmall : B * h ^ κ ≤ A / 2) :
+    (A / 2) * (h * Real.sqrt h) ≤ trueError := by
+  have hscale : 0 ≤ h * Real.sqrt h :=
+    mul_nonneg hh (Real.sqrt_nonneg h)
+  have hremainderHalf :
+      remainderError ≤ (A / 2) * (h * Real.sqrt h) := by
+    exact hremainder.trans
+      (mul_le_mul_of_nonneg_right hsmall hscale)
+  nlinarith
+
+/-- Hölder-real version of remainder absorption. This is the formulation used
+for a `C^{2,κ}` free-boundary expansion when `κ` need not be an integer. -/
+theorem threeHalvesLowerBound_stable_under_rpowRemainder
+    (modelError trueError remainderError A B h κ : ℝ)
+    (hmodelError : 0 ≤ modelError)
+    (htrueError : 0 ≤ trueError)
+    (hremainderError : 0 ≤ remainderError)
+    (hA : 0 ≤ A) (hB : 0 ≤ B) (hh : 0 ≤ h)
+    (hmodel : A * (h * Real.sqrt h) ≤ modelError)
+    (hremainder : remainderError ≤
+      (B * Real.rpow h κ) * (h * Real.sqrt h))
+    (htriangle : modelError ≤ trueError + remainderError)
+    (hsmall : B * Real.rpow h κ ≤ A / 2) :
     (A / 2) * (h * Real.sqrt h) ≤ trueError := by
   have hscale : 0 ≤ h * Real.sqrt h :=
     mul_nonneg hh (Real.sqrt_nonneg h)
@@ -52,10 +75,8 @@ theorem threeHalvesLowerBound_stable_with_fraction
     mul_nonneg hh (Real.sqrt_nonneg h)
   nlinarith
 
-/-- Direct continuation of the global cut-patch theorem: once the exact
-quadratic model has coefficient `sqrt (C*N)`, any higher-order free-boundary
-remainder satisfying the explicit half-constant threshold leaves a nonzero
-three-halves obstruction for the true profile. -/
+/-- Direct continuation of the global cut-patch theorem for integer excess
+order. -/
 theorem freeBoundary_error_ge_half_threeHalves_of_model_remainder
     (modelError trueError remainderError C N B h : ℝ) (κ : ℕ)
     (hmodelError : 0 ≤ modelError)
@@ -69,6 +90,25 @@ theorem freeBoundary_error_ge_half_threeHalves_of_model_remainder
     (hsmall : B * h ^ κ ≤ Real.sqrt (C * N) / 2) :
     (Real.sqrt (C * N) / 2) * (h * Real.sqrt h) ≤ trueError := by
   exact threeHalvesLowerBound_stable_under_higherOrderRemainder
+    modelError trueError remainderError (Real.sqrt (C * N)) B h κ
+    hmodelError htrueError hremainderError (Real.sqrt_nonneg _) hB hh
+    hmodel hremainder htriangle hsmall
+
+/-- Direct `C^{2,κ}` continuation of the global cut-patch theorem, allowing a
+real Hölder exponent `κ`. -/
+theorem freeBoundary_error_ge_half_threeHalves_of_model_rpowRemainder
+    (modelError trueError remainderError C N B h κ : ℝ)
+    (hmodelError : 0 ≤ modelError)
+    (htrueError : 0 ≤ trueError)
+    (hremainderError : 0 ≤ remainderError)
+    (hC : 0 ≤ C) (hN : 0 ≤ N) (hB : 0 ≤ B) (hh : 0 ≤ h)
+    (hmodel : Real.sqrt (C * N) * (h * Real.sqrt h) ≤ modelError)
+    (hremainder : remainderError ≤
+      (B * Real.rpow h κ) * (h * Real.sqrt h))
+    (htriangle : modelError ≤ trueError + remainderError)
+    (hsmall : B * Real.rpow h κ ≤ Real.sqrt (C * N) / 2) :
+    (Real.sqrt (C * N) / 2) * (h * Real.sqrt h) ≤ trueError := by
+  exact threeHalvesLowerBound_stable_under_rpowRemainder
     modelError trueError remainderError (Real.sqrt (C * N)) B h κ
     hmodelError htrueError hremainderError (Real.sqrt_nonneg _) hB hh
     hmodel hremainder htriangle hsmall
