@@ -1,4 +1,4 @@
-import BernsteinObstacle.AsymptoticRecovery
+import BernsteinObstacle.ClearanceRecovery
 import BernsteinObstacle.GrandTheorem
 
 open Filter
@@ -17,7 +17,8 @@ recovery error tends to zero as the mesh is refined.
 threshold schedule.  This file closes the final composition gap: the ordinary
 asymptotic FEM hypotheses now feed directly into moving-obstacle Mosco
 convergence, strong minimizer convergence, and both terminal grand-rate
-theorems.
+theorems.  The final section pushes one step further: strict stagewise clearance
+plus FEM convergence is enough to instantiate the same terminal results.
 -/
 
 section AsymptoticMovingObstacle
@@ -132,5 +133,111 @@ theorem AsymptoticSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_qua
     he halpha hP hA hB hh hGammaNonneg henergy
 
 end AsymptoticGrandTheorem
+
+section ClearanceGrandTheorem
+
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+
+/-- Strict positive clearance plus FEM convergence implies moving-obstacle Mosco
+convergence. -/
+theorem ClearanceSobolevFEMRecoveryData.movingObstacle_moscoConverges
+    (D : ClearanceSobolevFEMRecoveryData E)
+    (psi_h : ℕ → E) (psi : E)
+    (hpsi : StronglyConverges psi_h psi) :
+    MoscoConverges
+      (movingObstacleCone psi_h D.discreteCone)
+      (obstacleCone psi D.limitCone) := by
+  exact D.toAsymptoticData.movingObstacle_moscoConverges psi_h psi hpsi
+
+/-- Strict positive clearance plus FEM convergence closes moving-obstacle strong
+minimizer convergence. -/
+theorem ClearanceSobolevFEMRecoveryData.movingObstacle_minimizers_strongConvergence
+    (D : ClearanceSobolevFEMRecoveryData E)
+    (psi_h : ℕ → E) (psi : E)
+    (hpsi : StronglyConverges psi_h psi)
+    (x : E) (hx : x ∈ obstacleCone psi D.limitCone)
+    (u : ℕ → E) (solutionErr : ℕ → ℝ)
+    (hsolution :
+      ∀ recovery : ℕ → E,
+        (∀ n, recovery n ∈ movingObstacleCone psi_h D.discreteCone n) →
+        StronglyConverges recovery x →
+        ∀ n, ‖u n - recovery n‖ ≤ solutionErr n)
+    (hsolutionErr : Tendsto solutionErr atTop (nhds 0)) :
+    MoscoConverges
+        (movingObstacleCone psi_h D.discreteCone)
+        (obstacleCone psi D.limitCone) ∧
+      StronglyConverges u x := by
+  exact D.toAsymptoticData.movingObstacle_minimizers_strongConvergence
+    psi_h psi hpsi x hx u solutionErr hsolution hsolutionErr
+
+/-- The full moving-obstacle codimension-growth theorem from strict stagewise
+clearance and ordinary FEM convergence. -/
+theorem ClearanceSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem
+    (D : ClearanceSobolevFEMRecoveryData E)
+    (psi_h : ℕ → E) (psi : E)
+    (hpsi : StronglyConverges psi_h psi)
+    (x : E) (hx : x ∈ obstacleCone psi D.limitCone)
+    (u : ℕ → E) (solutionErr : ℕ → ℝ)
+    (hsolution :
+      ∀ recovery : ℕ → E,
+        (∀ n, recovery n ∈ movingObstacleCone psi_h D.discreteCone n) →
+        StronglyConverges recovery x →
+        ∀ n, ‖u n - recovery n‖ ≤ solutionErr n)
+    (hsolutionErr : Tendsto solutionErr atTop (nhds 0))
+    (e alpha P A B h hGamma : ℝ)
+    (s r m q c : ℕ) (hqm : q ≤ m)
+    (he : 0 ≤ e) (halpha : 0 < alpha)
+    (hP : 0 ≤ P) (hA : 0 ≤ A) (hB : 0 ≤ B)
+    (hh : 0 ≤ h) (hGammaNonneg : 0 ≤ hGamma)
+    (henergy :
+      alpha * e ^ 2 ≤
+        P * h ^ (2 * s) + A * h ^ (2 * r) +
+          B * hGamma ^ (2 * (q - 1) + c)) :
+    MoscoConverges
+        (movingObstacleCone psi_h D.discreteCone)
+        (obstacleCone psi D.limitCone) ∧
+      StronglyConverges u x ∧
+      e ≤ Real.sqrt (max P (max A B) / alpha) *
+        (h ^ s + h ^ r +
+          consistencyVanishingCodimensionScale hGamma m q c) := by
+  exact D.toAsymptoticData.bernsteinBezierObstacleGrandTheorem
+    psi_h psi hpsi x hx u solutionErr hsolution hsolutionErr
+    e alpha P A B h hGamma s r m q c hqm
+    he halpha hP hA hB hh hGammaNonneg henergy
+
+/-- The sharp quadratic-contact `hGamma * sqrt hGamma` theorem from strict
+stagewise clearance and ordinary FEM convergence. -/
+theorem ClearanceSobolevFEMRecoveryData.bernsteinBezierObstacleGrandTheorem_quadraticContact
+    (D : ClearanceSobolevFEMRecoveryData E)
+    (psi_h : ℕ → E) (psi : E)
+    (hpsi : StronglyConverges psi_h psi)
+    (x : E) (hx : x ∈ obstacleCone psi D.limitCone)
+    (u : ℕ → E) (solutionErr : ℕ → ℝ)
+    (hsolution :
+      ∀ recovery : ℕ → E,
+        (∀ n, recovery n ∈ movingObstacleCone psi_h D.discreteCone n) →
+        StronglyConverges recovery x →
+        ∀ n, ‖u n - recovery n‖ ≤ solutionErr n)
+    (hsolutionErr : Tendsto solutionErr atTop (nhds 0))
+    (e alpha P A B h hGamma : ℝ)
+    (s r m : ℕ) (hm : 2 ≤ m)
+    (he : 0 ≤ e) (halpha : 0 < alpha)
+    (hP : 0 ≤ P) (hA : 0 ≤ A) (hB : 0 ≤ B)
+    (hh : 0 ≤ h) (hGammaNonneg : 0 ≤ hGamma)
+    (henergy :
+      alpha * e ^ 2 ≤
+        P * h ^ (2 * s) + A * h ^ (2 * r) + B * hGamma ^ 3) :
+    MoscoConverges
+        (movingObstacleCone psi_h D.discreteCone)
+        (obstacleCone psi D.limitCone) ∧
+      StronglyConverges u x ∧
+      e ≤ Real.sqrt (max P (max A B) / alpha) *
+        (h ^ s + h ^ r + hGamma * Real.sqrt hGamma) := by
+  exact D.toAsymptoticData.bernsteinBezierObstacleGrandTheorem_quadraticContact
+    psi_h psi hpsi x hx u solutionErr hsolution hsolutionErr
+    e alpha P A B h hGamma s r m hm
+    he halpha hP hA hB hh hGammaNonneg henergy
+
+end ClearanceGrandTheorem
 
 end BernsteinObstacle
