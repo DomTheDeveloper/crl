@@ -43,7 +43,7 @@ jobs:
         working-directory: math/bernstein_obstacle/lean
         run: lake build BernsteinObstacle
 
-      - name: Audit transverse-prism endpoints
+      - name: Audit transverse-prism and lower-strip endpoints
         working-directory: math/bernstein_obstacle/lean
         shell: bash
         run: |
@@ -55,6 +55,10 @@ jobs:
           fi
           grep -F 'BernsteinObstacle.transversePrism_fiberIntegral_lowerBound' transverse-prism-axioms.log
           grep -F 'BernsteinObstacle.transversePrism_localEnergy_lowerBound' transverse-prism-axioms.log
+          grep -F 'BernsteinObstacle.card_mul_le_sum_of_le' transverse-prism-axioms.log
+          grep -F 'BernsteinObstacle.strip_sum_energy_ge_cubic' transverse-prism-axioms.log
+          grep -F 'BernsteinObstacle.threeHalves_lowerBound_of_cubic_le_sq' transverse-prism-axioms.log
+          grep -F 'BernsteinObstacle.fullSpace_error_ge_threeHalves_of_element_lowerBounds' transverse-prism-axioms.log
 
       - name: Upload audit transcript
         if: always()
