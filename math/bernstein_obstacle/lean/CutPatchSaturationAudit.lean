@@ -1,0 +1,9 @@
+import BernsteinObstacle.CutPatchSaturation
+
+#check BernsteinObstacle.card_mul_le_sum_of_le
+#check BernsteinObstacle.cutPatch_sum_energy_ge_cubic
+#check BernsteinObstacle.cutPatch_error_ge_threeHalves
+
+#print axioms BernsteinObstacle.card_mul_le_sum_of_le
+#print axioms BernsteinObstacle.cutPatch_sum_energy_ge_cubic
+#print axioms BernsteinObstacle.cutPatch_error_ge_threeHalves
