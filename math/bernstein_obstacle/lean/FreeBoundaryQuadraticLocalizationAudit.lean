@@ -1,0 +1,13 @@
+import BernsteinObstacle
+
+#check BernsteinObstacle.coefficient_nonneg_of_quadratic_growth
+#check BernsteinObstacle.distance_lt_stripWidth_of_coefficient_neg
+#check BernsteinObstacle.abs_clip_sub_le_abs
+#check BernsteinObstacle.abs_clip_sub_le_quadratic_scale
+#check BernsteinObstacle.abs_clip_sub_le_of_value_and_error
+
+#print axioms BernsteinObstacle.coefficient_nonneg_of_quadratic_growth
+#print axioms BernsteinObstacle.distance_lt_stripWidth_of_coefficient_neg
+#print axioms BernsteinObstacle.abs_clip_sub_le_abs
+#print axioms BernsteinObstacle.abs_clip_sub_le_quadratic_scale
+#print axioms BernsteinObstacle.abs_clip_sub_le_of_value_and_error
