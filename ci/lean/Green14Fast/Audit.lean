@@ -1,4 +1,4 @@
--- Final child-PR audit trigger after refreshing the exact source pin.
+-- Final child-PR audit trigger with Lean 4.27 pinned in the audit project.
 import FormalConjectures.GreensOpenProblems.Green14FastKernel20
 
 #check Green14.FastKernel.valid_20
