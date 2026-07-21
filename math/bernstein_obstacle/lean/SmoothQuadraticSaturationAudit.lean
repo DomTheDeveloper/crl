@@ -5,5 +5,6 @@ import BernsteinObstacle.ContactAwareRecovery
 #print axioms BernsteinObstacle.centeredQuadraticCoeff_odd_center
 #print axioms BernsteinObstacle.coefficientDefect_div_opNorm_le_norm
 #print axioms BernsteinObstacle.inwardBlend_mem_Icc
+#print axioms BernsteinObstacle.correctedRecovery_contactOrder_bound
 #print axioms BernsteinObstacle.correctedRecovery_secondOrder_bound
 #print axioms BernsteinObstacle.alignedQuadraticContact_exact_and_nonnegative
