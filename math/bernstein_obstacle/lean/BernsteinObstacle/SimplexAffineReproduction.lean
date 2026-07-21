@@ -134,6 +134,31 @@ theorem simplexBasisNat_firstMoment_unnormalized
   simpa [simplexBasisNat, eval_fullSimplexMonomial, x.2.2,
     mul_assoc, mul_left_comm, mul_comm] using heval.symm
 
+/-- The normalized barycentric first moment is exactly the corresponding
+coordinate. -/
+theorem simplexBasisNat_firstMoment
+    (d n : ℕ) (hn : 0 < n) (j : Fin (d + 1)) (x : BarycentricPoint d) :
+    (∑ α ∈ Finset.piAntidiag (Finset.univ : Finset (Fin (d + 1))) n,
+      ((α j : ℝ) / (n : ℝ)) * simplexBasisNat d n α x) =
+      x.1 j := by
+  have hnR : (n : ℝ) ≠ 0 := by
+    exact_mod_cast (ne_of_gt hn)
+  calc
+    (∑ α ∈ Finset.piAntidiag (Finset.univ : Finset (Fin (d + 1))) n,
+      ((α j : ℝ) / (n : ℝ)) * simplexBasisNat d n α x) =
+        (n : ℝ)⁻¹ *
+          ∑ α ∈ Finset.piAntidiag (Finset.univ : Finset (Fin (d + 1))) n,
+            (α j : ℝ) * simplexBasisNat d n α x := by
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro α hα
+      simp only [div_eq_mul_inv]
+      ring
+    _ = (n : ℝ)⁻¹ * ((n : ℝ) * x.1 j) := by
+      rw [simplexBasisNat_firstMoment_unnormalized]
+    _ = x.1 j := by
+      field_simp [hnR]
+
 end
 
 end BernsteinObstacle
