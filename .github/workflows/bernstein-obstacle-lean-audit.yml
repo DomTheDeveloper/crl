@@ -20,8 +20,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: bernstein-obstacle-lean-${{ github.ref }}-${{ github.run_id }}
-  cancel-in-progress: false
+  group: bernstein-obstacle-lean-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify:
