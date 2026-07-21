@@ -44,6 +44,8 @@ jobs:
           python3 .github/voronovskaja_migrate.py
           python3 .github/voronovskaja_migrate_round2.py
           python3 .github/voronovskaja_migrate_round5.py
+          sed -i 's/open scoped ENNREAL/open scoped ENNReal/' \
+            FormalConjectures/Paper/VoronovskajaClassicalConcentration.lean
       - name: Fetch Mathlib cache
         working-directory: ci/lean/Voronovskaja
         run: lake exe cache get
@@ -86,6 +88,7 @@ jobs:
           name: voronovskaja-final-kernel-audit
           path: |
             ci/lean/Voronovskaja/audit.log
+            ci/lean/Voronovskaja/.lake/packages/formal_conjectures/FormalConjectures/Paper/VoronovskajaClassicalConcentration.lean
             ci/lean/Voronovskaja/.lake/packages/formal_conjectures/FormalConjectures/Paper/VoronovskajaDiscreteLaw.lean
             ci/lean/Voronovskaja/.lake/packages/formal_conjectures/FormalConjectures/Paper/VoronovskajaProof.lean
             ci/lean/Voronovskaja/.lake/packages/formal_conjectures/FormalConjectures/Paper/VoronovskajaExpectation.lean
