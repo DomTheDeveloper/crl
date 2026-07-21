@@ -40,6 +40,7 @@ import BernsteinObstacle.TranslatedMosco
 import BernsteinObstacle.MovingObstacleConvergence
 import BernsteinObstacle.SobolevFEMRecovery
 import BernsteinObstacle.AsymptoticRecovery
+import BernsteinObstacle.ClearanceRecovery
 import BernsteinObstacle.CoefficientMosco
 import BernsteinObstacle.AssemblyMosco
 import BernsteinObstacle.MinimizerConvergence
