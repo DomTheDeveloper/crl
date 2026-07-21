@@ -39,12 +39,13 @@ jobs:
         working-directory: math/bernstein_obstacle/lean
         run: lake exe cache get
 
-      - name: Build full library
+      - name: Build full library and terminal endpoint
         working-directory: math/bernstein_obstacle/lean
         shell: bash
         run: |
           set +e
-          lake build BernsteinObstacle 2>&1 | tee physical-saturation-build.log
+          lake build BernsteinObstacle BernsteinObstacle.NormedPhysicalSaturation \
+            2>&1 | tee physical-saturation-build.log
           code=${PIPESTATUS[0]}
           set -e
           exit "$code"
