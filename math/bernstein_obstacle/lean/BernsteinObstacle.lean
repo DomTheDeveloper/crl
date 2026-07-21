@@ -65,6 +65,7 @@ import BernsteinObstacle.MinkowskiSharpness
 import BernsteinObstacle.QuadraticHingeProjection
 import BernsteinObstacle.TransversePrismSaturation
 import BernsteinObstacle.LowerStripSaturation
+import BernsteinObstacle.RemainderAbsorption
 import BernsteinObstacle.RecoveryRate
 import BernsteinObstacle.CorrectedSharpRate
 import BernsteinObstacle.BulkMultiplierRate
