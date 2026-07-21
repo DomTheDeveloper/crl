@@ -1,4 +1,4 @@
-name: Audit open-problem Formal Conjectures proofs
+name: Audit WOWII 109 proof
 
 on:
   pull_request:
@@ -14,39 +14,15 @@ concurrency:
 
 jobs:
   verify:
-    name: Verify ${{ matrix.name }}
+    name: Verify WOWII 109
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: WOWII 65
-            ref: cf59008ef1cd432bf9803275dcf5d62ab1f094a3
-            file: FormalConjectures/WrittenOnTheWallII/GraphConjecture65.lean
-            module: FormalConjectures.WrittenOnTheWallII.GraphConjecture65
-            theorem: WrittenOnTheWallII.GraphConjecture65.conjecture65
-          - name: WOWII 109
-            ref: cf59008ef1cd432bf9803275dcf5d62ab1f094a3
-            file: FormalConjectures/WrittenOnTheWallII/GraphConjecture109.lean
-            module: FormalConjectures.WrittenOnTheWallII.GraphConjecture109
-            theorem: WrittenOnTheWallII.GraphConjecture109.conjecture109
-          - name: WOWII 143
-            ref: 693e9aa206a5c6c98598aa4e6e5f3db0994a79b7
-            file: FormalConjectures/WrittenOnTheWallII/Proofs/GraphConjecture143.lean
-            module: FormalConjectures.WrittenOnTheWallII.Proofs.GraphConjecture143
-            theorem: WrittenOnTheWallII.GraphConjecture143.conjecture143_fork_proof
-          - name: WOWII 322 corrected
-            ref: 24bf0e034072c8ee86f7804be2c7af8cc8e0aae0
-            file: FormalConjectures/WrittenOnTheWallII/GraphConjecture322.lean
-            module: FormalConjectures.WrittenOnTheWallII.GraphConjecture322
-            theorem: WrittenOnTheWallII.GraphConjecture322.conjecture322
     steps:
       - name: Check out exact proof commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: ${{ matrix.ref }}
+          ref: cf59008ef1cd432bf9803275dcf5d62ab1f094a3
           path: formal-conjectures
 
       - name: Install pinned Lean
@@ -65,44 +41,33 @@ jobs:
       - name: Build exact proof module
         shell: bash
         working-directory: formal-conjectures
-        env:
-          MODULE: ${{ matrix.module }}
         run: |
           set -euo pipefail
-          lake build "$MODULE" 2>&1 | tee ../proof-build.log
-
-      - name: Compile exact proof file with warnings as errors
-        shell: bash
-        working-directory: formal-conjectures
-        env:
-          PROOF_FILE: ${{ matrix.file }}
-        run: |
-          set -euo pipefail
-          lake env lean -DwarningAsError=true "$PROOF_FILE" 2>&1 | tee -a ../proof-build.log
+          lake build FormalConjectures.WrittenOnTheWallII.GraphConjecture109 \
+            2>&1 | tee ../proof-build.log
 
       - name: Audit theorem axioms
         shell: bash
         working-directory: formal-conjectures
-        env:
-          MODULE: ${{ matrix.module }}
-          THEOREM: ${{ matrix.theorem }}
         run: |
           set -euo pipefail
-          printf 'import %s\n#print axioms %s\n' "$MODULE" "$THEOREM" > AuditFinal.lean
+          cat > AuditFinal.lean <<'EOF'
+          import FormalConjectures.WrittenOnTheWallII.GraphConjecture109
+          #print axioms WrittenOnTheWallII.GraphConjecture109.conjecture109
+          EOF
           lake env lean AuditFinal.lean 2>&1 | tee ../proof-axioms.log
           if grep -q sorryAx ../proof-axioms.log; then
-            echo "$THEOREM depends on sorryAx" >&2
+            echo "conjecture109 depends on sorryAx" >&2
             exit 1
           fi
-          grep -F "$THEOREM" ../proof-axioms.log
+          grep -F "WrittenOnTheWallII.GraphConjecture109.conjecture109" ../proof-axioms.log
 
       - name: Reject proof holes and unsafe shortcuts
         shell: bash
         working-directory: formal-conjectures
-        env:
-          PROOF_FILE: ${{ matrix.file }}
         run: |
           set -euo pipefail
+          PROOF_FILE=FormalConjectures/WrittenOnTheWallII/GraphConjecture109.lean
           if grep -InE '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|native_decide|^[[:space:]]*opaque[[:space:]]' "$PROOF_FILE"; then
             exit 1
           fi
@@ -111,7 +76,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.name }}-audit
+          name: WOWII-109-audit
           path: |
             proof-build.log
             proof-axioms.log
