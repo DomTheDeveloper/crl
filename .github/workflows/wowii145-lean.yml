@@ -1,0 +1,54 @@
+name: WOWII 145 pinned Lean audit
+
+on:
+  push:
+    branches: [solve-wowii-145]
+    paths:
+      - 'math/wowii145/**'
+      - '.github/workflows/wowii145-lean.yml'
+  pull_request:
+    paths:
+      - 'math/wowii145/**'
+      - '.github/workflows/wowii145-lean.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wowii145-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies and fetch cache
+        working-directory: math/wowii145
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Build and audit
+        working-directory: math/wowii145
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build 2>&1 | tee wowii145-audit.log
+          lake env lean WOW145/Probe.lean 2>&1 | tee -a wowii145-audit.log
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wowii145-lean-audit
+          path: math/wowii145/wowii145-audit.log
+          if-no-files-found: warn
