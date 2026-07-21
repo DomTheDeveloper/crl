@@ -1,0 +1,11 @@
+import BernsteinObstacle
+
+-- Finite unilateral and bilateral coefficient-clearance certificates.
+
+#check BernsteinObstacle.mem_coefficientCone_of_margin_of_abs_sub_lt
+#check BernsteinObstacle.coefficient_mem_Icc_of_margin_of_abs_sub_lt
+#check BernsteinObstacle.coefficient_mem_Icc_const_of_margin_of_abs_sub_lt
+
+#print axioms BernsteinObstacle.mem_coefficientCone_of_margin_of_abs_sub_lt
+#print axioms BernsteinObstacle.coefficient_mem_Icc_of_margin_of_abs_sub_lt
+#print axioms BernsteinObstacle.coefficient_mem_Icc_const_of_margin_of_abs_sub_lt
