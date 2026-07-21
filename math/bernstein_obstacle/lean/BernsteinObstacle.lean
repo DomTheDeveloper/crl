@@ -52,3 +52,4 @@ import BernsteinObstacle.RecoveryRate
 import BernsteinObstacle.HilbertVI
 import BernsteinObstacle.NestedHilbertVI
 import BernsteinObstacle.MovingHilbertVI
+import BernsteinObstacle.OperatorVI

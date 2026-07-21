@@ -5,6 +5,7 @@ on:
     branches:
       - agent/bernstein-obstacle-research
       - formalization/bernstein-v5-hilbert-consolidation
+      - research/bernstein-v6-grand-inner-cone
     paths:
       - 'math/bernstein_obstacle/lean/**'
       - '.github/workflows/bernstein-obstacle-lean-audit.yml'
@@ -64,6 +65,7 @@ jobs:
           lake env lean MovingAnalysisAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SharpRateAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean HilbertV5Audit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean OperatorV6Audit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           if grep -q 'sorryAx' bernstein-obstacle-axioms.log; then
             echo 'Unexpected sorryAx found' >&2
             exit 1
@@ -108,6 +110,14 @@ jobs:
           grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.hilbertVISolutions_strongConvergence' \
             bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.ThresholdSobolevFEMRecoveryData.mosco_and_hilbertVISolutions_strongConvergence' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.operator_vi_innerCone_falk' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.operator_vi_error_sq_scaled' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.operator_vi_rate_compose_scaled' \
+            bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.operator_vi_sameCone_perturbation_scaled' \
             bernstein-obstacle-axioms.log
 
       - name: Upload audit transcript

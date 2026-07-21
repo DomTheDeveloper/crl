@@ -1,0 +1,43 @@
+name: Bernstein V6 nonlinear benchmark
+
+on:
+  push:
+    branches:
+      - research/bernstein-v6-grand-inner-cone
+    paths:
+      - 'math/bernstein_obstacle/benchmarks/nonlinear_bernstein_vi_1d.py'
+      - '.github/workflows/bernstein-v6-nonlinear-benchmark.yml'
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/benchmarks/nonlinear_bernstein_vi_1d.py'
+      - '.github/workflows/bernstein-v6-nonlinear-benchmark.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install numerical dependencies
+        run: python -m pip install --upgrade pip numpy scipy
+      - name: Run nonlinear nonsymmetric complementarity benchmark
+        working-directory: math/bernstein_obstacle
+        run: |
+          python benchmarks/nonlinear_bernstein_vi_1d.py \
+            --levels 32,64,128,256 \
+            --output results/nonlinear_bernstein_vi_1d_ci.json
+      - name: Show result
+        working-directory: math/bernstein_obstacle
+        run: cat results/nonlinear_bernstein_vi_1d_ci.json
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-v6-nonlinear-benchmark
+          path: math/bernstein_obstacle/results/nonlinear_bernstein_vi_1d_ci.json
