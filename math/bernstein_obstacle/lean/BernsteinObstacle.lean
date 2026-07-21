@@ -1,5 +1,6 @@
 import BernsteinObstacle.Core
 import BernsteinObstacle.CoefficientCone
+import BernsteinObstacle.CoefficientClearance
 import BernsteinObstacle.Projection
 import BernsteinObstacle.ProjectionVI
 import BernsteinObstacle.Tensor
