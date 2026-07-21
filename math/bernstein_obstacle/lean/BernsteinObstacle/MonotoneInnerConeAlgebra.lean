@@ -33,8 +33,7 @@ theorem monotoneInnerCone_falk_sq
   calc
     e ^ 2 ≤ (L ^ 2 * r ^ 2 + 2 * α * residual) / α ^ 2 := hdiv
     _ = (L ^ 2 / α ^ 2) * r ^ 2 + (2 / α) * residual := by
-      field_simp [hα0]
-      ring
+      field_simp [hα0] <;> ring
 
 /-- Exact recovery (`residual = 0`) gives a Céa/Falk-type estimate for certified
 inner approximations. -/
