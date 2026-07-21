@@ -47,7 +47,7 @@ jobs:
             python3 .github/voronovskaja_migrate_round5.py
             sed -i 's/open scoped ENNREAL/open scoped ENNReal/' \
               FormalConjectures/Paper/VoronovskajaClassicalConcentration.lean
-          } 2>&1 | tee ../../../../migration.log
+          } 2>&1 | tee ../../../migration.log
       - name: Fetch Mathlib cache
         working-directory: ci/lean/Voronovskaja
         run: lake exe cache get
