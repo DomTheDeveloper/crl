@@ -61,6 +61,7 @@ jobs:
           lake env lean GeometryRecoveryAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SimplexAffineReproductionAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean SimplexAffineFieldAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
+          lake env lean SimplexIndexBridgeAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean EventuallySobolevFEMRecoveryAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean FreeBoundaryQuadraticLocalizationAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
           lake env lean AffineBernsteinAudit.lean 2>&1 | tee -a bernstein-obstacle-axioms.log
@@ -78,6 +79,7 @@ jobs:
           grep -F 'BernsteinObstacle.simplexSamplingRecovery_nonneg' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.simplexBasisNat_firstMoment' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.simplexFieldNat_affine_reproduction' bernstein-obstacle-axioms.log
+          grep -F 'BernsteinObstacle.simplexBasis_eq_simplexBasisNat' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.EventuallySobolevFEMRecoveryData.minimizers_strongConvergence' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.distance_lt_stripWidth_of_coefficient_neg' bernstein-obstacle-axioms.log
           grep -F 'BernsteinObstacle.clipped_orientedSimplexFaceTrace_eq_of_sharedDofs' bernstein-obstacle-axioms.log
