@@ -32,11 +32,9 @@ structure CubicQuadraticRep where
 
 namespace CubicLinearRep
 
-/-- Real evaluation. -/
 def eval (L : CubicLinearRep) (u v : ℝ) : ℝ :=
   L.constant.eval + L.uCoeff.eval * u + L.vCoeff.eval * v
 
-/-- Addition, negation, and cubic-field scalar multiplication. -/
 def add (L M : CubicLinearRep) : CubicLinearRep :=
   ⟨CubicRep.add L.constant M.constant,
    CubicRep.add L.uCoeff M.uCoeff,
@@ -76,13 +74,11 @@ end CubicLinearRep
 
 namespace CubicQuadraticRep
 
-/-- Real evaluation. -/
 def eval (Q : CubicQuadraticRep) (u v : ℝ) : ℝ :=
   Q.constant.eval + Q.uCoeff.eval * u + Q.vCoeff.eval * v +
     Q.uuCoeff.eval * u ^ 2 + Q.uvCoeff.eval * u * v +
       Q.vvCoeff.eval * v ^ 2
 
-/-- Zero, addition, negation, and cubic-field scaling. -/
 def zero : CubicQuadraticRep :=
   ⟨CubicRep.zero, CubicRep.zero, CubicRep.zero,
    CubicRep.zero, CubicRep.zero, CubicRep.zero⟩
@@ -110,12 +106,10 @@ def scale (a : CubicRep) (Q : CubicQuadraticRep) : CubicQuadraticRep :=
    CubicRep.mul a Q.uvCoeff,
    CubicRep.mul a Q.vvCoeff⟩
 
-/-- Embed a linear polynomial as a quadratic one. -/
 def ofLinear (L : CubicLinearRep) : CubicQuadraticRep :=
   ⟨L.constant, L.uCoeff, L.vCoeff,
    CubicRep.zero, CubicRep.zero, CubicRep.zero⟩
 
-/-- Product of two affine-linear polynomials. -/
 def mulLinear (L M : CubicLinearRep) : CubicQuadraticRep :=
   ⟨CubicRep.mul L.constant M.constant,
    CubicRep.add (CubicRep.mul L.constant M.uCoeff)
@@ -127,7 +121,6 @@ def mulLinear (L M : CubicLinearRep) : CubicQuadraticRep :=
      (CubicRep.mul L.vCoeff M.uCoeff),
    CubicRep.mul L.vCoeff M.vCoeff⟩
 
-/-- Compose a univariate quadratic `a + bt + ct²` with an affine-linear form. -/
 def composeUnivariate (a b c : CubicRep) (L : CubicLinearRep) : CubicQuadraticRep :=
   add (ofLinear (CubicLinearRep.add
       ⟨a, CubicRep.zero, CubicRep.zero⟩
@@ -170,11 +163,11 @@ def composeUnivariate (a b c : CubicRep) (L : CubicLinearRep) : CubicQuadraticRe
     (a b c : CubicRep) (L : CubicLinearRep) (u v : ℝ) :
     (composeUnivariate a b c L).eval u v =
       a.eval + b.eval * L.eval u v + c.eval * (L.eval u v) ^ 2 := by
-  simp [composeUnivariate, ofLinear, eval, CubicLinearRep.eval,
-    CubicLinearRep.add, CubicLinearRep.scale]
-  ring_nf
+  rw [composeUnivariate, eval_add, eval_ofLinear, CubicLinearRep.eval_add,
+    CubicLinearRep.eval_scale, eval_scale, eval_mulLinear]
+  simp [CubicLinearRep.eval]
+  ring
 
-/-- Coefficientwise extensionality is convenient for generated exact checks. -/
 @[ext] theorem ext {Q R : CubicQuadraticRep}
     (h0 : Q.constant = R.constant)
     (hu : Q.uCoeff = R.uCoeff)
