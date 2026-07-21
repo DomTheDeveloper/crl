@@ -41,7 +41,13 @@ jobs:
 
       - name: Build full library
         working-directory: math/bernstein_obstacle/lean
-        run: lake build BernsteinObstacle
+        shell: bash
+        run: |
+          set +e
+          lake build BernsteinObstacle 2>&1 | tee remainder-absorption-build.log
+          code=${PIPESTATUS[0]}
+          set -e
+          exit "$code"
 
       - name: Audit remainder endpoints
         working-directory: math/bernstein_obstacle/lean
@@ -64,5 +70,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bernstein-remainder-absorption-audit
-          path: math/bernstein_obstacle/lean/remainder-absorption-axioms.log
+          path: |
+            math/bernstein_obstacle/lean/remainder-absorption-build.log
+            math/bernstein_obstacle/lean/remainder-absorption-axioms.log
           if-no-files-found: warn
