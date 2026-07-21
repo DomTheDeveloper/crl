@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 concurrency:
   group: wowii145-${{ github.ref }}
@@ -39,12 +40,43 @@ jobs:
           lake update
           lake exe cache get
       - name: Build and audit
+        id: lean
         working-directory: math/wowii145
         shell: bash
         run: |
-          set -euo pipefail
-          lake build 2>&1 | tee wowii145-audit.log
-          lake env lean WOW145/Probe.lean 2>&1 | tee -a wowii145-audit.log
+          set +e
+          lake build > wowii145-audit.log 2>&1
+          status=$?
+          lake env lean WOW145/Conjecture145.lean >> wowii145-audit.log 2>&1
+          lean_status=$?
+          if [ "$status" -eq 0 ]; then status=$lean_status; fi
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Post diagnostic tail
+        if: always() && github.event_name == 'pull_request'
+        working-directory: math/wowii145
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          {
+            echo '<!-- wowii145-pinned-lean-audit -->'
+            if [ '${{ steps.lean.outputs.status }}' = '0' ]; then
+              echo '### Pinned Lean audit: PASS'
+            else
+              echo '### Pinned Lean audit: FAIL'
+            fi
+            echo
+            echo '```text'
+            tail -n 180 wowii145-audit.log
+            echo '```'
+          } > /tmp/wowii145-comment.md
+          gh pr comment "$PR_NUMBER" --body-file /tmp/wowii145-comment.md
+      - name: Enforce result
+        if: always()
+        shell: bash
+        run: test '${{ steps.lean.outputs.status }}' = '0'
       - name: Upload transcript
         if: always()
         uses: actions/upload-artifact@v4
