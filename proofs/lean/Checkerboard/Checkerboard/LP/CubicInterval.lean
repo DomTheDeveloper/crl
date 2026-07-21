@@ -4,12 +4,12 @@ import Checkerboard.LP.AlgebraicParameter
 # Rational quadratic sign certificates on the isolating interval
 
 Every generated outer-transport weight and every dual Bernstein coefficient is
-represented by `a + b*p + c*p^2`. The independent checkers establish signs by
+represented by `a + b*p + c*p^2`.  The independent checkers establish signs by
 minimizing this quadratic on the rational isolating interval for `p`.
 
 The lemmas below are the small trusted kernel for the generated sign proofs.
 They cover the three possible locations of a quadratic minimum: at the vertex,
-at the left endpoint, or at the right endpoint. They use no floating point.
+at the left endpoint, or at the right endpoint.  They use no floating point.
 -/
 
 namespace Checkerboard
@@ -48,7 +48,7 @@ theorem quadraticAt_ge_left_of_vertex_le
     ring
   have hsecond : 0 ≤ b + c * (x + l) := by
     nlinarith [mul_nonneg hc (sub_nonneg.mpr hlx)]
-  rw [← sub_nonneg, hfactor]
+  rw [sub_nonneg, hfactor]
   exact mul_nonneg (sub_nonneg.mpr hlx) hsecond
 
 /-- If the vertex of a convex quadratic lies weakly to the right of an
@@ -64,7 +64,7 @@ theorem quadraticAt_ge_right_of_vertex_ge
     ring
   have hsecond : b + c * (x + u) ≤ 0 := by
     nlinarith [mul_nonneg hc (sub_nonneg.mpr hxu)]
-  rw [← sub_nonneg, hfactor]
+  rw [sub_nonneg, hfactor]
   exact mul_nonneg_of_nonpos_of_nonpos (sub_nonpos.mpr hxu) hsecond
 
 /-- A concave quadratic is bounded below on a compact interval by the smaller
@@ -107,15 +107,22 @@ theorem quadraticAt_pos_of_concave_endpoints
   let m : ℝ := min (quadraticAt a b c l) (quadraticAt a b c u)
   have hm : 0 < m := lt_min hleft hright
   have hleft' : 0 ≤ quadraticAt (a - m) b c l := by
-    dsimp [m, quadraticAt]
-    nlinarith [min_le_left (quadraticAt a b c l) (quadraticAt a b c u)]
+    rw [show quadraticAt (a - m) b c l = quadraticAt a b c l - m by
+      unfold quadraticAt
+      ring]
+    exact sub_nonneg.mpr (min_le_left _ _)
   have hright' : 0 ≤ quadraticAt (a - m) b c u := by
-    dsimp [m, quadraticAt]
-    nlinarith [min_le_right (quadraticAt a b c l) (quadraticAt a b c u)]
+    rw [show quadraticAt (a - m) b c u = quadraticAt a b c u - m by
+      unfold quadraticAt
+      ring]
+    exact sub_nonneg.mpr (min_le_right _ _)
   have hx' : 0 ≤ quadraticAt (a - m) b c x :=
     quadraticAt_nonneg_of_concave_endpoints hlu hc hlx hxu hleft' hright'
-  dsimp [quadraticAt] at hx' ⊢
-  nlinarith
+  have hshift : quadraticAt (a - m) b c x = quadraticAt a b c x - m := by
+    unfold quadraticAt
+    ring
+  rw [hshift] at hx'
+  linarith
 
 /-- Strict left-endpoint certificate. -/
 theorem quadraticAt_pos_of_left_certificate
