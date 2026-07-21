@@ -13,6 +13,7 @@ import BernsteinObstacle.SimplexAffineReproduction
 import BernsteinObstacle.SimplexAffineField
 import BernsteinObstacle.SimplexIndexBridge
 import BernsteinObstacle.SimplexSamplingAffine
+import BernsteinObstacle.AffineRemainderConsistency
 import BernsteinObstacle.SimplexPartition
 import BernsteinObstacle.AffineLattice
 import BernsteinObstacle.LatticeCardinal
