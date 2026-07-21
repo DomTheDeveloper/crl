@@ -1,4 +1,4 @@
--- Final direct-source kernel audit for closure commit 65918b1.
+-- Final direct-source kernel audit for closure commit f3d6103.
 import FormalConjectures.Paper.VoronovskajaTypeFormula
 
 #check VoronovskajaTypeFormula.voronovskaja_theorem.bernstein_operators
