@@ -26,6 +26,9 @@ jobs:
   audit:
     runs-on: windows-latest
     timeout-minutes: 300
+    env:
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
     steps:
       - uses: actions/checkout@v4
       - name: Recover and validate Handelman source
