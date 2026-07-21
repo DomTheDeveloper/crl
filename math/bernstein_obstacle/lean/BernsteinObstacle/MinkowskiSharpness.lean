@@ -2,6 +2,7 @@ import BernsteinObstacle.MinkowskiSaturation
 import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
 import Mathlib.Tactic
 
+open MeasureTheory
 open scoped Interval
 
 namespace BernsteinObstacle
