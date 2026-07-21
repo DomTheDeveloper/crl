@@ -15,7 +15,7 @@ Jacobian and phase-separation constants.
 when `|t| ≤ r`, `|κ| ≤ K`, and `K r ≤ 1/2`. -/
 theorem tubularJacobian_bounds
     (K r k t : ℝ)
-    (hK : 0 ≤ K) (hr : 0 ≤ r)
+    (_hK : 0 ≤ K) (hr : 0 ≤ r)
     (hk : |k| ≤ K) (ht : |t| ≤ r)
     (hKr : K * r ≤ 1 / 2) :
     (1 / 2 : ℝ) ≤ 1 - t * k ∧ 1 - t * k ≤ 3 / 2 := by
@@ -34,8 +34,6 @@ theorem tubularJacobian_bounds
     linarith
   constructor <;> linarith
 
-/-- A centered fiber remains uniformly phase separated if the actual crossing is
-within one quarter of the fiber half-width from its tangent-model center. -/
 theorem centeredFiber_phase_bounds
     (c h delta : ℝ)
     (hc : 0 < c) (hh : 0 < h)
@@ -50,11 +48,9 @@ theorem centeredFiber_phase_bounds
   · apply (div_le_iff₀ hden).2
     nlinarith
 
-/-- A quadratic curvature displacement fits inside the phase margin once
-`K c h ≤ 1`. -/
 theorem quadraticDisplacement_within_centeredMargin
     (K c h delta : ℝ)
-    (hK : 0 ≤ K) (hc : 0 < c) (hh : 0 < h)
+    (_hK : 0 ≤ K) (hc : 0 < c) (hh : 0 < h)
     (hsmall : K * c * h ≤ 1)
     (hdelta : |delta| ≤ K * (c * h) ^ 2 / 2) :
     |delta| ≤ c * h / 2 := by
@@ -66,8 +62,6 @@ theorem quadraticDisplacement_within_centeredMargin
     nlinarith
   exact hdelta.trans hbound
 
-/-- Curvature-scale displacement preserves the uniform phase interval
-`[1/4,3/4]`. -/
 theorem curvedFiber_phase_bounds
     (K c h delta : ℝ)
     (hK : 0 ≤ K) (hc : 0 < c) (hh : 0 < h)
@@ -79,8 +73,6 @@ theorem curvedFiber_phase_bounds
   exact quadraticDisplacement_within_centeredMargin
     K c h delta hK hc hh hsmall hdelta
 
-/-- The same smallness condition gives a positive tubular Jacobian on every
-normal fiber of half-width `c h`. -/
 theorem curvedFiber_jacobian_bounds
     (K c h k t : ℝ)
     (hK : 0 ≤ K) (hc : 0 ≤ c) (hh : 0 ≤ h)
@@ -90,18 +82,19 @@ theorem curvedFiber_jacobian_bounds
   apply tubularJacobian_bounds K (c * h) k t hK (mul_nonneg hc hh) hk ht
   simpa [mul_assoc] using hsmall
 
-/-- Abstract local remainder estimate: if the gradient error is bounded by
-`C h^(1+κ)` and the element area is at most `V h²`, then its squared energy is
-bounded by `C² V h^(4+2κ)`. -/
 theorem curvedElement_remainderEnergy_bound
     (energy C V h : ℝ) (kappa : ℕ)
     (henergy : energy ≤ (C * h ^ (1 + kappa)) ^ 2 * (V * h ^ 2)) :
     energy ≤ C ^ 2 * V * h ^ (4 + 2 * kappa) := by
   calc
     energy ≤ (C * h ^ (1 + kappa)) ^ 2 * (V * h ^ 2) := henergy
+    _ = C ^ 2 * V * ((h ^ (1 + kappa)) ^ 2 * h ^ 2) := by ring
+    _ = C ^ 2 * V * (h ^ ((1 + kappa) * 2) * h ^ 2) := by
+      rw [← pow_mul]
+    _ = C ^ 2 * V * h ^ ((1 + kappa) * 2 + 2) := by
+      rw [pow_add]
     _ = C ^ 2 * V * h ^ (4 + 2 * kappa) := by
-      rw [mul_pow, ← pow_add]
-      congr 1
+      congr 2
       omega
 
 end BernsteinObstacle
