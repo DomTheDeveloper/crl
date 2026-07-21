@@ -31,6 +31,7 @@ theorem map_volume_restrict_Icc_affine
     constructor <;> rintro ⟨hl,hu⟩ <;> constructor <;> nlinarith
   have hrestrict := Measure.restrict_map
     (μ := volume) (f := fun x : ℝ => a + s * x)
+    (s := Set.Icc (a + s * lo) (a + s * hi))
     (by fun_prop) measurableSet_Icc
   rw [hpre] at hrestrict
   have hmap :
@@ -70,7 +71,7 @@ theorem map_volume_restrict_Icc_affine_neg
         (volume.restrict (Set.Icc lo hi)) =
       ENNReal.ofReal s⁻¹ •
         volume.restrict (Set.Icc (a - s * hi) (a - s * lo)) := by
-  have hs0 : (-s : ℝ) ≠ 0 := by positivity
+  have hs0 : (-s : ℝ) ≠ 0 := neg_ne_zero.mpr (ne_of_gt hs)
   have hpre :
       (fun x : ℝ => a - s * x) ⁻¹'
           Set.Icc (a - s * hi) (a - s * lo) = Set.Icc lo hi := by
@@ -79,6 +80,7 @@ theorem map_volume_restrict_Icc_affine_neg
     constructor <;> rintro ⟨hl,hu⟩ <;> constructor <;> nlinarith
   have hrestrict := Measure.restrict_map
     (μ := volume) (f := fun x : ℝ => a - s * x)
+    (s := Set.Icc (a - s * hi) (a - s * lo))
     (by fun_prop) measurableSet_Icc
   rw [hpre] at hrestrict
   have hmap :
@@ -129,7 +131,7 @@ theorem map_intervalDensity_affine
   have hs0 : 0 ≤ s⁻¹ := inv_nonneg.mpr hs.le
   have hmul :
       ENNReal.ofReal c * ENNReal.ofReal s⁻¹ = ENNReal.ofReal (c / s) := by
-    rw [← ENNReal.ofReal_mul hc hs0]
+    rw [← ENNReal.ofReal_mul hc]
     congr 1
     field_simp [ne_of_gt hs]
   rw [smul_smul, hmul]
@@ -148,7 +150,7 @@ theorem map_intervalDensity_affine_neg
   have hs0 : 0 ≤ s⁻¹ := inv_nonneg.mpr hs.le
   have hmul :
       ENNReal.ofReal c * ENNReal.ofReal s⁻¹ = ENNReal.ofReal (c / s) := by
-    rw [← ENNReal.ofReal_mul hc hs0]
+    rw [← ENNReal.ofReal_mul hc]
     congr 1
     field_simp [ne_of_gt hs]
   rw [smul_smul, hmul]
