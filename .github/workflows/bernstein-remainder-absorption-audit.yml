@@ -54,8 +54,10 @@ jobs:
             exit 1
           fi
           grep -F 'BernsteinObstacle.threeHalvesLowerBound_stable_under_higherOrderRemainder' remainder-absorption-axioms.log
+          grep -F 'BernsteinObstacle.threeHalvesLowerBound_stable_under_rpowRemainder' remainder-absorption-axioms.log
           grep -F 'BernsteinObstacle.threeHalvesLowerBound_stable_with_fraction' remainder-absorption-axioms.log
           grep -F 'BernsteinObstacle.freeBoundary_error_ge_half_threeHalves_of_model_remainder' remainder-absorption-axioms.log
+          grep -F 'BernsteinObstacle.freeBoundary_error_ge_half_threeHalves_of_model_rpowRemainder' remainder-absorption-axioms.log
 
       - name: Upload audit transcript
         if: always()
