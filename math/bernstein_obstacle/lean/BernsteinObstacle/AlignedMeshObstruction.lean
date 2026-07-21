@@ -67,7 +67,8 @@ theorem quadraticContactPhaseWeight_tendsto_zero
     unfold quadraticContactPhaseWeight
     fun_prop
   change Filter.Tendsto (quadraticContactPhaseWeight ∘ theta) l (nhds 0)
-  exact hcont.continuousAt.tendsto.comp htheta
+  have hlimit := hcont.continuousAt.tendsto.comp htheta
+  simpa using hlimit
 
 theorem quadraticContactPhaseCoefficient_tendsto_zero
     {ι : Type*} {l : Filter ι} (theta : ι → ℝ)
@@ -79,6 +80,7 @@ theorem quadraticContactPhaseCoefficient_tendsto_zero
   have hsqrt : Continuous Real.sqrt := Real.continuous_sqrt
   change Filter.Tendsto
     (Real.sqrt ∘ fun i => quadraticContactPhaseWeight (theta i)) l (nhds 0)
-  exact hsqrt.continuousAt.tendsto.comp hweight
+  have hlimit := hsqrt.continuousAt.tendsto.comp hweight
+  simpa using hlimit
 
 end BernsteinObstacle
