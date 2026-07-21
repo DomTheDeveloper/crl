@@ -83,10 +83,10 @@ theorem monotoneInnerCone_operator_core
           ⟪F u, recovery - u⟫_ℝ := hsplit
     _ ≤ (‖F udisc - F u‖ * ‖recovery - u‖) +
           ⟪F u, recovery - u⟫_ℝ :=
-      add_le_add_right hcauchy _
+      add_le_add hcauchy (le_refl _)
     _ ≤ ((L * ‖udisc - u‖) * ‖recovery - u‖) +
           ⟪F u, recovery - u⟫_ℝ :=
-      add_le_add_right hlipRecovery _
+      add_le_add hlipRecovery (le_refl _)
     _ = L * ‖udisc - u‖ * ‖recovery - u‖ +
           ⟪F u, recovery - u⟫_ℝ := by ring
 
