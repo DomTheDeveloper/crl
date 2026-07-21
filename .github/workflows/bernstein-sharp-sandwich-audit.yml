@@ -45,6 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           lake build BernsteinObstacle 2>&1 | tee sharp-sandwich-build.log
+          lake env lean BernsteinObstacle/NormedPhysicalSaturation.lean 2>&1 | tee -a sharp-sandwich-build.log
           lake env lean BernsteinObstacle/SharpQuadraticSaturation.lean 2>&1 | tee -a sharp-sandwich-build.log
 
       - name: Audit sharp saturation endpoints
