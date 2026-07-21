@@ -1,0 +1,70 @@
+name: Bernstein fixed shift limsup Lean audit
+
+on:
+  push:
+    branches:
+      - formal/bernstein-fixed-shift-limsup-v2
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-fixed-shift-limsup-audit.yml'
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-fixed-shift-limsup-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-fixed-shift-limsup-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+      - name: Build fixed shift limsup endpoint
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build BernsteinObstacle.GenericShiftLimsup 2>&1 | tee fixed-shift-limsup-build.log
+          lake build BernsteinObstacle 2>&1 | tee -a fixed-shift-limsup-build.log
+      - name: Audit fixed shift limsup endpoints
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > FixedShiftLimsupAudit.lean <<'EOF'
+          import BernsteinObstacle.GenericShiftLimsup
+          #print axioms BernsteinObstacle.measure_infinitelyOftenGood_ge
+          #print axioms BernsteinObstacle.measureReal_infinitelyOftenGood_ge
+          #print axioms BernsteinObstacle.genericShift_infinitelyOften_measure_lowerBound
+          #print axioms BernsteinObstacle.exists_translation_good_infinitelyOften
+          EOF
+          lake env lean FixedShiftLimsupAudit.lean 2>&1 | tee fixed-shift-limsup-axioms.log
+          if grep -q 'sorryAx' fixed-shift-limsup-axioms.log; then exit 1; fi
+          grep -F 'BernsteinObstacle.measure_infinitelyOftenGood_ge' fixed-shift-limsup-axioms.log
+          grep -F 'BernsteinObstacle.genericShift_infinitelyOften_measure_lowerBound' fixed-shift-limsup-axioms.log
+          grep -F 'BernsteinObstacle.exists_translation_good_infinitelyOften' fixed-shift-limsup-axioms.log
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-fixed-shift-limsup-audit
+          path: |
+            math/bernstein_obstacle/lean/fixed-shift-limsup-build.log
+            math/bernstein_obstacle/lean/fixed-shift-limsup-axioms.log
+          if-no-files-found: warn
