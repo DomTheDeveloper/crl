@@ -1,0 +1,70 @@
+name: Bernstein curved explicit threshold Lean audit
+
+on:
+  push:
+    branches:
+      - formal/bernstein-curved-explicit-threshold-v2
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-curved-explicit-threshold-audit.yml'
+  pull_request:
+    paths:
+      - 'math/bernstein_obstacle/lean/**'
+      - '.github/workflows/bernstein-curved-explicit-threshold-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-curved-explicit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+      - name: Build explicit curved endpoint
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build BernsteinObstacle.CurvedExplicitThreshold 2>&1 | tee curved-explicit-build.log
+          lake build BernsteinObstacle 2>&1 | tee -a curved-explicit-build.log
+      - name: Audit explicit curved endpoints
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > CurvedExplicitAudit.lean <<'EOF'
+          import BernsteinObstacle.CurvedExplicitThreshold
+          #print axioms BernsteinObstacle.curvedMeshThreshold_implies_smallness
+          #print axioms BernsteinObstacle.curvedMeshThreshold_phase_and_jacobian
+          #print axioms BernsteinObstacle.curvedWeightedPrism_integral_lowerBound_explicit
+          #print axioms BernsteinObstacle.curvedWeightedPrism_localEnergy_lowerBound_explicit
+          EOF
+          lake env lean CurvedExplicitAudit.lean 2>&1 | tee curved-explicit-axioms.log
+          if grep -q 'sorryAx' curved-explicit-axioms.log; then exit 1; fi
+          grep -F 'BernsteinObstacle.curvedMeshThreshold_phase_and_jacobian' curved-explicit-axioms.log
+          grep -F 'BernsteinObstacle.curvedWeightedPrism_integral_lowerBound_explicit' curved-explicit-axioms.log
+          grep -F 'BernsteinObstacle.curvedWeightedPrism_localEnergy_lowerBound_explicit' curved-explicit-axioms.log
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-curved-explicit-threshold-audit
+          path: |
+            math/bernstein_obstacle/lean/curved-explicit-build.log
+            math/bernstein_obstacle/lean/curved-explicit-axioms.log
+          if-no-files-found: warn
