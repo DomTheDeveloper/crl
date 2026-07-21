@@ -54,11 +54,11 @@ theorem convexMetricProjection_inner_le_zero
     inner ℝ
       (x - convexMetricProjection C hCne hCclosed hCconv x)
       (y - convexMetricProjection C hCne hCclosed hCconv x) ≤ 0 := by
-  apply (norm_eq_iInf_iff_real_inner_le_zero hCconv
-    (convexMetricProjection_mem C hCne hCclosed hCconv x)).1
-  exact convexMetricProjection_norm_eq_iInf C hCne hCclosed hCconv x
-  exact y
-  exact hy
+  have hcharacterization :=
+    (norm_eq_iInf_iff_real_inner_le_zero hCconv
+      (convexMetricProjection_mem C hCne hCclosed hCconv x)).1
+      (convexMetricProjection_norm_eq_iInf C hCne hCclosed hCconv x)
+  exact hcharacterization y hy
 
 /-- Projecting every complete Bernstein coefficient onto a nonempty closed
 convex target gives an exactly pointwise feasible vector field. -/
