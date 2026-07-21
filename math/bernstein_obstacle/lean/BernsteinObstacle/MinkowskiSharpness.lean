@@ -53,8 +53,7 @@ theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity
   rw [intervalIntegral.integral_add (hconst.sub hlin) hquad]
   rw [intervalIntegral.integral_sub hconst hlin]
   rw [intervalIntegral.integral_const_mul, intervalIntegral.integral_const_mul]
-  rw [intervalIntegral.integral_const, intervalIntegral.integral_id,
-    intervalIntegral.integral_pow]
+  rw [intervalIntegral.integral_const, integral_id, integral_pow]
   norm_num
   ring
 
