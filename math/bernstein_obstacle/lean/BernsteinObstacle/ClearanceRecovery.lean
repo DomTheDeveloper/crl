@@ -62,9 +62,14 @@ theorem eventually_norm_lt_clearance
     (hdelta : 0 < delta)
     (herr : Tendsto err atTop (nhds 0)) :
     ∀ᶠ n in atTop, ‖err n‖ < delta := by
-  have hnorm : Tendsto (fun n => ‖err n‖) atTop (nhds 0) :=
+  have hnorm :
+      Tendsto ((fun y : E => ‖y‖) ∘ err) atTop (nhds ‖(0 : E)‖) :=
     tendsto_norm.comp herr
-  exact (tendsto_order.1 hnorm).2 delta hdelta
+  have hzeroDelta : ‖(0 : E)‖ < delta := by
+    simpa using hdelta
+  have hclose : ∀ᶠ n in atTop, ((fun y : E => ‖y‖) ∘ err) n < delta :=
+    (tendsto_order.1 hnorm).2 delta hzeroDelta
+  simpa only [Function.comp_apply] using hclose
 
 /-- Strict stagewise clearance converts quantitative FEM convergence into the
 ordinary eventual-feasibility recovery interface. -/
