@@ -41,9 +41,12 @@ theorem nested_hilbert_vi_error_sq_tendsto_zero_of_recovery
   have hsquare :
       Tendsto (fun k => ‖r k - z‖ ^ 2) atTop (nhds (‖u - z‖ ^ 2)) :=
     hnorm.pow 2
+  have hconst :
+      Tendsto (fun _ : ℕ => ‖u - z‖ ^ 2) atTop (nhds (‖u - z‖ ^ 2)) :=
+    tendsto_const_nhds
   have hgap :
       Tendsto (fun k => ‖r k - z‖ ^ 2 - ‖u - z‖ ^ 2) atTop (nhds 0) := by
-    simpa using hsquare.sub tendsto_const_nhds
+    simpa using hsquare.sub hconst
   exact squeeze_zero'
     (Eventually.of_forall (fun k => sq_nonneg ‖udisc k - u‖))
     (Eventually.of_forall (fun k =>
@@ -65,11 +68,15 @@ theorem nested_hilbert_vi_strongConvergence_of_recovery
     StronglyConverges udisc u := by
   have hsquare := nested_hilbert_vi_error_sq_tendsto_zero_of_recovery
     Kdisc K z u udisc r hsubset hu hudisc hrmem hr
+  have hsqrt :
+      Tendsto (fun k => Real.sqrt (‖udisc k - u‖ ^ 2)) atTop
+        (nhds (Real.sqrt 0)) :=
+    Real.continuous_sqrt.continuousAt.tendsto.comp hsquare
   have hnorm : Tendsto (fun k => ‖udisc k - u‖) atTop (nhds 0) := by
-    have hsqrt := Real.continuousAt_sqrt.tendsto.comp hsquare
     simpa using hsqrt
   unfold StronglyConverges
-  exact tendsto_iff_norm_tendsto_zero.mpr hnorm
+  rw [tendsto_iff_norm_sub_tendsto_zero]
+  simpa [norm_sub_rev] using hnorm
 
 /-- The threshold-form Sobolev/FEM recovery package is sufficient by itself to
 prove strong convergence of nested projection-form obstacle VI solutions. No
