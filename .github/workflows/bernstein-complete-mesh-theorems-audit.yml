@@ -45,6 +45,7 @@ jobs:
           lake build BernsteinObstacle.DesignedTubularMesh 2>&1 | tee -a mesh-theorems-build.log
           lake build BernsteinObstacle.AlignedMeshObstruction 2>&1 | tee -a mesh-theorems-build.log
           lake build BernsteinObstacle.PhaseWeightedSaturation 2>&1 | tee -a mesh-theorems-build.log
+          lake build BernsteinObstacle.MeshTheoremCompositions 2>&1 | tee -a mesh-theorems-build.log
       - name: Build complete inherited library
         working-directory: math/bernstein_obstacle/lean
         run: lake build BernsteinObstacle 2>&1 | tee -a mesh-theorems-build.log
@@ -55,11 +56,11 @@ jobs:
           set -euo pipefail
           lake env lean MeshInstantiationAudit.lean 2>&1 | tee mesh-theorems-axioms.log
           if grep -q 'sorryAx' mesh-theorems-axioms.log; then exit 1; fi
-          grep -F 'BernsteinObstacle.flatBenchmark_sharp_sandwich' mesh-theorems-axioms.log
-          grep -F 'BernsteinObstacle.goodTranslationSet_measure_lowerBound' mesh-theorems-axioms.log
-          grep -F 'BernsteinObstacle.curvedFiber_phase_bounds' mesh-theorems-axioms.log
-          grep -F 'BernsteinObstacle.exactRepresentability_refutes_positiveLowerBound' mesh-theorems-axioms.log
-          grep -F 'BernsteinObstacle.phaseWeighted_error_ge_threeHalves_of_sum_le_sq' mesh-theorems-axioms.log
+          grep -F 'BernsteinObstacle.flatInterface_discreteError_sharp' mesh-theorems-axioms.log
+          grep -F 'BernsteinObstacle.genericShift_goodMeasure_and_retainedCount' mesh-theorems-axioms.log
+          grep -F 'BernsteinObstacle.genericShift_positiveMeasure_sharpFamily' mesh-theorems-axioms.log
+          grep -F 'BernsteinObstacle.designedTubularMesh_uniformPackage' mesh-theorems-axioms.log
+          grep -F 'BernsteinObstacle.arbitraryMesh_obstruction_and_phaseWeighted_replacement' mesh-theorems-axioms.log
       - name: Upload audit evidence
         if: always()
         uses: actions/upload-artifact@v4
