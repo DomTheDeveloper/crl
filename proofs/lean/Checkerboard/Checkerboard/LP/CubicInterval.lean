@@ -48,7 +48,7 @@ theorem quadraticAt_ge_left_of_vertex_le
     ring
   have hsecond : 0 ≤ b + c * (x + l) := by
     nlinarith [mul_nonneg hc (sub_nonneg.mpr hlx)]
-  rw [sub_nonneg, hfactor]
+  rw [← sub_nonneg, hfactor]
   exact mul_nonneg (sub_nonneg.mpr hlx) hsecond
 
 /-- If the vertex of a convex quadratic lies weakly to the right of an
@@ -64,7 +64,7 @@ theorem quadraticAt_ge_right_of_vertex_ge
     ring
   have hsecond : b + c * (x + u) ≤ 0 := by
     nlinarith [mul_nonneg hc (sub_nonneg.mpr hxu)]
-  rw [sub_nonneg, hfactor]
+  rw [← sub_nonneg, hfactor]
   exact mul_nonneg_of_nonpos_of_nonpos (sub_nonpos.mpr hxu) hsecond
 
 /-- A concave quadratic is bounded below on a compact interval by the smaller
