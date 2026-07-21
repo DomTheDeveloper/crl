@@ -12,7 +12,7 @@ noncomputable section
 # Direct Hilbert-VI transfer for assembled Bernstein cones
 
 The generic assembled theorem previously exposed a comparison-error hypothesis
-`hsolution`.  For projection-form obstacle variational inequalities in the
+`hsolution`. For projection-form obstacle variational inequalities in the
 finite global coefficient Hilbert space, that hypothesis is unnecessary:
 strong feasible recovery and the Hilbert Pythagorean inequality directly force
 strong convergence of the actual discrete VI solutions.
@@ -32,9 +32,8 @@ theorem AssembledFreeCoefficientRecoveryData.hilbertVISolutions_strongConvergenc
     (hudisc : ∀ n,
       IsHilbertVISolution (assemblyFeasibleSet (D.assembly n)) z (udisc n)) :
     StronglyConverges udisc u := by
-  exact
-    D.toClearanceData.toAsymptoticData.toThresholdData
-      |>.hilbertVISolutions_strongConvergence z u udisc hu hudisc
+  let T := D.toClearanceData.toAsymptoticData.toThresholdData
+  exact T.hilbertVISolutions_strongConvergence z u udisc hu hudisc
 
 /-- The same concrete assembled data simultaneously yields Mosco convergence
 and direct strong convergence of the actual projection-form VI solutions,
