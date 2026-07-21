@@ -1,4 +1,4 @@
--- Final child-PR audit trigger.
+-- Final child-PR audit trigger after refreshing the exact source pin.
 import FormalConjectures.GreensOpenProblems.Green14FastKernel20
 
 #check Green14.FastKernel.valid_20
