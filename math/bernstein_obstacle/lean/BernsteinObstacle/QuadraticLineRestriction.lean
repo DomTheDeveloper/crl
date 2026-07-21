@@ -84,12 +84,13 @@ theorem hasDerivAt_quadraticPolynomial
     HasDerivAt (fun s : ℝ => A * s ^ 2 + B * s + C)
       (2 * A * t + B) t := by
   have hsq : HasDerivAt (fun s : ℝ => s ^ 2) (2 * t) t := by
-    convert (hasDerivAt_id' t).pow 2 using 1 <;> ring
+    simpa using (hasDerivAt_id' t).pow 2
   have hA : HasDerivAt (fun s : ℝ => A * s ^ 2) (A * (2 * t)) t :=
     hsq.const_mul A
   have hB : HasDerivAt (fun s : ℝ => B * s) B t := by
     simpa using (hasDerivAt_id' t).const_mul B
-  convert (hA.add hB).add_const C using 1 <;> ring
+  simpa [mul_assoc, mul_left_comm, mul_comm] using
+    (hA.add hB).add_const C
 
 /-- The restriction of a coordinate-free quadratic to an affine line has the
 claimed affine derivative at every scalar parameter. -/
