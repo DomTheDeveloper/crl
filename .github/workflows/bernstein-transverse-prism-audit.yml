@@ -3,7 +3,7 @@ name: Bernstein transverse prism Lean audit
 on:
   push:
     branches:
-      - formal/bernstein-transverse-prism-v2
+      - formal/bernstein-transverse-prism-v4
     paths:
       - 'math/bernstein_obstacle/lean/**'
       - '.github/workflows/bernstein-transverse-prism-audit.yml'
@@ -41,7 +41,13 @@ jobs:
 
       - name: Build full library
         working-directory: math/bernstein_obstacle/lean
-        run: lake build BernsteinObstacle
+        shell: bash
+        run: |
+          set +e
+          lake build BernsteinObstacle 2>&1 | tee transverse-prism-build.log
+          code=${PIPESTATUS[0]}
+          set -e
+          exit "$code"
 
       - name: Audit transverse-prism endpoints
         working-directory: math/bernstein_obstacle/lean
@@ -53,13 +59,18 @@ jobs:
             echo 'Unexpected sorryAx found' >&2
             exit 1
           fi
+          grep -F 'BernsteinObstacle.QuadraticPolynomialData.hasDerivAt_eval_affineLine' transverse-prism-axioms.log
           grep -F 'BernsteinObstacle.transversePrism_fiberIntegral_lowerBound' transverse-prism-axioms.log
-          grep -F 'BernsteinObstacle.transversePrism_localEnergy_lowerBound' transverse-prism-axioms.log
+          grep -F 'BernsteinObstacle.referencePrism_quadraticPolynomial_exactEnergy_lowerBound' transverse-prism-axioms.log
+          grep -F 'BernsteinObstacle.weightedTransversePrism_quadraticPolynomial_localEnergy_lowerBound' transverse-prism-axioms.log
+          grep -F 'BernsteinObstacle.norm_threeHalvesLowerBound_survives_higherOrderRemainder' transverse-prism-axioms.log
 
-      - name: Upload audit transcript
+      - name: Upload audit evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bernstein-transverse-prism-audit
-          path: math/bernstein_obstacle/lean/transverse-prism-axioms.log
+          path: |
+            math/bernstein_obstacle/lean/transverse-prism-build.log
+            math/bernstein_obstacle/lean/transverse-prism-axioms.log
           if-no-files-found: warn
