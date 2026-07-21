@@ -20,7 +20,7 @@ theorem optimalBulkRate_of_balanced_interface
     (hbalance : g * Real.sqrt g ≤ h ^ r) :
     e ≤ 2 * C * h ^ r := by
   have hsum : h ^ r + g * Real.sqrt g ≤ h ^ r + h ^ r :=
-    add_le_add_left hbalance _
+    add_le_add (le_refl _) hbalance
   calc
     e ≤ C * (h ^ r + g * Real.sqrt g) := hrate
     _ ≤ C * (h ^ r + h ^ r) := mul_le_mul_of_nonneg_left hsum hC
