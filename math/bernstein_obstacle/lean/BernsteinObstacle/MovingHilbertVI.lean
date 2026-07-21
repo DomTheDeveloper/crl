@@ -80,13 +80,13 @@ theorem nested_hilbert_vi_strongConvergence_of_recovery
   let gap : ℕ → ℝ := fun k => ‖r k - z‖ ^ 2 - ‖u - z‖ ^ 2
   have hgap : Tendsto gap atTop (nhds 0) := by
     simpa [gap] using hsquare.sub hconst
-  let err : ℕ → ℝ := fun k => Real.sqrt (gap k)
+  let err : ℕ → ℝ := (fun x : ℝ => Real.sqrt x) ∘ gap
   have herr : Tendsto err atTop (nhds 0) := by
-    have hsqrt := Real.continuous_sqrt.continuousAt.tendsto.comp hgap
-    simpa [err] using hsqrt
+    exact Real.continuous_sqrt.continuousAt.tendsto.comp hgap
   exact stronglyConverges_of_recovery_closeness
     udisc (fun _ => u) u err tendsto_const_nhds
     (fun k => by
+      change ‖udisc k - u‖ ≤ Real.sqrt (gap k)
       apply Real.le_sqrt_of_sq_le
       exact nested_hilbert_vi_recovery_error_sq
         (Kdisc k) K z (udisc k) u (r k)
