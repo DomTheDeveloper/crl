@@ -1,4 +1,4 @@
--- Final child-PR audit trigger for closure commit 65918b1.
+-- Final child-PR audit trigger for closure commit 65918b1; capture migration diagnostics.
 import FormalConjectures.Paper.VoronovskajaTypeFormula
 
 #check VoronovskajaTypeFormula.voronovskaja_theorem.bernstein_operators
