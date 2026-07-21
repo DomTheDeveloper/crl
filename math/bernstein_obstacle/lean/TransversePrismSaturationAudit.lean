@@ -1,0 +1,7 @@
+import BernsteinObstacle.TransversePrismSaturation
+
+#check BernsteinObstacle.transversePrism_fiberIntegral_lowerBound
+#check BernsteinObstacle.transversePrism_localEnergy_lowerBound
+
+#print axioms BernsteinObstacle.transversePrism_fiberIntegral_lowerBound
+#print axioms BernsteinObstacle.transversePrism_localEnergy_lowerBound
