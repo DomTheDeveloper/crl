@@ -13,13 +13,13 @@ theorem intervalIntegral_quadraticPolynomial
         b * (r ^ 2 - l ^ 2) / 2 + c * (r - l) := by
   have hquad : IntervalIntegrable (fun x : ℝ => a * x ^ 2)
       MeasureTheory.volume l r :=
-    (by fun_prop : Continuous (fun x : ℝ => a * x ^ 2)).intervalIntegrable
+    (by fun_prop : Continuous (fun x : ℝ => a * x ^ 2)).intervalIntegrable l r
   have hlin : IntervalIntegrable (fun x : ℝ => b * x)
       MeasureTheory.volume l r :=
-    (by fun_prop : Continuous (fun x : ℝ => b * x)).intervalIntegrable
+    (by fun_prop : Continuous (fun x : ℝ => b * x)).intervalIntegrable l r
   have hconst : IntervalIntegrable (fun _ : ℝ => c)
       MeasureTheory.volume l r :=
-    continuous_const.intervalIntegrable
+    continuous_const.intervalIntegrable l r
   rw [intervalIntegral.integral_add (hquad.add hlin) hconst]
   rw [intervalIntegral.integral_add hquad hlin]
   rw [intervalIntegral.integral_const_mul,
