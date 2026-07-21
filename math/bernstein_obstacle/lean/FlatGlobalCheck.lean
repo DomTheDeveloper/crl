@@ -1,4 +1,7 @@
 import BernsteinObstacle.FlatInterfaceGlobal
 
 #print axioms BernsteinObstacle.flatInterface_squareEnergies_lowerSq
+#print axioms BernsteinObstacle.flatInterface_prismPairs_lowerSq
 #print axioms BernsteinObstacle.flatInterface_hilbertVI_sharp_of_squareEnergies
+#print axioms BernsteinObstacle.flatInterface_hilbertVI_sharp_from_prismPairs
+#print axioms BernsteinObstacle.flatInterface_hilbertVI_sharp_of_finPatch
