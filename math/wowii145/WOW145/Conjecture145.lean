@@ -33,11 +33,14 @@ private lemma nonadjacent_nonneighbors_of_indepNeighborsCard_compl_eq_one
     exact congrArg Subtype.val h
   have hind : ((Gᶜ).induce ((Gᶜ).neighborSet v)).IsIndepSet
       ({x', y'} : Finset ((Gᶜ).neighborSet v)) := by
-    rw [SimpleGraph.isIndepSet_iff, Set.pairwise_pair]
+    rw [SimpleGraph.isIndepSet_iff]
+    change Set.Pairwise ({x', y'} : Set ((Gᶜ).neighborSet v))
+      (fun a b => ¬((Gᶜ).induce ((Gᶜ).neighborSet v)).Adj a b)
+    rw [Set.pairwise_pair]
     intro _
     constructor
-    · simpa [x', y'] using hxy
-    · simpa [x', y'] using hxy.symm
+    · simp [x', y', hxy]
+    · simp [x', y', hxy.symm]
   have hle := hind.card_le_indepNum
   have htwo : 2 ≤ indepNeighborsCard Gᶜ v := by
     simpa [indepNeighborsCard, Finset.card_pair hxy'] using hle
