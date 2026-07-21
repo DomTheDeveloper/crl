@@ -1,11 +1,6 @@
 name: WOWII 145 pinned Lean audit
 
 on:
-  push:
-    branches: [solve-wowii-145]
-    paths:
-      - 'math/wowii145/**'
-      - '.github/workflows/wowii145-lean.yml'
   pull_request:
     paths:
       - 'math/wowii145/**'
@@ -41,13 +36,15 @@ jobs:
               | sh -s -- -y --default-toolchain none
           fi
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Resolve dependencies and fetch cache
+      - name: Resolve pinned dependencies
         working-directory: math/wowii145
         shell: bash
         run: |
           set -euo pipefail
           lake update
-          lake exe cache get
+          if [ ! -f .lake/packages/wow_146/.lake/build/lib/lean/WOW146/ExceptionalTheorem.olean ]; then
+            lake exe cache get
+          fi
       - name: Build and audit
         id: lean
         working-directory: math/wowii145
