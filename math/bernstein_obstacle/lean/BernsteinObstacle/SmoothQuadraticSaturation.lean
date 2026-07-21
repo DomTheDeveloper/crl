@@ -109,8 +109,10 @@ theorem evenCenterRationalIdentity
     x * (x - 1) / ((2 * x) * (2 * x - 1)) - x / (2 * x) + 1 / 4 =
       -1 / (4 * (2 * x - 1)) := by
   field_simp [hx, hpred]
-  have hpred' : -1 + x * 2 ≠ 0 := by nlinarith
-  nlinarith only [inv_mul_cancel₀ hpred']
+  ring_nf
+  have hrel := inv_mul_cancel₀ hpred
+  ring_nf at hrel
+  nlinarith [hrel]
 
 /-- Pure field identity behind the odd-degree central coefficient. -/
 theorem oddCenterRationalIdentity
@@ -118,8 +120,10 @@ theorem oddCenterRationalIdentity
     x * (x - 1) / ((2 * x + 1) * (2 * x)) - x / (2 * x + 1) + 1 / 4 =
       -1 / (4 * (2 * x + 1)) := by
   field_simp [hx, hodd]
-  have hodd' : 1 + x * 2 ≠ 0 := by nlinarith
-  nlinarith only [inv_mul_cancel₀ hodd']
+  ring_nf
+  have hrel := inv_mul_cancel₀ hodd
+  ring_nf at hrel
+  nlinarith [hrel]
 
 theorem centeredQuadraticCoeff_even_center
     (m : ℕ) (hm : 1 ≤ m) :
