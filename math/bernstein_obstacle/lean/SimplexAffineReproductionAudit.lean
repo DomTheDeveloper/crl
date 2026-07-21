@@ -8,6 +8,7 @@ import BernsteinObstacle
 #check BernsteinObstacle.pderiv_sum_X_pow
 #check BernsteinObstacle.X_mul_pderiv_simplexMultinomialExpansion
 #check BernsteinObstacle.simplexBasisNat_firstMoment_unnormalized
+#check BernsteinObstacle.simplexBasisNat_firstMoment
 
 #print axioms BernsteinObstacle.fullSimplexExponent_apply
 #print axioms BernsteinObstacle.prod_X_pow_eq_fullSimplexMonomial
@@ -17,3 +18,4 @@ import BernsteinObstacle
 #print axioms BernsteinObstacle.pderiv_sum_X_pow
 #print axioms BernsteinObstacle.X_mul_pderiv_simplexMultinomialExpansion
 #print axioms BernsteinObstacle.simplexBasisNat_firstMoment_unnormalized
+#print axioms BernsteinObstacle.simplexBasisNat_firstMoment
