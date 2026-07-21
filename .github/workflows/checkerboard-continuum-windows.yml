@@ -38,9 +38,9 @@ jobs:
             Tee-Object -FilePath proofs/lean/Checkerboard/handelman-repair-windows.log
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (-not (Test-Path proofs/lean/Checkerboard/Checkerboard/LP/DualHandelmanData.lean)) { exit 1 }
-          $report = Get-Content proofs/lean/Checkerboard/handelman-repair.txt -Raw
-          if ($report -notmatch '(?m)^coefficients=91$') { exit 1 }
-          if ($report -notmatch '(?m)^cell_theorems=24$') { exit 1 }
+          $lines = Get-Content proofs/lean/Checkerboard/handelman-repair.txt
+          if ($lines -notcontains 'coefficients=91') { exit 1 }
+          if ($lines -notcontains 'cell_theorems=24') { exit 1 }
       - name: Generate exact certificate modules
         shell: pwsh
         run: |
