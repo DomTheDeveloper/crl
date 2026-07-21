@@ -44,10 +44,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake env lean BernsteinObstacle/SmoothQuadraticSaturation.lean 2>&1 | tee smooth-quadratic-build.log
-          if [ -f BernsteinObstacle/ContactAwareRecovery.lean ]; then
-            lake env lean BernsteinObstacle/ContactAwareRecovery.lean 2>&1 | tee -a smooth-quadratic-build.log
-          fi
+          lake build BernsteinObstacle.SmoothQuadraticSaturation 2>&1 | tee smooth-quadratic-build.log
+          lake build BernsteinObstacle.ContactAwareRecovery 2>&1 | tee -a smooth-quadratic-build.log
       - name: Audit theorem axioms
         working-directory: math/bernstein_obstacle/lean
         shell: bash
@@ -55,9 +53,13 @@ jobs:
           set -euo pipefail
           lake env lean SmoothQuadraticSaturationAudit.lean 2>&1 | tee smooth-quadratic-axioms.log
           if grep -q 'sorryAx' smooth-quadratic-axioms.log; then exit 1; fi
-          grep -F 'BernsteinObstacle.centeredQuadratic_eq_cubicBernsteinCurve' smooth-quadratic-axioms.log
-          grep -F 'BernsteinObstacle.centeredQuadraticCubicCoeff_not_nonnegative' smooth-quadratic-axioms.log
-          grep -F 'BernsteinObstacle.cubicCenteredRepair_exact' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.centeredQuadratic_eq_bernsteinCurve' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.centeredQuadraticCoeff_even_center' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.centeredQuadraticCoeff_odd_center' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.coefficientDefect_div_opNorm_le_norm' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.inwardBlend_mem_Icc' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.correctedRecovery_secondOrder_bound' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.alignedQuadraticContact_exact_and_nonnegative' smooth-quadratic-axioms.log
       - name: Upload audit evidence
         if: always()
         uses: actions/upload-artifact@v4
