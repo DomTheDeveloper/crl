@@ -37,10 +37,27 @@ theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity
           (1 - theta) ^ 4 * (h ^ 2 - 4 * h * x + 4 * x ^ 2) := by
     funext x
     exact phaseLockedQuadraticSlopeEnergyDensity_expand h theta x
-  rw [hfun, intervalIntegral.integral_const_mul]
-  simp [intervalIntegral.integral_add, intervalIntegral.integral_sub,
-    intervalIntegral.integral_const_mul, intervalIntegral.integral_mul_const,
-    integral_pow]
+  have hIconst :
+      IntervalIntegrable (fun _ : ℝ => h ^ 2) volume 0 h :=
+    continuous_const.intervalIntegrable
+  have hIlin :
+      IntervalIntegrable (fun x : ℝ => (4 * h) * x) volume 0 h :=
+    (continuous_const.mul continuous_id).intervalIntegrable
+  have hIquad :
+      IntervalIntegrable (fun x : ℝ => 4 * x ^ 2) volume 0 h :=
+    (continuous_const.mul (continuous_id.pow 2)).intervalIntegrable
+  have hpoly :
+      (∫ x in (0 : ℝ)..h, h ^ 2 - 4 * h * x + 4 * x ^ 2) =
+        (∫ _ in (0 : ℝ)..h, h ^ 2) -
+          (4 * h) * (∫ x in (0 : ℝ)..h, x) +
+            4 * (∫ x in (0 : ℝ)..h, x ^ 2) := by
+    rw [intervalIntegral.integral_add (hIconst.sub hIlin) hIquad,
+      intervalIntegral.integral_sub hIconst hIlin,
+      intervalIntegral.integral_const_mul,
+      intervalIntegral.integral_const_mul]
+  rw [hfun, intervalIntegral.integral_const_mul, hpoly]
+  rw [intervalIntegral.integral_const, integral_id, integral_pow]
+  norm_num
   ring
 
 theorem intervalIntegral_phaseLockedQuadraticSlopeEnergyDensity_eq_scale_sq
