@@ -11,7 +11,17 @@ theorem intervalIntegral_quadraticPolynomial
     (∫ x in l..r, a * x ^ 2 + b * x + c) =
       a * (r ^ 3 - l ^ 3) / 3 +
         b * (r ^ 2 - l ^ 2) / 2 + c * (r - l) := by
-  rw [intervalIntegral.integral_add, intervalIntegral.integral_add]
+  have hquad : IntervalIntegrable (fun x : ℝ => a * x ^ 2)
+      MeasureTheory.volume l r :=
+    (by fun_prop : Continuous (fun x : ℝ => a * x ^ 2)).intervalIntegrable
+  have hlin : IntervalIntegrable (fun x : ℝ => b * x)
+      MeasureTheory.volume l r :=
+    (by fun_prop : Continuous (fun x : ℝ => b * x)).intervalIntegrable
+  have hconst : IntervalIntegrable (fun _ : ℝ => c)
+      MeasureTheory.volume l r :=
+    continuous_const.intervalIntegrable
+  rw [intervalIntegral.integral_add (hquad.add hlin) hconst]
+  rw [intervalIntegral.integral_add hquad hlin]
   rw [intervalIntegral.integral_const_mul,
     intervalIntegral.integral_const_mul]
   rw [integral_pow, integral_id, intervalIntegral.integral_const]
