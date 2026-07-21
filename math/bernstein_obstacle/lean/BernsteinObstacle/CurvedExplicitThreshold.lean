@@ -28,7 +28,7 @@ theorem curvedMeshThreshold_pos
 
 theorem curvedMeshThreshold_implies_smallness
     (K c h : ℝ) (hK : 0 < K) (hc : 0 < c)
-    (hh : 0 ≤ h) (hthreshold : h ≤ curvedMeshThreshold K c) :
+    (_hh : 0 ≤ h) (hthreshold : h ≤ curvedMeshThreshold K c) :
     K * c * h ≤ 1 / 2 := by
   have hKc : 0 ≤ K * c := (mul_pos hK hc).le
   calc
@@ -84,6 +84,10 @@ theorem curvedWeightedPrism_integral_lowerBound_explicit
   have hsmallOne : K * c * h ≤ 1 := hsmallHalf.trans (by norm_num)
   have hphase := curvedFiber_phase_bounds
     K c h delta hK.le hc hh hsmallOne hdelta
+  have hright :
+      (delta + c * h) / (2 * c * h) ≤ 1 - (1 / 4 : ℝ) := by
+    norm_num
+    exact hphase.2
   have hJacobian : ∀ y, (1 / 2 : ℝ) ≤ 1 - t y * k y := by
     intro y
     exact (curvedFiber_jacobian_bounds
@@ -92,9 +96,15 @@ theorem curvedWeightedPrism_integral_lowerBound_explicit
     μ amplitude h ((delta + c * h) / (2 * c * h)) (1 / 4) M (1 / 2) d
     alpha beta (fun y => 1 - t y * k y)
     hd hh.le (by norm_num) hM (by norm_num)
-    hphase.1 (by simpa using hphase.2)
-    hMass hJacobian hIntegrable
-  convert hlower using 1 <;> norm_num <;> ring
+    hphase.1 hright hMass hJacobian hIntegrable
+  have hcoefficient :
+      (amplitude ^ 2 * M / 6144) * h ^ (d + 2) =
+        ((1 / 2 : ℝ) *
+          (((4 : ℝ) / 3) * amplitude ^ 2 * (1 / 4 : ℝ) ^ 6 * M)) *
+            h ^ (d + 2) := by
+    ring
+  rw [hcoefficient]
+  exact hlower
 
 /-- Physical local-energy form of the explicit curved coefficient. -/
 theorem curvedWeightedPrism_localEnergy_lowerBound_explicit
