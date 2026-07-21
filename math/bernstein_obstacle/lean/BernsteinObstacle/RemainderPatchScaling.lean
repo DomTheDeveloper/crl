@@ -10,13 +10,10 @@ namespace BernsteinObstacle
 # Higher-order free-boundary remainder scaling
 
 A gradient remainder of order `h^(1+κ)` has squared `H¹` cost
-`h^(d+2+2κ)` on one `d`-dimensional element.  Summing over a codimension-one
-patch and taking square roots gives `h^κ * (h * sqrt h)`.  This supplies the
-remainder hypothesis used by the physical saturation composition.
+`h^(d+2+2κ)` on one `d`-dimensional element. Summing over a codimension-one
+patch and taking square roots gives `h^κ * (h * sqrt h)`.
 -/
 
-/-- Per-element `h^(d+2+2κ)` remainder energy and an upper
-`h^(-(d-1))` patch count give a global `h^(3+2κ)` squared bound. -/
 theorem remainderPatch_sum_energy_le_higherOrder
     {ι : Type*} (S : Finset ι) (energy : ι → ℝ)
     (C N h : ℝ) (d κ : ℕ)
@@ -43,7 +40,6 @@ theorem remainderPatch_sum_energy_le_higherOrder
     ∑ i ∈ S, energy i ≤ (C * h ^ (2 * κ)) * N * h ^ 3 := hsum
     _ = C * N * h ^ (2 * κ) * h ^ 3 := by ring
 
-/-- Square-root form of the higher-order patch remainder estimate. -/
 theorem remainderPatch_error_le_higherOrder
     {ι : Type*} (S : Finset ι) (energy : ι → ℝ)
     (remainderError C N h : ℝ) (d κ : ℕ)
@@ -65,18 +61,15 @@ theorem remainderPatch_error_le_higherOrder
   have hsquareUpper :
       remainderError ^ 2 ≤ C * N * h ^ (2 * κ) * h ^ 3 :=
     herrorSq.trans hsum
+  have hkappa : (h ^ κ) ^ 2 = h ^ (2 * κ) := by
+    rw [pow_two, ← pow_add, two_mul]
   have htargetSq :
       (Real.sqrt (C * N) * h ^ κ * (h * Real.sqrt h)) ^ 2 =
         C * N * h ^ (2 * κ) * h ^ 3 := by
     rw [mul_pow, mul_pow, Real.sq_sqrt hCN,
-      threeHalvesScale_sq h (le_of_lt hh)]
-    rw [← pow_mul]
-    congr 1
-    omega
+      threeHalvesScale_sq h (le_of_lt hh), hkappa]
   nlinarith
 
-/-- The higher-order patch estimate directly supplies the remainder premise in
-`threeHalvesLowerBound_survives_higherOrderRemainder`. -/
 theorem physicalLowerBound_of_remainderPatchScaling
     {ι : Type*} (S : Finset ι) (energy : ι → ℝ)
     (idealError actualError remainderError leading C N h : ℝ)
