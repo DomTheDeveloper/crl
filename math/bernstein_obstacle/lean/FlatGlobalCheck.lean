@@ -1,0 +1,4 @@
+import BernsteinObstacle.FlatInterfaceGlobal
+
+#print axioms BernsteinObstacle.flatInterface_squareEnergies_lowerSq
+#print axioms BernsteinObstacle.flatInterface_hilbertVI_sharp_of_squareEnergies
