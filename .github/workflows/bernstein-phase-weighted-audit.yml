@@ -6,13 +6,13 @@ on:
       - formal/bernstein-mesh-instantiation-program-v1
     paths:
       - 'math/bernstein_obstacle/lean/**'
-      - 'math/bernstein_obstacle/MESH_INSTANTIATION_*.md'
+      - 'math/bernstein_obstacle/*.md'
       - 'math/bernstein_obstacle/experiments/shifted_triangle_core_experiment.py'
       - '.github/workflows/bernstein-phase-weighted-audit.yml'
   pull_request:
     paths:
       - 'math/bernstein_obstacle/lean/**'
-      - 'math/bernstein_obstacle/MESH_INSTANTIATION_*.md'
+      - 'math/bernstein_obstacle/*.md'
       - 'math/bernstein_obstacle/experiments/shifted_triangle_core_experiment.py'
       - '.github/workflows/bernstein-phase-weighted-audit.yml'
   workflow_dispatch:
