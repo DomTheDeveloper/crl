@@ -1,4 +1,4 @@
--- Final child-PR audit trigger after materializing canonical migrations.
+-- Final child-PR audit trigger for concentration fixes at 795b0e5.
 import FormalConjectures.Paper.VoronovskajaTypeFormula
 
 #check VoronovskajaTypeFormula.voronovskaja_theorem.bernstein_operators
