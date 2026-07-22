@@ -1,0 +1,55 @@
+name: Temporary C217 helper audit
+
+on:
+  push:
+    branches:
+      - audit/c217-helper
+    paths:
+      - .github/workflows/c217-helper-audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: audit/c217-helper
+      - name: Checkout exact C217 branch
+        run: |
+          git clone --depth 1 --branch agent/c217-closure-backport \
+            https://github.com/DomTheDeveloper/formal-conjectures.git fc
+      - name: Install pinned Lean
+        run: |
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Compile and capture diagnostics
+        id: compile
+        continue-on-error: true
+        working-directory: fc
+        run: |
+          set -o pipefail
+          lake exe cache get
+          lake env lean FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean \
+            2>&1 | tee ../c217-helper-full.log
+      - name: Write compact result
+        run: |
+          {
+            echo "head=agent/c217-closure-backport"
+            echo "head_sha=$(git -C fc rev-parse HEAD)"
+            echo "compile_outcome=${{ steps.compile.outcome }}"
+            echo
+            grep -E -A4 -B1 'error:|declaration uses|unknown (constant|identifier)|type mismatch|application type mismatch|invalid field' c217-helper-full.log | tail -n 240 || true
+          } > c217-helper-diagnostics.txt
+      - name: Commit diagnostics
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add c217-helper-diagnostics.txt
+          git commit -m 'Record C217 helper diagnostics' || exit 0
+          git push origin HEAD:audit/c217-helper
