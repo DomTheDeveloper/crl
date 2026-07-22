@@ -11,13 +11,16 @@ on:
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/SimplexQuadraticContact.lean'
       - 'math/bernstein_obstacle/lean/AllThreePhysicalAudit.lean'
       - '.github/workflows/bernstein-all-three-physical-audit.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/bernstein-all-three-physical-audit.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: bernstein-all-three-physical-v1
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
