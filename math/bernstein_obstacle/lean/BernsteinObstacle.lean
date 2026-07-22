@@ -83,3 +83,6 @@ import BernsteinObstacle.GrandBarrier
 import BernsteinObstacle.SobolevGrandBarrier
 import BernsteinObstacle.SmoothQuadraticSaturation
 import BernsteinObstacle.ContactAwareRecovery
+import BernsteinObstacle.GlobalSmoothSaturation
+import BernsteinObstacle.GreenProfileAsymptotic
+import BernsteinObstacle.SimplexQuadraticContact
