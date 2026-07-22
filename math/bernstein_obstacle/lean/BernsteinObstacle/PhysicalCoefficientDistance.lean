@@ -1,6 +1,6 @@
 import BernsteinObstacle.PhysicalOddMeshQuadratic
 import BernsteinObstacle.GlobalSmoothSaturation
-import Mathlib.Topology.Algebra.Module.ContinuousLinearMap.PiProd
+import Mathlib.Analysis.Normed.Group.Constructions
 import Mathlib.Tactic
 
 namespace BernsteinObstacle
@@ -52,32 +52,27 @@ theorem evenCentralPhysicalVector_center
   unfold evenCentralPhysicalVector evenCentralIndex evenPhysicalDefect
   simpa using centralPhysicalCoeff_even_center m hm h
 
-/-- Coordinate projection has operator norm at most one for the finite sup norm. -/
-theorem centralProjection_opNorm_le_one (m : ℕ) :
-    ‖(ContinuousLinearMap.proj (R := ℝ) (φ := fun _ : Fin (2 * m + 1) => ℝ)
-      (evenCentralIndex m))‖ ≤ 1 := by
-  apply ContinuousLinearMap.opNorm_le_bound _ (by norm_num)
-  intro c
-  simpa using norm_apply_le_norm c (evenCentralIndex m)
-
 /-- Every feasible control vector differs from the target by at least the exact
 central defect in the selected coordinate. -/
-theorem evenPhysicalDefect_le_projection_error
+theorem evenPhysicalDefect_le_coordinate_error
     (m : ℕ) (hm : 1 ≤ m) (h : ℝ)
     (c : Fin (2 * m + 1) → ℝ)
     (hc : c ∈ nonnegativePhysicalCoefficientCone m) :
     evenPhysicalDefect m h ≤
-      |(ContinuousLinearMap.proj (R := ℝ)
-        (φ := fun _ : Fin (2 * m + 1) => ℝ)
-        (evenCentralIndex m))
-        (evenCentralPhysicalVector m h - c)| := by
+      |(evenCentralPhysicalVector m h - c) (evenCentralIndex m)| := by
   have hd0 := evenPhysicalDefect_nonneg m hm h
   have hc0 : 0 ≤ c (evenCentralIndex m) := hc (evenCentralIndex m)
   have hcenter := evenCentralPhysicalVector_center m hm h
-  simp only [ContinuousLinearMap.proj_apply, Pi.sub_apply, hcenter]
+  simp only [Pi.sub_apply, hcenter]
   rw [abs_of_nonpos]
   · linarith
   · linarith
+
+/-- Any coordinate norm is bounded by the finite sup norm. -/
+theorem coordinate_norm_le_pi_norm
+    {ι : Type*} [Fintype ι] (x : ι → ℝ) (i : ι) :
+    ‖x i‖ ≤ ‖x‖ := by
+  exact (pi_norm_le_iff_of_nonneg (norm_nonneg x)).1 le_rfl i
 
 /-- Concrete physical central-cell saturation in coefficient space. -/
 theorem evenPhysicalCoefficient_bestApproximation_lower
@@ -85,24 +80,22 @@ theorem evenPhysicalCoefficient_bestApproximation_lower
     evenPhysicalDefect m h ≤
       bestApproximationError (evenCentralPhysicalVector m h)
         (nonnegativePhysicalCoefficientCone m) := by
-  let L : (Fin (2 * m + 1) → ℝ) →L[ℝ] ℝ :=
-    ContinuousLinearMap.proj (R := ℝ)
-      (φ := fun _ : Fin (2 * m + 1) => ℝ) (evenCentralIndex m)
   have hK : (nonnegativePhysicalCoefficientCone m).Nonempty := by
     refine ⟨0, ?_⟩
     intro k
     simp
-  have hL : ‖L‖ ≤ 1 := by
-    simpa [L] using centralProjection_opNorm_le_one m
-  have hdefect : ∀ c ∈ nonnegativePhysicalCoefficientCone m,
-      evenPhysicalDefect m h ≤ |L (evenCentralPhysicalVector m h - c)| := by
-    intro c hc
-    simpa [L] using evenPhysicalDefect_le_projection_error m hm h c hc
-  have hlower := bestApproximationError_lower_of_coefficientDefect
-    (evenCentralPhysicalVector m h)
-    (nonnegativePhysicalCoefficientCone m) L
-    (evenPhysicalDefect m h) 1 hK (by norm_num) hL hdefect
-  simpa using hlower
+  unfold bestApproximationError
+  apply (Metric.le_infDist hK).2
+  intro c hc
+  rw [dist_eq_norm]
+  have hcoord := evenPhysicalDefect_le_coordinate_error m hm h c hc
+  have hnorm :
+      |(evenCentralPhysicalVector m h - c) (evenCentralIndex m)| ≤
+        ‖evenCentralPhysicalVector m h - c‖ := by
+    rw [← Real.norm_eq_abs]
+    exact coordinate_norm_le_pi_norm
+      (evenCentralPhysicalVector m h - c) (evenCentralIndex m)
+  exact hcoord.trans hnorm
 
 /-- On every nondegenerate cell, the concrete best coefficient error is
 strictly positive. -/
