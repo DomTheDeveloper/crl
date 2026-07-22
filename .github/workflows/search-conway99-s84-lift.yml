@@ -1,0 +1,61 @@
+name: Search Conway s84 lift
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/conway99-permutation-reduction
+    paths:
+      - math/conway99/src/s84_connection_data.py
+      - math/conway99/src/s84_lift_cpsat.py
+      - math/conway99/tests/test_s84_connection_data.py
+      - math/conway99/tests/test_s84_lift_cpsat.py
+      - .github/workflows/search-conway99-s84-lift.yml
+
+concurrency:
+  group: conway99-s84-lift-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lift-search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        parameter: [0, 1, 2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r math/conway99/requirements.txt
+      - name: Run exact structural regressions
+        run: |
+          pytest -q \
+            math/conway99/tests/test_s84_conjugacy_filter.py \
+            math/conway99/tests/test_s84_survivor_geometry.py \
+            math/conway99/tests/test_s84_fano_geometry.py \
+            math/conway99/tests/test_s84_connection_data.py \
+            math/conway99/tests/test_s84_lift_cpsat.py
+      - name: Search quotient lift
+        run: |
+          mkdir -p /tmp/conway99-s84-lift
+          python math/conway99/src/s84_lift_cpsat.py \
+            --parameter ${{ matrix.parameter }} \
+            --time-limit 2100 \
+            --workers 4 \
+            --out /tmp/conway99-s84-lift/witness-${{ matrix.parameter }}.json \
+            | tee /tmp/conway99-s84-lift/result-${{ matrix.parameter }}.jsonl
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conway99-s84-lift-${{ matrix.parameter }}
+          path: /tmp/conway99-s84-lift
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 0
