@@ -62,6 +62,7 @@ jobs:
             exit 1
           fi
           lake exe cache get
+          lake build '@formal_conjectures/+FormalConjecturesUtil'
 
       - name: Compile exact source and audit theorem
         working-directory: /tmp/a100434-audit
