@@ -34,7 +34,7 @@ jobs:
             https://github.com/DomTheDeveloper/formal-conjectures.git \
             "$RUNNER_TEMP/formal-conjectures"
           cd "$RUNNER_TEMP/formal-conjectures"
-          test "$(git rev-parse HEAD)" = "c82b4a3e99ae86adf0007e256ebcd9292d226ab1"
+          test "$(git rev-parse HEAD)" = "3e039281a56f549f73f1111a554b6ae3698b577b"
 
       - name: Restore Mathlib cache
         working-directory: ${{ runner.temp }}/formal-conjectures
