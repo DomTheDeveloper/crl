@@ -1,0 +1,143 @@
+name: Prove Conway s76 branches
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/conway99-permutation-reduction
+    paths:
+      - math/conway99/src/s76_transition_orbits.py
+      - math/conway99/src/s76_core_profiles.py
+      - math/conway99/src/s76_full_ci_shard.py
+      - math/conway99/src/s76_full_audit_bundle.py
+      - math/conway99/src/deficit_branch_sat.py
+      - math/conway99/src/drup_check.cpp
+      - .github/workflows/prove-conway99-s76.yml
+
+concurrency:
+  group: conway99-s76-proof-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: mkdir -p /tmp/s76-inputs
+      - name: Regenerate all 701 transition representatives
+        run: |
+          python math/conway99/src/s76_transition_orbits.py \
+            --out /tmp/s76-inputs/representatives.json \
+            --summary /tmp/s76-inputs/representatives-summary.json
+      - name: Regenerate branch-to-core map
+        run: python math/conway99/src/s76_core_profiles.py > /tmp/s76-inputs/profiles.json
+      - name: Audit exact input coverage
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          reps=json.load(open('/tmp/s76-inputs/representatives.json'))
+          profiles=json.load(open('/tmp/s76-inputs/profiles.json'))
+          assert len(reps)==701
+          assert profiles['PASS']
+          assert len(profiles['branch_profile_indices'])==701
+          assert profiles['completed_transition_orbits']==701
+          print('representatives_sha256',hashlib.sha256(open('/tmp/s76-inputs/representatives.json','rb').read()).hexdigest())
+          print('profiles_sha256',hashlib.sha256(open('/tmp/s76-inputs/profiles.json','rb').read()).hexdigest())
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s76-full-inputs
+          path: /tmp/s76-inputs
+          retention-days: 30
+          compression-level: 0
+
+  prove:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r math/conway99/requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: s76-full-inputs
+          path: /tmp/s76-inputs
+      - run: g++ -O3 -std=c++17 math/conway99/src/drup_check.cpp -o /tmp/drup_check
+      - name: Solve and independently check shard
+        run: |
+          python math/conway99/src/s76_full_ci_shard.py \
+            --representatives /tmp/s76-inputs/representatives.json \
+            --profiles /tmp/s76-inputs/profiles.json \
+            --checker /tmp/drup_check \
+            --out /tmp/s76-full-shard \
+            --shard-index ${{ matrix.shard }} \
+            --shard-count 32 \
+            --solver glucose4 \
+            --solve-timeout 1200 \
+            --check-timeout 900
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s76-full-shard-${{ matrix.shard }}
+          path: /tmp/s76-full-shard
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 0
+
+  aggregate:
+    needs: [prepare, prove]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: s76-full-inputs
+          path: /tmp/s76-inputs
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: s76-full-shard-*
+          path: /tmp/s76-full-all
+          merge-multiple: true
+      - run: mkdir -p /tmp/s76-full-all/results /tmp/s76-full-all/proofs /tmp/s76-full-all/witnesses /tmp/s76-full-final
+      - name: Aggregate without promoting non-results
+        run: |
+          python math/conway99/src/s76_full_audit_bundle.py \
+            --profiles /tmp/s76-inputs/profiles.json \
+            --results /tmp/s76-full-all/results \
+            --proofs /tmp/s76-full-all/proofs \
+            --witnesses /tmp/s76-full-all/witnesses \
+            --out /tmp/s76-full-final/manifest.json
+      - run: cp /tmp/s76-inputs/*.json /tmp/s76-full-final/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conway99-s76-full-campaign
+          path: |
+            /tmp/s76-full-final
+            /tmp/s76-full-all/results
+            /tmp/s76-full-all/proofs
+            /tmp/s76-full-all/witnesses
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 0
