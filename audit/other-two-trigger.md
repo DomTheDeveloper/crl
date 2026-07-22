@@ -1,1 +1,1 @@
-Temporary trigger for the isolated C160 and quantum Lean audits.
+Trigger the isolated C160 forest, C160 petal, and quantum bridge Lean audits.
