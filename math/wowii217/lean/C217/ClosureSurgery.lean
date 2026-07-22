@@ -70,10 +70,10 @@ lemma exists_hamiltonianPath_of_left_crossing
   refine ⟨q, ?_⟩
 
   have hPsupp : P.support = p.support.take (t + 1) := by
-    simp [P, PH, Walk.support_take]
+    simp [P, PH, Walk.take_support_eq_support_take_succ]
   have hMsupp : M.support = (p.support.drop (t + 1)).take (i - t) := by
     simp only [M, M0, Walk.support_copy, Walk.support_transferEdges, MH,
-      Walk.support_take, DH, Walk.drop_support_eq_support_drop_min]
+      Walk.take_support_eq_support_take_succ, DH, Walk.drop_support_eq_support_drop_min]
     rw [Nat.min_eq_left (by omega)]
     congr 2
     omega
@@ -160,10 +160,10 @@ lemma exists_hamiltonianPath_of_right_crossing
   refine ⟨q, ?_⟩
 
   have hAsupp : A.support = p.support.take (i + 1) := by
-    simp [A, A0, AH, Walk.support_take]
+    simp [A, A0, AH, Walk.take_support_eq_support_take_succ]
   have hMsupp : M.support = (p.support.drop (i + 1)).take (t - i) := by
     simp only [M, M0, Walk.support_copy, Walk.support_transferEdges, MH,
-      Walk.support_take, DH, Walk.drop_support_eq_support_drop_min]
+      Walk.take_support_eq_support_take_succ, DH, Walk.drop_support_eq_support_drop_min]
     rw [Nat.min_eq_left (by omega)]
     congr 2
     omega
