@@ -61,7 +61,7 @@ src/s84_elimination_audit.py
 
 ## Active `s=76` campaign
 
-The complete deficit-eight quotient is now regenerated inside the repository:
+The complete deficit-eight quotient is regenerated inside the repository:
 
 ```text
 1,447,530 raw supports
@@ -78,10 +78,35 @@ The representative file has canonical SHA-256
 ```
 
 The 701 branches have only 64 labelled intact-fiber masks and 41 masks up to
-`S7`. Every branch retains between 13 and 18 intact four-vertex fibers. The
-next exact layer keeps all `S4` cross-block permutations incident with intact
-fibers and imposes every three-holonomy and six-path equation whose endpoint
-fibers are intact.
+`S7`. An explicit 701-entry map now assigns every completed transition orbit to
+one of those 41 core types. Every branch retains between 13 and 18 intact
+four-vertex fibers.
+
+Three exact lanes are implemented:
+
+1. **Parity and conjugacy certificates.** The sign/class projection has a
+   proof-producing CNF and independent deletion-aware RUP checking. Thirty-nine
+   core types admit flat curvature. The remaining two core types, representing
+   six transition orbits, have 275 class-compatible nonzero supports; the
+   six-path parity equations reduce these to 101 supports before the `S3` and
+   translation lifts are restored.
+2. **Position-sensitive `S3` quotient and full `S4` core.** The four six-path
+   quotient tables, indexed by the two shared-coordinate positions, each contain
+   2,192 tuples but are distinct and are never identified. Both a proof-producing
+   one-hot/table CNF and an independent CP-SAT model are present. The full core
+   model retains every `S4` cross-block permutation incident with an intact fiber
+   and imposes every three-holonomy and six-path equation whose endpoint fibers
+   are intact.
+3. **Complete fixed-transition SAT.** All 701 transition representatives are
+   mapped to the exact branch encoder. An UNSAT branch is accepted only after its
+   emitted proof checks against the exact CNF. A SAT branch is accepted only
+   after reconstructing the reduced graph and passing both independent exact
+   graph verifiers. Timeout, error, `UNKNOWN`, and missing artifacts remain
+   explicit non-results.
+
+The classification and proof workflows are active, but their queued or bounded
+solver answers are not part of the verified mathematical status until the
+corresponding aggregate manifests and independent checks pass.
 
 ## Not completed
 
