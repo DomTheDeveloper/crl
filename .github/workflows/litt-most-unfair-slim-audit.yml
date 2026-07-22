@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: c7599e693973984c557c39b122f4a42434b4e384
+          ref: f036e066184e623b8eeb3985be2682537272ce04
           path: formal-conjectures
 
       - name: Set up pinned Lean environment
@@ -38,14 +38,13 @@ jobs:
 
       - name: Confirm immutable proof commit
         working-directory: formal-conjectures
-        run: test "$(git rev-parse HEAD)" = "c7599e693973984c557c39b122f4a42434b4e384"
+        run: test "$(git rev-parse HEAD)" = "f036e066184e623b8eeb3985be2682537272ce04"
 
       - name: Reject proof escapes
         working-directory: formal-conjectures
         run: |
           set -euo pipefail
-          files=$(find FormalConjectures/Other -maxdepth 1 \
-            -name 'LittMostUnfairBet*.lean' -print | sort)
+          files=$(printf '%s\n' FormalConjectures/Other/LittMostUnfairBet*.lean)
           if grep -nE '(^|[^[:alnum:]_])(sorry|admit|native_decide)([^[:alnum:]_]|$)' $files; then
             echo 'Proof hole or unsupported decision shortcut found.'
             exit 1
