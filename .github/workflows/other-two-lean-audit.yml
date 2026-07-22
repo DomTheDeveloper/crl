@@ -30,8 +30,9 @@ jobs:
           set -o pipefail
           lake exe cache get
           lake build FormalConjecturesUtil
-          lake env lean ProofAudit/160_attempt.lean 2>&1 | tee ../c160-audit.log
+          lake env lean ProofAudit/160_local.lean 2>&1 | tee ../c160-audit.log
           lake env lean ProofAudit/160_petals.lean 2>&1 | tee -a ../c160-audit.log
+          lake env lean ProofAudit/160_attempt.lean 2>&1 | tee -a ../c160-audit.log
       - name: Upload C160 log
         if: always()
         uses: actions/upload-artifact@v4
