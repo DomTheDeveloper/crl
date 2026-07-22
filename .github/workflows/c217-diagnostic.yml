@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 jobs:
-  run:
+  enumerate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -38,3 +38,39 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m 'chore(C217): record exact sequence table'
           git push origin HEAD:agent/c217-diagnostic
+
+  lean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: agent/c217-diagnostic
+      - name: Install pinned Lean toolchain
+        run: |
+          set -euxo pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore exact Formal Conjectures environment
+        run: |
+          set -euxo pipefail
+          git clone https://github.com/google-deepmind/formal-conjectures.git /tmp/formal-conjectures
+          cd /tmp/formal-conjectures
+          git checkout e923379e609b9d5987011a1d1f06ec22ea25cd20
+          lake exe cache get
+          mkdir -p C217
+          cp "$GITHUB_WORKSPACE"/math/wowii217/lean/C217/*.lean C217/
+      - name: Compile transfer primitive and audit axioms
+        run: |
+          set -euxo pipefail
+          cd /tmp/formal-conjectures
+          cat > C217/AuditWalkTransfer.lean <<'EOF'
+          import C217.WalkTransfer
+          #print axioms C217.SimpleGraph.Walk.support_transferEdges
+          #print axioms C217.SimpleGraph.Walk.isHamiltonian_transferEdges
+          #print axioms C217.SimpleGraph.Walk.edges_in_base_of_avoid_right
+          #print axioms C217.SimpleGraph.Walk.edges_in_base_of_avoid_left
+          EOF
+          lake env lean C217/WalkTransfer.lean
+          lake env lean C217/AuditWalkTransfer.lean | tee C217/walk-transfer-axioms.log
+          ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' C217/walk-transfer-axioms.log
