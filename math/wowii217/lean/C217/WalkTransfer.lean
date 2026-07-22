@@ -11,8 +11,28 @@ universe u
 namespace SimpleGraph.Walk
 
 variable {V : Type u}
-variable {G H : SimpleGraph V}
+variable {G H K : SimpleGraph V}
 variable {a b u v : V}
+
+/-- Transport a walk across equality of its ambient graphs. -/
+def castGraph (h : H = K) (p : H.Walk a b) : K.Walk a b := h ▸ p
+
+@[simp]
+theorem support_castGraph (h : H = K) (p : H.Walk a b) :
+    (castGraph h p).support = p.support := by
+  subst K
+  rfl
+
+@[simp]
+theorem length_castGraph (h : H = K) (p : H.Walk a b) :
+    (castGraph h p).length = p.length := by
+  rw [← length_support, support_castGraph, length_support]
+
+lemma isHamiltonian_castGraph (h : H = K) (p : H.Walk a b)
+    (hp : p.IsHamiltonian) :
+    (castGraph h p).IsHamiltonian := by
+  intro x
+  simpa only [support_castGraph] using hp x
 
 /-- Transfer a walk to another graph when every edge used by the walk is
 an edge of the target graph. -/
