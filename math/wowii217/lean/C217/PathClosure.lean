@@ -36,11 +36,11 @@ lemma traceable_of_oriented_added_edge
       Walk.exists_hamiltonianPath_of_right_crossing p hp hgt ht hui hvi hut hvs
     exact ⟨a, b, q, hq⟩
 
-/-- Bondy--Chvátal closure for Hamilton paths.  Adding a nonedge whose
+/-- Bondy--Chvátal closure for Hamilton paths. Adding a nonedge whose
 degree sum is at least `|V|-1` cannot create traceability from nothing. -/
 theorem traceable_of_sup_edge_traceable
     (G : SimpleGraph V) [DecidableRel G.Adj]
-    {u v : V} (huv : ¬ G.Adj u v)
+    {u v : V} (_huv : ¬ G.Adj u v)
     (hdeg : Fintype.card V - 1 ≤ G.degree u + G.degree v)
     (htrace : ∃ a b : V, ∃ p : (G ⊔ edge u v).Walk a b, p.IsHamiltonian) :
     ∃ a b : V, ∃ q : G.Walk a b, q.IsHamiltonian := by
@@ -52,11 +52,14 @@ theorem traceable_of_sup_edge_traceable
 
   push_neg at hbase
   obtain ⟨x, y, hxy, hnxy⟩ := hbase
-  obtain ⟨i, hi, hsym⟩ := (p.mk_mem_edges_iff_exists).mp hxy
+  obtain ⟨i, hi, hsym⟩ := Walk.exists_index_of_mem_edges p hxy
 
   have hnindex : ¬ G.Adj (p.getVert i) (p.getVert (i + 1)) := by
     intro hadj
-    exact hnxy ((G.adj_congr_of_sym2 hsym).mp hadj)
+    apply hnxy
+    have hmem : s(p.getVert i, p.getVert (i + 1)) ∈ G.edgeSet := hadj
+    have hmemxy : s(x, y) ∈ G.edgeSet := hsym ▸ hmem
+    exact hmemxy
 
   have haug : (G ⊔ edge u v).Adj (p.getVert i) (p.getVert (i + 1)) :=
     p.adj_getVert_succ hi
