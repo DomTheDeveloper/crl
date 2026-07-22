@@ -1,4 +1,4 @@
-name: Litt most-unfair direct slim audit
+name: Litt most-unfair direct audit
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: litt-most-unfair-direct-slim-audit
+  group: litt-most-unfair-direct-audit
   cancel-in-progress: true
 
 permissions:
@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   audit:
-    runs-on: ubuntu-slim
+    runs-on: macos-15
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v6
@@ -46,9 +46,9 @@ jobs:
         working-directory: ${{ runner.temp }}/formal-conjectures
         run: |
           set -euxo pipefail
-          mapfile -t files < <(find FormalConjectures/Other -maxdepth 1 \
+          files=$(find FormalConjectures/Other -maxdepth 1 \
             -name 'LittMostUnfairBet*.lean' -print | sort)
-          if grep -nE '\b(sorry|admit|native_decide|unsafe|axiom|opaque)\b' "${files[@]}"; then
+          if grep -nE '\b(sorry|admit|native_decide|unsafe|axiom|opaque)\b' $files; then
             echo 'Forbidden proof escape found.' >&2
             exit 1
           fi
