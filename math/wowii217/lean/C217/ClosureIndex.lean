@@ -16,17 +16,8 @@ variable {a b u v : V}
 
 lemma IsPath.getVert_injective_on {p : G.Walk a b} (hp : p.IsPath)
     {i j : ℕ} (hi : i ≤ p.length) (hj : j ≤ p.length)
-    (hij : p.getVert i = p.getVert j) : i = j := by
-  have hi' : i < p.support.length := by rw [p.length_support]; omega
-  have hj' : j < p.support.length := by rw [p.length_support]; omega
-  let ii : Fin p.support.length := ⟨i, hi'⟩
-  let jj : Fin p.support.length := ⟨j, hj'⟩
-  have hget : p.support.get ii = p.support.get jj := by
-    change p.support[i]'hi' = p.support[j]'hj'
-    rw [p.support_getElem_eq_getVert, p.support_getElem_eq_getVert]
-    exact hij
-  have heq : ii = jj := (p.isPath_iff_injective_get_support.mp hp) hget
-  exact congrArg Fin.val heq
+    (hij : p.getVert i = p.getVert j) : i = j :=
+  hp.getVert_injOn hi hj hij
 
 lemma adj_base_of_ne_added_index [DecidableEq V]
     (p : (G ⊔ edge u v).Walk a b) (hp : p.IsPath)
