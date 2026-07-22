@@ -52,6 +52,7 @@ jobs:
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.HamiltonianExtras \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.PathClosure \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.ChvatalPath \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217ClosureHelpers \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217FiniteCertificate \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217OrderCertificate \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217OrderBound \
