@@ -1,0 +1,28 @@
+{
+  "problem": "OEIS A248380(16), Sylver Coinage after opening 16",
+  "candidate_line": [16, 26, 70, 60],
+  "status": "not solved",
+  "remaining_children": [34, 62, 66, 82, 98],
+  "new_exact_refutations": [
+    {"child": 34, "candidate_reply": 219, "counter_reply": 281},
+    {"child": 34, "candidate_reply": 289, "counter_reply": 293},
+    {"child": 62, "candidate_reply": 99, "counter_reply": 38},
+    {"child": 66, "candidate_reply": 89, "counter_reply": 49},
+    {"child": 82, "candidate_reply": 89, "counter_reply": 161}
+  ],
+  "coverage_notes": {
+    "34": "Every tested odd reply through 301 is exact N; no P reply found. This is a long position, so this is not a complete bound.",
+    "62": "No P reply found; 99 is exact N via 38.",
+    "66": "No P reply found; 89 is exact N via 49.",
+    "82": "No P reply found; 89 is exact N via 161.",
+    "98": "No P reply found; exact ledger remains incomplete."
+  },
+  "compact_ledgers": {
+    "34": {"records": 8808178, "bytes": 176163576, "sha256": "cb887a3f6515d325e871187edae87e6c428615e5a47da4daa0a0d6dd46a243ee"},
+    "62": {"records": 13010582, "bytes": 260211656, "sha256": "f116eedf22bac2e381a20ac7773cf7da5aab22275cb6fc262d9f024d3ab934a6"},
+    "66": {"records": 12821346, "bytes": 256426936, "sha256": "50dade3ec906a8d2125755ad6c3d66369f4024e3e6b47f99d7ebfd55658d599c"},
+    "82": {"records": 18855082, "bytes": 377101656, "sha256": "bf71ae96158f8ac3a9461f8134173a5920d586c9b848a2504f95089a0d7c9c90"},
+    "98": {"records": 5617915, "bytes": 112358316, "sha256": "4e7bee1018e699eb4a351f50d5e9b4063b489f650b65f43a83c538eabe88178d"}
+  },
+  "verification_boundary": "The listed counter-responses were produced by the exact disk-backed quotient solver and merged with conflict checking. The large memo files are not stored in GitHub; hashes identify the local proof databases. A standalone independent replay and full solution remain pending."
+}
