@@ -7,12 +7,18 @@ on:
     paths:
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/SmoothQuadraticSaturation.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/ContactAwareRecovery.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GlobalSmoothSaturation.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenProfileAsymptotic.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/SimplexQuadraticContact.lean'
       - 'math/bernstein_obstacle/lean/SmoothQuadraticSaturationAudit.lean'
       - '.github/workflows/bernstein-smooth-quadratic-audit.yml'
   pull_request:
     paths:
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/SmoothQuadraticSaturation.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/ContactAwareRecovery.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GlobalSmoothSaturation.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenProfileAsymptotic.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/SimplexQuadraticContact.lean'
       - 'math/bernstein_obstacle/lean/SmoothQuadraticSaturationAudit.lean'
       - '.github/workflows/bernstein-smooth-quadratic-audit.yml'
   workflow_dispatch:
@@ -46,6 +52,9 @@ jobs:
           set -euo pipefail
           lake build BernsteinObstacle.SmoothQuadraticSaturation 2>&1 | tee smooth-quadratic-build.log
           lake build BernsteinObstacle.ContactAwareRecovery 2>&1 | tee -a smooth-quadratic-build.log
+          lake build BernsteinObstacle.GlobalSmoothSaturation 2>&1 | tee -a smooth-quadratic-build.log
+          lake build BernsteinObstacle.GreenProfileAsymptotic 2>&1 | tee -a smooth-quadratic-build.log
+          lake build BernsteinObstacle.SimplexQuadraticContact 2>&1 | tee -a smooth-quadratic-build.log
       - name: Audit theorem axioms
         working-directory: math/bernstein_obstacle/lean
         shell: bash
@@ -60,6 +69,10 @@ jobs:
           grep -F 'BernsteinObstacle.inwardBlend_mem_Icc' smooth-quadratic-axioms.log
           grep -F 'BernsteinObstacle.correctedRecovery_secondOrder_bound' smooth-quadratic-axioms.log
           grep -F 'BernsteinObstacle.alignedQuadraticContact_exact_and_nonnegative' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.bestApproximationError_secondOrder_sandwich' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.halfspace_bestApproximationError_eq' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.smoothContactGreenConstant_tendsto' smooth-quadratic-axioms.log
+          grep -F 'BernsteinObstacle.simplexQuadraticNormal_exact_and_nonnegative' smooth-quadratic-axioms.log
       - name: Upload audit evidence
         if: always()
         uses: actions/upload-artifact@v4
