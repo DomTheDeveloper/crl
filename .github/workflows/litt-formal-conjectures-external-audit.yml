@@ -1,0 +1,77 @@
+# Copyright 2026 Dominic Dabish.
+# Licensed under the Apache License, Version 2.0.
+
+name: Litt Formal Conjectures external audit
+
+on:
+  push:
+    branches:
+      - audit/litt-fc-external-20260722
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: litt-fc-external-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  lean-audit:
+    name: Lean 4.27 kernel audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact Formal Conjectures proof
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 3e039281a56f549f73f1111a554b6ae3698b577b
+          path: fc
+
+      - name: Install elan
+        working-directory: fc
+        run: |
+          set -euo pipefail
+          curl -sSfL "https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz" | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch Mathlib cache
+        working-directory: fc
+        run: |
+          set -euo pipefail
+          lake exe cache unpack || true
+          lake exe cache get
+
+      - name: Exact exhaustive audit
+        working-directory: fc
+        run: python3 scripts/verify_litt_most_unfair.py --max-length 10
+
+      - name: Reject proof holes and trust shortcuts
+        working-directory: fc
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find FormalConjectures/Other -maxdepth 1 \
+            -name 'LittMostUnfairBet*.lean' -print | sort)
+          if grep -nE '\b(sorry|admit|native_decide|unsafe|axiom)\b' "${files[@]}"; then
+            echo 'Unsupported proof hole, custom axiom, or trust shortcut found.'
+            exit 1
+          fi
+
+      - name: Build terminal theorem dependency graph
+        working-directory: fc
+        run: |
+          set -euo pipefail
+          lake build FormalConjectures.Other.LittMostUnfairBet
+
+      - name: Compile warnings-as-errors and audit axioms
+        working-directory: fc
+        run: |
+          set -euo pipefail
+          lake env lean -DwarningAsError=true \
+            FormalConjectures/Other/LittMostUnfairBet.lean 2>&1 | tee /tmp/litt-axioms.txt
+          if grep -nE 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' /tmp/litt-axioms.txt; then
+            echo 'Terminal theorem uses an unsupported axiom or compiler-trust shortcut.'
+            exit 1
+          fi
