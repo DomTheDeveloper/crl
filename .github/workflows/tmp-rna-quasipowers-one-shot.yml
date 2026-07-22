@@ -1,0 +1,75 @@
+name: One-shot RNA quasi-powers kernel audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/tmp-rna-quasipowers-one-shot.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/tmp-rna-quasipowers-one-shot.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: one-shot-rna-quasipowers-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Check out audit host
+        uses: actions/checkout@v4
+
+      - name: Check out exact Formal Conjectures proof commit
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: b323e7b50876b241cbced88698059546f9f572af
+          path: formal-conjectures
+
+      - name: Install pinned Lean toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Resolve dependencies and fetch Mathlib cache
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.27.0"
+          lake update
+          lake exe cache get
+
+      - name: Build the three-track proof library
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build RNAQuasiPowers 2>&1 | tee rna-kernel-audit.log
+
+      - name: Run theorem and axiom audit
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean RNAQuasiPowers/AxiomAudit.lean 2>&1 | tee -a rna-kernel-audit.log
+          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' rna-kernel-audit.log; then
+            echo 'Forbidden axiom detected.' >&2
+            exit 1
+          fi
+
+      - name: Upload kernel transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rna-quasipowers-kernel-audit
+          path: formal-conjectures/rna-kernel-audit.log
+          if-no-files-found: warn
