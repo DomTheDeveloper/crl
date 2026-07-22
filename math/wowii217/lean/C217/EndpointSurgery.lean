@@ -10,13 +10,19 @@ universe u
 
 lemma closure_right_endpoint_support_perm {α : Type u} (l : List α) (i : ℕ) :
     l.take (i + 1) ++ (l.drop (i + 1)).reverse ~ l := by
-  exact (List.Perm.append_right (List.reverse_perm _) _).trans
-    (List.Perm.refl.trans (List.take_append_drop (i + 1) l))
+  calc
+    l.take (i + 1) ++ (l.drop (i + 1)).reverse
+        ~ l.take (i + 1) ++ l.drop (i + 1) :=
+          (List.reverse_perm _).append_left _
+    _ = l := List.take_append_drop (i + 1) l
 
 lemma closure_left_endpoint_support_perm {α : Type u} (l : List α) (i : ℕ) :
     (l.take (i + 1)).reverse ++ l.drop (i + 1) ~ l := by
-  exact (List.Perm.append_left (List.reverse_perm _) _).trans
-    (List.Perm.refl.trans (List.take_append_drop (i + 1) l))
+  calc
+    (l.take (i + 1)).reverse ++ l.drop (i + 1)
+        ~ l.take (i + 1) ++ l.drop (i + 1) :=
+          (List.reverse_perm _).append_right _
+    _ = l := List.take_append_drop (i + 1) l
 
 namespace SimpleGraph.Walk
 
