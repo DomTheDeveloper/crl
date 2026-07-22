@@ -11,6 +11,13 @@ on:
       - math/conway99/tests/test_s84_connection_data.py
       - math/conway99/tests/test_s84_lift_cpsat.py
       - .github/workflows/search-conway99-s84-lift.yml
+  pull_request:
+    paths:
+      - math/conway99/src/s84_connection_data.py
+      - math/conway99/src/s84_lift_cpsat.py
+      - math/conway99/tests/test_s84_connection_data.py
+      - math/conway99/tests/test_s84_lift_cpsat.py
+      - .github/workflows/search-conway99-s84-lift.yml
 
 concurrency:
   group: conway99-s84-lift-${{ github.ref }}
