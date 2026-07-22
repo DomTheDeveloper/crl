@@ -192,7 +192,7 @@ lemma exists_hamiltonianPath_of_right_crossing
     simp
 
   have htsList : p.support[t + 1] = p.getVert (t + 1) := by
-    exact p.support_getElem_eq_getVert.symm
+    exact p.support_getElem_eq_getVert
   have hdropS : p.support.drop (t + 1) =
       p.getVert (t + 1) :: p.support.drop (t + 2) := by
     rw [List.drop_eq_getElem_cons (by rw [p.length_support]; omega), htsList]
