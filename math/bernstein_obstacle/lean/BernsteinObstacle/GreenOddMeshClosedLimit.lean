@@ -109,6 +109,48 @@ theorem oddGreenInterpolantNormClosed_tendsto
   have hsqrt := Real.continuous_sqrt.continuousAt.tendsto.comp henergy
   simpa [oddGreenInterpolantNormClosed, greenTraceProfileNorm] using hsqrt
 
+/-- Exact Green-profile asymptotic with the concrete odd-mesh interpolant norm
+inserted directly.  No independent `profileNorm` convergence hypothesis remains. -/
+theorem greenProfile_exact_limit_with_oddClosedNorm
+    (F h traceDefect : ℕ → ℝ) (gamma Ctrace : ℝ)
+    (hh : Tendsto h atTop (𝓝 0))
+    (hdefect0 : ∀ n, 0 ≤ traceDefect n)
+    (hdefect : ∀ n,
+      traceDefect n ≤ greenTraceDefectMajorant Ctrace h n)
+    (hlower : ∀ᶠ n in atTop,
+      smoothContactGreenConstant gamma - traceDefect n ≤ F n)
+    (hupper : ∀ᶠ n in atTop,
+      F n ≤ greenRecoveryNormalizedError gamma
+        (fun n => greenCentralValue (h n))
+        (fun n => oddGreenInterpolantNormClosed (h n)) n) :
+    Tendsto F atTop (𝓝 (smoothContactGreenConstant gamma)) := by
+  exact greenProfile_exact_limit_of_sqrt_trace_bound
+    F h (fun n => oddGreenInterpolantNormClosed (h n)) traceDefect
+    gamma Ctrace hh
+    (oddGreenInterpolantNormClosed_tendsto h hh)
+    hdefect0 hdefect hlower hupper
+
+/-- Mesh-error specialization with the exact odd-mesh Green norm. -/
+theorem normalizedQuadraticError_greenProfile_tendsto_with_oddClosedNorm
+    (E h traceDefect : ℕ → ℝ) (gamma Ctrace : ℝ)
+    (hh : Tendsto h atTop (𝓝 0))
+    (hdefect0 : ∀ n, 0 ≤ traceDefect n)
+    (hdefect : ∀ n,
+      traceDefect n ≤ greenTraceDefectMajorant Ctrace h n)
+    (hlower : ∀ᶠ n in atTop,
+      smoothContactGreenConstant gamma - traceDefect n ≤
+        normalizedQuadraticError E h n)
+    (hupper : ∀ᶠ n in atTop,
+      normalizedQuadraticError E h n ≤
+        greenRecoveryNormalizedError gamma
+          (fun n => greenCentralValue (h n))
+          (fun n => oddGreenInterpolantNormClosed (h n)) n) :
+    Tendsto (normalizedQuadraticError E h) atTop
+      (𝓝 (smoothContactGreenConstant gamma)) := by
+  exact greenProfile_exact_limit_with_oddClosedNorm
+    (normalizedQuadraticError E h) h traceDefect gamma Ctrace
+    hh hdefect0 hdefect hlower hupper
+
 end
 
 end BernsteinObstacle
