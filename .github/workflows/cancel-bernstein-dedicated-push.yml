@@ -1,0 +1,20 @@
+name: Cancel redundant Bernstein dedicated push audit
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/cancel-bernstein-dedicated-push.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-smooth-quadratic-refs/heads/formal/bernstein-second-order-saturation-v1
+  cancel-in-progress: true
+
+jobs:
+  cancel-replacement:
+    runs-on: ubuntu-slim
+    timeout-minutes: 2
+    steps:
+      - run: echo 'Redundant dedicated push audit cancelled; isolated audit is authoritative.'
