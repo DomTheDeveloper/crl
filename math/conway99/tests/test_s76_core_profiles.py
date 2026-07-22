@@ -1,4 +1,5 @@
 import sys
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,3 +36,12 @@ def test_s76_core_profiles():
         report["profiles_sha256"]
         == "0bb5b5453b83ca49e27027b227d1ca271475021bc75ed15d1eee19cad54f0e96"
     )
+    mapping = report["branch_profile_indices"]
+    assert len(mapping) == 701
+    assert set(mapping) == set(range(41))
+    counts = Counter(mapping)
+    assert all(
+        counts[index] == report["profiles"][index]["branches"]
+        for index in range(41)
+    )
+    assert len(report["branch_profile_indices_sha256"]) == 64
