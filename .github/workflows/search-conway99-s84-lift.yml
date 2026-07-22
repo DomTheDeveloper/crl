@@ -2,26 +2,6 @@ name: Search Conway s84 lift
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - agent/conway99-permutation-reduction
-    paths:
-      - math/conway99/src/s84_connection_data.py
-      - math/conway99/src/s84_lift_cpsat.py
-      - math/conway99/tests/test_s84_connection_data.py
-      - math/conway99/tests/test_s84_lift_cpsat.py
-      - .github/workflows/search-conway99-s84-lift.yml
-  pull_request:
-    paths:
-      - math/conway99/src/s84_connection_data.py
-      - math/conway99/src/s84_lift_cpsat.py
-      - math/conway99/tests/test_s84_connection_data.py
-      - math/conway99/tests/test_s84_lift_cpsat.py
-      - .github/workflows/search-conway99-s84-lift.yml
-
-concurrency:
-  group: conway99-s84-lift-${{ github.ref }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -48,7 +28,11 @@ jobs:
             math/conway99/tests/test_s84_survivor_geometry.py \
             math/conway99/tests/test_s84_fano_geometry.py \
             math/conway99/tests/test_s84_connection_data.py \
-            math/conway99/tests/test_s84_lift_cpsat.py
+            math/conway99/tests/test_s84_lift_cpsat.py \
+            math/conway99/tests/test_s84_lift_propagation_audit.py \
+            math/conway99/tests/test_s84_translation_parity_audit.py \
+            math/conway99/tests/test_verify_s84_translation_xor.py \
+            math/conway99/tests/test_s84_elimination_audit.py
       - name: Search quotient lift
         run: |
           mkdir -p /tmp/conway99-s84-lift
