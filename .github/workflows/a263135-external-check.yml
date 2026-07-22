@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - dtd/a263135-checker
+  pull_request:
+    paths:
+      - '.github/workflows/a263135-external-check.yml'
   workflow_dispatch:
 
 permissions:
