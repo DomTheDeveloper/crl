@@ -1,98 +1,13 @@
-name: C217 isolated diagnostic
+name: C217 manual diagnostics
 
 on:
-  push:
-    branches:
-      - agent/c217-diagnostic
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'scripts/c217_enumerate_sequences.py'
-      - 'math/wowii217/**'
-      - '.github/workflows/c217-diagnostic.yml'
-
-concurrency:
-  group: c217-diagnostic-${{ github.repository }}
-  cancel-in-progress: true
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  enumerate:
+  note:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: agent/c217-diagnostic
-      - name: Generate exact sequence tables
-        run: |
-          set -euxo pipefail
-          mkdir -p math/wowii217
-          python3 scripts/c217_enumerate_sequences.py > math/wowii217/degree_sequences.md
-          cat math/wowii217/degree_sequences.md
-      - name: Commit deterministic output on branch pushes
-        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
-        run: |
-          set -euxo pipefail
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add math/wowii217/degree_sequences.md
-          git diff --cached --quiet && exit 0
-          git commit -m 'chore(C217): record exact sequence table'
-          git push origin HEAD:agent/c217-diagnostic
-
-  lean:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: agent/c217-diagnostic
-      - name: Install pinned Lean toolchain
-        run: |
-          set -euxo pipefail
-          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
-          ./elan-init -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Restore exact Formal Conjectures environment
-        run: |
-          set -euxo pipefail
-          git clone https://github.com/google-deepmind/formal-conjectures.git /tmp/formal-conjectures
-          cd /tmp/formal-conjectures
-          git checkout e923379e609b9d5987011a1d1f06ec22ea25cd20
-          lake exe cache get
-          mkdir -p C217
-          cp "$GITHUB_WORKSPACE"/math/wowii217/lean/C217/*.lean C217/
-      - name: Compile current proof modules and audit axioms
-        run: |
-          set -euxo pipefail
-          cd /tmp/formal-conjectures
-          lake env lean C217/WalkTransfer.lean
-          lake env lean C217/ClosureIndex.lean
-          lake env lean C217/RotationPerm.lean
-          lake env lean C217/PathSegments.lean
-          lake env lean C217/ClosureSurgery.lean
-          lake env lean C217/EndpointSurgery.lean
-          lake env lean C217/CastGraphExtra.lean
-          lake env lean C217/PathClosure.lean
-          cat > C217/AuditCurrent.lean <<'EOF'
-          import C217.PathClosure
-          #print axioms C217.SimpleGraph.Walk.support_transferEdges
-          #print axioms C217.SimpleGraph.Walk.isHamiltonian_transferEdges
-          #print axioms C217.SimpleGraph.Walk.edges_in_base_of_avoid_right
-          #print axioms C217.SimpleGraph.Walk.edges_in_base_of_avoid_left
-          #print axioms C217.SimpleGraph.Walk.IsPath.getVert_injective_on
-          #print axioms C217.SimpleGraph.Walk.adj_base_of_ne_added_index
-          #print axioms C217.SimpleGraph.Walk.exists_closure_crossing_index
-          #print axioms C217.closure_left_support_perm
-          #print axioms C217.closure_right_support_perm
-          #print axioms C217.SimpleGraph.Walk.exists_hamiltonianPath_of_left_crossing
-          #print axioms C217.SimpleGraph.Walk.exists_hamiltonianPath_of_right_crossing
-          #print axioms C217.SimpleGraph.Walk.exists_hamiltonianPath_of_right_endpoint
-          #print axioms C217.SimpleGraph.Walk.exists_hamiltonianPath_of_left_endpoint
-          #print axioms C217.SimpleGraph.traceable_of_oriented_added_edge
-          #print axioms C217.SimpleGraph.traceable_of_sup_edge_traceable
-          EOF
-          lake env lean C217/AuditCurrent.lean | tee C217/current-axioms.log
-          ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' C217/current-axioms.log
+      - run: echo "Automatic C217 diagnostics are disabled; use the single pinned Lean closure audit."
