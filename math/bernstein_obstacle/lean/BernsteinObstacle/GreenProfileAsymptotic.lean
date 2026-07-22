@@ -1,5 +1,6 @@
 import BernsteinObstacle.GlobalSmoothSaturation
 import Mathlib.Analysis.SpecificLimits.Basic
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 import Mathlib.Tactic
 
 open Filter Topology
