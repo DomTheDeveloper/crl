@@ -66,8 +66,11 @@ jobs:
           cd /tmp/formal-conjectures
           lake env lean C217/WalkTransfer.lean
           lake env lean C217/ClosureIndex.lean
+          lake env lean C217/RotationPerm.lean
+          lake env lean C217/PathSegments.lean
+          lake env lean C217/ClosureSurgery.lean
           cat > C217/AuditCurrent.lean <<'EOF'
-          import C217.ClosureIndex
+          import C217.ClosureSurgery
           #print axioms C217.SimpleGraph.Walk.support_transferEdges
           #print axioms C217.SimpleGraph.Walk.isHamiltonian_transferEdges
           #print axioms C217.SimpleGraph.Walk.edges_in_base_of_avoid_right
@@ -75,6 +78,10 @@ jobs:
           #print axioms C217.SimpleGraph.Walk.IsPath.getVert_injective_on
           #print axioms C217.SimpleGraph.Walk.adj_base_of_ne_added_index
           #print axioms C217.SimpleGraph.Walk.exists_closure_crossing_index
+          #print axioms C217.closure_left_support_perm
+          #print axioms C217.closure_right_support_perm
+          #print axioms C217.SimpleGraph.Walk.exists_hamiltonianPath_of_left_crossing
+          #print axioms C217.SimpleGraph.Walk.exists_hamiltonianPath_of_right_crossing
           EOF
           lake env lean C217/AuditCurrent.lean | tee C217/current-axioms.log
           ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' C217/current-axioms.log
