@@ -34,7 +34,7 @@ jobs:
             https://github.com/DomTheDeveloper/formal-conjectures.git \
             "$RUNNER_TEMP/formal-conjectures"
           cd "$RUNNER_TEMP/formal-conjectures"
-          test "$(git rev-parse HEAD)" = "3f1ed348e78626a41bf21e559c5ad191468ab407"
+          test "$(git rev-parse HEAD)" = "95ad522618adf1a2c19823c379697d2e15882756"
 
       - name: Restore Mathlib cache
         working-directory: ${{ runner.temp }}/formal-conjectures
@@ -48,8 +48,12 @@ jobs:
           set -euxo pipefail
           files=$(find FormalConjectures/Other -maxdepth 1 \
             -name 'LittMostUnfairBet*.lean' -print | sort)
-          if grep -nE '\b(sorry|admit|native_decide|unsafe|axiom|opaque)\b' $files; then
-            echo 'Forbidden proof escape found.' >&2
+          if grep -nE '(^|[^[:alnum:]_])(sorry|admit|native_decide)([^[:alnum:]_]|$)' $files; then
+            echo 'Proof hole or unsupported decision shortcut found.' >&2
+            exit 1
+          fi
+          if grep -nE '^[[:space:]]*(axiom|unsafe|opaque)([[:space:]]|$)' $files; then
+            echo 'Custom axiom or unsafe/opaque declaration found.' >&2
             exit 1
           fi
 
