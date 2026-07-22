@@ -1,12 +1,6 @@
 name: C217 pinned Lean closure check
 
 on:
-  push:
-    branches:
-      - agent/c217-diagnostic
-    paths:
-      - 'math/wowii217/lean/C217/**'
-      - '.github/workflows/c217-axle.yml'
   pull_request:
     branches:
       - main
@@ -27,8 +21,6 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
-        with:
-          ref: agent/c217-diagnostic
 
       - name: Install exact Lean toolchain
         run: |
