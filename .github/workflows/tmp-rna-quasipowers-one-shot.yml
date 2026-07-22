@@ -1,5 +1,6 @@
 name: One-shot A261865 kernel audit
 # Exact audit of Formal Conjectures PR #99 proof head.
+# Trigger corrected proof head 842aaf6 through audit PR #217.
 
 on:
   push:
