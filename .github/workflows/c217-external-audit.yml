@@ -32,7 +32,7 @@ jobs:
           set -euxo pipefail
           git clone https://github.com/DomTheDeveloper/formal-conjectures.git "$RUNNER_TEMP/formal-conjectures"
           cd "$RUNNER_TEMP/formal-conjectures"
-          git checkout 723a6a39228147814637856fe52d09b60583956f
+          git checkout ac0ef04f145d8e8e303f680879858bc83efa2903
           git rev-parse HEAD
 
       - name: Restore Mathlib cache
@@ -96,7 +96,7 @@ jobs:
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
-          SOURCE_SHA: 723a6a39228147814637856fe52d09b60583956f
+          SOURCE_SHA: ac0ef04f145d8e8e303f680879858bc83efa2903
           LEAN_OUTCOME: ${{ steps.lean.outcome }}
           CERTIFICATE_OUTCOME: ${{ steps.certificate.outcome }}
         run: |
