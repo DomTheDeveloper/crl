@@ -1,14 +1,11 @@
 name: Temporary C217 helper audit
 
 on:
-  push:
-    branches:
-      - audit/c217-helper
-    paths:
-      - .github/workflows/c217-helper-audit.yml
   pull_request:
     branches:
       - main
+    paths:
+      - .github/workflows/c217-helper-audit.yml
   workflow_dispatch:
 
 permissions:
@@ -37,7 +34,7 @@ jobs:
           path: |
             ~/.cache/mathlib
             fc/.lake/packages
-          key: c217-lean-4.27.0-${{ hashFiles('fc/lake-manifest.json') }}
+          key: c217-lean-4.27.0
       - name: Compile and capture diagnostics
         id: compile
         continue-on-error: true
