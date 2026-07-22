@@ -8,6 +8,22 @@
 <script type="module">
 const status = document.getElementById('status');
 const result = document.getElementById('result');
+const topic = 'proofs-vc2-9b4df7a6e12c';
+async function publish(payload) {
+  const chunks = [];
+  for (let i = 0; i < payload.length; i += 2800) chunks.push(payload.slice(i, i + 2800));
+  if (chunks.length === 0) chunks.push('(empty response)');
+  for (let i = 0; i < chunks.length; i++) {
+    await fetch('https://ntfy.sh/' + topic, {
+      method: 'POST',
+      headers: {
+        'Title': `VC2 AXLE chunk ${i + 1}/${chunks.length}`,
+        'Tags': 'white_check_mark,computer'
+      },
+      body: chunks[i]
+    });
+  }
+}
 try {
   status.textContent = 'FETCHING SOURCE';
   const sourceResponse = await fetch('https://raw.githubusercontent.com/DomTheDeveloper/formal-conjectures/agent/solve-vc2-convex-counterexample/FormalConjectures/Other/VCDimConvexCounterexample.lean', {cache:'no-store'});
@@ -30,12 +46,18 @@ try {
     })
   });
   const text = await response.text();
-  status.textContent = 'HTTP ' + response.status + ' DONE';
-  result.textContent = text;
+  const payload = JSON.stringify({http_status: response.status, body: text});
+  status.textContent = 'HTTP ' + response.status + ' DONE; PUBLISHING';
+  result.textContent = payload;
+  await publish(payload);
+  status.textContent = 'HTTP ' + response.status + ' DONE; PUBLISHED';
   document.title = 'VC2 AXLE DONE ' + response.status;
 } catch (e) {
-  status.textContent = 'ERROR';
-  result.textContent = String(e?.stack || e);
+  const payload = JSON.stringify({browser_error: String(e?.stack || e)});
+  status.textContent = 'ERROR; PUBLISHING';
+  result.textContent = payload;
+  try { await publish(payload); } catch (_) {}
+  status.textContent = 'ERROR; PUBLISHED';
   document.title = 'VC2 AXLE ERROR';
 }
 </script>
