@@ -6,6 +6,9 @@ on:
       - formal/bernstein-second-order-saturation-v1
     paths:
       - '.github/workflows/bernstein-urgent-slim-audit.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/bernstein-urgent-slim-audit.yml'
   workflow_dispatch:
 
 permissions:
