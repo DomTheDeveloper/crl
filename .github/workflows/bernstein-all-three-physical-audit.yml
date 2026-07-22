@@ -9,10 +9,13 @@ on:
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalCoefficientDistance.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalQuadraticH1.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalNormTransport.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalNormTransportAutomatic.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenRecoverySequence.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenTraceDefect.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenInterpolationRate.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenOddMeshClosedLimit.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenOddMeshFiniteSums.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenOddMeshDiscreteEnergy.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/OneStepFittedAFEM.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/OneStepFittedAFEMBestError.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/GeneralContactFittedAFEM.lean'
@@ -36,6 +39,30 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+      - name: Reject holes and unsafe shortcuts
+        shell: bash
+        working-directory: math/bernstein_obstacle/lean
+        run: |
+          set -euo pipefail
+          files=(
+            BernsteinObstacle/PhysicalOddMeshQuadratic.lean
+            BernsteinObstacle/PhysicalCoefficientDistance.lean
+            BernsteinObstacle/PhysicalQuadraticH1.lean
+            BernsteinObstacle/PhysicalNormTransport.lean
+            BernsteinObstacle/PhysicalNormTransportAutomatic.lean
+            BernsteinObstacle/GreenRecoverySequence.lean
+            BernsteinObstacle/GreenTraceDefect.lean
+            BernsteinObstacle/GreenInterpolationRate.lean
+            BernsteinObstacle/GreenOddMeshClosedLimit.lean
+            BernsteinObstacle/GreenOddMeshFiniteSums.lean
+            BernsteinObstacle/GreenOddMeshDiscreteEnergy.lean
+            BernsteinObstacle/OneStepFittedAFEM.lean
+            BernsteinObstacle/OneStepFittedAFEMBestError.lean
+            BernsteinObstacle/GeneralContactFittedAFEM.lean
+          )
+          if grep -InE '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|native_decide|^[[:space:]]*opaque[[:space:]]' "${files[@]}"; then
+            exit 1
+          fi
       - name: Install pinned Lean
         shell: bash
         run: |
@@ -54,10 +81,13 @@ jobs:
           lake build BernsteinObstacle.PhysicalCoefficientDistance 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.PhysicalQuadraticH1 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.PhysicalNormTransport 2>&1 | tee -a all-three-physical-build.log
+          lake build BernsteinObstacle.PhysicalNormTransportAutomatic 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.GreenRecoverySequence 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.GreenTraceDefect 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.GreenInterpolationRate 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.GreenOddMeshClosedLimit 2>&1 | tee -a all-three-physical-build.log
+          lake build BernsteinObstacle.GreenOddMeshFiniteSums 2>&1 | tee -a all-three-physical-build.log
+          lake build BernsteinObstacle.GreenOddMeshDiscreteEnergy 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.OneStepFittedAFEM 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.OneStepFittedAFEMBestError 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.GeneralContactFittedAFEM 2>&1 | tee -a all-three-physical-build.log
