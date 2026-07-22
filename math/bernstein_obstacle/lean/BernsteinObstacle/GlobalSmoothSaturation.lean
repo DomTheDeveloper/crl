@@ -38,9 +38,10 @@ theorem bestApproximationError_lower_of_coefficientDefect
     d ≤ |L (u - v)| := hdefect v hv
     _ = ‖L (u - v)‖ := by rw [Real.norm_eq_abs]
     _ ≤ ‖L‖ * ‖u - v‖ := L.le_opNorm (u - v)
-    _ ≤ A * ‖u - v‖ :=
-      mul_le_mul_of_nonneg_right hL (norm_nonneg _)
-    _ = A * dist u v := by rw [dist_eq_norm]
+    _ = ‖u - v‖ * ‖L‖ := by ring
+    _ ≤ ‖u - v‖ * A :=
+      mul_le_mul_of_nonneg_left hL (norm_nonneg _)
+    _ = dist u v * A := by rw [dist_eq_norm]
 
 /-- Any explicit feasible witness gives an upper bound for the genuine best
 approximation error. -/
@@ -51,7 +52,7 @@ theorem bestApproximationError_upper_of_witness
   unfold bestApproximationError
   calc
     Metric.infDist u K ≤ dist u v := Metric.infDist_le_dist_of_mem hv
-    _ = ‖u - v‖ := dist_eq_norm
+    _ = ‖u - v‖ := by rw [dist_eq_norm]
     _ ≤ R := hupper
 
 /-- Exact two-sided second-order saturation template for a feasible cone.
