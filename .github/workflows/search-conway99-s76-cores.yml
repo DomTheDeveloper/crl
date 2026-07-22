@@ -9,12 +9,16 @@ on:
       - math/conway99/src/s76_transition_orbits.py
       - math/conway99/src/s76_core_profiles.py
       - math/conway99/src/s76_intact_core_cpsat.py
+      - math/conway99/src/s76_linear_quotient_cpsat.py
       - math/conway99/src/s76_core_ci_shard.py
       - math/conway99/src/s76_core_audit_bundle.py
       - math/conway99/src/s76_parity_class_sat.py
       - math/conway99/src/s76_parity_class_ci_shard.py
       - math/conway99/src/s76_parity_class_audit_bundle.py
+      - math/conway99/src/s76_curvature_support_audit.py
+      - math/conway99/src/s76_path_parity_audit.py
       - math/conway99/src/drup_check_extra.cpp
+      - math/conway99/tests/test_s76_linear_quotient.py
       - .github/workflows/search-conway99-s76-cores.yml
 
 concurrency:
@@ -43,6 +47,7 @@ jobs:
           assert data['PASS']
           assert data['completed_transition_orbits']==701
           assert data['S7_intact_core_orbits']==41
+          assert len(data['branch_profile_indices'])==701
           print(hashlib.sha256(open(p,'rb').read()).hexdigest())
           PY
       - uses: actions/upload-artifact@v4
@@ -186,6 +191,7 @@ jobs:
             --profiles /tmp/s76-inputs/profiles.json \
             --results /tmp/s76-all/results \
             --witnesses /tmp/s76-all/witnesses \
+            --quotient-witnesses /tmp/s76-all/quotient_witnesses \
             --out /tmp/s76-final/manifest.json
       - run: cp /tmp/s76-inputs/profiles.json /tmp/s76-final/
       - uses: actions/upload-artifact@v4
@@ -195,5 +201,6 @@ jobs:
             /tmp/s76-final
             /tmp/s76-all/results
             /tmp/s76-all/witnesses
+            /tmp/s76-all/quotient_witnesses
           retention-days: 30
           compression-level: 0
