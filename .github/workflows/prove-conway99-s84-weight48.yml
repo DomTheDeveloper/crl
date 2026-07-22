@@ -1,0 +1,85 @@
+name: Prove Conway s84 weight48
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/conway99-permutation-reduction
+    paths:
+      - math/conway99/certificates/s84_weight48_linear_orbits.json.gz.b64
+      - math/conway99/src/s84_weight48_translation_sat.py
+      - math/conway99/src/s84_weight48_ci_shard.py
+      - math/conway99/src/s84_weight48_audit_bundle.py
+      - math/conway99/src/drup_check_extra.cpp
+      - .github/workflows/prove-conway99-s84-weight48.yml
+
+concurrency:
+  group: conway99-s84-weight48-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 18
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r math/conway99/requirements.txt
+      - run: g++ -O3 -std=c++17 math/conway99/src/drup_check_extra.cpp -o /tmp/drup_check_extra
+      - run: |
+          python math/conway99/src/s84_weight48_ci_shard.py \
+            --representatives math/conway99/certificates/s84_weight48_linear_orbits.json.gz.b64 \
+            --checker /tmp/drup_check_extra \
+            --out /tmp/w48-shard \
+            --shard-index ${{ matrix.shard }} \
+            --shard-count 18
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s84-weight48-shard-${{ matrix.shard }}
+          path: /tmp/w48-shard
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 0
+
+  aggregate:
+    needs: prove
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: s84-weight48-shard-*
+          path: /tmp/w48-all
+          merge-multiple: true
+      - run: mkdir -p /tmp/w48-final
+      - run: |
+          python math/conway99/src/s84_weight48_audit_bundle.py \
+            --representatives math/conway99/certificates/s84_weight48_linear_orbits.json.gz.b64 \
+            --results /tmp/w48-all/results \
+            --proofs /tmp/w48-all/proofs \
+            --out /tmp/w48-final/manifest.json
+      - run: cp math/conway99/certificates/s84_weight48_linear_orbits.json.gz.b64 /tmp/w48-final/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: conway99-s84-weight48-complete-certificates
+          path: |
+            /tmp/w48-final
+            /tmp/w48-all/results
+            /tmp/w48-all/proofs
+          retention-days: 30
+          compression-level: 0
