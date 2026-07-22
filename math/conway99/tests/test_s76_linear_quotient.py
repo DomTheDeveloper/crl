@@ -10,6 +10,7 @@ from s76_linear_quotient_cpsat import (
     quotient_six_path_tuples,
     quotient_table_audit,
 )
+from s76_linear_quotient_sat import Model as SatModel
 
 
 def test_s76_quotient_tables_are_position_sensitive():
@@ -45,3 +46,13 @@ def test_s76_quotient_model_dimensions():
     assert metadata["three_path_variables"] == 144
     assert metadata["six_path_variables"] == 342
     assert sum(metadata["position_histogram"].values()) == 57
+
+
+def test_s76_proof_encoder_one_hot_smoke():
+    # One intact fiber has ten incident KG edges and no pair constraints.
+    model = SatModel({"mask": 1, "branches": 1})
+    assert len(model.edge_keys) == 10
+    assert len(model.domains) == 10
+    assert not model.tables
+    assert model.variables == 60
+    assert len(model.cnf.clauses) == 160
