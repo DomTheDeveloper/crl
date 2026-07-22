@@ -13,6 +13,11 @@ namespace SimpleGraph.Walk
 variable {V : Type u} {G : SimpleGraph V}
 variable {a b : V}
 
+/-- Pinned compatibility lemma: a suffix of a path is a path. -/
+protected lemma IsPath.drop {p : G.Walk a b} (hp : p.IsPath) (n : ℕ) :
+    (p.drop n).IsPath :=
+  isPath_of_isSubwalk (p.isSubwalk_drop n) hp
+
 /-- A vertex occurring strictly later on a path cannot occur in an earlier
 prefix. -/
 lemma IsPath.getVert_not_mem_support_take_of_lt {p : G.Walk a b}
