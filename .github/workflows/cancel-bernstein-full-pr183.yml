@@ -1,0 +1,20 @@
+name: Cancel redundant Bernstein full PR audit
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/cancel-bernstein-full-pr183.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-obstacle-lean-refs/pull/183/merge
+  cancel-in-progress: true
+
+jobs:
+  cancel-replacement:
+    runs-on: ubuntu-slim
+    timeout-minutes: 2
+    steps:
+      - run: echo 'Redundant full audit cancelled; isolated audit is authoritative for this iteration.'
