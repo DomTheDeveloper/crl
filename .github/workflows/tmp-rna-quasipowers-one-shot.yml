@@ -1,5 +1,5 @@
 name: One-shot RNA quasi-powers kernel audit
-# Pull-request trigger commit for the exact b323e7b proof snapshot.
+# Exact audit of canonical Formal Conjectures PR #108 head.
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: b323e7b50876b241cbced88698059546f9f572af
+          ref: 9facde3955b23cd397dfa010d7d9cbdb7bb6b4cc
           path: formal-conjectures
 
       - name: Install pinned Lean toolchain
