@@ -1,107 +1,21 @@
 head=agent/c217-closure-backport
-head_sha=d7804dc912859e9e433cb6844cdfd7d78d76f9d6
+head_sha=a0dc67c8f746892041d921fe3fb63580a05d1111
 compile_outcome=failure
 
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:27:4: error: Application type mismatch: The argument
-  p.transfer H h
-has type
-  H.Walk a b
-but is expected to have type
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:52:8: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  b ≥ 3
+where
+ b := ↑p.length
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:55:10: error: Invalid rewrite argument: The pattern to be substituted is a metavariable (`?m.157`) in this equality
+  ?m.157 = List.dropLast ?m.157 ++ [List.getLast ?m.157 ?m.158]
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:55:42: error: unsolved goals
+α : Type u_1
+inst✝ : DecidableEq α
+G : SimpleGraph α
+a b : α
 --
-  (p.transfer H h).IsHamiltonianCycle
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:35:29: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-  p.IsHamiltonianCycle
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:41:33: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-  p.IsHamiltonianCycle
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:46:36: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-  p.IsHamiltonianCycle
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:51:36: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-  p.IsHamiltonianCycle
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:56:39: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-  p.IsHamiltonianCycle
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:60:39: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-of type `IsHamiltonianCycle ?m.6`
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:63:31: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-of type `IsHamiltonianCycle ?m.6`
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:72:31: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-of type `IsHamiltonianCycle ?m.6`
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:81:26: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-of type `IsHamiltonianCycle ?m.6`
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:85:26: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-of type `IsHamiltonianCycle ?m.6`
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:89:30: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-of type `IsHamiltonianCycle ?m.6`
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:96:30: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-of type `IsHamiltonianCycle ?m.6`
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:103:21: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
---
-of type `IsHamiltonianCycle ?m.6`
-FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean:110:20: error: Application type mismatch: The argument
-  p
-has type
-  G.Walk a b
-but is expected to have type
+of type `p.IsCycle`
+'SimpleGraph.Walk.IsHamiltonianCycle.transfer' depends on axioms: [propext, Classical.choice, Quot.sound]
+'SimpleGraph.Walk.IsHamiltonianCycle.next_inj' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+'SimpleGraph.Walk.IsHamiltonianCycle.next_ne' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
