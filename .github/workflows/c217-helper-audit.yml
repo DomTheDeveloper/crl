@@ -1,6 +1,11 @@
 name: Temporary C217 helper audit
 
 on:
+  push:
+    branches:
+      - audit/c217-helper
+    paths:
+      - .github/workflows/c217-helper-audit.yml
   pull_request:
     branches:
       - main
