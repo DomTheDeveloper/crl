@@ -1,26 +1,7 @@
 name: Bernstein all-three physical audit
 
+# Exact terminal-head Windows audit child.
 on:
-  push:
-    branches:
-      - formal/bernstein-all-three-physical-v1
-    paths:
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalOddMeshQuadratic.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalCoefficientDistance.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalQuadraticH1.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalNormTransport.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalNormTransportAutomatic.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenRecoverySequence.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenTraceDefect.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenInterpolationRate.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenOddMeshClosedLimit.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenOddMeshFiniteSums.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenOddMeshDiscreteEnergy.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/OneStepFittedAFEM.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/OneStepFittedAFEMBestError.lean'
-      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GeneralContactFittedAFEM.lean'
-      - 'math/bernstein_obstacle/lean/AllThreePhysicalAudit.lean'
-      - '.github/workflows/bernstein-all-three-physical-audit.yml'
   pull_request:
     paths:
       - '.github/workflows/bernstein-all-three-physical-audit.yml'
@@ -35,7 +16,7 @@ concurrency:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
@@ -60,9 +41,7 @@ jobs:
             BernsteinObstacle/OneStepFittedAFEMBestError.lean
             BernsteinObstacle/GeneralContactFittedAFEM.lean
           )
-          if grep -InE '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|native_decide|^[[:space:]]*opaque[[:space:]]' "${files[@]}"; then
-            exit 1
-          fi
+          if grep -InE '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|native_decide|^[[:space:]]*opaque[[:space:]]' "${files[@]}"; then exit 1; fi
       - name: Install pinned Lean
         shell: bash
         run: |
@@ -70,11 +49,12 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Download pinned mathlib cache
+        shell: bash
         working-directory: math/bernstein_obstacle/lean
         run: lake exe cache get
       - name: Compile terminal all-three closure
-        working-directory: math/bernstein_obstacle/lean
         shell: bash
+        working-directory: math/bernstein_obstacle/lean
         run: |
           set -euo pipefail
           lake build BernsteinObstacle.PhysicalOddMeshQuadratic 2>&1 | tee all-three-physical-build.log
@@ -92,8 +72,8 @@ jobs:
           lake build BernsteinObstacle.OneStepFittedAFEMBestError 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.GeneralContactFittedAFEM 2>&1 | tee -a all-three-physical-build.log
       - name: Audit theorem axioms
-        working-directory: math/bernstein_obstacle/lean
         shell: bash
+        working-directory: math/bernstein_obstacle/lean
         run: |
           set -euo pipefail
           lake env lean AllThreePhysicalAudit.lean 2>&1 | tee all-three-physical-axioms.log
@@ -102,7 +82,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: bernstein-all-three-physical-audit
+          name: bernstein-all-three-windows-audit
           path: |
             math/bernstein_obstacle/lean/all-three-physical-build.log
             math/bernstein_obstacle/lean/all-three-physical-axioms.log
