@@ -1,0 +1,10 @@
+{
+  "schema": "a248380-even-ledger-v1",
+  "position": [16, 26],
+  "quotient": [8, 13],
+  "frobenius": 83,
+  "all_even_legal_moves": [2,4,6,8,10,12,14,18,20,22,24,28,30,34,36,38,40,44,46,50,54,56,60,62,66,70,72,76,82,86,88,92,98,102,108,114,118,124,134,140,150,166],
+  "reported_closed_certificate_not_recovered": [2,4,6,8,10,12,14,18,20,22,24,28,30,34,36,38,40,44,46,50,54,56,60,62,66,72,76,108,140],
+  "unresolved": [70,82,86,88,92,98,102,114,118,124,134,150,166],
+  "warning": "The 29 reported-closed rows are not treated as certified until their strategy artifacts are recovered and replayed."
+}
