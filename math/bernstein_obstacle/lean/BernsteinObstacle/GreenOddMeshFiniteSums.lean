@@ -137,6 +137,17 @@ theorem oddGreenSinhProductSum_eq_closed
       rw [ih]
       exact (oddGreenSinhProductClosed_succ m h hh).symm
 
+/-- Reindex the square sum that starts at the zero node. -/
+theorem oddGreenZeroStartSquareSum_eq
+    (m : ℕ) (h : ℝ) :
+    (∑ r ∈ Finset.range m, oddGreenSinhNode h r ^ 2) =
+      oddGreenSinhSquareSum (m - 1) h := by
+  cases m with
+  | zero =>
+      simp [oddGreenSinhSquareSum]
+  | succ m =>
+      simp [oddGreenSinhSquareSum, Finset.sum_range_succ', oddGreenSinhNode]
+
 /-- Squared difference sum in terms of the two certified primitive sums. -/
 theorem oddGreenSinhDifferenceSum_eq
     (m : ℕ) (h : ℝ) :
@@ -144,9 +155,24 @@ theorem oddGreenSinhDifferenceSum_eq
       (oddGreenSinhNode h (r + 1) - oddGreenSinhNode h r) ^ 2) =
       oddGreenSinhSquareSum m h + oddGreenSinhSquareSum (m - 1) h -
         2 * oddGreenSinhProductSum m h := by
-  unfold oddGreenSinhSquareSum oddGreenSinhProductSum
-  rw [Finset.sum_sub_distrib]
-  · sorry
+  calc
+    (∑ r ∈ Finset.range m,
+      (oddGreenSinhNode h (r + 1) - oddGreenSinhNode h r) ^ 2) =
+        ∑ r ∈ Finset.range m,
+          (oddGreenSinhNode h (r + 1) ^ 2 +
+            oddGreenSinhNode h r ^ 2 -
+            2 * (oddGreenSinhNode h (r + 1) * oddGreenSinhNode h r)) := by
+      apply Finset.sum_congr rfl
+      intro r hr
+      ring
+    _ = oddGreenSinhSquareSum m h +
+          (∑ r ∈ Finset.range m, oddGreenSinhNode h r ^ 2) -
+          2 * oddGreenSinhProductSum m h := by
+      unfold oddGreenSinhSquareSum oddGreenSinhProductSum
+      rw [Finset.sum_sub_distrib, Finset.sum_add_distrib, ← Finset.mul_sum]
+    _ = oddGreenSinhSquareSum m h + oddGreenSinhSquareSum (m - 1) h -
+          2 * oddGreenSinhProductSum m h := by
+      rw [oddGreenZeroStartSquareSum_eq]
 
 end
 
