@@ -1,4 +1,4 @@
-name: One-shot A263135 exact audit
+name: A263135 macOS scratch audit
 
 on:
   pull_request:
@@ -10,12 +10,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: one-shot-a263135-${{ github.ref }}
+  group: a263135-macos-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   audit:
-    runs-on: ubuntu-slim
+    runs-on: macos-15
     timeout-minutes: 180
     steps:
       - name: Checkout Formal Conjectures workbench
@@ -37,16 +37,16 @@ jobs:
         run: |
           set -euo pipefail
           lake exe cache get
-      - name: Check A263135 workbench
+      - name: Check complete A263135 scratch stack
         working-directory: formal-conjectures
         shell: bash
         run: |
           set -euo pipefail
-          lake env lean Scratch/A263135Staircase.lean 2>&1 | tee "$RUNNER_TEMP/a263135-audit.log"
+          lake env lean Scratch/A263135Audit.lean 2>&1 | tee "$RUNNER_TEMP/a263135-audit.log"
       - name: Upload transcript
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: a263135-one-shot-audit
+          name: a263135-macos-audit
           path: ${{ runner.temp }}/a263135-audit.log
           if-no-files-found: warn
