@@ -1,16 +1,14 @@
 name: A263135 external Lean check
 
 on:
-  push:
-    branches:
-      - dtd/a263135-checker
-  pull_request:
-    paths:
-      - '.github/workflows/a263135-external-check.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: a263135-external-singleton
+  cancel-in-progress: true
 
 jobs:
   check:
@@ -20,7 +18,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: dtd/oeis-a263135
+          ref: dtd/oeis-a263135-scd-scratch
           path: formal-conjectures
       - name: Install elan
         run: |
@@ -30,9 +28,7 @@ jobs:
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Restore mathlib cache
         working-directory: formal-conjectures
-        run: |
-          lake exe cache unpack
-          lake exe cache get
+        run: lake exe cache get
       - name: Check A263135
         working-directory: formal-conjectures
-        run: lake env lean FormalConjectures/OEIS/263135.lean
+        run: lake env lean Scratch/A263135Ranks.lean
