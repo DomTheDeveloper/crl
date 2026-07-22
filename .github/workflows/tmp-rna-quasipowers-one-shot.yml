@@ -1,5 +1,5 @@
-name: One-shot RNA quasi-powers kernel audit
-# Exact audit of canonical Formal Conjectures PR #108 head.
+name: One-shot A261865 kernel audit
+# Exact audit of Formal Conjectures PR #99 proof head.
 
 on:
   push:
@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: one-shot-rna-quasipowers-${{ github.ref }}
+  group: one-shot-a261865-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -24,18 +24,21 @@ jobs:
     steps:
       - name: Check out audit host
         uses: actions/checkout@v4
+
       - name: Check out exact Formal Conjectures proof commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 9facde3955b23cd397dfa010d7d9cbdb7bb6b4cc
+          ref: b7900bdec52936ebc312dd763ed9bbfd78d3f7f0
           path: formal-conjectures
+
       - name: Install pinned Lean toolchain
         shell: bash
         run: |
           set -euo pipefail
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
       - name: Resolve dependencies and fetch Mathlib cache
         working-directory: formal-conjectures
         shell: bash
@@ -44,26 +47,45 @@ jobs:
           test "$(cat lean-toolchain)" = "leanprover/lean4:v4.27.0"
           lake update
           lake exe cache get
-      - name: Build the three-track proof library
+
+      - name: Reject proof placeholders
         working-directory: formal-conjectures
         shell: bash
         run: |
           set -euo pipefail
-          lake build RNAQuasiPowers 2>&1 | tee rna-kernel-audit.log
-      - name: Run theorem and axiom audit
+          files=(
+            FormalConjectures/OEIS/A261865Base.lean
+            FormalConjectures/OEIS/261865.lean
+            FormalConjectures/OEIS/261865Solution.lean
+            FormalConjectures/OEIS/261865FinalAudit.lean
+            FormalConjecturesForMathlib/Analysis/Equidistribution/TerminalBox.lean
+            FormalConjecturesForMathlib/Analysis/Equidistribution/UnitAddTorus.lean
+            FormalConjecturesForMathlib/MeasureTheory/Group/UnitAddCircleArc.lean
+            FormalConjecturesForMathlib/MeasureTheory/Probability/Empirical.lean
+            FormalConjecturesForMathlib/MeasureTheory/Probability/PiContinuitySet.lean
+            FormalConjecturesForMathlib/NumberTheory/SquarefreeRadical.lean
+            FormalConjecturesForMathlib/NumberTheory/SquarefreeRadicals.lean
+          )
+          if grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b' "${files[@]}"; then
+            echo 'Forbidden proof placeholder or trust escape found.' >&2
+            exit 1
+          fi
+
+      - name: Run exact theorem and axiom audit
         working-directory: formal-conjectures
         shell: bash
         run: |
           set -euo pipefail
-          lake env lean RNAQuasiPowers/AxiomAudit.lean 2>&1 | tee -a rna-kernel-audit.log
-          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' rna-kernel-audit.log; then
+          lake env lean FormalConjectures/OEIS/261865FinalAudit.lean 2>&1 | tee a261865-kernel-audit.log
+          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' a261865-kernel-audit.log; then
             echo 'Forbidden axiom detected.' >&2
             exit 1
           fi
+
       - name: Upload kernel transcript
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: rna-quasipowers-kernel-audit
-          path: formal-conjectures/rna-kernel-audit.log
+          name: a261865-kernel-audit
+          path: formal-conjectures/a261865-kernel-audit.log
           if-no-files-found: warn
