@@ -1,5 +1,5 @@
 name: One-shot RNA quasi-powers kernel audit
-# Exact audit of canonical Formal Conjectures PR #108 head.
+# Clean single-run audit of canonical Formal Conjectures PR #108 head.
 
 on:
   push:
