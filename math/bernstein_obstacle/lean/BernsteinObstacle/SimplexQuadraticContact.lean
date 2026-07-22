@@ -71,10 +71,16 @@ theorem pderiv_twice_sum_X_pow
           MvPolynomial (Fin (d + 1)) ℝ) *
         (∑ i : Fin (d + 1),
           (MvPolynomial.X i : MvPolynomial (Fin (d + 1)) ℝ)) ^ (n - 2) := by
-  rw [pderiv_sum_X_pow]
-  simp [MvPolynomial.pderiv_mul, MvPolynomial.pderiv_pow,
-    pderiv_sum_X_eq_one, Nat.sub_sub, Nat.cast_sub]
-  ring
+  cases n with
+  | zero => simp
+  | succ n =>
+      cases n with
+      | zero => simp [pderiv_sum_X_eq_one]
+      | succ n =>
+          rw [pderiv_sum_X_pow]
+          simp [MvPolynomial.pderiv_mul, MvPolynomial.pderiv_pow,
+            pderiv_sum_X_eq_one, Nat.cast_succ]
+          ring
 
 /-- Twice differentiating the multinomial expansion weights each monomial by
 `alpha_j (alpha_j - 1)`. -/
@@ -106,8 +112,8 @@ theorem X_sq_mul_pderiv_twice_simplexMultinomialExpansion
               (MvPolynomial.pderiv j
                 (MvPolynomial.monomial (fullSimplexExponent d α) 1))) := by ring
     _ = MvPolynomial.C (Nat.multinomial Finset.univ α : ℝ) *
-          (((fullSimplexExponent d α j : ℕ) : ℝ) *
-              (((fullSimplexExponent d α j : ℕ) : ℝ) - 1) •
+          ((((fullSimplexExponent d α j : ℕ) : ℝ) *
+              (((fullSimplexExponent d α j : ℕ) : ℝ) - 1)) •
             MvPolynomial.monomial (fullSimplexExponent d α) 1) := by
       rw [X_sq_mul_pderiv_twice_monomial]
     _ = MvPolynomial.C (Nat.multinomial Finset.univ α : ℝ) *
