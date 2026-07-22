@@ -1,0 +1,99 @@
+name: One-shot OEIS A100434 exact audit macOS
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/tmp-a100434-exact-macos.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: one-shot-a100434-exact-macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: macos-14
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Create isolated exact audit project
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/a100434-audit
+          cat > /tmp/a100434-audit/lean-toolchain <<'EOF'
+          leanprover/lean4:v4.27.0
+          EOF
+          cat > /tmp/a100434-audit/lakefile.toml <<'EOF'
+          name = "a100434_exact_audit"
+          defaultTargets = ["Audit"]
+
+          [[require]]
+          name = "formal_conjectures"
+          git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
+          rev = "5791cbe5ec3f0a55203cf3a824c5f5e588e98875"
+
+          [[lean_lib]]
+          name = "Audit"
+          globs = ["Audit"]
+          EOF
+          cat > /tmp/a100434-audit/Audit.lean <<'EOF'
+          import FormalConjectures.OEIS.«100434»
+
+          #check OeisA100434.a_0
+          #check OeisA100434.a_5
+          #check OeisA100434.a100434_conjecture_false
+          #print axioms OeisA100434.a100434_conjecture_false
+          EOF
+
+      - name: Resolve exact Formal Conjectures commit
+        working-directory: /tmp/a100434-audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          source_file=.lake/packages/formal_conjectures/FormalConjectures/OEIS/100434.lean
+          test -f "$source_file"
+          if grep -nE '\b(sorry|admit|native_decide)\b|sorryAx|Lean\.trustCompiler|Lean\.ofReduce' "$source_file"; then
+            echo 'Forbidden proof shortcut found in the exact source file.' >&2
+            exit 1
+          fi
+          lake exe cache get
+
+      - name: Build exact numbered OEIS module
+        working-directory: /tmp/a100434-audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build '@formal_conjectures/+FormalConjectures.OEIS.100434' 2>&1 | tee audit.log
+
+      - name: Check theorem and terminal axioms
+        working-directory: /tmp/a100434-audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Audit.lean 2>&1 | tee -a audit.log
+          if grep -nE 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|native_decide' audit.log; then
+            echo 'Forbidden axiom or trusted computation shortcut found.' >&2
+            exit 1
+          fi
+
+      - name: Upload exact audit transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a100434-exact-audit-macos
+          path: /tmp/a100434-audit/audit.log
+          if-no-files-found: warn
+          retention-days: 7
