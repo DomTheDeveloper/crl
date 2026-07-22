@@ -1,0 +1,112 @@
+name: Litt most-unfair direct slim audit
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: litt-most-unfair-direct-slim-audit
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-slim
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install pinned Lean toolchain
+        run: |
+          set -euxo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Clone exact Litt proof branch
+        run: |
+          set -euxo pipefail
+          git clone --branch agent/litt-most-unfair-proof --single-branch \
+            https://github.com/DomTheDeveloper/formal-conjectures.git \
+            "$RUNNER_TEMP/formal-conjectures"
+          cd "$RUNNER_TEMP/formal-conjectures"
+          test "$(git rev-parse HEAD)" = "120e180ecbfd3c8334565f20e093a07fd0658af8"
+
+      - name: Restore Mathlib cache
+        working-directory: ${{ runner.temp }}/formal-conjectures
+        run: |
+          set -euxo pipefail
+          lake exe cache get
+
+      - name: Reject proof escapes
+        working-directory: ${{ runner.temp }}/formal-conjectures
+        run: |
+          set -euxo pipefail
+          mapfile -t files < <(find FormalConjectures/Other -maxdepth 1 \
+            -name 'LittMostUnfairBet*.lean' -print | sort)
+          if grep -nE '\b(sorry|admit|native_decide|unsafe|axiom|opaque)\b' "${files[@]}"; then
+            echo 'Forbidden proof escape found.' >&2
+            exit 1
+          fi
+
+      - name: Compile complete proof chain
+        working-directory: ${{ runner.temp }}/formal-conjectures
+        run: |
+          set -euxo pipefail
+          files=(
+            FormalConjectures/Other/LittMostUnfairBetDefs.lean
+            FormalConjectures/Other/LittMostUnfairBetProof.lean
+            FormalConjectures/Other/LittMostUnfairBetWalsh.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshCorrelation.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshShapes.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshGap.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshInteriorGap.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshShiftCorrelation.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshNormalize.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshOrbit.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshPairSum.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshUpperOrbit.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshSumFlatten.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshEnergyTranslate.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshEnergyDiagonal.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshEnergyUpper.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshEnergyIdentity.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshVariance.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshOverlapBridge.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshConstantGap.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshOneEndpointGap.lean
+            FormalConjectures/Other/LittMostUnfairBetReversal.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshTwoEndpointCore.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshTwoEndpointToggle.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshTwoEndpointConstant.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshTwoEndpointComplete.lean
+            FormalConjectures/Other/LittMostUnfairBetWalshAssembly.lean
+            FormalConjectures/Other/LittMostUnfairBet.lean
+          )
+          : > "$RUNNER_TEMP/litt-lean.log"
+          for file in "${files[@]}"; do
+            echo "=== $file ===" | tee -a "$RUNNER_TEMP/litt-lean.log"
+            lake env lean -DwarningAsError=true "$file" 2>&1 | tee -a "$RUNNER_TEMP/litt-lean.log"
+          done
+          ! grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' "$RUNNER_TEMP/litt-lean.log"
+
+      - name: Run exact finite audit
+        working-directory: ${{ runner.temp }}/formal-conjectures
+        run: |
+          set -euxo pipefail
+          python3 scripts/verify_litt_most_unfair.py --max-length 10 \
+            2>&1 | tee "$RUNNER_TEMP/litt-exact.log"
+
+      - name: Upload transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: litt-most-unfair-audit-logs
+          path: |
+            ${{ runner.temp }}/litt-lean.log
+            ${{ runner.temp }}/litt-exact.log
+          if-no-files-found: warn
