@@ -1,7 +1,7 @@
 name: Other two Lean audit
 
 on:
-  push:
+  pull_request:
     branches:
       - audit/other-two-lean-2026-07-22
   workflow_dispatch:
