@@ -38,7 +38,7 @@ best error through a bound on the inverse operator norm. -/
 theorem bestApproximationError_transport_lower
     (Φ : E ≃L[ℝ] F) (u : E) (K : Set E) (Ainv : ℝ)
     (hK : K.Nonempty) (hAinv : 0 < Ainv)
-    (hΦinv : ‖Φ.symm‖ ≤ Ainv) :
+    (hΦinv : ‖Φ.symm.toContinuousLinearMap‖ ≤ Ainv) :
     bestApproximationError u K / Ainv ≤
       bestApproximationError (Φ u) (transportedFeasibleSet Φ K) := by
   have hImage : (transportedFeasibleSet Φ K).Nonempty := by
@@ -53,7 +53,7 @@ theorem bestApproximationError_transport_lower
     Metric.infDist u K ≤ dist u v := Metric.infDist_le_dist_of_mem hv
     _ = ‖u - v‖ := by rw [dist_eq_norm]
     _ = ‖Φ.symm (Φ u - Φ v)‖ := by simp
-    _ ≤ ‖Φ.symm‖ * ‖Φ u - Φ v‖ :=
+    _ ≤ ‖Φ.symm.toContinuousLinearMap‖ * ‖Φ u - Φ v‖ :=
       Φ.symm.toContinuousLinearMap.le_opNorm (Φ u - Φ v)
     _ ≤ Ainv * ‖Φ u - Φ v‖ :=
       mul_le_mul_of_nonneg_right hΦinv (norm_nonneg _)
@@ -66,7 +66,7 @@ an upper bound for the transported best error. -/
 theorem bestApproximationError_transport_upper
     (Φ : E ≃L[ℝ] F) (u : E) (K : Set E) (Amap : ℝ)
     (hKcompact : IsCompact K) (hK : K.Nonempty)
-    (hAmap : 0 ≤ Amap) (hΦ : ‖Φ‖ ≤ Amap) :
+    (hAmap : 0 ≤ Amap) (hΦ : ‖Φ.toContinuousLinearMap‖ ≤ Amap) :
     bestApproximationError (Φ u) (transportedFeasibleSet Φ K) ≤
       Amap * bestApproximationError u K := by
   obtain ⟨v, hv, hmin⟩ := hKcompact.exists_infDist_eq_dist hK u
@@ -76,7 +76,8 @@ theorem bestApproximationError_transport_upper
       Metric.infDist_le_dist_of_mem ⟨v, hv, rfl⟩
     _ = ‖Φ (u - v)‖ := by
       rw [dist_eq_norm, map_sub]
-    _ ≤ ‖Φ‖ * ‖u - v‖ := Φ.toContinuousLinearMap.le_opNorm (u - v)
+    _ ≤ ‖Φ.toContinuousLinearMap‖ * ‖u - v‖ :=
+      Φ.toContinuousLinearMap.le_opNorm (u - v)
     _ ≤ Amap * ‖u - v‖ :=
       mul_le_mul_of_nonneg_right hΦ (norm_nonneg _)
     _ = Amap * dist u v := by rw [dist_eq_norm]
@@ -88,7 +89,8 @@ theorem bestApproximationError_transport_sandwich
     (Φ : E ≃L[ℝ] F) (u : E) (K : Set E) (Amap Ainv : ℝ)
     (hKcompact : IsCompact K) (hK : K.Nonempty)
     (hAmap : 0 ≤ Amap) (hAinv : 0 < Ainv)
-    (hΦ : ‖Φ‖ ≤ Amap) (hΦinv : ‖Φ.symm‖ ≤ Ainv) :
+    (hΦ : ‖Φ.toContinuousLinearMap‖ ≤ Amap)
+    (hΦinv : ‖Φ.symm.toContinuousLinearMap‖ ≤ Ainv) :
     bestApproximationError u K / Ainv ≤
         bestApproximationError (Φ u) (transportedFeasibleSet Φ K) ∧
       bestApproximationError (Φ u) (transportedFeasibleSet Φ K) ≤
@@ -114,7 +116,8 @@ theorem physical_secondOrder_saturation_of_basisEquiv
     (hL : ‖L‖ ≤ Acoeff)
     (hdefect : ∀ w ∈ K, gamma * h ^ 2 ≤ |L (u - w)|)
     (hrecovery : ‖u - v‖ ≤ Crec * h ^ 2)
-    (hΦ : ‖Φ‖ ≤ Amap) (hΦinv : ‖Φ.symm‖ ≤ Ainv) :
+    (hΦ : ‖Φ.toContinuousLinearMap‖ ≤ Amap)
+    (hΦinv : ‖Φ.symm.toContinuousLinearMap‖ ≤ Ainv) :
     (gamma / (Acoeff * Ainv)) * h ^ 2 ≤
         bestApproximationError (Φ u) (transportedFeasibleSet Φ K) ∧
       bestApproximationError (Φ u) (transportedFeasibleSet Φ K) ≤
