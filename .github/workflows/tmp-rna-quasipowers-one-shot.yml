@@ -1,4 +1,5 @@
 name: One-shot RNA quasi-powers kernel audit
+# Exact audit of canonical Formal Conjectures PR #108 head.
 
 on:
   push:
@@ -18,27 +19,23 @@ concurrency:
 
 jobs:
   audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     timeout-minutes: 180
     steps:
       - name: Check out audit host
         uses: actions/checkout@v4
-
       - name: Check out exact Formal Conjectures proof commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: b323e7b50876b241cbced88698059546f9f572af
+          ref: 9facde3955b23cd397dfa010d7d9cbdb7bb6b4cc
           path: formal-conjectures
-
       - name: Install pinned Lean toolchain
         shell: bash
         run: |
           set -euo pipefail
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
-            | sh -s -- -y --default-toolchain none
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-
       - name: Resolve dependencies and fetch Mathlib cache
         working-directory: formal-conjectures
         shell: bash
@@ -47,14 +44,12 @@ jobs:
           test "$(cat lean-toolchain)" = "leanprover/lean4:v4.27.0"
           lake update
           lake exe cache get
-
       - name: Build the three-track proof library
         working-directory: formal-conjectures
         shell: bash
         run: |
           set -euo pipefail
           lake build RNAQuasiPowers 2>&1 | tee rna-kernel-audit.log
-
       - name: Run theorem and axiom audit
         working-directory: formal-conjectures
         shell: bash
@@ -65,7 +60,6 @@ jobs:
             echo 'Forbidden axiom detected.' >&2
             exit 1
           fi
-
       - name: Upload kernel transcript
         if: always()
         uses: actions/upload-artifact@v4
