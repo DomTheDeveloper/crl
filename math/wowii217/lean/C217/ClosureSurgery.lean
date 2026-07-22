@@ -172,22 +172,24 @@ lemma exists_hamiltonianPath_of_right_crossing
       Walk.drop_support_eq_support_drop_min]
     rw [Nat.min_eq_left (by omega)]
 
-  have hMnonempty : (p.support.drop (i + 1)).take (t - i) ≠ [] := by
-    rw [List.ne_nil_iff_length_pos, List.length_take, List.length_drop, p.length_support]
+  have hmidlen : t - i - 1 < (p.support.drop (i + 1)).length := by
+    rw [List.length_drop, p.length_support]
     omega
-  have hMt : ((p.support.drop (i + 1)).take (t - i)).getLast hMnonempty =
-      p.getVert t := by
-    rw [List.getLast_take]
-    · rw [← p.getVert_eq_support_getElem]
-      congr 1
-      omega
-    · rw [List.length_drop, p.length_support]
-      omega
+  have hlast : (p.support.drop (i + 1))[t - i - 1] = p.getVert t := by
+    rw [List.getElem_drop, p.support_getElem_eq_getVert]
+    congr 1
+    omega
+  have htake :
+      (p.support.drop (i + 1)).take (t - i) =
+        (p.support.drop (i + 1)).take (t - i - 1) ++ [p.getVert t] := by
+    convert List.take_concat_get' (p.support.drop (i + 1)) (t - i - 1) hmidlen using 1
+    · omega
+    · exact hlast
   have hMrev :
       p.getVert t :: ((p.support.drop (i + 1)).take (t - i)).reverse.tail =
         ((p.support.drop (i + 1)).take (t - i)).reverse := by
-    rw [← hMt]
-    exact List.cons_head_tail _
+    rw [htake]
+    simp
 
   have htsList : p.support[t + 1] = p.getVert (t + 1) := by
     exact p.support_getElem_eq_getVert.symm
