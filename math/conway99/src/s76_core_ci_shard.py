@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 import s76_intact_core_cpsat as core_solver
+import s76_linear_quotient_cpsat as quotient_solver
 
 
 def atomic_json(path: Path, data: dict[str, object]) -> None:
@@ -31,16 +32,18 @@ def main() -> None:
     assert report["S7_intact_core_orbits"] == 41
     assert len(report["profiles"]) == 41
 
-    # The solver module imports the profile audit as a function.  Replace it
-    # with the already checked preparation artifact so each worker does not
-    # regenerate all 701 transition orbits.
+    # Reuse the checked preparation artifact rather than regenerating all 701
+    # transition orbits independently in every worker process.
     core_solver.core_profile_audit = lambda: report
+    quotient_solver.core_profile_audit = lambda: report
 
     args.out.mkdir(parents=True, exist_ok=True)
     results_dir = args.out / "results"
     witnesses_dir = args.out / "witnesses"
+    quotient_witnesses_dir = args.out / "quotient_witnesses"
     results_dir.mkdir(exist_ok=True)
     witnesses_dir.mkdir(exist_ok=True)
+    quotient_witnesses_dir.mkdir(exist_ok=True)
 
     profile_ids = [
         profile
@@ -49,6 +52,16 @@ def main() -> None:
     ]
     records = []
     for position, profile in enumerate(profile_ids, 1):
+        quotient_witness = quotient_witnesses_dir / f"profile_{profile:02d}.json"
+        quotient_result = quotient_solver.solve_profile(
+            profile,
+            min(args.time_limit, 600),
+            args.workers,
+            str(quotient_witness),
+        )
+        if quotient_result["status"] not in ("OPTIMAL", "FEASIBLE") and quotient_witness.exists():
+            quotient_witness.unlink()
+
         witness = witnesses_dir / f"profile_{profile:02d}.json"
         result = core_solver.solve_profile(
             profile,
@@ -56,6 +69,7 @@ def main() -> None:
             args.workers,
             str(witness),
         )
+        result["linear_quotient"] = quotient_result
         result["shard_index"] = args.shard_index
         result["shard_count"] = args.shard_count
         result["shard_position"] = position
@@ -75,6 +89,12 @@ def main() -> None:
         "status_histogram": {
             status: sum(record["status"] == status for record in records)
             for status in sorted({record["status"] for record in records})
+        },
+        "quotient_status_histogram": {
+            status: sum(record["linear_quotient"]["status"] == status for record in records)
+            for status in sorted(
+                {record["linear_quotient"]["status"] for record in records}
+            )
         },
     }
     atomic_json(args.out / f"shard_{args.shard_index:02d}.json", manifest)
