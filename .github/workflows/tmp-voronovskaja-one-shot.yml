@@ -1,10 +1,6 @@
-name: One-shot Voronovskaja exact audit
+name: One-shot Sun 2.14(ii) exact audit
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/tmp-voronovskaja-one-shot.yml'
   pull_request:
     paths:
       - '.github/workflows/tmp-voronovskaja-one-shot.yml'
@@ -13,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: one-shot-voronovskaja-exact-${{ github.ref }}
+  group: one-shot-sun-214-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -22,6 +18,7 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
+
       - name: Install pinned Lean
         shell: bash
         run: |
@@ -29,108 +26,58 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Create isolated exact audit project
+
+      - name: Create isolated Formal Conjectures audit
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p /tmp/voronovskaja-audit
-          cat > /tmp/voronovskaja-audit/lean-toolchain <<'EOF'
+          mkdir -p /tmp/sun214-audit
+          cat > /tmp/sun214-audit/lean-toolchain <<'EOF'
           leanprover/lean4:v4.27.0
           EOF
-          cat > /tmp/voronovskaja-audit/lakefile.toml <<'EOF'
-          name = "voronovskaja_exact_audit"
+          cat > /tmp/sun214-audit/lakefile.toml <<'EOF'
+          name = "sun214_exact_audit"
           defaultTargets = ["Audit"]
 
           [[require]]
           name = "formal_conjectures"
           git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
-          rev = "515daf0de1b04efda2cf6f9bd1c56352f14d3c9a"
+          rev = "agent/sun-214-ii-dev"
 
           [[lean_lib]]
           name = "Audit"
           globs = ["Audit"]
           EOF
-          cat > /tmp/voronovskaja-audit/Audit.lean <<'EOF'
-          import FormalConjectures.Paper.VoronovskajaTypeFormula
+          cat > /tmp/sun214-audit/Audit.lean <<'EOF'
+          import FormalConjectures.Arxiv.«1402.6641».Conjecture2_14_ii
 
-          #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
-          #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth
-          #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth.limit_exists
-          #check VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.answer_smoothness
-          #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators
-          #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth
-          #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.eventually_smooth.limit_exists
-          #print axioms VoronovskajaTypeFormula.voronovskaja_theorem.bezier_bernstein_operators.variants.answer_smoothness
+          #check SunConjecture214II.conjecture_2_14_ii
+          #print axioms SunConjecture214II.conjecture_2_14_ii
           EOF
-      - name: Resolve, patch compatibility, and fetch cache
-        working-directory: /tmp/voronovskaja-audit
+
+      - name: Resolve and fetch cache
+        working-directory: /tmp/sun214-audit
         shell: bash
         run: |
           set -euo pipefail
           lake update
-          python3 - <<'PY'
-          from pathlib import Path
-          root = Path('.lake/packages/formal_conjectures')
-
-          defs = root / 'FormalConjectures/Paper/VoronovskajaDefinitions.lean'
-          text = defs.read_text()
-          for decl in [
-              'noncomputable def bernsteinTail',
-              'noncomputable def bezierBernstein',
-          ]:
-              if text.count(decl) != 1:
-                  raise SystemExit(f'exact definition site not found: {decl}')
-              text = text.replace(decl, '@[expose]\n' + decl, 1)
-          defs.write_text(text)
-
-          proof = root / 'FormalConjectures/Paper/VoronovskajaProof.lean'
-          text = proof.read_text()
-          old = "\nimport FormalConjectures.Paper.VoronovskajaDefinitions\nimport FormalConjecturesForMathlib.Probability.CentralLimitTheorem\nimport FormalConjecturesForMathlib.Probability.Distributions.Binomial\n"
-          new = "\nmodule\n\npublic import FormalConjectures.Paper.VoronovskajaDefinitions\npublic import FormalConjecturesForMathlib.Probability.CentralLimitTheorem\npublic import FormalConjecturesForMathlib.Probability.Distributions.Binomial\n"
-          if old not in text:
-              raise SystemExit('VoronovskajaProof import header not found')
-          proof.write_text(text.replace(old, new, 1))
-
-          tails = root / 'FormalConjecturesForMathlib/Probability/Distributions/PoweredBinomialTails.lean'
-          text = tails.read_text()
-          if '  rw [← cdf_eq_real μ x]' not in text:
-              raise SystemExit('CDF rewrite site not found')
-          text = text.replace('  rw [← cdf_eq_real μ x]', '  rw [cdf_eq_real μ x]', 1)
-          old = """  convert h using 1
-  ext z
-  simp
-"""
-          new = """  have hset : Iic (-t) = {z : ℝ | t ≤ (-id) z} := by
-    ext z
-    simp only [mem_Iic, Pi.neg_apply, id_eq, mem_setOf_eq]
-    constructor <;> intro hz <;> linarith
-  rw [hset]
-  exact h
-"""
-          if old not in text:
-              raise SystemExit('left-tail conversion site not found')
-          tails.write_text(text.replace(old, new, 1))
-          PY
           lake exe cache get
-      - name: Build exact theorem stack
-        working-directory: /tmp/voronovskaja-audit
+
+      - name: Build theorem and audit axioms
+        working-directory: /tmp/sun214-audit
         shell: bash
         run: |
           set -euo pipefail
-          lake build '@formal_conjectures/+FormalConjectures.Paper.VoronovskajaTypeFormula' 2>&1 | tee audit.log
-      - name: Check public theorems and axioms
-        working-directory: /tmp/voronovskaja-audit
-        shell: bash
-        run: |
-          set -euo pipefail
+          lake build '@formal_conjectures/+FormalConjectures.Arxiv.1402.6641.Conjecture2_14_ii' 2>&1 | tee audit.log
           lake env lean Audit.lean 2>&1 | tee -a audit.log
           if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' audit.log; then
             exit 1
           fi
+
       - name: Upload transcript
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: voronovskaja-one-shot-audit
-          path: /tmp/voronovskaja-audit/audit.log
+          name: sun214-one-shot-audit
+          path: /tmp/sun214-audit/audit.log
           if-no-files-found: warn
