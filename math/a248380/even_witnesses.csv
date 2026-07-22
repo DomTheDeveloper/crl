@@ -1,0 +1,3 @@
+outer_response,winning_reply,status,notes
+98,59,computed_seed_relative_rederived,"Root P entry removed from the seed bank; 63-state relative replay passed with 0 missing and 0 inconsistent edges. Full seed-bank replay remains pending."
+70,143,in_progress,"Eight effective child branches closed: 62→167, 66→105, 69→167, 71→133, 72→251, 73→13, 76→29, 81→25. Child 82 currently has 14,319,841 retained outcomes."
