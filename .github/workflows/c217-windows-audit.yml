@@ -1,0 +1,96 @@
+name: Windows C217 Lean audit
+
+on:
+  push:
+    branches:
+      - audit/c217-windows-checker
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: windows-2025
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout transport branch
+        uses: actions/checkout@v6
+
+      - name: Install elan
+        run: |
+          Invoke-WebRequest https://raw.githubusercontent.com/leanprover/elan/master/elan-init.ps1 -OutFile "$env:RUNNER_TEMP\elan-init.ps1"
+          & "$env:RUNNER_TEMP\elan-init.ps1" -y --default-toolchain none
+          "$HOME\.elan\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Clone current C217 branch
+        run: |
+          git clone --branch agent/c217-closure-backport --single-branch https://github.com/DomTheDeveloper/formal-conjectures.git "$env:RUNNER_TEMP\formal-conjectures"
+          Set-Location "$env:RUNNER_TEMP\formal-conjectures"
+          git rev-parse HEAD | Tee-Object -FilePath "$env:RUNNER_TEMP\source-sha.txt"
+
+      - name: Restore Mathlib cache
+        working-directory: ${{ runner.temp }}\formal-conjectures
+        run: |
+          lake exe cache get
+
+      - name: Build C217 proof stack
+        id: lean
+        continue-on-error: true
+        working-directory: ${{ runner.temp }}\formal-conjectures
+        run: |
+          lake build `
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.HamiltonianExtras `
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.PathClosure `
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.ChvatalPath `
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217FiniteCertificate `
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217OrderCertificate `
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217OrderBound `
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217DegreeBridge `
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217HamiltonDP `
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217BooleanGraph `
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.MaximumLeafDegree `
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.DegreeTwoTraceable `
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217BaseReduction `
+            2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\c217-windows-audit.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Replay deterministic certificates
+        id: certificate
+        continue-on-error: true
+        working-directory: ${{ runner.temp }}\formal-conjectures
+        run: |
+          python scripts/c217_certificate.py 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\c217-certificate.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git diff --exit-code -- scripts/c217_certificate.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/c217_order_bound_certificate.py 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\c217-order-certificate.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git diff --exit-code -- scripts/c217_order_bound_certificate.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Enforce audit
+        run: |
+          if ('${{ steps.lean.outcome }}' -ne 'success') { throw 'Lean build failed' }
+          if ('${{ steps.certificate.outcome }}' -ne 'success') { throw 'Certificate replay failed' }
+          $log = Get-Content "$env:RUNNER_TEMP\c217-windows-audit.log" -Raw
+          if ($log -match 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool') { throw 'Forbidden axiom found' }
+
+      - name: Upload audit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: c217-windows-audit-log
+          path: |
+            ${{ runner.temp }}\source-sha.txt
+            ${{ runner.temp }}\c217-windows-audit.log
+            ${{ runner.temp }}\c217-certificate.log
+            ${{ runner.temp }}\c217-order-certificate.log
+          compression-level: 0
+          retention-days: 7
