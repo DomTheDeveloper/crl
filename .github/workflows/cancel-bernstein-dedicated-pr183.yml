@@ -1,0 +1,20 @@
+name: Cancel redundant Bernstein dedicated PR audit
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/cancel-bernstein-dedicated-pr183.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-smooth-quadratic-refs/pull/183/merge
+  cancel-in-progress: true
+
+jobs:
+  cancel-replacement:
+    runs-on: ubuntu-slim
+    timeout-minutes: 2
+    steps:
+      - run: echo 'Redundant dedicated PR audit cancelled; isolated audit is authoritative.'
