@@ -58,7 +58,7 @@ lemma exists_hamiltonianPath_of_right_endpoint
   let q : G.Walk a v := (A.concat hub).append B.reverse
   refine ⟨a, v, q, ?_⟩
   have hAsupp : A.support = p.support.take (i + 1) := by
-    simp [A, A0, AH, Walk.support_take]
+    simp [A, A0, AH, Walk.take_support_eq_support_take_succ]
   have hBsupp : B.support = p.support.drop (i + 1) := by
     simp only [B, B0, Walk.support_copy, Walk.support_transferEdges, BH,
       Walk.drop_support_eq_support_drop_min]
@@ -104,7 +104,7 @@ lemma exists_hamiltonianPath_of_left_endpoint
   let q : G.Walk u b := (A.reverse.concat hva.symm).append B
   refine ⟨u, b, q, ?_⟩
   have hAsupp : A.support = p.support.take (i + 1) := by
-    simp [A, A0, AH, Walk.support_take]
+    simp [A, A0, AH, Walk.take_support_eq_support_take_succ]
   have hBsupp : B.support = p.support.drop (i + 1) := by
     simp only [B, B0, Walk.support_copy, Walk.support_transferEdges, BH,
       Walk.drop_support_eq_support_drop_min]
