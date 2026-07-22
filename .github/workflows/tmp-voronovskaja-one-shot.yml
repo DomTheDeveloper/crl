@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     timeout-minutes: 180
     steps:
       - name: Checkout Formal Conjectures workbench
@@ -36,18 +36,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake exe cache unpack
           lake exe cache get
       - name: Check A263135 workbench
         working-directory: formal-conjectures
         shell: bash
         run: |
           set -euo pipefail
-          lake env lean FormalConjectures/OEIS/263135.lean 2>&1 | tee /tmp/a263135-audit.log
+          lake env lean FormalConjectures/OEIS/263135.lean 2>&1 | tee "$RUNNER_TEMP/a263135-audit.log"
       - name: Upload transcript
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: a263135-one-shot-audit
-          path: /tmp/a263135-audit.log
+          path: ${{ runner.temp }}/a263135-audit.log
           if-no-files-found: warn
