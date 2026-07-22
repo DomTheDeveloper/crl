@@ -84,3 +84,5 @@ Standalone research projects can use the audited project-page pattern under `mat
     ├── open-campaigns/
     └── assets/
 ```
+
+[Temporary VC2 AXLE screenshot](https://image.thum.io/get/png/noanimate/width/1200/crop/3000/maxAge/0/https://domthedeveloper.github.io/crl/tmp/vc2-axle-check.html)
