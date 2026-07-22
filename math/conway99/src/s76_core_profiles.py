@@ -161,23 +161,36 @@ def canonical_profile_bytes(profiles) -> bytes:
     ).encode()
 
 
+def canonical_mapping_bytes(mapping) -> bytes:
+    return (json.dumps(mapping, separators=(",", ":")) + "\n").encode()
+
+
 def audit() -> dict[str, object]:
     orbit_report = orbit_audit()
     representatives = orbit_report["representatives"]
     masks = [intact_mask(state) for state in representatives]
-    canonical_counts = Counter(canonical_mask(mask) for mask in masks)
+    canonical_masks = [canonical_mask(mask) for mask in masks]
+    canonical_counts = Counter(canonical_masks)
+    ordered_masks = sorted(canonical_counts)
+    profile_index = {mask: index for index, mask in enumerate(ordered_masks)}
+    branch_profile_indices = [profile_index[mask] for mask in canonical_masks]
     profiles = [
-        profile(mask, branches)
-        for mask, branches in sorted(canonical_counts.items())
+        profile(mask, canonical_counts[mask])
+        for mask in ordered_masks
     ]
     payload = canonical_profile_bytes(profiles)
+    mapping_payload = canonical_mapping_bytes(branch_profile_indices)
 
     branch_histogram = Counter(mask.bit_count() for mask in masks)
     profile_histogram = Counter(item["intact_fibers"] for item in profiles)
+    mapped_counts = Counter(branch_profile_indices)
 
     assert len(masks) == 701
     assert len(set(masks)) == 64
     assert len(profiles) == 41
+    assert len(branch_profile_indices) == 701
+    assert set(branch_profile_indices) == set(range(41))
+    assert all(mapped_counts[index] == profiles[index]["branches"] for index in range(41))
     assert branch_histogram == Counter({13: 163, 14: 190, 15: 164, 16: 111, 17: 59, 18: 14})
     assert profile_histogram == Counter({13: 9, 14: 11, 15: 11, 16: 2, 17: 6, 18: 2})
     assert sum(item["branches"] for item in profiles) == 701
@@ -199,6 +212,8 @@ def audit() -> dict[str, object]:
         "minimum_closed_KG_edges": min(item["closed_KG_edges"] for item in profiles),
         "maximum_closed_KG_edges": max(item["closed_KG_edges"] for item in profiles),
         "profiles_sha256": hashlib.sha256(payload).hexdigest(),
+        "branch_profile_indices_sha256": hashlib.sha256(mapping_payload).hexdigest(),
+        "branch_profile_indices": branch_profile_indices,
         "profiles": profiles,
     }
 
