@@ -113,13 +113,16 @@ theorem intervalIntegral_quadraticRepairError_H1_sq_le
       quadraticRepairError d x ^ 2 + quadraticRepairErrorDeriv d x ^ 2) ≤
         d ^ 2 * (56 / 15) := by
   rw [intervalIntegral_quadraticRepairError_H1_sq]
-  have hden : 1 ≤ 1 + d := by linarith
   have hamp : quadraticRepairAmplitude d ≤ d := by
     exact inwardRepairWeight_le_defect d hd
   have hamp0 : 0 ≤ quadraticRepairAmplitude d :=
     div_nonneg hd (by positivity)
-  have hsq : quadraticRepairAmplitude d ^ 2 ≤ d ^ 2 :=
-    sq_le_sq₀ hamp0 hamp
+  have hprod :
+      0 ≤ (d - quadraticRepairAmplitude d) *
+        (d + quadraticRepairAmplitude d) :=
+    mul_nonneg (sub_nonneg.mpr hamp) (add_nonneg hd hamp0)
+  have hsq : quadraticRepairAmplitude d ^ 2 ≤ d ^ 2 := by
+    nlinarith
   exact mul_le_mul_of_nonneg_right hsq (by norm_num)
 
 end
