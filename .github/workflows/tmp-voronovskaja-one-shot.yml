@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake env lean Scratch/A263135Boundary.lean 2>&1 | tee "$RUNNER_TEMP/a263135-audit.log"
+          lake env lean Scratch/A263135Endpoints.lean 2>&1 | tee "$RUNNER_TEMP/a263135-audit.log"
       - name: Upload transcript
         if: always()
         uses: actions/upload-artifact@v4
