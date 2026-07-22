@@ -53,14 +53,18 @@ jobs:
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.PathClosure \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.ChvatalPath \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217ClosureHelpers \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217CrossDegree \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217FiniteCertificate \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217OrderCertificate \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217OrderBound \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217RowFacts \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217DegreeBridge \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217HamiltonDP \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217BooleanGraph \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.MaximumLeafDegree \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.DegreeTwoTraceable \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217EasyRows \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217SeedRows \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217BaseReduction \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217TerminalReduction \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.GraphConjecture217Reduction \
