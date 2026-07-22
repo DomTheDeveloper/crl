@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: dtd/oeis-a263135
+          ref: dtd/oeis-a263135-scd-scratch
           path: formal-conjectures
       - name: Install pinned Lean
         shell: bash
@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake env lean FormalConjectures/OEIS/263135.lean 2>&1 | tee "$RUNNER_TEMP/a263135-audit.log"
+          lake env lean Scratch/A263135Rows.lean 2>&1 | tee "$RUNNER_TEMP/a263135-audit.log"
       - name: Upload transcript
         if: always()
         uses: actions/upload-artifact@v4
