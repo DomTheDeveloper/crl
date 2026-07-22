@@ -1,0 +1,33 @@
+name: C217 isolated diagnostic
+
+on:
+  push:
+    branches:
+      - agent/c217-diagnostic
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: agent/c217-diagnostic
+      - name: Generate exact sequence tables
+        run: |
+          set -euxo pipefail
+          mkdir -p math/wowii217
+          python3 scripts/c217_enumerate_sequences.py > math/wowii217/degree_sequences.md
+          cat math/wowii217/degree_sequences.md
+      - name: Commit generated table
+        run: |
+          set -euxo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add math/wowii217/degree_sequences.md
+          git diff --cached --quiet && exit 0
+          git commit -m 'chore(C217): record exact sequence table'
+          git push origin HEAD:agent/c217-diagnostic
