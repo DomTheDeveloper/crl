@@ -4,13 +4,19 @@ on:
   push:
     branches:
       - agent/c217-diagnostic
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'scripts/c217_enumerate_sequences.py'
+      - 'math/wowii217/**'
+      - '.github/workflows/c217-diagnostic.yml'
 
 permissions:
   contents: write
 
 jobs:
   run:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -22,7 +28,8 @@ jobs:
           mkdir -p math/wowii217
           python3 scripts/c217_enumerate_sequences.py > math/wowii217/degree_sequences.md
           cat math/wowii217/degree_sequences.md
-      - name: Commit generated table
+      - name: Commit deterministic output on branch pushes
+        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
         run: |
           set -euxo pipefail
           git config user.name github-actions[bot]
