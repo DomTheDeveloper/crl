@@ -1,0 +1,87 @@
+name: C217 AXLE closure check
+
+on:
+  push:
+    branches:
+      - agent/c217-diagnostic
+    paths:
+      - 'math/wowii217/lean/C217/**'
+      - '.github/workflows/c217-axle.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'math/wowii217/lean/C217/**'
+      - '.github/workflows/c217-axle.yml'
+
+concurrency:
+  group: c217-axle-${{ github.repository }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-slim
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: agent/c217-diagnostic
+      - name: Build one-document AXLE request
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          base = Path('math/wowii217/lean/C217')
+          names = [
+              'WalkTransfer.lean',
+              'ClosureIndex.lean',
+              'RotationPerm.lean',
+              'PathSegments.lean',
+              'ClosureSurgery.lean',
+              'EndpointSurgery.lean',
+              'CastGraphExtra.lean',
+              'PathClosure.lean',
+          ]
+          chunks = ['import Mathlib\n']
+          for name in names:
+              text = (base / name).read_text()
+              body = '\n'.join(
+                  line for line in text.splitlines()
+                  if not line.startswith('import ')
+              )
+              chunks.append(f'\n-- BEGIN {name}\n{body}\n-- END {name}\n')
+          content = ''.join(chunks)
+          Path('c217-axle-input.lean').write_text(content)
+          Path('c217-axle-request.json').write_text(json.dumps({
+              'content': content,
+              'environment': 'lean-4.27.0',
+              'ignore_imports': True,
+              'timeout_seconds': 900,
+          }))
+          print(f'AXLE input bytes: {len(content.encode())}')
+          PY
+      - name: Check closure stack with AXLE
+        run: |
+          set -euxo pipefail
+          curl --fail-with-body -sS -X POST \
+            -H 'Content-Type: application/json' \
+            --data-binary @c217-axle-request.json \
+            https://axle.axiommath.ai/api/v1/check \
+            | tee c217-axle-response.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path('c217-axle-response.json').read_text())
+          print(json.dumps(result, indent=2))
+          errors = result.get('lean_messages', {}).get('errors', [])
+          tool_errors = result.get('tool_messages', {}).get('errors', [])
+          failed = result.get('failed_declarations', [])
+          print(f'okay={result.get("okay")} lean_errors={len(errors)} tool_errors={len(tool_errors)} failed_declarations={len(failed)}')
+          if result.get('okay') is not True or errors or tool_errors or failed:
+              raise SystemExit(1)
+          PY
