@@ -1,0 +1,36 @@
+name: Sun 2.14(ii) Lean check
+
+on:
+  push:
+    branches:
+      - agent/sun214-lean-check
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Formal Conjectures candidate
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: agent/sun-214-ii-dev
+          fetch-depth: 1
+
+      - name: Install elan
+        run: |
+          set -o pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore Mathlib cache
+        run: |
+          lake exe cache get
+
+      - name: Check Sun Conjecture 2.14(ii)
+        run: |
+          lake env lean FormalConjectures/Arxiv/1402.6641/Conjecture2_14_ii.lean
