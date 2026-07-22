@@ -1,0 +1,41 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>VC2 AXLE 4.27 audit</title>
+<style>body{font:16px/1.4 system-ui;margin:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.35 ui-monospace,monospace}</style>
+<h1>VC2 AXLE 4.27 audit</h1>
+<div id="status">STARTING</div>
+<pre id="result"></pre>
+<script type="module">
+const status = document.getElementById('status');
+const result = document.getElementById('result');
+try {
+  status.textContent = 'FETCHING SOURCE';
+  const sourceResponse = await fetch('https://raw.githubusercontent.com/DomTheDeveloper/formal-conjectures/agent/solve-vc2-convex-counterexample/FormalConjectures/Other/VCDimConvexCounterexample.lean', {cache:'no-store'});
+  let code = await sourceResponse.text();
+  code = code.replace(
+    'import FormalConjectures.Other.VCDimConvex',
+    `import Mathlib\n\nopen scoped BigOperators\n\ndef HasAddVCNDimAtMost {G : Type*} [AddCommGroup G]\n    (A : Set G) (n d : ℕ) : Prop :=\n  ∀ (x : Fin n → Fin (d + 1) → G) (y : Set (Fin n → Fin (d + 1)) → G),\n    ¬ ∀ i s, y s + ∑ k, x k (i k) ∈ A ↔ i ∈ s`);
+  code = code.replace('open scoped BigOperators\n\nnamespace', 'namespace');
+  code = code.replaceAll('@[category research solved, AMS 5 52]\n', '');
+  status.textContent = 'POSTING TO AXLE';
+  const response = await fetch('https://axle.axiommath.ai/api/v1/check', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','X-Request-Source':'vc2-gh-pages-audit'},
+    body: JSON.stringify({
+      content: code,
+      environment: 'lean-4.27.0',
+      mathlib_options: false,
+      ignore_imports: true,
+      timeout_seconds: 600
+    })
+  });
+  const text = await response.text();
+  status.textContent = 'HTTP ' + response.status + ' DONE';
+  result.textContent = text;
+  document.title = 'VC2 AXLE DONE ' + response.status;
+} catch (e) {
+  status.textContent = 'ERROR';
+  result.textContent = String(e?.stack || e);
+  document.title = 'VC2 AXLE ERROR';
+}
+</script>
