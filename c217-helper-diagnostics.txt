@@ -1,0 +1,164 @@
+head=agent/c217-closure-backport
+head_sha=6a1f7af90c697b475448c3b2a435945d8996ae43
+compile_outcome=failure
+
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:28:4: error: Application type mismatch: The argument
+  p.transfer H h
+has type
+  H.Walk a b
+but is expected to have type
+--
+  (p.transfer H h).IsHamiltonianCycle
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:37:33: error: Application type mismatch: The argument
+  mem_support hp b
+has type
+  b ∈ support ?m.6
+but is expected to have type
+--
+  rotate ?m.16 ⋯
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:44:29: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+  p.IsHamiltonianCycle
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:50:33: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+  p.IsHamiltonianCycle
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:55:36: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+  p.IsHamiltonianCycle
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:60:36: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+  p.IsHamiltonianCycle
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:65:39: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+  p.IsHamiltonianCycle
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:69:39: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+of type `IsHamiltonianCycle ?m.6`
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:72:31: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+of type `IsHamiltonianCycle ?m.6`
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:81:31: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+of type `IsHamiltonianCycle ?m.6`
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:90:26: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+of type `IsHamiltonianCycle ?m.6`
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:94:26: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+of type `IsHamiltonianCycle ?m.6`
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:98:30: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+of type `IsHamiltonianCycle ?m.6`
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:105:30: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+  p.IsHamiltonianCycle
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:113:15: error: Application type mismatch: The argument
+  b'
+has type
+  α
+of sort `Type u_1` but is expected to have type
+--
+of type `IsHamiltonianCycle ?m.6`
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:112:24: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+of type `IsHamiltonianCycle ?m.6`
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:121:21: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+of type `IsHamiltonianCycle ?m.6`
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:128:22: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+of type `IsHamiltonianCycle ?m.6`
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:132:33: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+of type `IsHamiltonianCycle ?m.6`
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:141:27: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+  p.IsHamiltonianCycle
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:162:4: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+  p.IsHamiltonianCycle
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:220:4: error: Application type mismatch: The argument
+  p
+has type
+  G.Walk a b
+but is expected to have type
+--
+  p.IsHamiltonianCycle
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:247:3: error: unknown tactic
+FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean:246:41: error: unsolved goals
+α : Type u_1
+inst✝¹ : DecidableEq α
+inst✝ : Fintype α
+hα : Fintype.card α = 1 ∨ Fintype.card α ≥ 3
