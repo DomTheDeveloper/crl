@@ -70,19 +70,18 @@ private lemma card_neighbors_before_end
         intro hy
         subst y
         exact hxb hxy
-      have hymem : y ∈ p.support := hp.mem_support y
-      let k := p.support.idxOf y
-      have hkget : p.getVert k = y := p.getVert_support_idxOf hymem
-      have hkle : k ≤ p.length := by
-        have hklt := List.idxOf_lt_length_of_mem hymem
+      let k : Fin p.support.length := hp.getVertEquiv.symm y
+      have hkget : p.getVert k.val = y := hp.getVertEquiv.apply_symm_apply y
+      have hkle : k.val ≤ p.length := by
+        have hklt := k.isLt
         rw [p.length_support] at hklt
         omega
-      have hkne : k ≠ p.length := by
+      have hkne : k.val ≠ p.length := by
         intro hk
         rw [hk, p.getVert_length] at hkget
         exact hyb hkget.symm
-      have hklt : k < p.length := lt_of_le_of_ne hkle hkne
-      let j : Fin p.length := ⟨k, hklt⟩
+      have hklt : k.val < p.length := lt_of_le_of_ne hkle hkne
+      let j : Fin p.length := ⟨k.val, hklt⟩
       refine ⟨j, ?_, ?_⟩
       · simpa [j, hkget] using hxy
       · simpa [j] using hkget
@@ -119,24 +118,23 @@ private lemma card_neighbors_after_start
         intro hy
         subst y
         exact hxa hxy
-      have hymem : y ∈ p.support := hp.mem_support y
-      let k := p.support.idxOf y
-      have hkget : p.getVert k = y := p.getVert_support_idxOf hymem
-      have hkle : k ≤ p.length := by
-        have hklt := List.idxOf_lt_length_of_mem hymem
+      let k : Fin p.support.length := hp.getVertEquiv.symm y
+      have hkget : p.getVert k.val = y := hp.getVertEquiv.apply_symm_apply y
+      have hkle : k.val ≤ p.length := by
+        have hklt := k.isLt
         rw [p.length_support] at hklt
         omega
-      have hkzero : k ≠ 0 := by
+      have hkzero : k.val ≠ 0 := by
         intro hk
         rw [hk, p.getVert_zero] at hkget
         exact hya hkget.symm
-      have hkpos : 0 < k := Nat.pos_of_ne_zero hkzero
-      have hpredlt : k - 1 < p.length := by omega
-      let j : Fin p.length := ⟨k - 1, hpredlt⟩
+      have hkpos : 0 < k.val := Nat.pos_of_ne_zero hkzero
+      have hpredlt : k.val - 1 < p.length := by omega
+      let j : Fin p.length := ⟨k.val - 1, hpredlt⟩
       refine ⟨j, ?_, ?_⟩
-      · have hsucc : j.val + 1 = k := by simp [j, Nat.sub_add_cancel hkpos]
+      · have hsucc : j.val + 1 = k.val := by simp [j, Nat.sub_add_cancel hkpos]
         simpa [hsucc, hkget] using hxy
-      · have hsucc : j.val + 1 = k := by simp [j, Nat.sub_add_cancel hkpos]
+      · have hsucc : j.val + 1 = k.val := by simp [j, Nat.sub_add_cancel hkpos]
         simpa [hsucc] using hkget
   calc
     (Finset.univ.filter fun j : Fin p.length => G.Adj x (p.getVert (j.val + 1))).card
@@ -145,7 +143,7 @@ private lemma card_neighbors_after_start
     _ = (G.neighborFinset x).card := congrArg Finset.card himage
     _ = G.degree x := G.card_neighborFinset_eq_degree x
 
-/-- The counting core of the Bondy--Chvátal path-closure surgery.  If the
+/-- The counting core of the Bondy--Chvátal path-closure surgery. If the
 added edge occurs at position `i`, neither easy endpoint reconnection is
 available, and the degree sum is large enough, then some other position
 `t` supplies the two crossing edges used by the path rotation. -/
@@ -182,7 +180,8 @@ lemma exists_closure_crossing_index
         · exact hbadB hjB
       exact Finset.mem_erase.mpr ⟨hjne, Finset.mem_univ j⟩
     have hcard := Finset.card_le_card hsub
-    rw [Finset.card_union_of_disjoint hdis, Finset.card_erase_of_mem (Finset.mem_univ bad),
+    rw [Finset.card_union_of_disjoint hdis,
+      Finset.card_erase_of_mem (Finset.mem_univ bad),
       Finset.card_univ, Fintype.card_fin] at hcard
     rw [hcardA, hcardB] at hcard
     omega
