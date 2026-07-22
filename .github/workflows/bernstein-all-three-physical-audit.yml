@@ -1,5 +1,6 @@
 name: Bernstein all-three physical audit
 
+# Exact terminal-head ARM audit child.
 on:
   push:
     branches:
@@ -35,7 +36,7 @@ concurrency:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
@@ -60,9 +61,7 @@ jobs:
             BernsteinObstacle/OneStepFittedAFEMBestError.lean
             BernsteinObstacle/GeneralContactFittedAFEM.lean
           )
-          if grep -InE '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|native_decide|^[[:space:]]*opaque[[:space:]]' "${files[@]}"; then
-            exit 1
-          fi
+          if grep -InE '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|native_decide|^[[:space:]]*opaque[[:space:]]' "${files[@]}"; then exit 1; fi
       - name: Install pinned Lean
         shell: bash
         run: |
