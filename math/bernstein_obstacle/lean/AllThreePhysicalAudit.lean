@@ -1,4 +1,5 @@
 import BernsteinObstacle.PhysicalOddMeshQuadratic
+import BernsteinObstacle.PhysicalCoefficientDistance
 import BernsteinObstacle.PhysicalQuadraticH1
 import BernsteinObstacle.GreenRecoverySequence
 import BernsteinObstacle.GreenTraceDefect
@@ -9,6 +10,8 @@ import BernsteinObstacle.SimplexQuadraticContact
 #print axioms BernsteinObstacle.xSquaredCellCoeff_curve_eq
 #print axioms BernsteinObstacle.centralPhysicalCoeff_even_center_neg
 #print axioms BernsteinObstacle.physicalRepairCoeff_curve_eq
+#print axioms BernsteinObstacle.evenPhysicalCoefficient_bestApproximation_lower
+#print axioms BernsteinObstacle.evenPhysicalCoefficient_bestApproximation_pos
 #print axioms BernsteinObstacle.intervalIntegral_quadraticRepairH1Density
 #print axioms BernsteinObstacle.intervalIntegral_quadraticRepairError_H1_sq_le
 #print axioms BernsteinObstacle.greenCentralValue_tendsto_one
