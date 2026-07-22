@@ -42,7 +42,7 @@ jobs:
           [[require]]
           name = "formal_conjectures"
           git = "https://github.com/DomTheDeveloper/formal-conjectures.git"
-          rev = "434cade6b7a228b193a433011ff19fc9bed9d565"
+          rev = "04cba13956691843d153915b17df5aadf64dc37e"
 
           [[lean_lib]]
           name = "Audit"
