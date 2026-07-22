@@ -19,6 +19,7 @@ def audit():
     assert len(survivors) == 30
 
     fibers = list(combinations(range(7), 2))
+    fiber_index = {fiber: index for index, fiber in enumerate(fibers)}
     triangles = [
         triangle
         for triangle in combinations(range(21), 3)
@@ -27,8 +28,30 @@ def audit():
             for a, b in combinations(triangle, 2)
         )
     ]
+    triangle_index = {triangle: index for index, triangle in enumerate(triangles)}
 
     support = survivors[0]
+
+    # Generate the complete S7 orbit directly and compare it with the exact
+    # survivor set.  This makes the coverage step independent of orbit-size
+    # inference from the stabilizer order.
+    orbit = set()
+    support_triangles = [
+        triangle for triangle in range(105) if (support >> triangle) & 1
+    ]
+    for permutation in permutations(range(7)):
+        fiber_map = []
+        for left, right in fibers:
+            image = tuple(sorted((permutation[left], permutation[right])))
+            fiber_map.append(fiber_index[image])
+        image = 0
+        for source in support_triangles:
+            target = tuple(sorted(fiber_map[vertex] for vertex in triangles[source]))
+            image |= 1 << triangle_index[target]
+        orbit.add(image)
+    assert len(orbit) == 30
+    assert orbit == set(survivors)
+
     class_bits = unique_assignment(support, edge_triangles)
     identity_triangles = [
         triangle
@@ -83,6 +106,7 @@ def audit():
         if image == identity_matchings:
             stabilizer.append(permutation)
     assert len(stabilizer) == 168
+    assert 5040 // len(stabilizer) == len(orbit)
 
     # Every stabilizer element extends by zero to an automorphism of the group.
     for permutation in stabilizer:
@@ -95,8 +119,10 @@ def audit():
 
     return {
         "PASS": True,
-        "surviving_support_orbit_size": 30,
-        "stabilizer_order": 168,
+        "surviving_support_orbit_size": len(orbit),
+        "survivor_set_equals_generated_S7_orbit": True,
+        "base_permutations_checked": 5040,
+        "stabilizer_order": len(stabilizer),
         "group_order": 8,
         "group_exponent": 2,
         "associativity_checks": 8**3,
