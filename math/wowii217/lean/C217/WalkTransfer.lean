@@ -67,6 +67,24 @@ lemma isHamiltonian_transferEdges (p : H.Walk a b)
   intro x
   simpa only [support_transferEdges] using hp x
 
+/-- Every occurrence of an edge in a walk is represented by two
+consecutive indexed vertices.  This pinned-version lemma replaces a later
+Mathlib convenience theorem. -/
+lemma exists_index_of_mem_edges (p : H.Walk a b) {x y : V}
+    (hxy : s(x, y) ∈ p.edges) :
+    ∃ i < p.length,
+      s(p.getVert i, p.getVert (i + 1)) = s(x, y) := by
+  induction p with
+  | nil => simp at hxy
+  | cons hadj q ih =>
+      simp only [edges_cons, List.mem_cons] at hxy
+      rcases hxy with hhead | htail
+      · refine ⟨0, by simp, ?_⟩
+        simpa using hhead.symm
+      · obtain ⟨i, hi, heq⟩ := ih htail
+        refine ⟨i + 1, by simpa using hi, ?_⟩
+        simpa using heq
+
 lemma edges_in_base_of_avoid_right
     [DecidableEq V] (p : (G ⊔ edge u v).Walk a b)
     (hv : v ∉ p.support) :
