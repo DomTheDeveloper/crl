@@ -1,0 +1,63 @@
+name: Bernstein all-three physical audit
+
+on:
+  push:
+    branches:
+      - formal/bernstein-all-three-physical-v1
+    paths:
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalOddMeshQuadratic.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenRecoverySequence.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/OneStepFittedAFEM.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/SimplexQuadraticContact.lean'
+      - 'math/bernstein_obstacle/lean/AllThreePhysicalAudit.lean'
+      - '.github/workflows/bernstein-all-three-physical-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bernstein-all-three-physical-v1
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Download pinned mathlib cache
+        working-directory: math/bernstein_obstacle/lean
+        run: lake exe cache get
+      - name: Compile all three tracks
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build BernsteinObstacle.PhysicalOddMeshQuadratic 2>&1 | tee all-three-physical-build.log
+          lake build BernsteinObstacle.GreenRecoverySequence 2>&1 | tee -a all-three-physical-build.log
+          lake build BernsteinObstacle.OneStepFittedAFEM 2>&1 | tee -a all-three-physical-build.log
+          lake build BernsteinObstacle.SimplexQuadraticContact 2>&1 | tee -a all-three-physical-build.log
+      - name: Audit theorem axioms
+        working-directory: math/bernstein_obstacle/lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean AllThreePhysicalAudit.lean 2>&1 | tee all-three-physical-axioms.log
+          if grep -q 'sorryAx' all-three-physical-axioms.log; then exit 1; fi
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bernstein-all-three-physical-audit
+          path: |
+            math/bernstein_obstacle/lean/all-three-physical-build.log
+            math/bernstein_obstacle/lean/all-three-physical-axioms.log
+          if-no-files-found: warn
