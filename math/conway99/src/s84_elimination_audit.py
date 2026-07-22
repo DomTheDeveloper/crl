@@ -24,6 +24,8 @@ def audit():
     assert conjugacy["surviving_support_weight"] == 56
     assert conjugacy["surviving_class_assignment_is_unique"]
     assert fano["surviving_support_orbit_size"] == 30
+    assert fano["survivor_set_equals_generated_S7_orbit"]
+    assert fano["base_permutations_checked"] == 5040
     assert fano["stabilizer_order"] == 168
     assert connection["support_orbit_size"] == 30
     assert connection["F3_nullity"] == 1
@@ -42,6 +44,8 @@ def audit():
         "status": "ELIMINATED",
         "curvature_supports_before_conjugacy_filter": 256,
         "surviving_support_orbit_size": 30,
+        "survivor_set_equals_generated_S7_orbit": True,
+        "base_permutations_checked": 5040,
         "surviving_quotient_parameters": 3,
         "parameters_eliminated_by_propagation": [0, 2],
         "parameter_eliminated_by_xor_certificate": 1,
