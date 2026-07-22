@@ -1,13 +1,13 @@
-name: VC2 direct slim Lean audit
+name: Slim C217 Lean audit
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - audit/c217-slim-checker
   workflow_dispatch:
 
 concurrency:
-  group: vc2-direct-slim-audit
+  group: c217-focused-audit
   cancel-in-progress: true
 
 permissions:
@@ -16,25 +16,22 @@ permissions:
 jobs:
   audit:
     runs-on: ubuntu-slim
-    timeout-minutes: 60
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v6
 
       - name: Install pinned Lean toolchain
         run: |
           set -euxo pipefail
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
-            | sh -s -- -y --default-toolchain none
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
-      - name: Clone exact VC2 proof branch
+      - name: Clone current C217 branch
         run: |
           set -euxo pipefail
-          git clone --branch agent/solve-vc2-convex-counterexample --single-branch \
-            https://github.com/DomTheDeveloper/formal-conjectures.git \
-            "$RUNNER_TEMP/formal-conjectures"
+          git clone --branch agent/c217-closure-backport --single-branch https://github.com/DomTheDeveloper/formal-conjectures.git "$RUNNER_TEMP/formal-conjectures"
           cd "$RUNNER_TEMP/formal-conjectures"
-          test "$(git rev-parse HEAD)" = "cc22b779be4390f10206d5c289b5201b16e43def"
+          git rev-parse HEAD | tee "$RUNNER_TEMP/source-sha.txt"
 
       - name: Restore Mathlib cache
         working-directory: ${{ runner.temp }}/formal-conjectures
@@ -42,22 +39,45 @@ jobs:
           set -euxo pipefail
           lake exe cache get
 
-      - name: Compile exact VC2 proof and audit axioms
+      - name: Build complete C217 source stack
+        id: lean
+        continue-on-error: true
         working-directory: ${{ runner.temp }}/formal-conjectures
         run: |
-          set -euxo pipefail
-          proof='FormalConjectures/Other/VCDimConvexCounterexample.lean'
-          if grep -nE '\b(sorry|admit|native_decide|unsafe|axiom|opaque)\b' "$proof"; then
-            echo 'Forbidden proof escape found.' >&2
-            exit 1
-          fi
-          lake env lean "$proof" 2>&1 | tee "$RUNNER_TEMP/vc2-lean.log"
-          ! grep -q 'sorryAx' "$RUNNER_TEMP/vc2-lean.log"
+          set -o pipefail
+          lake build \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217PartialDispatcher \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217RegularCertificate \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217TerminalReduction \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.GraphConjecture217Reduction \
+            2>&1 | tee "$RUNNER_TEMP/c217-slim-audit.log"
 
-      - name: Upload transcript
+      - name: Replay deterministic certificates
+        id: certificate
+        continue-on-error: true
+        working-directory: ${{ runner.temp }}/formal-conjectures
+        run: |
+          set -o pipefail
+          python3 scripts/c217_certificate.py 2>&1 | tee "$RUNNER_TEMP/c217-certificate.log"
+          git diff --exit-code -- scripts/c217_certificate.json
+          python3 scripts/c217_order_bound_certificate.py 2>&1 | tee "$RUNNER_TEMP/c217-order-certificate.log"
+          git diff --exit-code -- scripts/c217_order_bound_certificate.json
+
+      - name: Enforce audit
+        run: |
+          test '${{ steps.lean.outcome }}' = success
+          test '${{ steps.certificate.outcome }}' = success
+          ! grep -nE 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool|native_decide' "$RUNNER_TEMP/c217-slim-audit.log"
+
+      - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: vc2-direct-slim-audit-log
-          path: ${{ runner.temp }}/vc2-lean.log
-          if-no-files-found: warn
+          name: c217-slim-audit-log
+          path: |
+            ${{ runner.temp }}/source-sha.txt
+            ${{ runner.temp }}/c217-slim-audit.log
+            ${{ runner.temp }}/c217-certificate.log
+            ${{ runner.temp }}/c217-order-certificate.log
+          compression-level: 0
+          retention-days: 7
