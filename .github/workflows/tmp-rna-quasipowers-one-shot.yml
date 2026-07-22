@@ -1,4 +1,5 @@
 name: One-shot RNA quasi-powers kernel audit
+# Pull-request trigger commit for the exact b323e7b proof snapshot.
 
 on:
   push:
