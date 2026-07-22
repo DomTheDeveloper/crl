@@ -1,0 +1,48 @@
+name: One-shot RNA quasi-powers ARM kernel audit
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/tmp-rna-quasipowers-arm.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out canonical Formal Conjectures proof head
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 9facde3955b23cd397dfa010d7d9cbdb7bb6b4cc
+          path: formal-conjectures
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build and audit
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.27.0"
+          lake update
+          lake exe cache get
+          lake build RNAQuasiPowers 2>&1 | tee rna-arm-kernel-audit.log
+          lake env lean RNAQuasiPowers/AxiomAudit.lean 2>&1 | tee -a rna-arm-kernel-audit.log
+          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' rna-arm-kernel-audit.log; then
+            exit 1
+          fi
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rna-quasipowers-arm-kernel-audit
+          path: formal-conjectures/rna-arm-kernel-audit.log
+          if-no-files-found: warn
