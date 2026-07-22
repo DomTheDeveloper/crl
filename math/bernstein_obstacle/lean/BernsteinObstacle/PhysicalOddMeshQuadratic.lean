@@ -134,7 +134,7 @@ theorem physicalRepairCoeff_curve_eq
           ((∑ k ∈ Finset.range (p + 1),
               xSquaredCellCoeff p k a h * basis p k t) +
             d * (∑ k ∈ Finset.range (p + 1), basis p k t)) := by
-      rw [Finset.mul_add, Finset.mul_sum, Finset.mul_sum]
+      rw [mul_add, Finset.mul_sum, Finset.mul_sum]
       rw [← Finset.sum_add_distrib]
       apply Finset.sum_congr rfl
       intro k hk
