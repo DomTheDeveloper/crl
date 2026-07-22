@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - audit/c217-slim-checker
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 concurrency:
@@ -18,7 +15,6 @@ permissions:
 
 jobs:
   audit:
-    if: ${{ false }}
     runs-on: ubuntu-slim
     steps:
-      - run: echo 'Paused to release the slim runner for the VC2 audit.'
+      - run: echo 'Cancellation run complete; C217 proof branch remains preserved.'
