@@ -48,14 +48,6 @@ jobs:
           name = "Audit"
           globs = ["Audit"]
           EOF
-          cat > /tmp/a100434-audit/Audit.lean <<'EOF'
-          import FormalConjectures.OEIS.«100434»
-
-          #check OeisA100434.a_0
-          #check OeisA100434.a_5
-          #check OeisA100434.a100434_conjecture_false
-          #print axioms OeisA100434.a100434_conjecture_false
-          EOF
 
       - name: Resolve exact Formal Conjectures commit
         working-directory: /tmp/a100434-audit
@@ -71,19 +63,21 @@ jobs:
           fi
           lake exe cache get
 
-      - name: Build exact numbered OEIS module
+      - name: Compile exact source and audit theorem
         working-directory: /tmp/a100434-audit
         shell: bash
         run: |
           set -euo pipefail
-          lake build '@formal_conjectures/+FormalConjectures.OEIS.100434' 2>&1 | tee audit.log
+          source_file=.lake/packages/formal_conjectures/FormalConjectures/OEIS/100434.lean
+          cp "$source_file" Audit.lean
+          cat >> Audit.lean <<'EOF'
 
-      - name: Check theorem and terminal axioms
-        working-directory: /tmp/a100434-audit
-        shell: bash
-        run: |
-          set -euo pipefail
-          lake env lean Audit.lean 2>&1 | tee -a audit.log
+          #check OeisA100434.a_0
+          #check OeisA100434.a_5
+          #check OeisA100434.a100434_conjecture_false
+          #print axioms OeisA100434.a100434_conjecture_false
+          EOF
+          lake env lean Audit.lean 2>&1 | tee audit.log
           if grep -nE 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|native_decide' audit.log; then
             echo 'Forbidden axiom or trusted computation shortcut found.' >&2
             exit 1
