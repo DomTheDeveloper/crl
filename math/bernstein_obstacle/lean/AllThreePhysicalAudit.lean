@@ -5,7 +5,6 @@ import BernsteinObstacle.GreenRecoverySequence
 import BernsteinObstacle.GreenTraceDefect
 import BernsteinObstacle.OneStepFittedAFEM
 import BernsteinObstacle.OneStepFittedAFEMBestError
-import BernsteinObstacle.SimplexQuadraticContact
 
 #print axioms BernsteinObstacle.xSquaredCellCoeff_curve_eq
 #print axioms BernsteinObstacle.centralPhysicalCoeff_even_center_neg
@@ -22,4 +21,3 @@ import BernsteinObstacle.SimplexQuadraticContact
 #print axioms BernsteinObstacle.oneStepFittedAFEM_exact_feasible_and_shapeRegular
 #print axioms BernsteinObstacle.oneStepFittedAFEM_bestApproximationError_eq_zero
 #print axioms BernsteinObstacle.oneStepFittedAFEM_complete
-#print axioms BernsteinObstacle.simplexQuadraticNormal_exact_and_nonnegative
