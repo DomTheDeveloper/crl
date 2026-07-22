@@ -11,7 +11,9 @@ def mm(a,b):
     bt=list(zip(*b))
     return [[sum(x*y for x,y in zip(row,col)) for col in bt] for row in a]
 
+
 def transpose(a): return [list(x) for x in zip(*a)]
+
 
 def audit():
     rm=make_root_model(14); labels=rm.labels; n=rm.m
@@ -34,9 +36,6 @@ def audit():
     # deficit at least two. This is the exact near-extremal exclusion.
     impossible_s=[]
     for deficit in (1,2,3):
-        row_parts=[]
-        for first in range(deficit+1):
-            pass
         # Since positive row deficits exclude one, total 2 or 3 must lie in a
         # single row; its missing entries lie in distinct columns and create
         # column deficit one. Deficit one fails already at the row level.
@@ -79,9 +78,10 @@ def audit():
       "s84_cover":{"fibers":21,"fiber_size":4,"cross_blocks":105,
         "block_type":"4x4 permutation matrix",
         "quotient_spectrum":{"12":1,"3":14,"-2":6},
-        "cnf":{"variables":263457,"clauses":615954,
-          "sha256":"913237d12c4cbc7dee7d99f8f2b0228ac004858af53a4f8c600cdd6d4fdac1b3"}}
+        "corrected_unsymmetrized_cnf":{"variables":263760,"clauses":616560,
+          "sha256":"09e71a0ecf915961be435f5f93784c061f4eaded737f95dff91fc7acd44aeec4"}}
     }
+
 
 def main():print(json.dumps(audit(),indent=2,sort_keys=True))
 if __name__=="__main__":main()
