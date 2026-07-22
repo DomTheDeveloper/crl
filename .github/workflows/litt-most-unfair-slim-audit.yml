@@ -18,49 +18,47 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout immutable proof commit
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: c7599e693973984c557c39b122f4a42434b4e384
+          path: formal-conjectures
 
-      - name: Install pinned Lean toolchain
-        run: |
-          set -euxo pipefail
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
-            | sh -s -- -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Set up pinned Lean environment
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: formal-conjectures
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+          use-mathlib-cache: true
+          use-github-cache: false
 
-      - name: Clone exact Litt proof branch
-        run: |
-          set -euxo pipefail
-          git clone --branch agent/litt-most-unfair-proof --single-branch \
-            https://github.com/DomTheDeveloper/formal-conjectures.git \
-            "$RUNNER_TEMP/formal-conjectures"
-          cd "$RUNNER_TEMP/formal-conjectures"
-          test "$(git rev-parse HEAD)" = "1e9cf3a6a1fab05db166d3fea6bf4c083abe4abb"
-
-      - name: Restore Mathlib cache
-        working-directory: ${{ runner.temp }}/formal-conjectures
-        run: |
-          set -euxo pipefail
-          lake exe cache get
+      - name: Confirm immutable proof commit
+        working-directory: formal-conjectures
+        run: test "$(git rev-parse HEAD)" = "c7599e693973984c557c39b122f4a42434b4e384"
 
       - name: Reject proof escapes
-        working-directory: ${{ runner.temp }}/formal-conjectures
+        working-directory: formal-conjectures
         run: |
-          set -euxo pipefail
+          set -euo pipefail
           files=$(find FormalConjectures/Other -maxdepth 1 \
             -name 'LittMostUnfairBet*.lean' -print | sort)
           if grep -nE '(^|[^[:alnum:]_])(sorry|admit|native_decide)([^[:alnum:]_]|$)' $files; then
-            echo 'Proof hole or unsupported decision shortcut found.' >&2
+            echo 'Proof hole or unsupported decision shortcut found.'
             exit 1
           fi
           if grep -nE '^[[:space:]]*(axiom|unsafe|opaque)([[:space:]]|$)' $files; then
-            echo 'Custom axiom or unsafe/opaque declaration found.' >&2
+            echo 'Custom axiom or unsafe/opaque declaration found.'
             exit 1
           fi
 
       - name: Compile complete proof chain
-        working-directory: ${{ runner.temp }}/formal-conjectures
+        working-directory: formal-conjectures
         run: |
-          set -euxo pipefail
+          set -euo pipefail
           files=(
             FormalConjectures/Other/LittMostUnfairBetDefs.lean
             FormalConjectures/Other/LittMostUnfairBetProof.lean
@@ -91,26 +89,24 @@ jobs:
             FormalConjectures/Other/LittMostUnfairBetWalshAssembly.lean
             FormalConjectures/Other/LittMostUnfairBet.lean
           )
-          : > "$RUNNER_TEMP/litt-lean.log"
+          : > /tmp/litt-lean.log
           for file in "${files[@]}"; do
-            echo "=== $file ===" | tee -a "$RUNNER_TEMP/litt-lean.log"
-            lake env lean -DwarningAsError=true "$file" 2>&1 | tee -a "$RUNNER_TEMP/litt-lean.log"
+            echo "=== $file ===" | tee -a /tmp/litt-lean.log
+            lake env lean -DwarningAsError=true "$file" 2>&1 | tee -a /tmp/litt-lean.log
           done
-          ! grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' "$RUNNER_TEMP/litt-lean.log"
+          if grep -nE 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' /tmp/litt-lean.log; then
+            echo 'Unsupported axiom or compiler-trust shortcut found.'
+            exit 1
+          fi
 
       - name: Run exact finite audit
-        working-directory: ${{ runner.temp }}/formal-conjectures
-        run: |
-          set -euxo pipefail
-          python3 scripts/verify_litt_most_unfair.py --max-length 10 \
-            2>&1 | tee "$RUNNER_TEMP/litt-exact.log"
+        working-directory: formal-conjectures
+        run: python3 scripts/verify_litt_most_unfair.py --max-length 10
 
       - name: Upload transcripts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: litt-most-unfair-audit-logs
-          path: |
-            ${{ runner.temp }}/litt-lean.log
-            ${{ runner.temp }}/litt-exact.log
+          path: /tmp/litt-lean.log
           if-no-files-found: warn
