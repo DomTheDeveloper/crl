@@ -1,0 +1,55 @@
+name: Quantum N6 D3 native-XOR audit
+
+on:
+  push:
+    branches:
+      - audit/quantum-mod2-xor-crl
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  solve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        orbit: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install native-XOR solver
+        run: |
+          python3 -m pip install --disable-pip-version-check --no-cache-dir pycryptosat==5.14.7
+          python3 - <<'PY'
+          import pycryptosat
+          print(pycryptosat.__file__)
+          PY
+
+      - name: Solve exact symmetry orbit
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p quantum-xor-${{ matrix.orbit }}
+          python3 audit/quantum_mod2_xor.py \
+            --orbit '${{ matrix.orbit }}' \
+            --threads 4 \
+            --time-limit 6800 \
+            2>&1 | tee quantum-xor-${{ matrix.orbit }}/solver.log
+          sha256sum audit/quantum_mod2_xor.py \
+            quantum-xor-${{ matrix.orbit }}/solver.log \
+            > quantum-xor-${{ matrix.orbit }}/SHA256SUMS
+
+      - name: Upload exact orbit result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantum-xor-${{ matrix.orbit }}
+          path: quantum-xor-${{ matrix.orbit }}
+          if-no-files-found: error
