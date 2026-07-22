@@ -43,7 +43,8 @@ lemma IsPath.getVert_not_mem_support_drop_of_lt {p : G.Walk a b}
   have hmk : m + k ≤ p.length := by
     rw [p.drop_length] at hklen
     omega
-  have hidx : m + k = n := hp.getVert_injective_on hmk n.le hEq
+  have hnle : n ≤ p.length := le_trans hnm.le hm
+  have hidx : m + k = n := hp.getVert_injective_on hmk hnle hEq
   omega
 
 /-- Taking a prefix preserves non-membership. -/
