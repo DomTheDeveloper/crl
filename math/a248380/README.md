@@ -14,7 +14,7 @@ for odd `q`, `{16,26,q}` is a quiet ender whenever `q` is already illegal in
 `S`. Thus only the odd gaps of `S` need finite checking. Move `1` loses
 immediately, leaving exactly 23 exceptional odd responses.
 
-`odd_witnesses.json` records an exact winning reply for each exception. The
+`odd_witnesses.csv` records an exact winning reply for each exception. The
 final and hardest row was:
 
 ```
@@ -48,9 +48,9 @@ all 42 even rows in addition to the odd-response result above.
 
 ## Files
 
-- `odd_witnesses.json` — 23 odd exceptions and winning replies.
+- `odd_witnesses.csv` — 23 odd exceptions and winning replies.
 - `odd_p_positions.txt` — canonical computed P-children.
 - `verify_odd_reduction.py` — exact arithmetic/coverage checker.
 - `even_rows.json` — honest remaining-work ledger.
 - `sylver_exact_solver.cpp` — exact finite-position solver used in this campaign.
-- `verify_outcome_memo.cpp` — independent memo consistency checker under development.
+- `verify_outcome_memo.cpp` — independent memo consistency checker prototype.
