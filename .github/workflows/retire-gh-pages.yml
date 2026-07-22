@@ -1,0 +1,35 @@
+name: Retire CRL gh-pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/retire-gh-pages.yml
+
+permissions:
+  contents: write
+
+jobs:
+  retire:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rename gh-pages to old-site without deploying
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          repo="${GITHUB_REPOSITORY}"
+          pages_sha="$(gh api "repos/${repo}/git/ref/heads/gh-pages" --jq '.object.sha')"
+
+          if gh api "repos/${repo}/git/ref/heads/old-site" --silent 2>/dev/null; then
+            gh api --method PATCH "repos/${repo}/git/refs/heads/old-site" \
+              -f sha="${pages_sha}" -F force=true --silent
+          else
+            gh api --method POST "repos/${repo}/git/refs" \
+              -f ref='refs/heads/old-site' -f sha="${pages_sha}" --silent
+          fi
+
+          gh api --method DELETE "repos/${repo}/git/refs/heads/gh-pages" --silent
+          old_sha="$(gh api "repos/${repo}/git/ref/heads/old-site" --jq '.object.sha')"
+          test "${old_sha}" = "${pages_sha}"
+          echo "Renamed gh-pages (${pages_sha}) to old-site."
