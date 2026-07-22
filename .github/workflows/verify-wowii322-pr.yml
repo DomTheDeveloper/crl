@@ -3,7 +3,7 @@ name: A263135 Windows scratch audit
 on:
   pull_request:
     paths:
-      - ".github/workflows/verify-wowii322-pr.yml"
+      - '.github/workflows/verify-wowii322-pr.yml'
 
 permissions:
   contents: read
@@ -14,39 +14,6 @@ concurrency:
 
 jobs:
   verify:
-    runs-on: windows-2025
-    timeout-minutes: 120
-    defaults:
-      run:
-        shell: pwsh
+    runs-on: ubuntu-slim
     steps:
-      - name: Check out A263135 proof branch
-        uses: actions/checkout@v6
-        with:
-          repository: DomTheDeveloper/formal-conjectures
-          ref: dtd/oeis-a263135-scd-scratch
-          path: formal-conjectures
-
-      - name: Install pinned Lean
-        run: |
-          Invoke-WebRequest https://raw.githubusercontent.com/leanprover/elan/master/elan-init.ps1 -OutFile "$env:RUNNER_TEMP\elan-init.ps1"
-          & "$env:RUNNER_TEMP\elan-init.ps1" -y --default-toolchain none
-          "$HOME\.elan\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-      - name: Download Mathlib cache
-        working-directory: formal-conjectures
-        run: lake exe cache get
-
-      - name: Compile A263135 scratch stack
-        working-directory: formal-conjectures
-        run: |
-          lake env lean Scratch/A263135Ranks.lean 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\a263135-windows.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      - name: Upload verification transcript
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: a263135-windows-scratch
-          path: ${{ runner.temp }}\a263135-windows.log
-          if-no-files-found: warn
+      - run: echo 'Cancellation run; A263135 proof branch is preserved.'
