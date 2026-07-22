@@ -1,4 +1,7 @@
 import BernsteinObstacle.ContactAwareRecovery
+import BernsteinObstacle.GlobalSmoothSaturation
+import BernsteinObstacle.GreenProfileAsymptotic
+import BernsteinObstacle.SimplexQuadraticContact
 
 #print axioms BernsteinObstacle.centeredQuadratic_eq_bernsteinCurve
 #print axioms BernsteinObstacle.centeredQuadraticCoeff_even_center
@@ -8,3 +11,9 @@ import BernsteinObstacle.ContactAwareRecovery
 #print axioms BernsteinObstacle.correctedRecovery_contactOrder_bound
 #print axioms BernsteinObstacle.correctedRecovery_secondOrder_bound
 #print axioms BernsteinObstacle.alignedQuadraticContact_exact_and_nonnegative
+#print axioms BernsteinObstacle.bestApproximationError_secondOrder_sandwich
+#print axioms BernsteinObstacle.normalized_bestApproximationError_mem_Icc
+#print axioms BernsteinObstacle.halfspace_bestApproximationError_eq
+#print axioms BernsteinObstacle.smoothContactGreenConstant_tendsto
+#print axioms BernsteinObstacle.simplexBasisNat_secondFactorialMoment_unnormalized
+#print axioms BernsteinObstacle.simplexQuadraticNormal_exact_and_nonnegative
