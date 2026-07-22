@@ -1,0 +1,130 @@
+name: External C217 Lean audit
+
+on:
+  push:
+    branches:
+      - audit/c217-external-checker
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: macos-15
+    timeout-minutes: 120
+    steps:
+      - name: Checkout transport branch
+        uses: actions/checkout@v6
+
+      - name: Install pinned Lean toolchain
+        run: |
+          set -euxo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Clone exact C217 source
+        run: |
+          set -euxo pipefail
+          git clone https://github.com/DomTheDeveloper/formal-conjectures.git "$RUNNER_TEMP/formal-conjectures"
+          cd "$RUNNER_TEMP/formal-conjectures"
+          git checkout 723a6a39228147814637856fe52d09b60583956f
+          git rev-parse HEAD
+
+      - name: Restore Mathlib cache
+        working-directory: ${{ runner.temp }}/formal-conjectures
+        run: |
+          set -euxo pipefail
+          lake exe cache get
+
+      - name: Reject proof holes and trusted shortcuts
+        working-directory: ${{ runner.temp }}/formal-conjectures
+        run: |
+          set -euxo pipefail
+          files=(
+            FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean
+            FormalConjecturesForMathlib/Combinatorics/SimpleGraph/PathClosure.lean
+            FormalConjecturesForMathlib/Combinatorics/SimpleGraph/ChvatalPath.lean
+            FormalConjecturesForMathlib/Combinatorics/SimpleGraph/C217FiniteCertificate.lean
+            FormalConjecturesForMathlib/Combinatorics/SimpleGraph/C217OrderCertificate.lean
+            FormalConjecturesForMathlib/Combinatorics/SimpleGraph/C217OrderBound.lean
+            FormalConjecturesForMathlib/Combinatorics/SimpleGraph/C217DegreeBridge.lean
+            FormalConjecturesForMathlib/Combinatorics/SimpleGraph/MaximumLeafDegree.lean
+            FormalConjecturesForMathlib/Combinatorics/SimpleGraph/DegreeTwoTraceable.lean
+            FormalConjecturesForMathlib/Combinatorics/SimpleGraph/C217BaseReduction.lean
+          )
+          if grep -nE '\b(sorry|admit|native_decide)\b|Lean\.trustCompiler|Lean\.ofReduceBool|(^|[^A-Za-z])axiom([^A-Za-z]|$)' "${files[@]}"; then
+            echo 'Forbidden proof shortcut found.' >&2
+            exit 1
+          fi
+
+      - name: Build C217 proof stack
+        id: lean
+        continue-on-error: true
+        working-directory: ${{ runner.temp }}/formal-conjectures
+        run: |
+          set -o pipefail
+          lake build \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.HamiltonianExtras \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.PathClosure \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.ChvatalPath \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217FiniteCertificate \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217OrderCertificate \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217OrderBound \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217DegreeBridge \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.MaximumLeafDegree \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.DegreeTwoTraceable \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217BaseReduction \
+            2>&1 | tee "$RUNNER_TEMP/c217-external-audit.log"
+
+      - name: Replay deterministic certificates
+        id: certificate
+        continue-on-error: true
+        working-directory: ${{ runner.temp }}/formal-conjectures
+        run: |
+          set -o pipefail
+          python3 scripts/c217_certificate.py 2>&1 | tee "$RUNNER_TEMP/c217-certificate.log"
+          git diff --exit-code -- scripts/c217_certificate.json
+          python3 scripts/c217_order_bound_certificate.py 2>&1 | tee "$RUNNER_TEMP/c217-order-certificate.log"
+          git diff --exit-code -- scripts/c217_order_bound_certificate.json
+
+      - name: Publish readable diagnostics
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: 723a6a39228147814637856fe52d09b60583956f
+          LEAN_OUTCOME: ${{ steps.lean.outcome }}
+          CERTIFICATE_OUTCOME: ${{ steps.certificate.outcome }}
+        run: |
+          set -euxo pipefail
+          for f in c217-external-audit.log c217-certificate.log c217-order-certificate.log; do
+            test -f "$RUNNER_TEMP/$f" || echo "Log unavailable: setup failed before this phase." > "$RUNNER_TEMP/$f"
+          done
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git fetch origin audit/c217-external-results
+          git switch audit/c217-external-results
+          mkdir -p audits/c217
+          {
+            echo "source_sha=$SOURCE_SHA"
+            echo "run_id=${{ github.run_id }}"
+            echo "lean_outcome=$LEAN_OUTCOME"
+            echo "certificate_outcome=$CERTIFICATE_OUTCOME"
+            date -u '+completed_utc=%Y-%m-%dT%H:%M:%SZ'
+          } > audits/c217/status.txt
+          cp "$RUNNER_TEMP/c217-external-audit.log" audits/c217/lean.log
+          cp "$RUNNER_TEMP/c217-certificate.log" audits/c217/certificate.log
+          cp "$RUNNER_TEMP/c217-order-certificate.log" audits/c217/order-certificate.log
+          git add audits/c217
+          git commit -m "ci: publish C217 audit $SOURCE_SHA" || true
+          git push origin audit/c217-external-results
+
+      - name: Enforce audit
+        run: |
+          test "${{ steps.lean.outcome }}" = success
+          test "${{ steps.certificate.outcome }}" = success
+          if grep -nE 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' "$RUNNER_TEMP/c217-external-audit.log"; then
+            echo 'Forbidden axiom found.' >&2
+            exit 1
+          fi
