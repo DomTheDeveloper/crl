@@ -1,3 +1,11 @@
+# Legacy repository — proof work moved
+
+> **Do not add new proofs, Lean experiments, or verification files here.** Active proof development now belongs in [`DomTheDeveloper/ProofPlaygrond`](https://github.com/DomTheDeveloper/ProofPlaygrond). Stable, green proofs are promoted to [`DomTheDeveloper/formal-conjectures`](https://github.com/DomTheDeveloper/formal-conjectures), then proposed upstream to the official Google DeepMind Formal Conjectures repository.
+>
+> The former GitHub Pages content is preserved on the `old-site` branch.
+
+---
+
 # Math Proof Playground
 
 A **static web app** — a living library of famous math problems, both **solved** and **unsolved**.
@@ -6,9 +14,7 @@ A **static web app** — a living library of famous math problems, both **solved
 - **Open** problems (Goldbach, P vs NP, Riemann, Collatz, the Erdős problems, …) invite you to **give them a try** with interactive explorers.
 - **Research progress** is published with explicit evidence grades: kernel-verified exact statement, complete proof candidate, partial/computational progress, or still open.
 
-The whole thing is plain HTML/CSS/JS — no build step, no framework, no server. It lives in [`/math/`](./math/) and deploys to **GitHub Pages**.
-
-👉 **Live site:** https://domthedeveloper.github.io/crl/math/
+The whole thing is plain HTML/CSS/JS — no build step, no framework, no server. It lives in [`/math/`](./math/) and was previously deployed to **GitHub Pages**.
 
 ---
 
@@ -49,21 +55,13 @@ python3 -m http.server 8000
 
 Opening `math/index.html` directly via `file://` also works for most features; on-demand WASM provers require `http(s)`.
 
-## Deploy to GitHub Pages
+## Archived site
 
-The public site is served from the `gh-pages` branch. The repository also contains `.github/workflows/pages.yml` for GitHub Actions deployment.
+The former public-site branch is preserved as `old-site`. It must not be used as a GitHub Pages source.
 
 ## Add a problem
 
-The interactive catalog is data-driven. Append an object to [`math/assets/js/data.js`](./math/assets/js/data.js) with an `id`, `status`, statement, optional proof artifacts and optional playground.
-
-Standalone research projects can use the audited project-page pattern under `math/<project>/`, with explicit sections for:
-
-1. exact claim;
-2. proof idea;
-3. verification evidence;
-4. prior-art/attribution boundary;
-5. what remains open.
+New work should be added to `DomTheDeveloper/ProofPlaygrond`, not this repository.
 
 ## Project layout
 
@@ -84,5 +82,3 @@ Standalone research projects can use the audited project-page pattern under `mat
     ├── open-campaigns/
     └── assets/
 ```
-
-[Temporary VC2 AXLE screenshot](https://image.thum.io/get/png/noanimate/width/1200/crop/3000/maxAge/0/https://domthedeveloper.github.io/crl/tmp/vc2-axle-check.html)
