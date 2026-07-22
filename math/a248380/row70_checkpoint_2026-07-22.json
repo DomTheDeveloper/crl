@@ -1,0 +1,37 @@
+{
+  "problem": "OEIS A248380(16), Sylver Coinage after opening 16",
+  "candidate_strategy": [16, 26],
+  "status": "not fully solved",
+  "verification_boundary": "All results below are exact finite-game computations relative to the preserved P-state seed bank. Independent replay of the complete seed bank and all large memos remains required.",
+  "outer_even_rows": {
+    "98": {
+      "winning_reply": 59,
+      "result": "computed and rederived after removing the root P entry from the seed bank",
+      "relative_replay": {"visited": 63, "edges": 124, "seed_leaves": 62, "missing": 0, "inconsistent": 0},
+      "memo_sha256": "81ddda1148922aba7af35e09140526d7118df1d5ca8801caea192829fdf198a9"
+    },
+    "70": {
+      "candidate_reply": 143,
+      "result": "in progress",
+      "parent_memo_records": 31822503,
+      "parent_memo_sha256": "8d6e41bcd567c4dc6d5e9535789d44dc2d1ce8c896482334e61f54cae9ea77ff",
+      "effective_blockers_remaining": 60,
+      "closed_child_witnesses": {
+        "62": 167,
+        "66": 105,
+        "69": 167,
+        "71": 133,
+        "72": 251,
+        "73": 13,
+        "76": 29,
+        "81": 25
+      },
+      "current_child_search": {
+        "move": 82,
+        "memo_records": 14319841,
+        "memo_sha256": "6616dd7f3e661e0737a2d8679dc7e0b465dbb8947fbe772780da6c62478c1106"
+      },
+      "remaining_effective_blockers": [82,83,85,87,88,91,92,95,97,98,99,101,103,107,108,109,111,113,114,115,117,119,123,124,125,127,129,131,135,137,141,145,147,149,151,155,161,163,165,171,173,177,179,181,183,187,193,197,199,203,205,209,215,219,225,231,235,241,257,267]
+    }
+  }
+}
