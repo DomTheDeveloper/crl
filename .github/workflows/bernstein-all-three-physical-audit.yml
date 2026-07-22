@@ -6,6 +6,7 @@ on:
       - formal/bernstein-all-three-physical-v1
     paths:
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalOddMeshQuadratic.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalCoefficientDistance.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalQuadraticH1.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenRecoverySequence.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenTraceDefect.lean'
@@ -48,6 +49,7 @@ jobs:
         run: |
           set -euo pipefail
           lake build BernsteinObstacle.PhysicalOddMeshQuadratic 2>&1 | tee all-three-physical-build.log
+          lake build BernsteinObstacle.PhysicalCoefficientDistance 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.PhysicalQuadraticH1 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.GreenRecoverySequence 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.GreenTraceDefect 2>&1 | tee -a all-three-physical-build.log
