@@ -1,4 +1,4 @@
-name: Slim C217 Lean audit
+name: VC2 direct slim Lean audit
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: c217-focused-audit
+  group: vc2-direct-slim-audit
   cancel-in-progress: true
 
 permissions:
@@ -16,5 +16,48 @@ permissions:
 jobs:
   audit:
     runs-on: ubuntu-slim
+    timeout-minutes: 60
     steps:
-      - run: echo 'Cancellation run complete; C217 proof branch remains preserved.'
+      - uses: actions/checkout@v6
+
+      - name: Install pinned Lean toolchain
+        run: |
+          set -euxo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Clone exact VC2 proof branch
+        run: |
+          set -euxo pipefail
+          git clone --branch agent/solve-vc2-convex-counterexample --single-branch \
+            https://github.com/DomTheDeveloper/formal-conjectures.git \
+            "$RUNNER_TEMP/formal-conjectures"
+          cd "$RUNNER_TEMP/formal-conjectures"
+          test "$(git rev-parse HEAD)" = "cc22b779be4390f10206d5c289b5201b16e43def"
+
+      - name: Restore Mathlib cache
+        working-directory: ${{ runner.temp }}/formal-conjectures
+        run: |
+          set -euxo pipefail
+          lake exe cache get
+
+      - name: Compile exact VC2 proof and audit axioms
+        working-directory: ${{ runner.temp }}/formal-conjectures
+        run: |
+          set -euxo pipefail
+          proof='FormalConjectures/Other/VCDimConvexCounterexample.lean'
+          if grep -nE '\b(sorry|admit|native_decide|unsafe|axiom|opaque)\b' "$proof"; then
+            echo 'Forbidden proof escape found.' >&2
+            exit 1
+          fi
+          lake env lean "$proof" 2>&1 | tee "$RUNNER_TEMP/vc2-lean.log"
+          ! grep -q 'sorryAx' "$RUNNER_TEMP/vc2-lean.log"
+
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vc2-direct-slim-audit-log
+          path: ${{ runner.temp }}/vc2-lean.log
+          if-no-files-found: warn
