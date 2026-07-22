@@ -1,17 +1,10 @@
 name: Prove Conway s84 weight48
 
+# Optional independent cross-check only.  The exact conjugacy-class filter now
+# eliminates the complete weight-48 sector before the translation layer, so
+# this expensive 90-orbit DRUP sweep is no longer part of the primary proof.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - agent/conway99-permutation-reduction
-    paths:
-      - math/conway99/certificates/s84_weight48_linear_orbits.json.gz.b64
-      - math/conway99/src/s84_weight48_translation_sat.py
-      - math/conway99/src/s84_weight48_ci_shard.py
-      - math/conway99/src/s84_weight48_audit_bundle.py
-      - math/conway99/src/drup_check_extra.cpp
-      - .github/workflows/prove-conway99-s84-weight48.yml
 
 concurrency:
   group: conway99-s84-weight48-${{ github.ref }}
