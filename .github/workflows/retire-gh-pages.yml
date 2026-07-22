@@ -1,17 +1,15 @@
-# Triggered through a merged migration PR.
 name: Retire CRL gh-pages
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/retire-gh-pages.yml
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: write
 
 jobs:
   retire:
+    if: github.event.issue.pull_request && github.event.comment.body == '/retire-gh-pages'
     runs-on: ubuntu-latest
     steps:
       - name: Rename gh-pages to old-site without deploying
