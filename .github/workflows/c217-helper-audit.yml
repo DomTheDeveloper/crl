@@ -31,6 +31,13 @@ jobs:
           curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
           ./elan-init -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore Lean package cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/mathlib
+            fc/.lake/packages
+          key: c217-lean-4.27.0-${{ hashFiles('fc/lake-manifest.json') }}
       - name: Compile and capture diagnostics
         id: compile
         continue-on-error: true
@@ -38,7 +45,7 @@ jobs:
         run: |
           set -o pipefail
           lake exe cache get
-          lake env lean FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianExtras.lean \
+          lake env lean FormalConjecturesForMathlib/Combinatorics/SimpleGraph/HamiltonianNext.lean \
             2>&1 | tee ../c217-helper-full.log
       - name: Write compact result
         run: |
@@ -47,7 +54,7 @@ jobs:
             echo "head_sha=$(git -C fc rev-parse HEAD)"
             echo "compile_outcome=${{ steps.compile.outcome }}"
             echo
-            grep -E -A4 -B1 'error:|declaration uses|unknown (constant|identifier)|type mismatch|application type mismatch|invalid field' c217-helper-full.log | tail -n 240 || true
+            grep -E -A4 -B1 'error:|declaration uses|unknown (constant|identifier)|type mismatch|application type mismatch|invalid field|axioms' c217-helper-full.log | tail -n 240 || true
           } > c217-helper-diagnostics.txt
       - name: Commit diagnostics
         run: |
