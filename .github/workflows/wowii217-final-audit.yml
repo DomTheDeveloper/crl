@@ -48,6 +48,8 @@ jobs:
           lake build \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217PartialDispatcher \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217RegularCertificate \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217RegularRows \
+            FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217ExceptionalDispatcher \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.C217TerminalReduction \
             FormalConjecturesForMathlib.Combinatorics.SimpleGraph.GraphConjecture217Reduction \
             2>&1 | tee "$RUNNER_TEMP/c217-lean.log"
