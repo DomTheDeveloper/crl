@@ -60,17 +60,21 @@ jobs:
           lake exe cache get
           mkdir -p C217
           cp "$GITHUB_WORKSPACE"/math/wowii217/lean/C217/*.lean C217/
-      - name: Compile transfer primitive and audit axioms
+      - name: Compile current proof modules and audit axioms
         run: |
           set -euxo pipefail
           cd /tmp/formal-conjectures
-          cat > C217/AuditWalkTransfer.lean <<'EOF'
-          import C217.WalkTransfer
+          lake env lean C217/WalkTransfer.lean
+          lake env lean C217/ClosureIndex.lean
+          cat > C217/AuditCurrent.lean <<'EOF'
+          import C217.ClosureIndex
           #print axioms C217.SimpleGraph.Walk.support_transferEdges
           #print axioms C217.SimpleGraph.Walk.isHamiltonian_transferEdges
           #print axioms C217.SimpleGraph.Walk.edges_in_base_of_avoid_right
           #print axioms C217.SimpleGraph.Walk.edges_in_base_of_avoid_left
+          #print axioms C217.SimpleGraph.Walk.IsPath.getVert_injective_on
+          #print axioms C217.SimpleGraph.Walk.adj_base_of_ne_added_index
+          #print axioms C217.SimpleGraph.Walk.exists_closure_crossing_index
           EOF
-          lake env lean C217/WalkTransfer.lean
-          lake env lean C217/AuditWalkTransfer.lean | tee C217/walk-transfer-axioms.log
-          ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' C217/walk-transfer-axioms.log
+          lake env lean C217/AuditCurrent.lean | tee C217/current-axioms.log
+          ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' C217/current-axioms.log
