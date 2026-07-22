@@ -15,47 +15,6 @@ concurrency:
 
 jobs:
   audit:
-    runs-on: macos-15
-    timeout-minutes: 180
+    runs-on: ubuntu-slim
     steps:
-      - name: Checkout Formal Conjectures workbench
-        uses: actions/checkout@v6
-        with:
-          repository: DomTheDeveloper/formal-conjectures
-          ref: dtd/oeis-a263135-scd-scratch
-          path: formal-conjectures
-      - name: Install pinned Lean
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
-            | sh -s -- -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Reject proof holes and unsafe shortcuts
-        shell: bash
-        run: |
-          set -euo pipefail
-          if grep -RInE '^[[:space:]]*(axiom|sorry|admit)([[:space:]]|$)|:= by[[:space:]]+(sorry|admit)([[:space:]]|$)|native_decide|Lean\.trustCompiler|Lean\.ofReduce' \
-              formal-conjectures/Scratch/A263135*.lean; then
-            exit 1
-          fi
-      - name: Fetch mathlib cache
-        working-directory: formal-conjectures
-        shell: bash
-        run: |
-          set -euo pipefail
-          lake exe cache get
-      - name: Check complete A263135 scratch stack
-        working-directory: formal-conjectures
-        shell: bash
-        run: |
-          set -euo pipefail
-          lake env lean Scratch/A263135Audit.lean 2>&1 | tee "$RUNNER_TEMP/a263135-audit.log"
-          ! grep -nE 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce' "$RUNNER_TEMP/a263135-audit.log"
-      - name: Upload transcript
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: a263135-macos-audit
-          path: ${{ runner.temp }}/a263135-audit.log
-          if-no-files-found: warn
+      - run: echo 'Cancellation run; A263135 proof branch is preserved.'
