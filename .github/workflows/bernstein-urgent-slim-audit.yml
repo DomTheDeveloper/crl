@@ -1,5 +1,7 @@
 name: Bernstein final three-track slim audit
 
+# This workflow-only child branch isolates the three final modules from the
+# heavyweight inherited library audits.
 on:
   push:
     branches:
