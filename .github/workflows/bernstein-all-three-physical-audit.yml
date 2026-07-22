@@ -6,8 +6,11 @@ on:
       - formal/bernstein-all-three-physical-v1
     paths:
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalOddMeshQuadratic.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/PhysicalQuadraticH1.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenRecoverySequence.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/GreenTraceDefect.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/OneStepFittedAFEM.lean'
+      - 'math/bernstein_obstacle/lean/BernsteinObstacle/OneStepFittedAFEMBestError.lean'
       - 'math/bernstein_obstacle/lean/BernsteinObstacle/SimplexQuadraticContact.lean'
       - 'math/bernstein_obstacle/lean/AllThreePhysicalAudit.lean'
       - '.github/workflows/bernstein-all-three-physical-audit.yml'
@@ -45,8 +48,11 @@ jobs:
         run: |
           set -euo pipefail
           lake build BernsteinObstacle.PhysicalOddMeshQuadratic 2>&1 | tee all-three-physical-build.log
+          lake build BernsteinObstacle.PhysicalQuadraticH1 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.GreenRecoverySequence 2>&1 | tee -a all-three-physical-build.log
+          lake build BernsteinObstacle.GreenTraceDefect 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.OneStepFittedAFEM 2>&1 | tee -a all-three-physical-build.log
+          lake build BernsteinObstacle.OneStepFittedAFEMBestError 2>&1 | tee -a all-three-physical-build.log
           lake build BernsteinObstacle.SimplexQuadraticContact 2>&1 | tee -a all-three-physical-build.log
       - name: Audit theorem axioms
         working-directory: math/bernstein_obstacle/lean
