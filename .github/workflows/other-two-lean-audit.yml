@@ -1,0 +1,69 @@
+name: Other two Lean audit
+
+on:
+  push:
+    branches:
+      - audit/other-two-lean-2026-07-22
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  c160:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean environment
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          git clone --depth 1 --branch audit/c160-finish-2026-07-22 https://github.com/DomTheDeveloper/formal-conjectures.git formal-conjectures
+      - name: Compile C160 helper package
+        shell: bash
+        working-directory: formal-conjectures
+        run: |
+          set -o pipefail
+          lake exe cache get
+          lake build FormalConjecturesUtil
+          lake env lean ProofAudit/160_attempt.lean 2>&1 | tee ../c160-audit.log
+      - name: Upload C160 log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: c160-cross-repo-audit-log
+          path: c160-audit.log
+          if-no-files-found: warn
+
+  quantum-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean environment
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          git clone --depth 1 --branch audit/quantum-d3-mod2-2026-07-22 https://github.com/DomTheDeveloper/formal-conjectures.git formal-conjectures
+      - name: Compile integer-to-F2 bridge
+        shell: bash
+        working-directory: formal-conjectures
+        run: |
+          set -o pipefail
+          lake exe cache get
+          lake build FormalConjectures.Paper.MonochromaticQuantumGraph
+          lake env lean ProofAudit/6_bridge.lean 2>&1 | tee ../quantum-bridge-audit.log
+      - name: Upload bridge log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantum-bridge-cross-repo-audit-log
+          path: quantum-bridge-audit.log
+          if-no-files-found: warn
