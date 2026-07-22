@@ -12,6 +12,10 @@ on:
       - 'math/wowii217/**'
       - '.github/workflows/c217-diagnostic.yml'
 
+concurrency:
+  group: c217-diagnostic-${{ github.repository }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
