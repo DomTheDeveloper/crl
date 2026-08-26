@@ -1,0 +1,58 @@
+name: Verify WOWII Conjecture 65 proof
+
+on:
+  push:
+    branches: ["agent/wow65-proof"]
+    paths:
+      - "proofs/lean/Wow65/**"
+      - ".github/workflows/verify-wow65.yml"
+  pull_request:
+    paths:
+      - "proofs/lean/Wow65/**"
+      - ".github/workflows/verify-wow65.yml"
+  workflow_dispatch:
+
+jobs:
+  lean-wow65:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Guard against placeholders
+        run: "! grep -RnE --include='*.lean' '(^|[[:space:]])(sorry|admit|native_decide)([[:space:]]|$)' proofs/lean/Wow65"
+      - name: Resolve dependencies
+        working-directory: proofs/lean/Wow65
+        run: lake update
+      - name: Fetch Mathlib cache
+        working-directory: proofs/lean/Wow65
+        run: lake exe cache get || echo "cache miss — building dependencies"
+      - name: Build and kernel-check
+        working-directory: proofs/lean/Wow65
+        shell: bash
+        run: |
+          set +e
+          lake build > build.log 2>&1
+          status=$?
+          echo "----- Lean diagnostic tail -----"
+          tail -n 200 build.log
+          exit $status
+      - name: Upload Lean diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wow65-build-log
+          path: proofs/lean/Wow65/build.log
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Reject sorryAx
+        if: success()
+        working-directory: proofs/lean/Wow65
+        run: |
+          if grep -q "sorryAx" build.log; then
+            echo "::error::Proof depends on sorryAx"; exit 1
+          fi
