@@ -1,0 +1,317 @@
+# Physical Bernstein recovery: scope, literature, and proof obligations
+
+This contribution concerns the positive sampling operator in issue [#97](https://github.com/DomTheDeveloper/crl/issues/97). It does **not** certify completion of stages 5–8 or constitute the independent human faithfulness review required there.
+
+## Exact sources and attribution
+
+- Corrected analytical target: `f2bd41f19ff5afbcca8a23f9afdcdf084364dae4`.
+- Implementation base for this contribution: `a1d194ddd892f10cf2598541286be39302c051a1`, branch `formal/bernstein-final-review-base`.
+- Lean: `leanprover/lean4:v4.33.0-rc1`; mathlib: `4608056c77c52468b80773e8dcd585ef821c7c5e`.
+- `SimplexRecovery.lean` already defines the positive finite-index sampler and proves its oriented-face identities. `SimplexPartition.lean` and `SimplexAffineReproduction.lean` already prove natural-index partition and first moments. These are upstream results, reused rather than claimed as new.
+- The new work transports those identities to the bounded `MultiIndex` representation actually used by `simplexSamplingRecovery`. It proves actual assembly, global weak derivatives, interior-supported `H01`, global errors, the concrete `H1`/`H01` Hilbert realization and full-cone weak closure. Full positive smooth `H01` density and actual physical Bernstein coefficient-cone Mosco convergence are proved on a supplied changing conforming affine family. The coordinate estimate follows from geometric inscribed balls and a local diameter/radius bound. Actual Poincare/Dirichlet coercivity, closed discrete cones, continuous and discrete minimizer existence/uniqueness, and strong H01/energy convergence without supplied minimizers are now proved. Conventional mesh-family construction, assembled-DOF identification and the distinct sharp-rate branch remain separate.
+
+## Primary literature checked
+
+1. [Kirby–Shapero, arXiv:2311.05880v2](https://arxiv.org/html/2311.05880v2), sections 3–4: the bounds-constrained polynomial set and the smaller coefficient-constrained Bernstein set are distinct. The paper explicitly leaves high accuracy of the smaller set unproved. Its general range-repair construction can also alter strongly imposed boundary conditions. Neither argument closes our physical recovery or clipping theorem.
+2. [Guermond, local interpolation on affine meshes](https://people.tamu.edu/~guermond/M661_FALL_2025/chap11.pdf), Theorem 11.13 and Remark 11.19: use low-degree reproduction, reference-operator boundedness and uniform shape control. Positive Bernstein sampling reproduces `P1`, not all `Pr`. Definition 11.2 and Lemma 11.1 were additionally checked for geometric shape regularity. Guermond uses the inscribed-ball **diameter**; `PhysicalGeometricShape` uses its **radius** `r`, so the constants differ by a factor of two. The formal coordinate bound is proved directly from containment of an actual closed ball, without assuming an inverse-Jacobian estimate.
+3. [Hunter, PDE notes](https://math.ucdavis.edu/~hunter/pdes/pde_notes.pdf), Propositions 3.21–3.22 and section 3.6: weak chain rules and supported smoothing give the analytical density route. The actual bounded-C1 chain proof follows Proposition 3.21's two-term gradient split and dominated convergence. The implementation then uses an arctan zero-level probe and smooth scalar positive regularizers; it does not claim full-`H1` nonexpansiveness of truncation. Sections 3.A.1, 4.C, 3.5–3.6, Definition 3.43 and equation (4.13) were checked for weak derivatives, the zero-trace closure and the full function-plus-gradient norm. Section 4.4, Theorem 4.9 and Corollary 4.10 were checked for directional Poincare and gradient-energy norm equivalence. Our formal proof uses integration by parts with `x_i phi` and a safe constant `2R` on `|x_i| <= R`; it does not claim Hunter's sharper constant.
+4. [Bertot's bibliography](https://www-sop.inria.fr/members/Yves.Bertot/pubs.html) records Bertot–Guilhot–Mahboubi's 2011 formal Bernstein work. This contribution makes no claim to be the first formal treatment of Bernstein polynomials. Its preprint was not accessible through the archive in this check; its technical proofs are not used here.
+5. [DeGiorgi at `4c1b3077d3782b24065184df4ba59501b2e56fc7`](https://github.com/scottnarmstrong/DeGiorgi/tree/4c1b3077d3782b24065184df4ba59501b2e56fc7): source inspection found `MemW1pWitness.weakGrad_ae_eq_zero_on_zeroSet`, positive-part construction, and supported smoothing. Its C1 integration-by-parts, reflected-test convolution derivative, shrinking-bump, support and weak-partial uniqueness arguments are adapted with Apache-2.0 attribution against the actual `SobolevH01Port` definition. The new joint-L2 weak-limit proof uses actual `Lp` inner products; uniqueness uses pinned Mathlib's distribution fundamental lemma. Bounded-function L2 smoothing uses the a.e. convolution limit and dominated convergence. The older checkout uses Lean `v4.29.0-rc6`; that package as a whole has not been compiled or adopted here. The present patch adds no DeGiorgi dependency.
+6. [Falk, Error Estimates for the Approximation of a Class of Variational Inequalities (1974)](https://sites.math.rutgers.edu/~falk/papers/varineq.pdf), sections 1–2: a symmetric coercive energy minimum is equivalent to its VI; error comparison uses both continuous and discrete inequalities and feasibility. The formal inner-cone argument below uses both inequalities explicitly. It proves qualitative convergence without identifying a sharp clipping rate or assuming Falk's additional residual/regularity hypotheses. Kirby–Shapero's linear-equality solution comparison is not automatically an obstacle-VI estimate.
+7. [Pinned Mathlib's Hilbert projection/minimizing-sequence proof](https://github.com/leanprover-community/mathlib4/blob/4608056c77c52468b80773e8dcd585ef821c7c5e/Mathlib/Analysis/InnerProductSpace/Projection/Minimal.lean): the infimum, approximating sequence and completeness structure of `exists_norm_eq_iInf_of_complete_convex` is adapted to the actual symmetric coercive quadratic energy, using its midpoint identity. Attribution: copyright (c) 2019 Zhouhang Zhou; authors Zhouhang Zhou, Frédéric Dupuis and Heather Macbeth; Apache-2.0. The generic energy existence proof is instantiated with the constructed H01 space and proved physical coercivity, rather than assuming a minimizer or weak compactness.
+
+## Statement correspondence for the new Lean declarations
+
+Let `d,n : Nat`, with `n > 0` whenever lattice samples are used. A `BarycentricPoint d` has `d+1` nonnegative coordinates summing to one. A `MultiIndex d n` has bounded natural entries summing to `n`. All sums below run over the entire index set, including indices whose basis value vanishes.
+
+| Lean declaration | Mathematical content | Scope and assumptions |
+| --- | --- | --- |
+| `simplexBasis_eq_simplexBasisNat` | Exact equality of factorial and multinomial basis formulas | All `d,n`, including `n=0` |
+| `simplexMultiIndex_sum_eq_piAntidiag` | Bijection of bounded and natural complete index sums | Any additive commutative monoid |
+| `simplexBasis_sum_eq_one` | Partition of unity for the actual finite basis | All barycentric points, including faces |
+| `simplexField_const`, lower/upper bounds | Constants and coefficient interval bounds pass to values | Nonnegative basis, complete partition |
+| `simplexSamplingRecovery_const`, interval/subtraction/difference lemmas | Constant reproduction, range preservation, uniform contraction | Positive degree; actual upstream sampler |
+| `simplexBasis_first_moment`, `simplexSamplingRecovery_coordinate`, `simplexSamplingRecovery_affine` | Coordinate and affine reproduction in the finite representation | Reuses upstream natural first moment; `n>0` for normalized samples |
+| `physicalSimplexPoint`, subtraction/diameter/convexity lemmas | `F_v(lambda)=sum_i lambda_i v_i` and convex physical image | Any real normed space; no inverse map required |
+| `physicalSamplingRecovery_nonneg`, constant/affine lemmas | Recovery preserves nonnegativity and physical affine functions | The affine part is an actual linear map |
+| `physicalSamplingRecovery_abs_error_le` | Pointwise error at most `L h` | Lipschitz bound on the physical image; vertex diameter at most `h` |
+| `physicalSamplingRecovery_taylor_error_le` | Pointwise error at most `M h^2` | Explicit quadratic Taylor remainder bound, not an assumed approximation theorem |
+| `norm_taylor_remainder_le_of_lipschitz_fderiv` | Quadratic remainder from actual Fréchet derivatives | Convex set, differentiability at its points, derivative Lipschitz constant `M>=0` |
+| `physicalSamplingRecovery_abs_error_le_of_lipschitz_fderiv` | Pointwise recovery error at most `M h^2` | Actual derivative hypotheses on the physical simplex; constant is `M`, not `M/2` |
+| `curve_square_sampling_error`, `curve_square_sampling_midpoint_error` | Exact quadratic error and its nonzero midpoint value | Univariate regression guard; reuses Mathlib moments |
+| `hasFDerivAt_physicalPolynomial_eval`, `fderiv_physicalPolynomial_eval`, affine specialization | Actual chain rule for evaluation of multivariate polynomials | Arbitrary differentiable finite coordinate family; formal partials are proved to yield the Frechet derivative |
+| `eval_simplexBasisPolynomial`, partial nonnegativity and complete partial sum | The polynomial is the original Bernstein basis; each formal partial is nonnegative and its complete mass is `n` | All barycentric points, including faces; partial mass includes `n=0` |
+| `sum_norm_fderiv_affineSimplexBasis_le`, finite-index counterpart | Sum of norms of actual physical basis derivatives is at most `n sum_i ||ell_i||` | Actual affine coordinate maps; no shape bound assumed for this identity |
+| `affineSimplexField_eq_simplexField`, actual field derivative and coefficient-difference bound | The original bounded-index field as a function on physical space; derivative error at most `delta n sum_i ||ell_i||` | Uniform coefficient differences; coordinate values at the evaluation point must be barycentric |
+| Complete coordinate-hyperplane partition/first moment and `affineSimplexField_affineCoefficients` | Affine reproduction outside as well as inside the simplex | Real coordinates summing to one; no nonnegativity needed, so the identity can be differentiated in ambient space |
+| `affinePhysicalSamplingRecovery_eq`, affine reproduction and derivative-error lemmas | Actual original sampler derivative error at most `M h^2 n sum_i ||ell_i||`, and at most `n M C h` under shape scaling | Genuine reconstruction of all physical points; differentiable `f` with `M`-Lipschitz derivative on the physical element |
+| `affineBasisCoordinateConstant`, `affineBasisCoordinateDerivative`, reconstruction and inverse identities | The needed coordinates are constructed from an actual full affine basis | Finite-dimensional real normed space; nondegeneracy is encoded by `AffineBasis`, not a derivative oracle |
+| `norm_fderiv_affineBasisPhysicalSamplingRecovery_error_le_of_shape` | First-order actual physical derivative estimate on an affine-basis element | Explicit per-element bound `h sum_i ||D lambda_i|| <= C`; a mesh-uniform constant remains to be supplied |
+| Physical-element compactness, closedness, measurability and finite-measure lemmas | The actual element is its finite convex hull and has finite measure on measures finite on compacts | Ordinary Borel structure gives measurability; no asserted volume formula |
+| The two original `eLpNorm` error estimates | Local value error at most `mu(T)^(1/2) M h^2`, derivative error at most `mu(T)^(1/2) n M C h` | Actual `L2` seminorm, with the measure and element measurability explicit |
+| `norm_gradient_sub_eq_norm_fderiv_sub`, its `eLpNorm` version and the physical gradient-error estimates | Riesz identification gives exact equality of the classical gradient and Frechet-derivative difference norms, and the same local gradient bounds | Complete real inner-product space; actual Mathlib gradient, not a supplied gradient oracle |
+| `contDiff_physicalPolynomial_eval`, affine polynomial/field/sampler specializations | Actual physical recovery polynomial is globally smooth | Every order `WithTop ENat`; input sampling values require no smoothness |
+| `hasWeakPartialDeriv_of_contDiff`, `gradient_component_eq_fderiv_apply` | Integration by parts gives the project's integral-based weak partial derivative; the actual gradient component equals `Df(e_i)` | Global `C1` function, compactly supported smooth tests in an open physical domain; adapted proof attribution above |
+| `hasWeakGrad_affineBasisPhysicalSamplingRecovery` | The physical recovery polynomial's classical gradient is its actual integral-based weak gradient | Any open physical domain; no assembled piecewise function is asserted |
+| `memLp_continuous_restrict_compact`, `memH1_of_contDiff_of_subset_compact` | Actual scalar and derivative `L2` integrability from compact localization, followed by integral-based `H1` membership | Open domain contained in a compact physical set; no approximation witness assumed |
+| `memH1_affineBasisPhysicalSamplingRecovery_interior` | The original positive recovery polynomial belongs to the project's physical `H1` space on the actual simplex interior | Genuine affine basis; no global `H01` or mesh assembly claim |
+| `simplexField_lastFace_restrict`, permutation/oriented versions and `simplexSamplingRecovery_orientedLastFace` | The full ambient field restricts exactly to the complete face field; the actual sampler restricts to the actual face sampler | Arbitrary off-face coefficients, which vanish through the basis; extends the upstream special zero-extension identity |
+| Physical permutation/facet identities and `physicalSamplingRecovery_subface` | Exact restriction in physical coordinates for faces of any codimension | A `SimplexSubface` is a chain of oriented facet embeddings; vertices and barycentric points are constructed recursively |
+| `affineBasisPhysicalSamplingRecovery_sharedSubface`, zero-subface theorem | Equal ordered physical face vertices give equal actual recovered traces; zero input on the entire physical face gives zero trace | Genuine local polynomials; no recovered-value equality assumed |
+| `physicalMeshRecovery_eq_on_element`, nonnegativity, finite-cover continuity and support theorems | An actual selected-element function is independent of element choice, nonnegative, continuous on the mesh and compactly supported | Finite affine-basis family with `physicalFacesMatch`, a geometric common-subface condition including edges and vertices |
+| `physicalMeshRecovery_zero_frontier`, `continuous_physicalMeshRecovery` | Zero input on the physical boundary yields zero recovered trace and a continuous zero extension | `physicalBoundaryFaces` covers boundary points by whole physical subfaces contained in the boundary; it is independent of the input function |
+| AE congruence, neighborhood equality, actual derivative/gradient and local `H1`/weak-gradient transfer | The assembled function has its local polynomial's actual derivatives and integral weak gradient on each element interior | The global interface integral is not asserted by these local statements |
+| `memLp_physicalMeshRecovery` | Actual scalar `Lp` membership of the zero extension on the whole ambient physical space | Continuous zero boundary data, finite geometric conforming mesh, compact support |
+| `lipschitzWith_of_local_norm_bound`, finite closed-cover pasting | Uniform local radial bounds imply global Lipschitz control, without differentiating at interfaces | Mathlib's one-sided slope fencing theorem along straight segments; finite closed sets exclude incompatible neighboring cells locally |
+| `lipschitzWith_physicalMeshRecovery_of_bound`, its existence version | The actual zero-extended recovered mesh function is globally Lipschitz | Compact physical elements give finite bounds for continuous polynomial derivatives; the resulting constant is per mesh, not a uniform family estimate |
+| Shrinking-step, difference-quotient bound and limit theorems | Positive steps tend to zero; actual Lipschitz difference quotients are uniformly bounded and tend to the actual derivative almost everywhere | Pinned Mathlib Rademacher; no derivative at every interface assumed |
+| `tendsto_integral_physicalDifferenceQuotient_mul` | Integral convergence of the paired difference quotients | Dominated convergence with the explicit bound `C ||v|| ||phi||`; continuous compactly supported test |
+| `integral_physicalDifferenceQuotient_mul`, `integral_fderiv_mul_of_lipschitz_hasCompactSupport` | Exact backwards test shift, then genuine global integration by parts | Translation-invariant volume; compactly supported Lipschitz function and `C1` compactly supported test |
+| `hasWeakPartialDeriv_of_lipschitz_hasCompactSupport`, weak-gradient and `memH1` versions | Actual integral weak derivative and `H1` membership | Globally Lipschitz compactly supported scalar function; open physical domain, including the whole space |
+| `hasWeakGrad_physicalMeshRecovery`, `memH1_physicalMeshRecovery`, `physicalMeshH1Witness` | Genuine global weak gradient and `H1` membership of the actual assembled zero extension, with a constructed explicit witness | Finite geometric conforming affine-basis mesh and zero input on its physical boundary; no weak-gradient witness or Sobolev membership is an input |
+| Nonzero-sample and recovery support localization declarations | A nonzero recovery value requires a nonzero actual sample; recovered support lies in the input support thickened by the maximum element diameter | No input positivity assumed; one mesh-independent radius for compact input inside an open domain |
+| `physicalShrinkingBump`, `physicalMollification`, support, bound and L2 limit declarations | Actual nonnegative normalized bumps shrink to zero; bounded measurable compactly supported functions converge in L2 under this convolution | A common compact support and global bound give the dominated-convergence majorant; discontinuous derivative components are included |
+| Convolution weak-partial and `fderiv_physicalMollification_apply` declarations | Derivatives of the same actual mollification are convolutions with the actual weak partials | Reflected compact test functions, genuine integration by parts and the pinned convolution differentiation theorem |
+| `lipschitzH1Witness`, `memH01_of_lipschitz_hasCompactSupport`, nonnegative approximation construction | Construct actual weak-gradient data and one smooth compact sequence converging in both function and every gradient component | Globally Lipschitz compactly supported function with topological support inside an open domain; H01 uses the port's existing `NeZero d` parameter |
+| Physical H01, radius and changing-family membership declarations | Actual recovery has H01 and positive smooth approximation data; fixed interior-supported inputs give eventual H01 recovery on shrinking meshes | Finite geometric conformity and boundary-face data; common open domain for the family; no H01 approximation witness is assumed |
+| `volume_frontier_physicalSimplex`, `ae_mem_physicalElement_interior` | Actual cell interfaces have zero volume and almost every mesh point lies in an element interior | Pinned finite-dimensional convex-set Haar theorem; no null-interface hypothesis is added |
+| Global L2 value/gradient bounds and `tendsto_physicalMeshRecovery_H1_error` | Actual assembled value error is second order and actual gradient error first order; both L2 terms converge across a supplied changing family | Common finite-volume physical set, derivative Lipschitz bound, fixed degree, shrinking maximum size and family-uniform shape bound using local sizes; no quasi-uniformity or Hilbert quotient realization asserted |
+| Actual L2 pairing, weak-limit and weak-partial uniqueness declarations | Joint strong L2 limits satisfy the genuine integral weak-derivative identity; weak partials are unique almost everywhere | Actual `Lp` inner products and the pinned distribution fundamental lemma; uniqueness uses an open domain |
+| `physicalH1Submodule`, closedness, completeness, norm and function-injectivity declarations | The actual weak-derivative graph is a closed subspace of the L2 Hilbert product; the full Sobolev norm is identified and the function class determines its weak partial classes | Actual finite `PiLp 2` product; no separately postulated Hilbert realization; openness is required for uniqueness |
+| `physicalH01Submodule`, test-range, membership equivalence and embedding declarations | Construct the closed Hilbert subspace generated by actual smooth interior test functions and prove equivalence to the port's `MemH01` approximation definition | Full function-plus-gradient H1 norm; the port's H01 bridge retains `NeZero d`; no trace characterization or gradient-only norm equivalence assumed |
+| Full physical H01 cone, convexity, closedness and weak sequential closure | Almost-everywhere nonnegativity is a norm-closed convex condition on the actual represented L2 function, hence preserved under weak convergence | Full positive density and physical discrete recovery are now connected by the new leaves below |
+| `tendsto_physicalMeshH1Element`, `tendsto_physicalMeshH01Element` | Actual mesh recoveries converge strongly in the constructed physical Hilbert spaces for every fixed smooth interior test input | A supplied common-set family, geometric conformity, uniform local shape bound and shrinking maximum diameter; the derivative Lipschitz bound is constructed from smooth compact support |
+| `physicalSupportedMeshH01Recovery`, eventual support and strong-convergence declarations | Construct an H01 element at every mesh index: actual Bernstein recovery once support is inside the domain, zero beforehand; the zero branch disappears eventually | No recovered H01/support witness is supplied; nonnegative input gives actual full-cone membership at every index; no sampling of arbitrary H1 equivalence classes |
+| `PhysicalLpLimits`, actual C1 chain rule and composition witness | Construct an a.e.-convergent subsequence, weighted dominated L2 limits and actual integral weak derivatives of bounded-C1 scalar compositions | H01 input, open domain, scalar value zero at zero and bounded derivative; no chain-rule witness or finite-volume hypothesis |
+| `weakGrad_component_zero_of_memH01` | Every actual weak partial vanishes a.e. on the zero level set | The arctan probe has function limit zero and derivative limit equal to the zero-level component; actual weak-limit closure and uniqueness force vanishing |
+| Positive scalar regularizer, full raw H01 density and `exists_positiveTest_strong_approximation` | Construct nonnegative C-infinity compact interior approximants for every full-cone member, strongly in actual H01 | Uniform derivative bound is proved; zero-level gradient is proved; no positive-density or positive-part-continuity witness is supplied |
+| `physicalBernsteinH01Cone` and actual recovery membership | Full local nonnegative-coefficient cone inside the actual H01 space; recoveries belong at every mesh index | Piecewise actual polynomial identities are a.e., avoiding pointwise requirements on arbitrary L2 representatives; identification with upstream assembled DOF coordinates remains separate |
+| Actual row-limit diagonal and `mosco_physicalBernsteinH01Cone` | Extract mesh thresholds internally and prove physical Mosco convergence to the full nonnegative H01 cone | Supplied finite conforming common-set family, boundary geometry, fixed positive degree and uniform local shape control with shrinking maximum size |
+| `physical_coordinate_shape_of_inscribed_ball` and geometric Mosco specialization | Derive `h * sum_i ||D lambda_i|| <= (d+1) sigma` from actual inscribed balls and `h/r <= sigma`, then apply physical Mosco | Radius convention is explicit; no quasi-uniformity, coordinate-norm oracle or constructed mesh-family existence claim |
+| Physical test/H01 Poincare and compact-coordinate-bound declarations | `||u||_L2 <= 2R ||D_i u||_L2` on a coordinate slab; actual compact mesh supplies such an `R` | Test proof uses the actual integral weak identity with `x_i phi`; closure transfers it to full H01 |
+| `physicalDirichletBilin`, actual integral and coercivity declarations | Construct `a(u,v)=sum_i <D_i u,D_i v>_L2` as a continuous symmetric bilinear form; `||u||_H1^2 <= (4R^2+1) a(u,u)` | Uses actual function/weak-gradient L2 coordinates and proved Poincare, not a supplied coercivity oracle |
+| VI/minimum equivalence, energy-gap and uniqueness declarations | The actual convex-set energy minimum is equivalent to `F(v-u) <= a(u,v-u)`; solutions are unique on a bounded domain | The reverse implication uses feasible positive steps; the forward implication uses actual nonnegative gradient energy |
+| `physicalDirichletVI_inner_error_bound` and strong-convergence declarations | Bound squared full-H01 error by a constant times a recovery competitor's full-H01 error, then prove strong convergence | Both VIs are retained; `Kh subset K` and the zero competitor give the uniform solution bound; no weak-compactness or approximation oracle |
+| `tendsto_physicalBernsteinMinimizers_of_inscribed_balls`, cone convexity and minimizer uniqueness | Actual Bernstein gradient-energy minimizers converge strongly on supplied geometrically regular changing meshes | This helper takes minimizers as inputs; the new existence/convergence constructor below removes those inputs |
+| Actual L2 load, energy integral and energy-continuity declarations | `F(u)=integral f u`, `J(u)=1/2 integral sum_i (D_i u)^2-integral f u`; strong H01 convergence implies energy convergence | `f` is an actual L2 class, with genuine integrable pairings; arbitrary continuous linear loads are also supported |
+| Quadratic midpoint/minimizing-sequence and `existsUnique_physicalNonnegativeDirichletMinimizer` | A nonempty complete convex set has an actual coercive quadratic minimum; the full nonnegative H01 problem has exactly one minimizer | Lower bound, Cauchy sequence and limit are constructed; actual closedness, convexity and completeness supply the hypotheses |
+| `isClosed_positiveFiniteLpCone`, component bound and cell-indicator declarations | Finite nonnegative L2 generator cones are closed; actual multiplication by a measurable cell indicator is a continuous linear contraction | Positivity controls each nonzero generator coefficient; zero-generator coefficients are normalized to zero; compact finite coefficient boxes give subsequential limits |
+| Actual cell-field L2 coefficient map, membership correspondence and `isClosed_physicalBernsteinH01Cone` | The intrinsic discrete H01 cone is the intersection of continuous preimages of the closed cell cones | Actual compact cell polynomials supply L2 membership; a.e. representatives are respected; no independence, strict generator positivity or discrete-closedness oracle |
+| `existsUnique_physicalBernsteinDirichletMinimizer`, `exists_convergent_physicalBernsteinMinimizers_of_inscribed_balls` | Construct unique actual continuous/discrete minima and a discrete sequence converging strongly in H01 and energy | A compact physical mesh supplies Poincare boundedness; geometric family inputs remain explicit; no continuous/discrete minimizer is supplied; conventional assembled-DOF identification and the sharp rate remain separate |
+| `exists_convergent_physicalBernsteinQuadraticMinimizers_of_inscribed_balls`, general-energy uniqueness and midpoint-gap declarations | Construct actual continuous/discrete minima and strong H01/energy convergence for every symmetric continuous coercive bilinear form on the actual H01 space | Mathlib's standard `IsCoercive B` and symmetry are the defining energy-class hypotheses; actual feasible-set closedness, completeness and physical recovery are proved. The norm-error estimate is derived internally; concrete mesh/assembled-DOF identification and sharp rates remain separate |
+
+Degenerate vertex families remain allowed by the initial `C0` results. The later affine-basis specialization provides genuine nondegenerate physical coordinates. Formal partials are identified with actual **Frechet** derivatives, and trace compatibility is derived from physical common-face vertices. Global `MemH1`, interior-supported `MemH01`, actual Hilbert spaces, full positive density, physical Mosco, actual Dirichlet coercivity, continuous/discrete existence and strong Bernstein minimizer/energy convergence are proved. Conventional mesh-family construction, assembled-DOF identification and the sharp rate remain open.
+
+## Actual mesh construction and the interface obligation
+
+`physicalMeshRecovery` selects an element containing a point and evaluates its actual affine-basis polynomial; outside the finite mesh union it returns zero. `physicalFacesMatch` describes the geometry of element overlaps, not equality of recovered values. The subface restriction theorem proves that choice does not affect the value, including at lower-dimensional intersections. Closed finite-cover pasting gives continuity. A separate geometric boundary-subface cover gives zero boundary trace from zero input data there, and hence a continuous compactly supported zero extension.
+
+To obtain its global Lipschitz bound, each polynomial's continuous derivative is bounded on its compact convex element. Finitely many such bounds give one finite constant for that mesh. The closure of the mesh complement, where the recovered function is zero, completes a finite closed cover of the whole ambient space. Near a fixed point, any cell containing a sufficiently nearby point also contains the fixed point: cells excluding the fixed point can all be excluded by finitely many open complements. Thus the local radial increment bound pastes. A straight-line argument with Mathlib's one-sided slope fencing theorem proves the global bound, without asserting classical differentiability at interfaces.
+
+The global integral weak-gradient transfer is now proved. Positive shrinking difference quotients of a Lipschitz function are bounded by `C ||v||` and converge almost everywhere to `Df(v)` by Rademacher. Pairing with a continuous compactly supported test permits dominated convergence. Translation invariance gives the exact identity pairing the function quotient in direction `v` with the test quotient in direction `-v`. Applying the same limit theorem to a `C1` compactly supported test gives integration by parts. Compact support and the actual measurable bounded derivative components give `L2` integrability. This constructs the global weak-gradient witness and `MemH1` of the assembled function without any assumed interface derivative or supplied Sobolev witness.
+
+These are actual functions and proved properties under explicit geometric mesh assumptions. The compactness-derived Lipschitz constant is per mesh; global errors use the separate uniform local shape bound. The ambient Hilbert realization is constructed. The coordinate shape bound now follows from actual inscribed balls. Construction of a concrete conventional family satisfying the geometric inputs remains separate.
+
+## Interior support and actual H01 approximation
+
+The nonzero-sample lemma implies `tsupport B_h f` is contained in the closed thickening of `tsupport f` by the maximum diameter. Compact support inside an open domain has a positive distance margin in this precise thickening sense. All sufficiently fine actual recoveries therefore have support inside the domain.
+
+For each compactly supported Lipschitz recovered function `u`, choose normalized nonnegative smooth bumps whose outer radii are `delta/(n+1)` and inner radii half as large. Their convolutions with `u` are smooth and supported in one compact thickening still inside the domain. Pinned Mathlib's Lebesgue differentiation theorem gives almost-everywhere convergence for bounded measurable derivative components. A common compact support and uniform convolution bound provide an integrable square-error majorant, giving actual L2 convergence by dominated convergence.
+
+Reflecting the compact test function in the weak-derivative identity proves that the derivative of this same convolution is convolution with the actual weak derivative. The sequence converges jointly in function and gradient, satisfying the port's H01 definition, and preserves nonnegativity. This first construction covers the Lipschitz compactly supported subclass. The separate scalar-regularization proof below now covers the full nonnegative H01 cone. Zero trace alone is never substituted for the approximation definition.
+
+## Local gradient estimate and the remaining Sobolev transfer
+
+The local derivative estimate and the global L2 error terms are proved in Lean with actual derivative-Lipschitz hypotheses and the safe constant `M` in the quadratic remainder. Actual convex cell boundaries have zero volume, so almost-everywhere interior neighborhood equality transfers the local derivative bound to the assembled gradient. The derivation below explains the sharper analytical `C2` constant `M/2`; that sharper factor is not claimed as a formal result.
+
+Take a nondegenerate physical simplex `T` with diameter `h_T`, barycentric functions `lambda_i`, and fixed degree `r>=1`. Write
+
+\[
+B_T^r w(z)=\sum_{|\alpha|=r}w(x_\alpha) B_\alpha^r(z),\qquad
+x_\alpha=\sum_i(\alpha_i/r)v_i.
+\]
+
+Assume `w` is `C2` on a neighborhood of `T` and `M_T=sup_T ||D2 w||` uses the Euclidean operator norm. At a fixed evaluation point `x`, keep the affine function
+`q_x(z)=w(x)+Dw(x)(z-x)` fixed while differentiating with respect to `z`. Its sampled Bernstein recovery equals `q_x`. Taylor's theorem gives
+`|w(x_alpha)-q_x(x_alpha)| <= (M_T/2) h_T^2`.
+Partition and positivity therefore give
+
+\[
+\|w-B_T^rw\|_{L^\infty(T)}\le (M_T/2)h_T^2.
+\]
+
+For the derivative, the factorial basis formula gives, with terms omitted when `alpha_i=0`,
+
+\[
+\nabla B_\alpha^r
+=r\sum_{i:\alpha_i>0}B_{\alpha-e_i}^{r-1}\nabla\lambda_i.
+\]
+
+Reindexing each complete degree-`r-1` sum and using its nonnegative partition yields
+`sum_alpha ||grad B_alpha^r(x)|| <= r sum_i ||grad lambda_i||`.
+The Lean proof establishes this bound without needing the degree-lowering reindexing: it differentiates the upstream multinomial polynomial expansion, proves nonnegativity of the evaluated formal partials, and obtains complete partial mass exactly `r`. The actual polynomial chain rule then gives the same total operator-norm bound in physical coordinates.
+Since `Dw(x)=Dq_x(x)`, differentiating the recovered **fixed** remainder gives
+
+\[
+\|\nabla(w-B_T^rw)\|_{L^\infty(T)}
+\le (rM_T/2)h_T^2\sum_i\|\nabla\lambda_i\|.
+\]
+
+Uniform shape regularity bounds `h_T sum_i ||grad lambda_i||` by a constant depending only on dimension and the shape bound. Thus the gradient error is `O(h_T M_T)`, with a constant also depending on the fixed degree. Multiplication by `|T|^(1/2)` gives the required local `L2` estimates. Squaring and summing over a conforming mesh, with `h=max_T h_T`, gives
+
+\[
+\|w-B_h^rw\|_{L^2(\Omega)}\le C h^2 |\Omega|^{1/2}\|D^2w\|_\infty,
+\qquad
+\|\nabla(w-B_h^rw)\|_{L^2(\Omega)}\le C h |\Omega|^{1/2}\|D^2w\|_\infty.
+\]
+
+The formal global gradient bound uses `h_T sum_i ||D lambda_i|| <= C` and `h_T <= H` separately. For a supplied common-domain changing family with `H -> 0`, both actual L2 errors tend to zero. The coordinate estimate is now derived from an inscribed-ball radius `r_T` with uniform `h_T/r_T <= sigma`: `C=(d+1) sigma`. No ratio of minimum to maximum sizes is assumed. Pointwise sampling is applied to smooth representatives, not to arbitrary `H1` equivalence classes.
+
+### A concrete guard against an incorrect high-order claim
+
+For fixed `r`, sampling does not reproduce quadratic functions. On `[a,a+h]`, apply the degree-`r` Bernstein sampler to `w(z)=z^2`. The elementary second-moment identity gives the exact error
+`B_T^r w(z)-w(z)=(z-a)(a+h-z)/r`.
+For a uniform mesh of `[0,1]`, its derivative error has global `L2` norm `h/(sqrt(3) r)`. Thus increasing the fixed polynomial degree does not turn this positive sampling construction into an `h^r` recovery. This example concerns the sampling operator, not the best approximation in the coefficient cone or the solution of the obstacle VI.
+The sharp-rate branch must instead use the separate interpolation-plus-clipping argument and all its free-boundary and physical-boundary assumptions.
+
+## Positive smooth density and the moving recovery sequence
+
+The implemented proof uses actual scalar regularization. A bounded-C1 composition is first proved to have weak partial `Phi'(u) G_i`, by taking a jointly L2-convergent subsequence of classical compositions. For `Phi_delta(t)=delta arctan(t/delta)`, the function tends to zero, while its derivative tends to `1_{t=0}`. Weighted dominated L2 convergence and actual weak-partial uniqueness prove `G_i=0` a.e. where `u=0`. Neither a finite-volume condition nor measurability of the raw zero-level set is assumed.
+
+For a nonnegative H01 input `u`, take one a.e.-convergent subsequence of its actual smooth compact interior approximants `phi_m`. Define `Psi_delta(t)=t smoothTransition(t/delta)` and `w_m=Psi_delta_m(phi_m)`, with `delta_m=1/(m+1)`. These are globally nonnegative, C-infinity and supported inside the original supports. The scalar derivatives have one bound independent of `delta`. Value errors split into the uniform-Lipschitz input error and `Psi_delta_m(u)-u`; gradient errors split as
+
+`q_m (D phi_m-G) + (q_m-1) G`, with `q_m=Psi_delta_m'(phi_m)`.
+
+The first gradient term tends to zero by the uniform coefficient bound. In the second, `q_m` is eventually one where `u>0`; where `u=0`, the proved `G=0` makes the product zero. Weighted dominated L2 convergence proves both limits. This constructs the full positive-density witness and transfers it to strong convergence in the actual H01 Hilbert space. No full-H1 truncation-contraction assertion is used.
+
+The actual discrete cone requires, for each cell, an a.e. polynomial identity with nonnegative Bernstein coefficients inside the constructed H01 space. It contains every supported positive recovery and is contained in the full nonnegative cone when the cells cover the domain. For each fixed `w_m`, actual supported Bernstein recovery converges strongly. The row-limit diagonal theorem extracts thresholds `max(m,N_m)` and their `Nat.findGreatest` stage internally; the tracking error is eventually at most `1/(stage+1)`. This produces full-cone strong recovery, and together with the proved weak closure gives actual physical Mosco convergence. The geometrical specialization derives the coordinate shape bound from inscribed balls.
+
+The weak Mosco condition follows from `K_h^B subset K`, where the physical nonnegative `H_0^1` cone is norm closed and convex, and therefore weakly closed. Actual full-cone weak sequential closure is proved; no nestedness is required. The new gradient-energy convergence proof uses strong recovery and both VIs directly, so it does not require an unproved weak-compactness bridge. Its exact inequality and solution-existence scope are described below.
+
+## Actual Dirichlet energy and minimizers
+
+The original physical constructor uses the Dirichlet gradient form `a(u,v)=sum_i <D_i u,D_i v>_L2`. The general constructor in `PhysicalQuadraticConvergence.lean` now covers the symmetric continuous coercive bilinear-energy class of the corrected homogeneous-obstacle target in #97. Its hypotheses are symmetry of the actual continuous bilinear map and Mathlib's standard `IsCoercive B` property. Coercivity is explicitly part of the general energy class; for the Dirichlet specialization it is independently derived from the proved physical Poincare inequality. Generic existence is combined with actual physical cone recovery, rather than being presented as convergence by itself.
+
+On `|x_i| <= R`, the test `x_i phi` in the genuine weak-derivative identity gives `||phi||_L2^2 = -2 <D_i phi, x_i phi>_L2`. Cauchy–Schwarz and bounded multiplication prove `||phi||_L2 <= 2R ||D_i phi||_L2`; actual H01 smooth closure gives the same inequality for every H01 member. Thus with `C=4R^2+1`, `||u||_H1^2 <= C a(u,u)`. An actual compact finite mesh provides a coordinate slab without a separately supplied boundedness oracle. The form `a` is constructed from the actual L2 weak-gradient components as a continuous symmetric bilinear map.
+
+For `J(u)=a(u,u)/2-F(u)`, the exact energy difference is `J(v)-J(u)=a(v-u,v-u)/2+a(u,v-u)-F(v-u)`. This proves VI implies minimum. Conversely, feasible points `u+t(v-u)` for small positive `t` rule out a strictly negative first variation and prove minimum implies VI on every convex feasible set. Coercivity proves uniqueness.
+
+Let `u` solve the full cone VI and `uh` solve an inner cone VI, with `0` in the inner cone. The zero competitor gives `||uh||_H1 <= C ||F||`. Testing the continuous VI with `uh` and the discrete VI with a recovery competitor `v` gives `a(uh-u,uh-u) <= a(uh,v-u)-F(v-u)`. If `M` is the operator norm of the actual continuous bilinear form, the formal result is
+
+`||uh-u||_H1^2 <= C (M C ||F|| + ||F||) ||v-u||_H1`.
+
+Strong diagonal recovery therefore gives actual strong full-H01 convergence of Bernstein minimizers. Continuity of the genuine quadratic energy also gives energy convergence. The comparison helper takes actual VI solutions as inputs; the new existence constructor supplies them internally. This qualitative estimate does not establish the separate high-order clipping rate.
+
+Solution existence is proved independently. The coercive quadratic energy is bounded below by `-C ||F||^2/2`. A sequence with energy below `inf J + 1/(n+1)` is constructed inside any nonempty complete convex feasible set. The midpoint identity gives `||w_p-w_q||^2 <= 8C/(N+1)` for `p,q >= N`. Completeness supplies its strong limit, and energy continuity proves it attains the infimum. The actual full nonnegative H01 cone is closed, convex and contains zero; combined with the actual physical form and proved uniqueness, it has exactly one energy minimizer.
+
+Discrete closedness is now proved as well. For nonnegative L2 generators `g_i` and coefficients `c_i >= 0`, order and L2 norm monotonicity give `c_i ||g_i|| <= ||sum_j c_j g_j||`. Coefficients of zero generators can be set to zero. Every convergent sequence of generated functions therefore has coefficients eventually in a compact finite real box; a subsequence of coefficients converges, preserving nonnegativity and the actual L2 sum. This proves closedness without a linear-independence or strictly-positive-generator hypothesis, even when the domain cuts a cell or its restricted generators vanish.
+
+The actual indicator of a measurable physical cell defines an L2 continuous linear contraction. Each cell polynomial cut off at its compact cell is actually in L2; its coefficient-to-L2 linear map decomposes into the finite Bernstein basis. The intrinsic H01 coefficient cone is exactly the intersection of the cell-indicator preimages of the corresponding closed nonnegative L2 cones. It is therefore closed in H01. Its proved convexity and zero member let the same actual coercive existence theorem construct a unique discrete minimizer. The final constructor chooses the continuous and all discrete minima internally and proves strong H01 and energy convergence on the supplied shape-regular conforming mesh family.
+
+## General symmetric coercive energies
+
+Let `B` be any actual continuous symmetric bilinear form on the constructed H01 space, `F` any actual continuous linear load, and `J(w)=B(w,w)/2-F(w)`. The standard coercivity hypothesis supplies a positive `C` with `||w||^2 <= C B(w,w)`. If `u` minimizes on a convex set `K` and `z` belongs to `K`, midpoint feasibility and the already proved quadratic identity give
+
+```text
+J(u) <= J((u+z)/2) = (J(u)+J(z))/2 - B(u-z,u-z)/8,
+||z-u||^2 <= 4 C (J(z)-J(u)).
+```
+
+This proves uniqueness and the norm-error estimate, without assuming a first-variation or an error-bound oracle. For inner cones `K_m subset K`, discrete minima `u_m` and a feasible recovery `v_m -> u`, minimality gives `J(u_m) <= J(v_m)`. Hence `||u_m-u||^2 <= 4 C (J(v_m)-J(u)) -> 0` by energy continuity. The factor four is a safe qualitative constant, not a sharp rate.
+
+The new physical constructor instantiates the generic minimizing-sequence theorem with the actual closed, convex nonnegative H01 cone and actual closed, convex Bernstein cones; it supplies the continuous and discrete unique minima internally. The proved physical Mosco theorem supplies `v_m`. This establishes strong full-H01 and energy convergence for the general energy class, on the same explicit geometric family. Two kernel-checked identities show the general physical energy/minimizer predicates specialize exactly to the earlier Dirichlet definitions. The separate boundary/assembly module described below supplies a finite forward DOF map. Concrete family construction, full assembled-DOF equivalence, moving-obstacle extensions and sharp clipping rates are not claimed here.
+
+## Actual Sobolev Hilbert realization and smooth recovery
+
+The ambient space is `PiLp 2` of `d+1` actual scalar `L2` classes. Its first coordinate represents the function; the other coordinates represent the weak partials. Each compact smooth integration-by-parts condition is a continuous linear functional on this product. Their kernel intersection is the actual weak-derivative graph. It is closed and complete, with
+
+`||z||^2 = ||u||_L2^2 + sum_i ||G_i||_L2^2`.
+
+Weak-partial uniqueness proves that the represented function class determines the whole graph element. Actual witnesses embed independently of their chosen gradient data. The H01 space is the closure, inside that graph, of actual smooth compactly supported functions inside the open domain. A proved equivalence identifies this closure with the existing simultaneous function/weak-partial L2 approximation definition. No boundary-trace assertion is substituted for that equivalence.
+
+The nonnegative cone is the preimage of the actual L2 nonnegative cone under the continuous function-coordinate map. L2 order closedness and pointwise convexity give norm closedness and convexity. The existing Hahn–Banach separation argument then proves weak sequential closure of this actual full H01 cone.
+
+For each fixed smooth compact interior test input, its compactly supported second derivative supplies a finite global Lipschitz bound for its first derivative. The global errors converge in the actual H1 product topology; the support margin gives eventual H01 membership. The supported recovery is zero before that margin is met and actual Bernstein recovery afterwards. Full positive density and the extracted diagonal complete physical Mosco convergence for a supplied changing family, including the inscribed-ball shape specialization. Actual Poincare, energy/coercivity, continuous/discrete existence and minimizer/energy convergence are proved. Conventional family construction, assembled-DOF identification and the sharp-rate branch remain separate.
+
+## Boundary-touching H01 functions and finite shared coefficients
+
+`PhysicalBoundaryCutoff.lean` constructs the smooth scalar cutoff
+`Phi_delta(t) = physicalPositiveRegularizer delta (t-delta)`. It vanishes for
+`t <= delta`, has a derivative bound independent of positive `delta`, and equals
+`t-delta` for `t >= 2 delta`. For continuous `f` which vanishes outside an open
+domain, its cutoff's topological support lies in the closed positive level set
+`{delta <= f}` and hence strictly inside the domain.
+
+`PhysicalBoundaryH01.lean` proves that every globally compactly supported
+Lipschitz function zero outside the open domain belongs to its actual H01
+closure. For nonnegative inputs, positive-level cutoffs have interior support
+and belong to H01 by the existing mollification theorem. Rademacher
+differentiability and the classical C1 chain rule identify their actual
+gradients almost everywhere, without assuming H01 membership of the original
+input. At a zero of a globally nonnegative function, the classical derivative
+is zero by local minimality. Elsewhere the cutoff derivative is eventually one.
+Uniform bounds and dominated L2 convergence give strong actual H1 convergence;
+closedness of H01 proves the conclusion. The signed case uses positive and
+negative parts and the uniqueness of actual weak derivatives, not an assumed
+full-H1 truncation contraction. The physical mesh recovery consequently belongs
+to H01 on the mesh interior even when its support touches the boundary.
+
+`PhysicalNodeAssembly.lean` supplies a concrete finite instance of the upstream
+`BernsteinAssembly` interface: local Bernstein lattice locations are shared
+coefficient labels, with boundary labels on the physical frontier. They are
+not polynomial evaluation values. An arbitrary shared coefficient vector is
+extended solely as sampler data; its recovered function equals the intended
+local Bernstein polynomial on every closed cell. Zero boundary coefficients
+give actual H01 membership, and an assembled feasible vector maps into the
+intrinsic physical nonnegative-coefficient H01 cone. This is a forward bridge.
+Surjectivity from arbitrary intrinsic a.e. cone representatives, injective
+coefficient-space equivalence and a conventional changing mesh family are not
+proved by this module.
+
+## Remaining formal obligations
+
+1. Construct a concrete conventional conforming mesh family satisfying the stated geometric inputs and complete the equivalence between the intrinsic piecewise-polynomial coefficient cone and the assembled DOF description. The finite shared physical labels and forward H01/cone map are proved; the reverse and injectivity identifications remain. The affine coordinates and geometric inscribed-ball-to-coordinate shape estimate are proved; a coordinate-norm oracle is no longer required.
+2. The distinct sharp-rate branch: local-size risky sets, one-ring grading, uniform broken regularity, tube measure, coefficient clipping and physical-boundary compatibility. Boundary-touching compact Lipschitz zero extensions now have proved H01 membership; no high-order clipping estimate follows from it.
+3. Independent qualified human faithfulness review. Kernel checking alone does not provide it.
+
+## Reproduction
+
+From `math/bernstein_obstacle/lean`, using the pinned toolchain:
+
+```text
+lake build BernsteinObstacle.PhysicalQuadraticConvergence
+lake build BernsteinObstacle.PhysicalNodeAssembly
+lake build BernsteinObstacle.SamplingQuadraticGuard
+lake env lean PhysicalNodeAssemblyAudit.lean > physical-existence-axioms.log
+python3 ../verification/verify_lean_axioms.py PhysicalNodeAssemblyAudit.lean physical-existence-axioms.log --expected-count 405
+```
+
+The audit prints every new theorem's axioms. Only `propext`, `Classical.choice`, and `Quot.sound` are permitted here; neither `sorryAx` nor project-specific axioms are acceptable. A saved transcript documents an actual run, not the unformalized arguments above.
+
+The focused `bernstein-physical-existence-audit.yml` workflow builds the final general-energy leaf, boundary assembly and sampling guard, runs all 405 audit requests, and checks the closed whitelist with `verify_lean_axioms.py`. The verifier also rejects missing, extra or duplicate reports, malformed output and diagnostics; the Lean process must separately exit successfully. Complete build, axiom, verifier and version logs are uploaded even after failure. An upstream fork-PR run requiring maintainer approval is not a successful check; author-local and author-fork runs do not establish independent qualified human review.
+
+The first clean Linux runner check of commit `1225a50a3e1d7239998a831ad8297f75374f137e` [passed on the author's fork](https://github.com/Pururin-ux/crl/actions/runs/36967736365): both earlier physical leaves built (3651 jobs), six verifier tests passed, and all 361 earlier declarations passed the strict whitelist. It used the pinned Lean and mathlib versions, and retained complete logs as artifact11210632151 with archive digest `sha256:4e44819ce9a13ead6d6c076b85de2d894429dda712a8096b1483682fa36cbc7f`. That run predates the 13 general-energy declarations and is not their CI verification.
+
+The initial focused run on 2026-10-02 Minsk time audited the first 27 new theorems with exit 0 and no axioms outside that whitelist; its retained transcript is [PHYSICAL_RECOVERY_FOCUSED_AUDIT_2026-10-02.txt](audit_packets/PHYSICAL_RECOVERY_FOCUSED_AUDIT_2026-10-02.txt). The full upstream library was not rerun by that focused check.
+
+The expanded focused run on the same Minsk date compiled the physical derivative, coordinate, geometry, and `L2` leaves and audited all 59 new theorems with exit 0 and no axioms outside that whitelist. Its actual output and SHA256 hashes of the seven additional source modules are in [PHYSICAL_GRADIENT_FOCUSED_AUDIT_2026-10-02.txt](audit_packets/PHYSICAL_GRADIENT_FOCUSED_AUDIT_2026-10-02.txt). This is a scoped check, not a claim that the full upstream library or the unformalized Sobolev arguments passed.
+
+The subsequent focused run on the same Minsk date compiled the classical-gradient and local-Sobolev leaves with their dependencies and audited all 73 new declarations with exit 0 and no axioms outside that whitelist. Its actual output and SHA256 hashes of the four additional modules are in [PHYSICAL_SOBOLEV_FOCUSED_AUDIT_2026-10-02.txt](audit_packets/PHYSICAL_SOBOLEV_FOCUSED_AUDIT_2026-10-02.txt). This verifies the local weak-derivative and `H1` bridge; it does not verify mesh assembly, positive smooth density, Mosco convergence, the sharp clipping rate, or the full upstream library.
+
+The assembly-focused run on the same Minsk date compiled physical subfaces, assembled local Sobolev transfer and global Lipschitz pasting, then audited all 111 new declarations with exit 0 and no axioms outside that whitelist. Its actual output and SHA256 hashes of the six additional modules are in [PHYSICAL_ASSEMBLY_FOCUSED_AUDIT_2026-10-02.txt](audit_packets/PHYSICAL_ASSEMBLY_FOCUSED_AUDIT_2026-10-02.txt). This verifies the described assembly and per-mesh Lipschitz properties, not global integral weak derivatives/`H01`, positive smooth density, Mosco, the sharp rate or the full upstream library.
+
+The global-Sobolev focused run on the same Minsk date compiled the global `H1` leaf and its dependencies and audited all 126 new declarations, including the constructed `physicalMeshH1Witness`, with exit 0 and no axioms outside that whitelist. Its actual output and SHA256 hashes of the three additional modules are in [PHYSICAL_GLOBAL_SOBOLEV_FOCUSED_AUDIT_2026-10-02.txt](audit_packets/PHYSICAL_GLOBAL_SOBOLEV_FOCUSED_AUDIT_2026-10-02.txt). This verifies the integral-based global weak-gradient and `H1` bridge, not `H01`, the ambient Hilbert realization, a changing mesh family, positive smooth density, Mosco, the sharp rate or the full upstream library.
+
+The H01/uniform-error focused run compiled the final `PhysicalGlobalError` leaf and dependencies (3527 jobs, exit 0) and audited all 159 new declarations, including the actual approximation constructions, with exit 0 and no axioms outside the whitelist. Actual output and SHA256 hashes of the six additional source modules are in [PHYSICAL_H01_UNIFORM_FOCUSED_AUDIT_2026-10-02.txt](audit_packets/PHYSICAL_H01_UNIFORM_FOCUSED_AUDIT_2026-10-02.txt). This verifies the interior-supported H01, bounded positive smoothing and actual changing-family error terms described above. It does not verify a constructed conventional mesh family, the ambient Hilbert quotient, full-cone positive density, Mosco, the sharp rate, independent human review or the full upstream library.
+
+The Hilbert-recovery focused run compiled the final `PhysicalRecoveryHilbert` leaf and dependencies (3622 jobs, exit 0) and audited all 224 new declarations with exit 0 and no axioms outside the whitelist. Its actual output, timestamp and SHA256 hashes of the five additional source modules are in [PHYSICAL_HILBERT_RECOVERY_FOCUSED_AUDIT_2026-10-02.txt](audit_packets/PHYSICAL_HILBERT_RECOVERY_FOCUSED_AUDIT_2026-10-02.txt). It verifies the actual H1/H01 Hilbert realization, full-cone weak closure and fixed smooth interior-input strong recovery on a supplied changing family. Full-cone positive smooth density, a conventional geometric family, complete physical Mosco/minimizer instantiation, the sharp clipping rate, independent human review and the full upstream library remain outside this check.
+
+The positive-Mosco focused run compiled `PhysicalGeometricShape` and dependencies (3638 jobs, exit 0), then audited all 282 added declarations with exit 0 and no axioms outside the whitelist. Its original output, timestamp and SHA256 hashes of the nine new source modules are retained in [PHYSICAL_POSITIVE_MOSCO_FOCUSED_AUDIT_2026-10-02.txt](audit_packets/PHYSICAL_POSITIVE_MOSCO_FOCUSED_AUDIT_2026-10-02.txt). This verifies full positive H01 density, actual local coefficient cones, internally extracted diagonal recovery, physical Mosco and the geometric shape specialization. It does not verify a constructed conventional mesh family/assembled-DOF identification, the physical energy/minimizer or sharp clipping-rate branches, independent human review, sponsor funding or payment, or the full upstream library. Earlier audit packets remain unchanged and document their earlier scope.
+
+The Dirichlet-focused run compiled `PhysicalEnergyExistence`, `PhysicalBernsteinMinimizers` and their dependencies (3646 jobs, exit 0), then audited all 337 added declarations with exit 0 and no axioms outside the whitelist. Original console bytes, timestamp and SHA256 hashes of the eight new source modules are retained in [PHYSICAL_DIRICHLET_FOCUSED_AUDIT_2026-10-02.txt](audit_packets/PHYSICAL_DIRICHLET_FOCUSED_AUDIT_2026-10-02.txt). It verifies actual Poincare/coercivity, genuine energy/VI equivalence, continuous full-cone existence/uniqueness, actual L2 forcing/integrals and strong convergence of supplied discrete minimizers, with energy convergence. Discrete coefficient-cone closedness/existence, conventional family/assembled-DOF identification, the sharp clipping rate, independent human review, sponsor funding/payment and the full upstream library remain outside this check. Earlier packets are unchanged.
+
+The Bernstein-existence focused run compiled `PhysicalBernsteinExistence` and dependencies (3650 jobs, exit 0), then audited all 361 added declarations with exit 0 and no axioms outside the whitelist. Original console bytes, timestamp and SHA256 hashes of the four new source modules are retained in [PHYSICAL_BERNSTEIN_EXISTENCE_FOCUSED_AUDIT_2026-10-02.txt](audit_packets/PHYSICAL_BERNSTEIN_EXISTENCE_FOCUSED_AUDIT_2026-10-02.txt). It verifies actual finite nonnegative L2 cone closedness, cell-indicator continuity, the polynomial coefficient-map bridge, intrinsic discrete closedness, continuous/discrete unique minima, and strong H01/energy convergence without supplied minimizers. Conventional mesh-family/assembled-DOF identification, the sharp clipping rate, independent human review, sponsor funding/payment and the full upstream library remain outside this check. Prior packets remain unchanged and record their earlier scopes.
+
+The general-energy focused run compiled `PhysicalQuadraticConvergence` and dependencies (3651 jobs, exit0), then checked all374 added declarations with successful Lean exit and strict request/report matching. Only `propext`, `Classical.choice` and `Quot.sound` occur. Original console bytes, timestamp, source/driver hashes and pins are retained in [PHYSICAL_QUADRATIC_FOCUSED_AUDIT_2026-10-02.txt](audit_packets/PHYSICAL_QUADRATIC_FOCUSED_AUDIT_2026-10-02.txt). It verifies the general symmetric coercive homogeneous-obstacle energy class, internally constructed unique minima, actual physical recovery and strong H01/energy convergence; it does not prove a concrete conventional family/assembled-DOF identification, moving-obstacle extensions, sharp rate, independent qualified human review, sponsor funding or payment.
+
+The boundary/shared-assembly focused run built the general-energy, boundary-assembly and sampling-guard leaves together (3660 jobs, exit0), then checked all405 declarations with successful Lean exit and strict request/report matching. Only the same three allowed axioms occur. Original console bytes, timestamp and source/driver hashes are retained in [PHYSICAL_BOUNDARY_ASSEMBLY_FOCUSED_AUDIT_2026-10-02.txt](audit_packets/PHYSICAL_BOUNDARY_ASSEMBLY_FOCUSED_AUDIT_2026-10-02.txt). It proves actual H01 membership for boundary-touching compact Lipschitz zero extensions and the finite forward assembly/cone bridge described above. Reverse/injective DOF identification, a conventional changing mesh family, moving obstacles, sharp rates, independent human review, funding and payment remain unverified.
